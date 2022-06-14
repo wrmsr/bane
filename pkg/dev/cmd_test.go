@@ -30,5 +30,7 @@ func TestCmd(t *testing.T) {
 
 	tu.AssertNoErr(t, scanner.Err())
 
+	cmd = exec.CommandContext(context.Background(), "docker", 'inspect" ')
+
 	fmt.Println(cids)
 }

@@ -2,15 +2,18 @@ package sql
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 	"testing"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jackc/pgx/v4/pgxpool"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-func TestSql(t *testing.T) {
+func TestPgx(t *testing.T) {
 	databaseUrl := "postgres://bane:bane@localhost:32221/postgres"
 
 	dbPool, err := pgxpool.Connect(context.Background(), databaseUrl)
@@ -35,4 +38,42 @@ func TestSql(t *testing.T) {
 
 		log.Printf("%v\n", values)
 	}
+}
+
+func TestMysql(t *testing.T) {
+	db, err := sql.Open("mysql", "bane:bane@tcp(127.0.0.1:32220)/")
+	defer db.Close()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var version string
+
+	err2 := db.QueryRow("SELECT VERSION()").Scan(&version)
+
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+
+	fmt.Println(version)
+}
+
+func TestSqlite(t *testing.T) {
+	db, err := sql.Open("sqlite3", ":memory")
+	defer db.Close()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var version string
+
+	err2 := db.QueryRow("SELECT sqlite_version()").Scan(&version)
+
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+
+	fmt.Println(version)
 }

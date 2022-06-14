@@ -2,6 +2,19 @@ version: '3'
 
 services:
 
+  bane-mysql-master:
+    image: 'mysql:8'
+    platform: 'linux/x86_64'
+    restart: 'unless-stopped'
+    environment:
+      MYSQL_USER: 'bane'
+      MYSQL_PASSWORD: 'bane'
+      MYSQL_ROOT_PASSWORD: 'bane'
+    expose:
+      - '3306'
+    ports:
+      - '32220:3306'
+
   bane-postgres:
     image: 'postgres:14'
     restart: 'unless-stopped'
