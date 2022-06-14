@@ -1,4 +1,4 @@
-package collect
+package containers
 
 type Set[T comparable] interface {
 	Contains(T) bool

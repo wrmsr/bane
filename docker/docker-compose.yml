@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+
+  bane-postgres:
+    image: 'postgres:14'
+    restart: 'unless-stopped'
+    environment:
+      POSTGRES_USER: 'bane'
+      POSTGRES_PASSWORD: 'bane'
+    expose:
+      - '5432'
+    ports:
+      - '32221:5432'
