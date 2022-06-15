@@ -167,9 +167,9 @@ type InspectConfig struct {
 	Cmd   []string `json:"Cmd"`
 	Image string   `json:"Image"`
 
-	Volumes    map[string]string `json:"Volumes"`
-	WorkingDir string            `json:"WorkingDir"`
-	Entrypoint []string          `json:"Entrypoint"`
+	Volumes    map[string]interface{} `json:"Volumes"`
+	WorkingDir string                 `json:"WorkingDir"`
+	Entrypoint []string               `json:"Entrypoint"`
 
 	OnBuild interface{} `json:"OnBuild"`
 
@@ -286,7 +286,7 @@ type Inspects []Inspect
 //
 
 func CliInspect(ctx context.Context, ids []string) (Inspects, error) {
-	out, err := CliCmd(ctx, bc.Join([]string{"inspect", "--format", "{{json .}}"}, ids)...)
+	out, err := CliCmd(ctx, bc.Join([]string{"inspect"}, ids)...)
 	if err != nil {
 		return nil, err
 	}

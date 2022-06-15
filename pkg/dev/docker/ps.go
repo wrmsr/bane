@@ -1,11 +1,11 @@
 package docker
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
+
+	bstr "github.com/wrmsr/bane/pkg/utils/strings"
 )
 
 //
@@ -49,24 +49,19 @@ func CliPs(ctx context.Context) (Pss, error) {
 		return nil, err
 	}
 
-	scanner := bufio.NewScanner(strings.NewReader(string(out)))
-	var pss Pss
-	for scanner.Scan() {
-		s := scanner.Text()
-		if s == "" {
-			continue
-		}
+	lines, err := bstr.ScanAllLines(strings.NewReader(string(out)), true)
+	if err != nil {
+		return nil, err
+	}
 
+	var pss Pss
+	for _, l := range lines {
 		var ps Ps
-		fmt.Printf(s)
-		if err := json.Unmarshal([]byte(s), &ps); err != nil {
+		if err := json.Unmarshal([]byte(l), &ps); err != nil {
 			return nil, err
 		}
 		pss = append(pss, ps)
 	}
 
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
 	return pss, nil
 }

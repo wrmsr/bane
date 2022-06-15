@@ -15,5 +15,8 @@ func ScanAllLines(r io.Reader, skipEmpty bool) ([]string, error) {
 		}
 		a = append(a, s)
 	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
 	return a, scanner.Err()
 }
