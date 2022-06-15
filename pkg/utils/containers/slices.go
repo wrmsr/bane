@@ -7,3 +7,11 @@ func DeleteAt[T any](s []T, i int) []T {
 	s[len(s)-1] = bt.Zero[T]()
 	return s[:len(s)-1]
 }
+
+func Join[T any](ss ...[]T) []T {
+	var r []T
+	for _, s := range ss {
+		r = append(r, s...)
+	}
+	return r
+}

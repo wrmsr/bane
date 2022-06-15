@@ -35,7 +35,7 @@ func NewSet[T comparable]() Set[T] {
 	return newSetImpl[T]()
 }
 
-var _ Set[any] = setImpl[any]{}
+var _ Set[int] = setImpl[int]{}
 
 func (s setImpl[T]) Contains(t T) bool {
 	_, ok := s.m[t]
@@ -56,7 +56,7 @@ func NewMutSet[T comparable]() MutSet[T] {
 	return mutSetImpl[T]{newSetImpl[T]()}
 }
 
-var _ MutSet[any] = mutSetImpl[any]{}
+var _ MutSet[int] = mutSetImpl[int]{}
 
 func (m mutSetImpl[T]) Add(value T) {
 	m.m[value] = struct{}{}

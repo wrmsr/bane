@@ -39,7 +39,7 @@ func NewMap[K comparable, V any]() Map[K, V] {
 	return newMapImpl[K, V]()
 }
 
-var _ Map[any, any] = mapImpl[any, any]{}
+var _ Map[int, any] = mapImpl[int, any]{}
 
 func (m mapImpl[K, V]) Contains(k K) bool {
 	_, ok := m.m[k]
@@ -69,7 +69,7 @@ func NewMutMap[K comparable, V any]() MutMap[K, V] {
 	return mutMapImpl[K, V]{newMapImpl[K, V]()}
 }
 
-var _ MutMap[any, any] = mutMapImpl[any, any]{}
+var _ MutMap[int, any] = mutMapImpl[int, any]{}
 
 func (m mutMapImpl[K, V]) Put(k K, v V) bool {
 	r := m.Contains(k)

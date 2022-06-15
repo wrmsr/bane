@@ -1,6 +1,14 @@
 package docker
 
-import "time"
+import (
+	"context"
+	"encoding/json"
+	"time"
+
+	bc "github.com/wrmsr/bane/pkg/utils/containers"
+)
+
+//
 
 type InspectState struct {
 	Status     string    `json:"Status"`
@@ -269,4 +277,33 @@ type Inspect struct {
 	NetworkSettings InspectNetworkSettings `json:"NetworkSettings"`
 
 	X map[string]interface{} `json:"-"`
+}
+
+//
+
+type Inspects []Inspect
+
+//
+
+func CliInspect(ctx context.Context, ids []string) (Inspects, error) {
+	out, err := CliCmd(ctx, bc.Join([]string{"inspect", "--format", "{{json .}}"}, ids)...)
+	if err != nil {
+		return nil, err
+	}
+
+	var inspects Inspects
+	if err := json.Unmarshal(out, &inspects); err != nil {
+		return nil, err
+	}
+
+	return inspects, nil
+}
+
+func CliInspectAll(ctx context.Context) (Inspects, error) {
+	pss, err := CliPs(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return CliInspect(ctx, pss.Ids())
 }

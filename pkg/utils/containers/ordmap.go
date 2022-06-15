@@ -17,7 +17,7 @@ func NewOrdMap[K comparable, V any]() OrdMap[K, V] {
 	}
 }
 
-var _ MutMap[any, any] = OrdMap[any, any]{}
+var _ MutMap[int, any] = OrdMap[int, any]{}
 
 func (m OrdMap[K, V]) Contains(k K) bool {
 	_, ok := m.m[k]

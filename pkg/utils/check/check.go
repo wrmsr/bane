@@ -1,7 +1,9 @@
 package check
 
-func NotNil[T any](v T, s ...string) T {
-	if v == nil {
+import bt "github.com/wrmsr/bane/pkg/utils/types"
+
+func NotZero[T comparable](v T, s ...string) T {
+	if v == bt.Zero[T]() {
 		if len(s) > 0 {
 			panic(s[0])
 		}
