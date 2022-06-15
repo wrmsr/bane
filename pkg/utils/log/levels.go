@@ -1,6 +1,10 @@
 package log
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"strings"
+)
 
 type Level int8
 
@@ -47,4 +51,17 @@ func ParseLevel(s string) (Level, error) {
 		return FatalLevel, nil
 	}
 	return InfoLevel, fmt.Errorf("unknown level: %s", s)
+}
+
+func (l Level) MarshalText() ([]byte, error) {
+	return []byte(l.String()), nil
+}
+
+func (l *Level) UnmarshalText(text []byte) error {
+	if l == nil {
+		return errors.New("cannot be nil")
+	}
+	p, err := ParseLevel(strings.ToLower(string(text)))
+	*l = p
+	return err
 }

@@ -1,10 +1,18 @@
 package log
 
 import (
-	"log"
 	"testing"
 )
 
 func TestLog(t *testing.T) {
-	log.Println("hi")
+	l := LoggerImpl{
+		BaseLoggerImpl{
+			LineLoggerImpl{
+				JsonFormatter{},
+				StdWriter{},
+			},
+		},
+	}
+
+	l.Info("hi", A("foo", 100))
 }
