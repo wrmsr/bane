@@ -3,7 +3,7 @@ PYTHON=python3
 
 SRC=cmd pkg
 
-###
+### check
 
 .PHONY: check
 check: check-nodev check-fmt check-vet
@@ -30,3 +30,12 @@ check-fmt:
 .PHONY: check-vet
 check-vet:
 	${GO} vet -composites=false ./...
+
+### build
+
+.PHONY: build
+build:
+	${GO} build \
+		-tags nodev \
+		-o bin/bane \
+		cmd/bane/main.go
