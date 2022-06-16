@@ -8,8 +8,8 @@ SRC=cmd pkg
 .PHONY: check-fmt
 check-fmt:
 	r=0 ; \
-	if [ ! -z "$$(gofmt -l ${SRC})" ] ; then r=1 ; fi ; \
-	gofmt ${SRC} ; \
+	if [ ! -z "$$(gofmt -s -l ${SRC})" ] ; then r=1 ; fi ; \
+	gofmt -s -w ${SRC} ; \
 	if [ $$r -ne 0 ] ; then exit 1 ; fi
 
 .PHONY: check-vet
