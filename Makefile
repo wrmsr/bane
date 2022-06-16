@@ -1,7 +1,17 @@
 GO=go
 PYTHON=python3
 
+SRC=cmd pkg
+
 ###
+
+.PHONY: check-fmt
+check-fmt:
+	r=0 ; \
+	if [ ! -z "$$(gofmt -l ${SRC})" ] ; then \
+		r=1 ; \
+	fi ; \
+	gofmt ${SRC}
 
 .PHONY: check-vet
 check-vet:
