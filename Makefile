@@ -1,5 +1,4 @@
 GO=go
-PYTHON=python3
 
 SRC=cmd pkg
 
