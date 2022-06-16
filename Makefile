@@ -5,16 +5,8 @@ SRC=cmd pkg
 
 ###
 
-.PHONY: check-fmt
-check-fmt:
-	r=0 ; \
-	if [ ! -z "$$(gofmt -s -l ${SRC})" ] ; then r=1 ; fi ; \
-	gofmt -s -w ${SRC} ; \
-	if [ $$r -ne 0 ] ; then exit 1 ; fi
-
-.PHONY: check-vet
-check-vet:
-	${GO} vet ./...
+.PHONY: check
+check: check-nodev check-fmt check-vet
 
 .PHONY: check-nodev
 check-nodev:
@@ -27,3 +19,14 @@ check-nodev:
 	  	fi ; \
 	done ; \
 	if [ $$r -ne 0 ] ; then exit 1 ; fi
+
+.PHONY: check-fmt
+check-fmt:
+	r=0 ; \
+	if [ ! -z "$$(gofmt -s -l ${SRC})" ] ; then r=1 ; fi ; \
+	gofmt -s -w ${SRC} ; \
+	if [ $$r -ne 0 ] ; then exit 1 ; fi
+
+.PHONY: check-vet
+check-vet:
+	${GO} vet -composites=false ./...
