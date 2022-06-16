@@ -3,6 +3,13 @@ PYTHON=python3
 
 SRC=cmd pkg
 
+### clean
+
+.PHONY: clean
+clean:
+	rm -rf \
+		bin
+
 ### check
 
 .PHONY: check
