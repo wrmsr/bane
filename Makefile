@@ -8,10 +8,9 @@ SRC=cmd pkg
 .PHONY: check-fmt
 check-fmt:
 	r=0 ; \
-	if [ ! -z "$$(gofmt -l ${SRC})" ] ; then \
-		r=1 ; \
-	fi ; \
-	gofmt ${SRC}
+	if [ ! -z "$$(gofmt -l ${SRC})" ] ; then r=1 ; fi ; \
+	gofmt ${SRC} ; \
+	if [ $$r -ne 0 ] ; then exit 1 ; fi
 
 .PHONY: check-vet
 check-vet:
@@ -27,6 +26,4 @@ check-nodev:
 			(printf "//go:build !nodev\n\n" ; echo "$$b" ) > "$$f" ; \
 	  	fi ; \
 	done ; \
-	if [ $$r -ne 0 ] ; then \
-		exit 1 ; \
-	fi
+	if [ $$r -ne 0 ] ; then exit 1 ; fi
