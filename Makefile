@@ -14,7 +14,7 @@ check-nodev:
   		if [[ "$$(head $$f)" != "//go:build !nodev"* ]] ; then \
   		  	r=1; \
   		  	b=$$(cat "$$f") ; \
-			(printf "//go:build !nodev\n\n" ; echo "$$b" ) ; \
+			(printf "//go:build !nodev\n\n" ; echo "$$b" ) > "$$f" ; \
 	  	fi ; \
 	done ; \
 	if [ $$r -ne 0 ] ; then \

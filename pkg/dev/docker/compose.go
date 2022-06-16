@@ -1,3 +1,5 @@
+//go:build !nodev
+
 package docker
 
 type ComposeService struct {
