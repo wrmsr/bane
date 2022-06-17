@@ -13,9 +13,7 @@ func TestInjector(t *testing.T) {
 		Bindings{
 			bs: []Binding{
 				{
-					key: Key{
-						ty: reflect.TypeOf(0),
-					},
+					key:      ToKey(reflect.TypeOf(0)),
 					provider: Const(420),
 				},
 			},
@@ -27,6 +25,6 @@ func TestInjector(t *testing.T) {
 		return i * 2
 	}
 
-	a := inj.ProvideArgs(mul2)
-	log.Println(a)
+	n := inj.InjectOne(mul2)
+	log.Println(n)
 }

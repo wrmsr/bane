@@ -13,6 +13,25 @@ type Error interface {
 
 //
 
+type GenericError struct {
+	Err error
+}
+
+func genericError(err error) GenericError {
+	return GenericError{Err: err}
+}
+
+func genericErrorf(format string, a ...any) GenericError {
+	return GenericError{Err: fmt.Errorf(format, a...)}
+}
+
+func (e GenericError) isError() {}
+
+func (e GenericError) Error() string { return e.Err.Error() }
+func (e GenericError) Unwrap() error { return e.Err }
+
+//
+
 type UnboundKeyError struct {
 	Key Key
 	Src any
