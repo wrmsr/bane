@@ -19,7 +19,19 @@ gen-antlr:
 	af="antlr-${ANTLR_VERSION}-complete.jar" ; \
 	if [ ! -f "$$af" ] ; then \
   		curl "https://www.antlr.org/download/$$af" -o "$$af" ; \
-  	fi
+  	fi ; \
+  	wd="$$(pwd)" ; \
+  	for f in $$(find ${SRC} -name '*.g4' | sort) ; do \
+  	  	( \
+  	  		cd $$(dirname "$$f") && \
+  	  		java \
+  	  			-jar "$$wd/$$af" \
+  	  			-Dlanguage=Go \
+  	  			$$(basename "$$f") \
+  	  			-visitor \
+  	  			-o parser \
+		) ; \
+	done
 
 
 ### check
@@ -30,7 +42,7 @@ check: check-nodev check-fmt check-vet
 .PHONY: check-nodev
 check-nodev:
 	r=0 ; \
-	for f in $$((find cmd pkg -name 'dev.go' ; find pkg/dev -name '*.go') | sort | uniq) ; do \
+	for f in $$((find ${SRC} -name 'dev.go' ; find pkg/dev -name '*.go') | sort | uniq) ; do \
   		if [[ "$$(head $$f)" != "//go:build !nodev"* ]] ; then \
   		  	r=1; \
   		  	b=$$(cat "$$f") ; \
