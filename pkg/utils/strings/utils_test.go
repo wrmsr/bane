@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	bts "github.com/wrmsr/bane/pkg/dev/testing"
 	"github.com/wrmsr/bane/pkg/utils/check"
+	bts "github.com/wrmsr/bane/pkg/utils/dev/testing"
 )
 
 func TestScanAllLines(t *testing.T) {

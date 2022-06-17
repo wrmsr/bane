@@ -1,5 +1,7 @@
 GO=go
 
+MOD:=$(shell grep -o '^module .*' go.mod | awk '{print $$2}')
+
 SRC=\
 	cmd \
 	pkg \
@@ -15,6 +17,7 @@ clean:
 
 	ds=$$(find ${SRC} -name parser -type d) && \
 	for d in "$$ds" ; do rm -rf "$$d" ; done
+
 
 ### gen
 
@@ -83,6 +86,17 @@ check-vet:
 	${GO} vet -composites=false ./...
 
 
+### test
+
+.PHONY: test
+test:
+	go test ./...
+
+.PHONY: test-verbose
+test-verbose:
+	go test -v ./...
+
+
 ### build
 
 .PHONY: build
@@ -90,4 +104,4 @@ build:
 	${GO} build \
 		-tags nodev \
 		-o bin/bane \
-		cmd/bane/main.go
+		"${MOD}/cmd/bane"

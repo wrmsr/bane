@@ -5,7 +5,7 @@ package docker
 import (
 	"testing"
 
-	bts "github.com/wrmsr/bane/pkg/dev/testing"
+	bts "github.com/wrmsr/bane/pkg/utils/dev/testing"
 )
 
 func TestMain(m *testing.M) {

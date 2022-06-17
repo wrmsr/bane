@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	bts "github.com/wrmsr/bane/pkg/dev/testing"
+	bts "github.com/wrmsr/bane/pkg/utils/dev/testing"
 	"github.com/wrmsr/bane/pkg/utils/log"
 )
 
