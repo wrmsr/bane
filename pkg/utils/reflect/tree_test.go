@@ -31,14 +31,24 @@ func VisitNode(n NodePtr, v NodeVisitor) any {
 //
 
 type NodeSuper struct {
-	t NodeVisitor
+	super NodeVisitor
 }
 
-func (d NodeSuper) VisitNode(n *Node) any {
+func (v NodeSuper) VisitNode(n *Node) any {
 	panic("unreachable")
 }
 
 var _ NodeVisitor = NodeSuper{}
+
+//
+
+type NilNodeSuper struct {
+	NodeSuper
+}
+
+func (v NilNodeSuper) VisitNode(n *Node) any {
+	return nil
+}
 
 //
 
@@ -63,8 +73,8 @@ func NewNum(v int) *Num {
 	}
 }
 
-func (d NodeSuper) VisitNum(n *Num) any {
-	return d.t.VisitNode(&n.Node)
+func (v NodeSuper) VisitNum(n *Num) any {
+	return v.super.VisitNode(&n.Node)
 }
 
 //
@@ -74,8 +84,8 @@ type BinOp struct {
 	l, r NodePtr
 }
 
-func (d NodeSuper) VisitBinOp(n *BinOp) any {
-	return d.t.VisitNode(&n.Node)
+func (v NodeSuper) VisitBinOp(n *BinOp) any {
+	return v.super.VisitNode(&n.Node)
 }
 
 //
@@ -93,8 +103,20 @@ func NewAdd(l, r NodePtr) *Add {
 	}
 }
 
-func (d NodeSuper) VisitAdd(n *Add) any {
-	return d.t.VisitBinOp(&n.BinOp)
+func (v NodeSuper) VisitAdd(n *Add) any {
+	return v.super.VisitBinOp(&n.BinOp)
+}
+
+//
+
+type NumFinder struct {
+	NilNodeSuper
+}
+
+func NewNumFinder() *NumFinder {
+	nf := &NumFinder{}
+	nf.NilNodeSuper.super = nf
+	return nf
 }
 
 //
@@ -105,5 +127,8 @@ func TestTree(t *testing.T) {
 			NewNum(1),
 			NewNum(2)),
 		NewNum(3))
+
 	fmt.Printf("%+v\n", tree)
+
+	VisitNode(tree, NewNumFinder())
 }
