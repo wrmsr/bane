@@ -1,6 +1,9 @@
 package inject
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 //
 
@@ -12,12 +15,18 @@ type Error interface {
 
 type UnboundKeyError struct {
 	Key Key
+	Src any
 }
 
 func (e UnboundKeyError) isError() {}
 
 func (e UnboundKeyError) Error() string {
-	return fmt.Sprintf("unbound key: %+v", e.Key)
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("unbound key: %+v", e.Key))
+	if e.Src != nil {
+		sb.WriteString(fmt.Sprintf(" from src: %v", e.Src))
+	}
+	return sb.String()
 }
 
 //
