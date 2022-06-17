@@ -24,16 +24,20 @@ gen-antlr:
   		curl "https://www.antlr.org/download/$$af" -o "$$af" ; \
   	fi ; \
   	wd="$$(pwd)" ; \
-  	for f in $$(find ${SRC} -name '*.g4' | sort) ; do \
-  	  	( \
-  	  		cd $$(dirname "$$f") && \
-  	  		java \
-  	  			-jar "$$wd/$$af" \
-  	  			-Dlanguage=Go \
-  	  			$$(basename "$$f") \
-  	  			-visitor \
-  	  			-o parser \
-		) ; \
+  	for d in $$(find ${SRC} -name '*.g4' -exec dirname \{\} \; | sort | uniq) ; do \
+  	  	rm -rf "$$d/parser" ; \
+		for f in $$(find "$$d" -name '*.g4' | sort) ; do \
+		  	echo "$$f" ; \
+			( \
+				cd $$(dirname "$$f") && \
+				java \
+					-jar "$$wd/$$af" \
+					-Dlanguage=Go \
+					$$(basename "$$f") \
+					-visitor \
+					-o parser \
+			) ; \
+		done ; \
 	done
 
 
