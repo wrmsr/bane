@@ -30,6 +30,25 @@ func AsType(v any) reflect.Type {
 
 //
 
+func UnwrapPointerValue(v reflect.Value) (reflect.Value, bool) {
+	for v.Kind() == reflect.Pointer {
+		if v.IsNil() {
+			return v, false
+		}
+		v = v.Elem()
+	}
+	return v, true
+}
+
+func UnwrapPointerType(ty reflect.Type) reflect.Type {
+	for ty.Kind() == reflect.Pointer {
+		ty = ty.Elem()
+	}
+	return ty
+}
+
+//
+
 func IsEmptyValue(v reflect.Value) bool {
 	switch v.Kind() {
 	case

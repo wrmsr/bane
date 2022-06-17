@@ -1,6 +1,9 @@
 package structs
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 type A struct {
 	X int
@@ -26,4 +29,20 @@ func TestTool(t *testing.T) {
 	} {
 		st.Info(ty)
 	}
+}
+
+func TestToMap(t *testing.T) {
+	c := C{
+		B: B{
+			A: A{
+				X: 100,
+				Y: "two hundred",
+			},
+			Z: 300,
+		},
+		Z: 420,
+	}
+
+	m := NewStructTool().ToMap(c)
+	fmt.Printf("%+v\n", m)
 }

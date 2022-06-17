@@ -49,6 +49,10 @@ type Logger interface {
 	Error(msg string, args ...Arg)
 	Panic(msg string, args ...Arg)
 	Fatal(msg string, args ...Arg)
+
+	OrError(fn func() error, args ...Arg) error
+	OrPanic(fn func() error, args ...Arg) error
+	OrFatal(fn func() error, args ...Arg) error
 }
 
 type LoggerImpl struct {
@@ -57,26 +61,33 @@ type LoggerImpl struct {
 
 var _ Logger = LoggerImpl{}
 
-func (l LoggerImpl) Debug(msg string, args ...Arg) {
-	l.Log(DebugLevel, msg, args...)
+func (l LoggerImpl) Debug(msg string, args ...Arg) { l.Log(DebugLevel, msg, args...) }
+func (l LoggerImpl) Info(msg string, args ...Arg)  { l.Log(InfoLevel, msg, args...) }
+func (l LoggerImpl) Warn(msg string, args ...Arg)  { l.Log(WarnLevel, msg, args...) }
+func (l LoggerImpl) Error(msg string, args ...Arg) { l.Log(ErrorLevel, msg, args...) }
+func (l LoggerImpl) Panic(msg string, args ...Arg) { l.Log(PanicLevel, msg, args...) }
+func (l LoggerImpl) Fatal(msg string, args ...Arg) { l.Log(FatalLevel, msg, args...) }
+
+func (l LoggerImpl) OrError(fn func() error, args ...Arg) error {
+	err := fn()
+	if err != nil {
+		l.Log(ErrorLevel, "error", append(args, Err(err))...)
+	}
+	return err
 }
 
-func (l LoggerImpl) Info(msg string, args ...Arg) {
-	l.Log(InfoLevel, msg, args...)
+func (l LoggerImpl) OrPanic(fn func() error, args ...Arg) error {
+	err := fn()
+	if err != nil {
+		l.Log(ErrorLevel, "error", append(args, Err(err))...)
+	}
+	return err
 }
 
-func (l LoggerImpl) Warn(msg string, args ...Arg) {
-	l.Log(WarnLevel, msg, args...)
-}
-
-func (l LoggerImpl) Error(msg string, args ...Arg) {
-	l.Log(ErrorLevel, msg, args...)
-}
-
-func (l LoggerImpl) Panic(msg string, args ...Arg) {
-	l.Log(PanicLevel, msg, args...)
-}
-
-func (l LoggerImpl) Fatal(msg string, args ...Arg) {
-	l.Log(FatalLevel, msg, args...)
+func (l LoggerImpl) OrFatal(fn func() error, args ...Arg) error {
+	err := fn()
+	if err != nil {
+		l.Log(ErrorLevel, "error", append(args, Err(err))...)
+	}
+	return err
 }

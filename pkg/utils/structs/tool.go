@@ -16,13 +16,13 @@ func NewStructTool() *StructTool {
 	}
 }
 
-func (t *StructTool) Info(ty any) *StructInfo {
+func (st *StructTool) Info(ty any) *StructInfo {
 	rty := brfl.AsType(ty)
-	if si, ok := t.structInfos[rty]; ok {
+	if si, ok := st.structInfos[rty]; ok {
 		return si
 	}
 
 	si := newStructInfo(rty)
-	t.structInfos[rty] = si
+	st.structInfos[rty] = si
 	return si
 }
