@@ -7,7 +7,7 @@ import (
 func newDefaultLogger() Logger {
 	return LoggerImpl{
 		BaseLoggerImpl{
-			LineLoggerImpl{
+			ll: LineLoggerImpl{
 				TextFormatter{},
 				StdWriter{},
 			},
