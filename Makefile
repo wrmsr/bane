@@ -7,7 +7,20 @@ SRC=cmd pkg
 .PHONY: clean
 clean:
 	rm -rf \
-		bin
+		antlr-*.jar \
+		bin \
+
+### gen
+
+ANTLR_VERSION=4.10.1
+
+.PHONY: gen-antlr
+gen-antlr:
+	af="antlr-${ANTLR_VERSION}-complete.jar" ; \
+	if [ ! -f "$$af" ] ; then \
+  		curl "https://www.antlr.org/download/$$af" -o "$$af" ; \
+  	fi
+
 
 ### check
 
