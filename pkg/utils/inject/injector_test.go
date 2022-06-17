@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	bts "github.com/wrmsr/bane/pkg/dev/testing"
 	"github.com/wrmsr/bane/pkg/utils/log"
 )
 
@@ -20,11 +21,12 @@ func TestInjector(t *testing.T) {
 			},
 		},
 	)
+	bts.AssertEqual(t, inj.Provide(Key{ty: reflect.TypeOf(0)}).(int), 420)
 
-	f := func(i int) {
-		log.Println(i)
+	mul2 := func(i int) int {
+		return i * 2
 	}
 
-	a := inj.ProvideArgs(f)
+	a := inj.ProvideArgs(mul2)
 	log.Println(a)
 }
