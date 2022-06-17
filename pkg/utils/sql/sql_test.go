@@ -4,13 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jackc/pgx/v4/pgxpool"
 	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/wrmsr/bane/pkg/utils/log"
 )
 
 func TestPgx(t *testing.T) {
@@ -42,7 +43,7 @@ func TestPgx(t *testing.T) {
 
 func TestMysql(t *testing.T) {
 	db, err := sql.Open("mysql", "bane:bane@tcp(127.0.0.1:32220)/")
-	defer db.Close()
+	defer log.OrError(db.Close)
 
 	if err != nil {
 		log.Fatal(err)

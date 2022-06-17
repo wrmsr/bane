@@ -1,6 +1,10 @@
 package log
 
-import "time"
+import (
+	"time"
+
+	"github.com/wrmsr/bane/pkg/utils/check"
+)
 
 type Line struct {
 	Time  time.Time
@@ -16,14 +20,24 @@ type LineLogger interface {
 	LogLine(line Line) error
 }
 
-type LineLoggerImpl struct {
+type lineLoggerImpl struct {
 	f Formatter
 	w Writer
 }
 
-var _ LineLogger = LineLoggerImpl{}
+func NewLineLogger(
+	f Formatter,
+	w Writer,
+) LineLogger {
+	return lineLoggerImpl{
+		f: check.NotNil(f).(Formatter),
+		w: check.NotNil(w).(Writer),
+	}
+}
 
-func (l LineLoggerImpl) LogLine(line Line) error {
+var _ LineLogger = lineLoggerImpl{}
+
+func (l lineLoggerImpl) LogLine(line Line) error {
 	s, err := l.f.FormatLine(line)
 	if err != nil {
 		return err

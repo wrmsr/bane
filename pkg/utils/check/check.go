@@ -11,3 +11,13 @@ func NotZero[T comparable](v T, s ...string) T {
 	}
 	return v
 }
+
+func NotNil(v any, s ...string) any {
+	if v == nil {
+		if len(s) > 0 {
+			panic(s[0])
+		}
+		panic("cannot be nil")
+	}
+	return v
+}
