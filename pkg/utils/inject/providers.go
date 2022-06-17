@@ -1,5 +1,11 @@
 package inject
 
+import "reflect"
+
+type providerFn = func(injector any) any
+type providerMap map[Key]providerFn
+
 type Provider interface {
-	provide() any
+	providedTy() reflect.Type
+	providerFn() providerFn
 }

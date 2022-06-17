@@ -6,5 +6,5 @@ type Binding struct {
 }
 
 type Bindings struct {
-	s []Binding
+	bs []Binding
 }
