@@ -11,15 +11,15 @@ type Node struct{}
 
 type NodePtr interface {
 	Super() NodePtr
-	Children() []NodePtr
+	Children(fn func(NodePtr))
 
 	isNodePtr()
 }
 
 var _ NodePtr = &Node{}
 
-func (n Node) Super() NodePtr      { return nil }
-func (n Node) Children() []NodePtr { return nil }
+func (n Node) Super() NodePtr            { return nil }
+func (n Node) Children(fn func(NodePtr)) { return }
 
 func (n *Node) isNodePtr() {}
 
@@ -45,8 +45,8 @@ type BinOp struct {
 	l, r NodePtr
 }
 
-func (n BinOp) Super() NodePtr      { return &n.Node }
-func (n BinOp) Children() []NodePtr { return []NodePtr{n.l, n.r} }
+func (n BinOp) Super() NodePtr            { return &n.Node }
+func (n BinOp) Children(fn func(NodePtr)) { fn(n.l); fn(n.r) }
 
 //
 
@@ -73,9 +73,7 @@ func FindNums(n NodePtr) {
 		fmt.Println(n.v)
 	}
 
-	for _, c := range n.Children() {
-		FindNums(c)
-	}
+	n.Children(FindNums)
 }
 
 //
@@ -86,8 +84,6 @@ func TestTree(t *testing.T) {
 			NewNum(1),
 			NewNum(2)),
 		NewNum(3))
-
-	fmt.Printf("%+v\n", tree)
 
 	FindNums(tree)
 }
