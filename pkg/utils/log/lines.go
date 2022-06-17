@@ -1,7 +1,11 @@
 package log
 
+import "time"
+
 type Line struct {
-	Level   Level
+	Time  time.Time
+	Level Level
+
 	Message string
 	Args    []Arg
 

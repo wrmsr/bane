@@ -1,5 +1,7 @@
 package log
 
+import "time"
+
 //
 
 type Arg struct {
@@ -23,16 +25,28 @@ type BaseLogger interface {
 
 type BaseLoggerImpl struct {
 	ll LineLogger
+
+	clock func() time.Time
 }
 
 var _ BaseLogger = BaseLoggerImpl{}
 
+func (l BaseLoggerImpl) now() time.Time {
+	if l.clock != nil {
+		return l.clock()
+	}
+	return time.Now()
+}
+
 func (l BaseLoggerImpl) Log(lvl Level, msg string, args ...Arg) {
 	err := l.ll.LogLine(Line{
-		Level:   lvl,
+		Time:  l.now(),
+		Level: lvl,
+
 		Message: msg,
 		Args:    args,
 	})
+
 	if err != nil {
 		panic(err)
 	}

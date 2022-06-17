@@ -1,7 +1,24 @@
 package log
 
+import (
+	bat "github.com/wrmsr/bane/pkg/utils/atomic"
+)
+
+func newDefaultLogger() Logger {
+	return LoggerImpl{
+		BaseLoggerImpl{
+			LineLoggerImpl{
+				TextFormatter{},
+				StdWriter{},
+			},
+		},
+	}
+}
+
+var _global = bat.NewLazy(newDefaultLogger)
+
 func global() Logger {
-	return nil
+	return _global.Get()
 }
 
 func Log(lvl Level, msg string, args ...Arg) { global().Log(lvl, msg, args...) }
