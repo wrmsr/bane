@@ -3,6 +3,7 @@ module github.com/wrmsr/bane
 go 1.18
 
 require (
+	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220527190237-ee62e23da966
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.16.1
