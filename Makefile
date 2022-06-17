@@ -1,6 +1,9 @@
 GO=go
 
-SRC=cmd pkg
+SRC=\
+	cmd \
+	pkg \
+
 
 ### clean
 
@@ -15,6 +18,9 @@ clean:
 
 ### gen
 
+.PHONY: gen
+gen: gen-antlr gen-go
+
 ANTLR_VERSION=4.10.1
 
 .PHONY: gen-antlr
@@ -27,7 +33,7 @@ gen-antlr:
   	for d in $$(find ${SRC} -name '*.g4' -exec dirname \{\} \; | sort | uniq) ; do \
   	  	rm -rf "$$d/parser" ; \
 		for f in $$(find "$$d" -name '*.g4' | sort) ; do \
-		  	echo "$$f" ; \
+			echo "$$f" ; \
 			( \
 				cd $$(dirname "$$f") && \
 				java \
@@ -40,6 +46,10 @@ gen-antlr:
 		done ; \
 	done
 
+.PHONY: gen-go
+gen-go:
+	${GO} generate ./...
+
 
 ### check
 
@@ -49,7 +59,10 @@ check: check-nodev check-fmt check-vet
 .PHONY: check-nodev
 check-nodev:
 	r=0 ; \
-	for f in $$((find ${SRC} -name 'dev.go' ; find pkg/dev -name '*.go') | sort | uniq) ; do \
+	for f in $$(( \
+		find ${SRC} -name 'dev.go' -or -name '*_dev.go' ; \
+		(find ${SRC} -name '*.go' | grep '/dev/') ; \
+	) | sort | uniq) ; do \
   		if [[ "$$(head $$f)" != "//go:build !nodev"* ]] ; then \
   		  	r=1; \
   		  	b=$$(cat "$$f") ; \
@@ -68,6 +81,7 @@ check-fmt:
 .PHONY: check-vet
 check-vet:
 	${GO} vet -composites=false ./...
+
 
 ### build
 
