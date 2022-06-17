@@ -10,6 +10,9 @@ clean:
 		antlr-*.jar \
 		bin \
 
+	ds=$$(find ${SRC} -name parser -type d) && \
+	for d in "$$ds" ; do rm -rf "$$d" ; done
+
 ### gen
 
 ANTLR_VERSION=4.10.1
