@@ -68,8 +68,8 @@ check-nodev:
 	) | sort | uniq) ; do \
   		if [[ "$$(head $$f)" != "//go:build !nodev"* ]] ; then \
   		  	r=1; \
-  		  	b=$$(cat "$$f") ; \
-			(printf "//go:build !nodev\n\n" ; echo "$$b" ) > "$$f" ; \
+			t=$$(mktemp) ; cat "$$f" > "$$t" ; \
+			(printf "//go:build !nodev\n\n" ; cat "$$t" ) > "$$f" ; \
 	  	fi ; \
 	done ; \
 	if [ $$r -ne 0 ] ; then exit 1 ; fi
