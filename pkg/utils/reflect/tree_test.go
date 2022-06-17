@@ -52,6 +52,16 @@ func (v NilNodeSuper) VisitNode(n *Node) any {
 
 //
 
+type NodeChildren struct {
+	child NodeVisitor
+}
+
+func (v NodeChildren) VisitNode(n *Node) any {
+	return nil
+}
+
+//
+
 type Node struct{}
 
 type NodePtr interface {
@@ -77,6 +87,10 @@ func (v NodeSuper) VisitNum(n *Num) any {
 	return v.super.VisitNode(&n.Node)
 }
 
+func (v NodeChildren) VisitNum(n *Num) any {
+	return nil
+}
+
 //
 
 type BinOp struct {
@@ -86,6 +100,12 @@ type BinOp struct {
 
 func (v NodeSuper) VisitBinOp(n *BinOp) any {
 	return v.super.VisitNode(&n.Node)
+}
+
+func (v NodeChildren) VisitBinOp(n *BinOp) any {
+	VisitNode(n.l, v.child)
+	VisitNode(n.r, v.child)
+	return nil
 }
 
 //
@@ -113,10 +133,17 @@ type NumFinder struct {
 	NilNodeSuper
 }
 
+var _ NodeVisitor = &NumFinder{}
+
 func NewNumFinder() *NumFinder {
 	nf := &NumFinder{}
 	nf.NilNodeSuper.super = nf
 	return nf
+}
+
+func (nf NumFinder) VisitNum(n *Num) any {
+	fmt.Println(n.v)
+	return nil
 }
 
 //
