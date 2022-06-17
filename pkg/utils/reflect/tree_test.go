@@ -7,66 +7,19 @@ import (
 
 //
 
-type NodeVisitor interface {
-	VisitNode(n *Node) any
-	VisitNum(n *Num) any
-	VisitBinOp(n *BinOp) any
-	VisitAdd(n *Add) any
-}
-
-func VisitNode(n NodePtr, v NodeVisitor) any {
-	switch n := n.(type) {
-	case *Node:
-		return v.VisitNode(n)
-	case *Num:
-		return v.VisitNum(n)
-	case *BinOp:
-		return v.VisitBinOp(n)
-	case *Add:
-		return v.VisitAdd(n)
-	}
-	panic(fmt.Errorf("unhandled node type: %T", n))
-}
-
-//
-
-type NodeSuper struct {
-	super NodeVisitor
-}
-
-func (v NodeSuper) VisitNode(n *Node) any {
-	panic("unreachable")
-}
-
-var _ NodeVisitor = NodeSuper{}
-
-//
-
-type NilNodeSuper struct {
-	NodeSuper
-}
-
-func (v NilNodeSuper) VisitNode(n *Node) any {
-	return nil
-}
-
-//
-
-type NodeChildren struct {
-	child NodeVisitor
-}
-
-func (v NodeChildren) VisitNode(n *Node) any {
-	return nil
-}
-
-//
-
 type Node struct{}
 
 type NodePtr interface {
+	Super() NodePtr
+	Children() []NodePtr
+
 	isNodePtr()
 }
+
+var _ NodePtr = &Node{}
+
+func (n Node) Super() NodePtr      { return nil }
+func (n Node) Children() []NodePtr { return nil }
 
 func (n *Node) isNodePtr() {}
 
@@ -83,13 +36,7 @@ func NewNum(v int) *Num {
 	}
 }
 
-func (v NodeSuper) VisitNum(n *Num) any {
-	return v.super.VisitNode(&n.Node)
-}
-
-func (v NodeChildren) VisitNum(n *Num) any {
-	return nil
-}
+func (n Num) Super() NodePtr { return &n.Node }
 
 //
 
@@ -98,15 +45,8 @@ type BinOp struct {
 	l, r NodePtr
 }
 
-func (v NodeSuper) VisitBinOp(n *BinOp) any {
-	return v.super.VisitNode(&n.Node)
-}
-
-func (v NodeChildren) VisitBinOp(n *BinOp) any {
-	VisitNode(n.l, v.child)
-	VisitNode(n.r, v.child)
-	return nil
-}
+func (n BinOp) Super() NodePtr      { return &n.Node }
+func (n BinOp) Children() []NodePtr { return []NodePtr{n.l, n.r} }
 
 //
 
@@ -123,27 +63,19 @@ func NewAdd(l, r NodePtr) *Add {
 	}
 }
 
-func (v NodeSuper) VisitAdd(n *Add) any {
-	return v.super.VisitBinOp(&n.BinOp)
-}
+func (n Add) Super() NodePtr { return &n.BinOp }
 
 //
 
-type NumFinder struct {
-	NilNodeSuper
-}
+func FindNums(n NodePtr) {
+	switch n := n.(type) {
+	case *Num:
+		fmt.Println(n.v)
+	}
 
-var _ NodeVisitor = &NumFinder{}
-
-func NewNumFinder() *NumFinder {
-	nf := &NumFinder{}
-	nf.NilNodeSuper.super = nf
-	return nf
-}
-
-func (nf NumFinder) VisitNum(n *Num) any {
-	fmt.Println(n.v)
-	return nil
+	for _, c := range n.Children() {
+		FindNums(c)
+	}
 }
 
 //
@@ -157,5 +89,5 @@ func TestTree(t *testing.T) {
 
 	fmt.Printf("%+v\n", tree)
 
-	VisitNode(tree, NewNumFinder())
+	FindNums(tree)
 }
