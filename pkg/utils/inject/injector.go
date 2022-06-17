@@ -1,3 +1,5 @@
 package inject
 
-type Injector struct{}
+type Injector struct {
+	bs Bindings
+}
