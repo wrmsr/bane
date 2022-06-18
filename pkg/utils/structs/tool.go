@@ -3,7 +3,7 @@ package structs
 import (
 	"reflect"
 
-	brfl "github.com/wrmsr/bane/pkg/utils/reflect"
+	rfl "github.com/wrmsr/bane/pkg/utils/reflect"
 )
 
 type StructTool struct {
@@ -17,7 +17,7 @@ func NewStructTool() *StructTool {
 }
 
 func (st *StructTool) Info(ty any) *StructInfo {
-	rty := brfl.AsType(ty)
+	rty := rfl.AsType(ty)
 	if si, ok := st.structInfos[rty]; ok {
 		return si
 	}

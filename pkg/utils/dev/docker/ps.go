@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	bstr "github.com/wrmsr/bane/pkg/utils/strings"
+	stru "github.com/wrmsr/bane/pkg/utils/strings"
 )
 
 //
@@ -51,7 +51,7 @@ func CliPs(ctx context.Context) (Pss, error) {
 		return nil, err
 	}
 
-	lines, err := bstr.ScanAllLines(strings.NewReader(string(out)), true)
+	lines, err := stru.ScanAllLines(strings.NewReader(string(out)), true)
 	if err != nil {
 		return nil, err
 	}

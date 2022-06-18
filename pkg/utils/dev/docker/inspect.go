@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"time"
 
-	bc "github.com/wrmsr/bane/pkg/utils/containers"
+	ctr "github.com/wrmsr/bane/pkg/utils/containers"
 )
 
 //
@@ -288,7 +288,7 @@ type Inspects []Inspect
 //
 
 func CliInspect(ctx context.Context, ids []string) (Inspects, error) {
-	out, err := CliCmd(ctx, bc.Join([]string{"inspect"}, ids)...)
+	out, err := CliCmd(ctx, ctr.Join([]string{"inspect"}, ids)...)
 	if err != nil {
 		return nil, err
 	}

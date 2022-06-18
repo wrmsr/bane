@@ -3,7 +3,7 @@ package inject
 import (
 	"reflect"
 
-	brfl "github.com/wrmsr/bane/pkg/utils/reflect"
+	rfl "github.com/wrmsr/bane/pkg/utils/reflect"
 )
 
 type Key struct {
@@ -18,6 +18,6 @@ func ToKey(o any) Key {
 	}
 
 	return Key{
-		ty: brfl.AsType(o),
+		ty: rfl.AsType(o),
 	}
 }

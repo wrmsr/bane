@@ -1,13 +1,13 @@
 package containers
 
-import bit "github.com/wrmsr/bane/pkg/utils/iterators"
+import its "github.com/wrmsr/bane/pkg/utils/iterators"
 
 //
 
 type Set[T comparable] interface {
 	Contains(T) bool
 
-	Iterate() bit.Iterator[T]
+	Iterate() its.Iterator[T]
 }
 
 type MutSet[T comparable] interface {
@@ -42,7 +42,7 @@ func (s setImpl[T]) Contains(t T) bool {
 	return ok
 }
 
-func (s setImpl[T]) Iterate() bit.Iterator[T] {
+func (s setImpl[T]) Iterate() its.Iterator[T] {
 	panic("nyi")
 }
 

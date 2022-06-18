@@ -3,7 +3,7 @@ package log
 import (
 	"fmt"
 
-	bat "github.com/wrmsr/bane/pkg/utils/atomic"
+	au "github.com/wrmsr/bane/pkg/utils/atomic"
 )
 
 //
@@ -17,7 +17,7 @@ func newDefaultLogger() Logger {
 	)
 }
 
-var _global = bat.NewLazy(newDefaultLogger)
+var _global = au.NewLazy(newDefaultLogger)
 
 func global() Logger {
 	return _global.Get()

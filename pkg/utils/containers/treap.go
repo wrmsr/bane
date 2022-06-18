@@ -41,7 +41,7 @@
 package containers
 
 import (
-	brnd "github.com/wrmsr/bane/pkg/utils/rand"
+	rndu "github.com/wrmsr/bane/pkg/utils/rand"
 	bt "github.com/wrmsr/bane/pkg/utils/types"
 )
 
@@ -268,7 +268,7 @@ func (m TreapMap[K, V]) Get(key K) (any, bool) {
 func (m TreapMap[K, V]) Set(key K, value V) TreapMap[K, V] {
 	node := &TreapNode[bt.Kv[K, V]]{
 		bt.KvOf(key, value),
-		int(brnd.FastUint32()),
+		int(rndu.FastUint32()),
 		nil,
 		nil,
 	}

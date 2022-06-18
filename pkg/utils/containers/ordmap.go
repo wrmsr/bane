@@ -1,7 +1,7 @@
 package containers
 
 import (
-	bit "github.com/wrmsr/bane/pkg/utils/iterators"
+	its "github.com/wrmsr/bane/pkg/utils/iterators"
 	bt "github.com/wrmsr/bane/pkg/utils/types"
 )
 
@@ -40,8 +40,8 @@ func (m OrdMap[K, V]) TryGet(k K) (V, bool) {
 	return m.s[i].V, true
 }
 
-func (m OrdMap[K, V]) Iterate() bit.Iterator[bt.Kv[K, V]] {
-	return bit.IterateSlice(m.s)
+func (m OrdMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+	return its.IterateSlice(m.s)
 }
 
 func (m OrdMap[K, V]) Put(k K, v V) bool {

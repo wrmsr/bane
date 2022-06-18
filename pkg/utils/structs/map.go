@@ -3,7 +3,7 @@ package structs
 import (
 	"reflect"
 
-	brfl "github.com/wrmsr/bane/pkg/utils/reflect"
+	rfl "github.com/wrmsr/bane/pkg/utils/reflect"
 )
 
 //
@@ -32,7 +32,7 @@ type StructToMapper interface {
 func (st *StructTool) ToMap(v any, opts ...ToMapOpts) map[string]any {
 	o := ToMapOpts{}.Coalesce(opts...)
 
-	rv, ok := brfl.UnwrapPointerValue(brfl.AsValue(v))
+	rv, ok := rfl.UnwrapPointerValue(rfl.AsValue(v))
 	if !ok {
 		return nil
 	}

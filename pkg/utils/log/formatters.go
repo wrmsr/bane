@@ -5,13 +5,13 @@ import (
 	"strings"
 	"time"
 
-	bj "github.com/wrmsr/bane/pkg/utils/json"
-	bti "github.com/wrmsr/bane/pkg/utils/time"
+	ju "github.com/wrmsr/bane/pkg/utils/json"
+	tiu "github.com/wrmsr/bane/pkg/utils/time"
 )
 
 //
 
-const defaultTimeFormat = bti.RFC3339NZ
+const defaultTimeFormat = tiu.RFC3339NZ
 
 //
 
@@ -70,5 +70,5 @@ func (f JsonFormatter) FormatLine(line Line) (string, error) {
 		jl.Args = m
 	}
 
-	return bj.MarshalString(jl)
+	return ju.MarshalString(jl)
 }

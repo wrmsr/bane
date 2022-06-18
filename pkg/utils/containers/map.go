@@ -1,7 +1,7 @@
 package containers
 
 import (
-	bit "github.com/wrmsr/bane/pkg/utils/iterators"
+	its "github.com/wrmsr/bane/pkg/utils/iterators"
 	bt "github.com/wrmsr/bane/pkg/utils/types"
 )
 
@@ -12,7 +12,7 @@ type Map[K comparable, V any] interface {
 	Get(k K) V
 	TryGet(k K) (V, bool)
 
-	Iterate() bit.Iterator[bt.Kv[K, V]]
+	Iterate() its.Iterator[bt.Kv[K, V]]
 }
 
 type MutMap[K comparable, V any] interface {
@@ -55,8 +55,8 @@ func (m mapImpl[K, V]) TryGet(k K) (V, bool) {
 	return v, ok
 }
 
-func (m mapImpl[K, V]) Iterate() bit.Iterator[bt.Kv[K, V]] {
-	return bit.IterateMap[K, V](m.m)
+func (m mapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+	return its.IterateMap[K, V](m.m)
 }
 
 //

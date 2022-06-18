@@ -5,9 +5,9 @@ package docker
 import (
 	"testing"
 
-	bts "github.com/wrmsr/bane/pkg/utils/dev/testing"
+	tu "github.com/wrmsr/bane/pkg/utils/dev/testing"
 )
 
 func TestMain(m *testing.M) {
-	bts.Main(m, func() {})
+	tu.Main(m, func() {})
 }

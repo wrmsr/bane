@@ -3,16 +3,16 @@ package adapters
 import (
 	"database/sql"
 
-	bsb "github.com/wrmsr/bane/pkg/utils/sql/base"
+	sqb "github.com/wrmsr/bane/pkg/utils/sql/base"
 )
 
 //
 
 type StdRows struct {
-	bsb.BaseRows
+	sqb.BaseRows
 
 	r  *sql.Rows
-	cs []bsb.Column
+	cs []sqb.Column
 }
 
 func newStdRows(r *sql.Rows) *StdRows {
@@ -21,9 +21,9 @@ func newStdRows(r *sql.Rows) *StdRows {
 	}
 }
 
-var _ bsb.Rows = &StdRows{}
+var _ sqb.Rows = &StdRows{}
 
-func (r *StdRows) Columns() ([]bsb.Column, error) {
+func (r *StdRows) Columns() ([]sqb.Column, error) {
 	if r.cs == nil {
 		cns, err := r.r.Columns()
 		if err != nil {
@@ -33,10 +33,10 @@ func (r *StdRows) Columns() ([]bsb.Column, error) {
 		if err != nil {
 			return nil, err
 		}
-		cs := make([]bsb.Column, len(cns))
+		cs := make([]sqb.Column, len(cns))
 		for i, cn := range cns {
 			ct := cts[i]
-			cs[i] = bsb.Column{
+			cs[i] = sqb.Column{
 				Name:   cn,
 				DbType: ct.DatabaseTypeName(),
 				Type:   ct.ScanType(),
@@ -66,24 +66,24 @@ func (r StdRows) Close() error {
 //
 
 type StdConn struct {
-	bsb.BaseConn
+	sqb.BaseConn
 
 	c *sql.Conn
 }
 
-var _ bsb.Conn = StdConn{}
+var _ sqb.Conn = StdConn{}
 
-func (s StdConn) Adapter() bsb.Adapter { return StdAdapter{} }
+func (s StdConn) Adapter() sqb.Adapter { return StdAdapter{} }
 
-func (s StdConn) Query(qry bsb.Query) (bsb.Rows, error) {
+func (s StdConn) Query(qry sqb.Query) (sqb.Rows, error) {
 	switch qry.Mode {
-	case bsb.QueryQuery:
+	case sqb.QueryQuery:
 		r, err := s.c.QueryContext(qry.Ctx, qry.Text, qry.Args...)
 		if err != nil {
 			return nil, err
 		}
 		return newStdRows(r), nil
-	case bsb.ExecQuery:
+	case sqb.ExecQuery:
 		_, err := s.c.ExecContext(qry.Ctx, qry.Text, qry.Args...)
 		return nil, err
 	}
@@ -97,24 +97,24 @@ func (s StdConn) Close() error {
 //
 
 type StdDb struct {
-	bsb.BaseDb
+	sqb.BaseDb
 
 	d *sql.DB
 }
 
-var _ bsb.Db = StdDb{}
+var _ sqb.Db = StdDb{}
 
-func (d StdDb) Adapter() bsb.Adapter { return StdAdapter{} }
+func (d StdDb) Adapter() sqb.Adapter { return StdAdapter{} }
 
-func (d StdDb) Query(qry bsb.Query) (bsb.Rows, error) {
+func (d StdDb) Query(qry sqb.Query) (sqb.Rows, error) {
 	switch qry.Mode {
-	case bsb.QueryQuery:
+	case sqb.QueryQuery:
 		r, err := d.d.QueryContext(qry.Ctx, qry.Text, qry.Args...)
 		if err != nil {
 			return nil, err
 		}
 		return newStdRows(r), nil
-	case bsb.ExecQuery:
+	case sqb.ExecQuery:
 		_, err := d.d.ExecContext(qry.Ctx, qry.Text, qry.Args...)
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (d StdDb) Close() error {
 //
 
 type StdAdapter struct {
-	bsb.BaseAdapter
+	sqb.BaseAdapter
 }
 
-var _ bsb.Adapter = StdAdapter{}
+var _ sqb.Adapter = StdAdapter{}

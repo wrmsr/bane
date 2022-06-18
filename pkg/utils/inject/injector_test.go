@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	bts "github.com/wrmsr/bane/pkg/utils/dev/testing"
+	tu "github.com/wrmsr/bane/pkg/utils/dev/testing"
 	"github.com/wrmsr/bane/pkg/utils/log"
 )
 
@@ -19,7 +19,7 @@ func TestInjector(t *testing.T) {
 			},
 		},
 	)
-	bts.AssertEqual(t, inj.Provide(Key{ty: reflect.TypeOf(0)}).(int), 420)
+	tu.AssertEqual(t, inj.Provide(Key{ty: reflect.TypeOf(0)}).(int), 420)
 
 	mul2 := func(i int) int {
 		return i * 2
