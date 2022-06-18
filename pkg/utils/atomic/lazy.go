@@ -10,7 +10,7 @@ type box[T any] struct {
 }
 
 type Lazy[T any] struct {
-	fn func() T
+	Fn func() T
 
 	o sync.Once
 	v atomic.Value
@@ -18,23 +18,29 @@ type Lazy[T any] struct {
 
 func NewLazy[T any](fn func() T) *Lazy[T] {
 	return &Lazy[T]{
-		fn: fn,
+		Fn: fn,
 	}
 }
 
-func (l *Lazy[T]) Peek() T {
+func (l *Lazy[T]) Peek() (T, bool) {
 	if b := l.v.Load(); b != nil {
-		return b.(box[T]).v
+		return b.(box[T]).v, true
 	}
 	var z T
-	return z
+	return z, false
 }
 
 func (l *Lazy[T]) Get() T {
 	l.o.Do(func() {
-		l.Set(l.fn())
+		if _, ok := l.Peek(); !ok {
+			l.Set(l.Fn())
+		}
 	})
-	return l.Peek()
+	v, ok := l.Peek()
+	if !ok {
+		panic("unreachable")
+	}
+	return v
 }
 
 func (l *Lazy[T]) Set(v T) T {
