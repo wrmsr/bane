@@ -41,8 +41,7 @@
 package containers
 
 import (
-	"math/rand"
-
+	brnd "github.com/wrmsr/bane/pkg/utils/rand"
 	bt "github.com/wrmsr/bane/pkg/utils/types"
 )
 
@@ -251,10 +250,11 @@ type TreapMap[K comparable, V any] struct {
 }
 
 func NewTreapMap[K comparable, V any](keyCompare Comparer[K]) TreapMap[K, V] {
-	c := treapMapComparer[K, V](func(v1, v2 bt.Kv[K, V]) int {
-		return keyCompare.Compare(v1.K, v2.K)
-	})
-	return TreapMap[K, V]{nil, c}
+	return TreapMap[K, V]{
+		c: treapMapComparer[K, V](func(v1, v2 bt.Kv[K, V]) int {
+			return keyCompare.Compare(v1.K, v2.K)
+		}),
+	}
 }
 
 func (m TreapMap[K, V]) Get(key K) (any, bool) {
@@ -268,8 +268,7 @@ func (m TreapMap[K, V]) Get(key K) (any, bool) {
 func (m TreapMap[K, V]) Set(key K, value V) TreapMap[K, V] {
 	node := &TreapNode[bt.Kv[K, V]]{
 		bt.KvOf(key, value),
-		// FIXME: local rand
-		rand.Intn(1000000),
+		int(brnd.FastUint32()),
 		nil,
 		nil,
 	}
