@@ -6,9 +6,11 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"golang.org/x/mod/modfile"
 	"golang.org/x/tools/go/packages"
 
 	"github.com/wrmsr/bane/pkg/utils/check"
@@ -55,12 +57,18 @@ func readFirstLine(fp string) (s string, err error) {
 	return
 }
 
+var dontFixRetract modfile.VersionFixer = func(_, vers string) (string, error) {
+	return vers, nil
+}
+
 func main() {
 	cd := check.Must(os.Getwd())
 	rd := check.Must(findDirWithFile(cd, "go.mod"))
-	mod := check.Must(readFirstLine(filepath.Join(rd, "go.mod")))
-
-	fmt.Println(mod)
+	mf := filepath.Join(rd, "go.mod")
+	mc := check.Must(ioutil.ReadFile(mf))
+	mo := check.Must(modfile.Parse(mf, mc, dontFixRetract))
+	mp := mo.Module.Mod.Path
+	fmt.Println(mp)
 
 	cfg := &packages.Config{
 		Mode: packages.NeedSyntax | packages.NeedTypes,
