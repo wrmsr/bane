@@ -51,7 +51,7 @@ func (m OrdMap[K, V]) Put(k K, v V) bool {
 		return false
 	}
 	m.m[k] = len(m.s)
-	m.s = append(m.s, bt.Kv[K, V]{k, v})
+	m.s = append(m.s, bt.KvOf(k, v))
 	return true
 }
 
@@ -70,6 +70,6 @@ func (m OrdMap[K, V]) Default(k K, v V) bool {
 		return false
 	}
 	m.m[k] = len(m.s)
-	m.s = append(m.s, bt.Kv[K, V]{k, v})
+	m.s = append(m.s, bt.KvOf(k, v))
 	return true
 }

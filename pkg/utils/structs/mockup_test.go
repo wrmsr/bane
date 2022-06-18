@@ -53,6 +53,7 @@ TODO:
   -
  - mapstruct
   -
+ - json accelerator? StructTool accelerator?
 */
 package structs
 
@@ -110,5 +111,4 @@ func Field(name string, opts ...FieldOpt) FieldDef {
 
 var _ = Def(
 	Struct("Foo",
-		Field("bar",
-		)))
+		Field("bar")))
