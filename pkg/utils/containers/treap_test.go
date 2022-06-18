@@ -2,7 +2,6 @@ package containers
 
 import (
 	"fmt"
-	"math/rand"
 	"strconv"
 	"testing"
 )
@@ -14,8 +13,6 @@ func (i IntComparer) Compare(left, right int) int {
 }
 
 func TestTreapMap(t *testing.T) {
-	rand.Seed(42)
-
 	m := NewTreapMap[int, string](IntComparer{})
 	fmt.Println("Count:", m.Count())
 
