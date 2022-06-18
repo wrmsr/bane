@@ -57,6 +57,8 @@ TODO:
 */
 package structs
 
+import "testing"
+
 //
 
 type RootDef interface {
@@ -112,3 +114,9 @@ func Field(name string, opts ...FieldOpt) FieldDef {
 var _ = Def(
 	Struct("Foo",
 		Field("bar")))
+
+//
+
+func TestMockup(t *testing.T) {
+
+}

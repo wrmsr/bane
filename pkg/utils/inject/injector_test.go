@@ -1,7 +1,6 @@
 package inject
 
 import (
-	"reflect"
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/utils/dev/testing"
@@ -13,13 +12,13 @@ func TestInjector(t *testing.T) {
 		Bindings{
 			bs: []Binding{
 				{
-					key:      ToKey(reflect.TypeOf(0)),
+					key:      ToKey(Type[int]()),
 					provider: Const(420),
 				},
 			},
 		},
 	)
-	tu.AssertEqual(t, inj.Provide(Key{ty: reflect.TypeOf(0)}).(int), 420)
+	tu.AssertEqual(t, inj.Provide(Key{ty: Type[int]()}).(int), 420)
 
 	mul2 := func(i int) int {
 		return i * 2
