@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"golang.org/x/mod/modfile"
 	"golang.org/x/tools/go/packages"
@@ -64,6 +65,12 @@ var dontFixRetract modfile.VersionFixer = func(_, vers string) (string, error) {
 func main() {
 	cd := check.Must(os.Getwd())
 	rd := check.Must(findDirWithFile(cd, "go.mod"))
+	if !strings.HasPrefix(cd, rd) {
+		panic(fmt.Errorf("can't find path %s from root %s", cd, rd))
+	}
+	do := cd[len(rd)+1:]
+	fmt.Println(do)
+
 	mf := filepath.Join(rd, "go.mod")
 	mc := check.Must(ioutil.ReadFile(mf))
 	mo := check.Must(modfile.Parse(mf, mc, dontFixRetract))
@@ -74,9 +81,8 @@ func main() {
 		Mode: packages.NeedSyntax | packages.NeedTypes,
 	}
 
-	pkgs, err := packages.Load(cfg, "github.com/wrmsr/bane/pkg/utils/inject")
-	if err != nil {
-		log.Fatal(err)
-	}
+	pn := fmt.Sprintf("%s/%s", mp, do)
+	pkgs := check.Must(packages.Load(cfg, pn))
+
 	log.Println(pkgs)
 }
