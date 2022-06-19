@@ -20,6 +20,7 @@ import (
 	"golang.org/x/tools/go/types/typeutil"
 
 	"github.com/wrmsr/bane/pkg/utils/check"
+	ctr "github.com/wrmsr/bane/pkg/utils/containers"
 	eu "github.com/wrmsr/bane/pkg/utils/errors"
 )
 
@@ -263,12 +264,7 @@ func printfNameAndKind(pass *Pass, call *ast.CallExpr) (fn *types.Func, kind Kin
 		return nil, 0
 	}
 
-	_, ok := isPrint[fn.FullName()]
-	if !ok {
-		// Next look up just "printf", for use with -printf.funcs.
-		_, ok = isPrint[strings.ToLower(fn.Name())]
-	}
-	if ok {
+	if isPrint.Contains(fn.FullName()) || isPrint.Contains(strings.ToLower(fn.Name())) {
 		if fn.FullName() == "fmt.Errorf" {
 			kind = KindErrorf
 		} else if strings.HasSuffix(fn.Name(), "f") {
@@ -287,58 +283,58 @@ func printfNameAndKind(pass *Pass, call *ast.CallExpr) (fn *types.Func, kind Kin
 	return fn, KindNone
 }
 
-var isPrint = stringSet{
-	"fmt.Errorf":   true,
-	"fmt.Fprint":   true,
-	"fmt.Fprintf":  true,
-	"fmt.Fprintln": true,
-	"fmt.Print":    true,
-	"fmt.Printf":   true,
-	"fmt.Println":  true,
-	"fmt.Sprint":   true,
-	"fmt.Sprintf":  true,
-	"fmt.Sprintln": true,
+var isPrint = ctr.NewSetOf(
+	"fmt.Errorf",
+	"fmt.Fprint",
+	"fmt.Fprintf",
+	"fmt.Fprintln",
+	"fmt.Print",
+	"fmt.Printf",
+	"fmt.Println",
+	"fmt.Sprint",
+	"fmt.Sprintf",
+	"fmt.Sprintln",
 
-	"runtime/trace.Logf": true,
+	"runtime/trace.Logf",
 
-	"log.Print":             true,
-	"log.Printf":            true,
-	"log.Println":           true,
-	"log.Fatal":             true,
-	"log.Fatalf":            true,
-	"log.Fatalln":           true,
-	"log.Panic":             true,
-	"log.Panicf":            true,
-	"log.Panicln":           true,
-	"(*log.Logger).Fatal":   true,
-	"(*log.Logger).Fatalf":  true,
-	"(*log.Logger).Fatalln": true,
-	"(*log.Logger).Panic":   true,
-	"(*log.Logger).Panicf":  true,
-	"(*log.Logger).Panicln": true,
-	"(*log.Logger).Print":   true,
-	"(*log.Logger).Printf":  true,
-	"(*log.Logger).Println": true,
+	"log.Print",
+	"log.Printf",
+	"log.Println",
+	"log.Fatal",
+	"log.Fatalf",
+	"log.Fatalln",
+	"log.Panic",
+	"log.Panicf",
+	"log.Panicln",
+	"(*log.Logger).Fatal",
+	"(*log.Logger).Fatalf",
+	"(*log.Logger).Fatalln",
+	"(*log.Logger).Panic",
+	"(*log.Logger).Panicf",
+	"(*log.Logger).Panicln",
+	"(*log.Logger).Print",
+	"(*log.Logger).Printf",
+	"(*log.Logger).Println",
 
-	"(*testing.common).Error":  true,
-	"(*testing.common).Errorf": true,
-	"(*testing.common).Fatal":  true,
-	"(*testing.common).Fatalf": true,
-	"(*testing.common).Log":    true,
-	"(*testing.common).Logf":   true,
-	"(*testing.common).Skip":   true,
-	"(*testing.common).Skipf":  true,
+	"(*testing.common).Error",
+	"(*testing.common).Errorf",
+	"(*testing.common).Fatal",
+	"(*testing.common).Fatalf",
+	"(*testing.common).Log",
+	"(*testing.common).Logf",
+	"(*testing.common).Skip",
+	"(*testing.common).Skipf",
 	// *testing.T and B are detected by induction, but testing.TB is
 	// an interface and the inference can't follow dynamic calls.
-	"(testing.TB).Error":  true,
-	"(testing.TB).Errorf": true,
-	"(testing.TB).Fatal":  true,
-	"(testing.TB).Fatalf": true,
-	"(testing.TB).Log":    true,
-	"(testing.TB).Logf":   true,
-	"(testing.TB).Skip":   true,
-	"(testing.TB).Skipf":  true,
-}
+	"(testing.TB).Error",
+	"(testing.TB).Errorf",
+	"(testing.TB).Fatal",
+	"(testing.TB).Fatalf",
+	"(testing.TB).Log",
+	"(testing.TB).Logf",
+	"(testing.TB).Skip",
+	"(testing.TB).Skipf",
+)
 
 // stringSet is a set-of-nonempty-strings-valued flag.
 // Note: elements without a '.' get lower-cased.

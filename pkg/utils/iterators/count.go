@@ -5,14 +5,20 @@ type countingIterator struct {
 }
 
 func Count() Iterator[int] {
-	return countingIterator{}
+	return &countingIterator{}
+}
+
+var _ Iterator[int] = &countingIterator{}
+
+func (i *countingIterator) Iterate() Iterator[int] {
+	return i
 }
 
 func (i countingIterator) HasNext() bool {
 	return true
 }
 
-func (i countingIterator) Next() int {
+func (i *countingIterator) Next() int {
 	n := i.n
 	i.n++
 	return n

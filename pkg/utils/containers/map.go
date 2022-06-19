@@ -12,7 +12,7 @@ type Map[K comparable, V any] interface {
 	Get(k K) V
 	TryGet(k K) (V, bool)
 
-	Iterate() its.Iterator[bt.Kv[K, V]]
+	its.Iterable[bt.Kv[K, V]]
 }
 
 type MutMap[K comparable, V any] interface {

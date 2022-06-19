@@ -7,7 +7,7 @@ import its "github.com/wrmsr/bane/pkg/utils/iterators"
 type Set[T comparable] interface {
 	Contains(T) bool
 
-	Iterate() its.Iterator[T]
+	its.Iterable[T]
 }
 
 type MutSet[T comparable] interface {
@@ -25,14 +25,22 @@ type setImpl[T comparable] struct {
 	m map[T]struct{}
 }
 
-func newSetImpl[T comparable]() setImpl[T] {
-	return setImpl[T]{
+func newSetImpl[T comparable](it its.Iterable[T]) setImpl[T] {
+	s := setImpl[T]{
 		m: make(map[T]struct{}),
 	}
+	for i := it.Iterate(); i.HasNext(); {
+		s.m[i.Next()] = struct{}{}
+	}
+	return s
 }
 
-func NewSet[T comparable]() Set[T] {
-	return newSetImpl[T]()
+func NewSet[T comparable](it its.Iterable[T]) Set[T] {
+	return newSetImpl(it)
+}
+
+func NewSetOf[T comparable](vs ...T) Set[T] {
+	return NewSet(its.Of(vs...))
 }
 
 var _ Set[int] = setImpl[int]{}
@@ -52,8 +60,12 @@ type mutSetImpl[T comparable] struct {
 	setImpl[T]
 }
 
-func NewMutSet[T comparable]() MutSet[T] {
-	return mutSetImpl[T]{newSetImpl[T]()}
+func NewMutSet[T comparable](it its.Iterable[T]) MutSet[T] {
+	return mutSetImpl[T]{newSetImpl(it)}
+}
+
+func NewMutSetOf[T comparable](vs ...T) MutSet[T] {
+	return NewMutSet(its.Of(vs...))
 }
 
 var _ MutSet[int] = mutSetImpl[int]{}

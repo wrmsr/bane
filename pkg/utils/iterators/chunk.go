@@ -7,19 +7,23 @@ type chunkingIterator[T any] struct {
 }
 
 func Chunk[T any](i Iterator[T], n int) Iterator[[]T] {
-	return chunkingIterator[T]{
+	return &chunkingIterator[T]{
 		i: i,
 		n: n,
 	}
 }
 
-var _ Iterator[[]any] = chunkingIterator[any]{}
+var _ Iterator[[]any] = &chunkingIterator[any]{}
+
+func (i *chunkingIterator[T]) Iterate() Iterator[[]T] {
+	return i
+}
 
 func (i chunkingIterator[T]) HasNext() bool {
 	return i.i.HasNext()
 }
 
-func (i chunkingIterator[T]) Next() []T {
+func (i *chunkingIterator[T]) Next() []T {
 	s := i.s
 	if s != nil {
 		s = s[:0]
