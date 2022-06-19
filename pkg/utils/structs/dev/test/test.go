@@ -3,6 +3,8 @@
 package test
 
 import (
+	"fmt"
+
 	stu "github.com/wrmsr/bane/pkg/utils/structs"
 )
 
@@ -14,3 +16,11 @@ var _ = stu.Def(
 		stu.Field("baz", stu.Type[int]()),
 	),
 )
+
+func foof(s string, a ...any) {
+	fmt.Printf(s, a...)
+}
+
+func Foo() {
+	foof("hi %s\n", "there")
+}

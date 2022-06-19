@@ -6,17 +6,21 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"go/ast"
+	"go/token"
+	"go/types"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"golang.org/x/mod/modfile"
 	"golang.org/x/tools/go/packages"
+	"golang.org/x/tools/go/types/typeutil"
 
 	"github.com/wrmsr/bane/pkg/utils/check"
 	eu "github.com/wrmsr/bane/pkg/utils/errors"
-	"github.com/wrmsr/bane/pkg/utils/log"
 )
 
 func findDirWithFile(cd, fn string) (string, error) {
@@ -62,6 +66,308 @@ var dontFixRetract modfile.VersionFixer = func(_, vers string) (string, error) {
 	return vers, nil
 }
 
+//
+
+type Pass struct {
+	Files     []*ast.File    // the abstract syntax tree of each file
+	Pkg       *types.Package // type information about the package
+	TypesInfo *types.Info    // type information about the syntax trees
+}
+
+type printfWrapper struct {
+	obj     *types.Func
+	fdecl   *ast.FuncDecl
+	format  *types.Var
+	args    *types.Var
+	callers []printfCaller
+	failed  bool // if true, not a printf wrapper
+}
+
+type printfCaller struct {
+	w    *printfWrapper
+	call *ast.CallExpr
+}
+
+// maybePrintfWrapper decides whether decl (a declared function) may be a wrapper
+// around a fmt.Printf or fmt.Print function. If so it returns a printfWrapper
+// function describing the declaration. Later processing will analyze the
+// graph of potential printf wrappers to pick out the ones that are true wrappers.
+// A function may be a Printf or Print wrapper if its last argument is ...any.
+// If the next-to-last argument is a string, then this may be a Printf wrapper.
+// Otherwise it may be a Print wrapper.
+func maybePrintfWrapper(info *types.Info, decl ast.Decl) *printfWrapper {
+	// Look for functions with final argument type ...any.
+	fdecl, ok := decl.(*ast.FuncDecl)
+	if !ok || fdecl.Body == nil {
+		return nil
+	}
+	fn, ok := info.Defs[fdecl.Name].(*types.Func)
+	// Type information may be incomplete.
+	if !ok {
+		return nil
+	}
+
+	sig := fn.Type().(*types.Signature)
+	if !sig.Variadic() {
+		return nil // not variadic
+	}
+
+	params := sig.Params()
+	nparams := params.Len() // variadic => nonzero
+
+	args := params.At(nparams - 1)
+	iface, ok := args.Type().(*types.Slice).Elem().(*types.Interface)
+	if !ok || !iface.Empty() {
+		return nil // final (args) param is not ...any
+	}
+
+	// Is second last param 'format string'?
+	var format *types.Var
+	if nparams >= 2 {
+		if p := params.At(nparams - 2); p.Type() == types.Typ[types.String] {
+			format = p
+		}
+	}
+
+	return &printfWrapper{
+		obj:    fn,
+		fdecl:  fdecl,
+		format: format,
+		args:   args,
+	}
+}
+
+// findPrintfLike scans the entire package to find printf-like functions.
+func findPrintfLike(pass *Pass) (any, error) {
+	// Gather potential wrappers and call graph between them.
+	byObj := make(map[*types.Func]*printfWrapper)
+	var wrappers []*printfWrapper
+	for _, file := range pass.Files {
+		for _, decl := range file.Decls {
+			w := maybePrintfWrapper(pass.TypesInfo, decl)
+			if w == nil {
+				continue
+			}
+			byObj[w.obj] = w
+			wrappers = append(wrappers, w)
+		}
+	}
+
+	// Walk the graph to figure out which are really printf wrappers.
+	for _, w := range wrappers {
+		// Scan function for calls that could be to other printf-like functions.
+		ast.Inspect(w.fdecl.Body, func(n ast.Node) bool {
+			if w.failed {
+				return false
+			}
+
+			// TODO: Relax these checks; issue 26555.
+			if assign, ok := n.(*ast.AssignStmt); ok {
+				for _, lhs := range assign.Lhs {
+					if match(pass.TypesInfo, lhs, w.format) ||
+						match(pass.TypesInfo, lhs, w.args) {
+						// Modifies the format
+						// string or args in
+						// some way, so not a
+						// simple wrapper.
+						w.failed = true
+						return false
+					}
+				}
+			}
+			if un, ok := n.(*ast.UnaryExpr); ok && un.Op == token.AND {
+				if match(pass.TypesInfo, un.X, w.format) ||
+					match(pass.TypesInfo, un.X, w.args) {
+					// Taking the address of the
+					// format string or args,
+					// so not a simple wrapper.
+					w.failed = true
+					return false
+				}
+			}
+
+			call, ok := n.(*ast.CallExpr)
+			if !ok || len(call.Args) == 0 || !match(pass.TypesInfo, call.Args[len(call.Args)-1], w.args) {
+				return true
+			}
+
+			fn, kind := printfNameAndKind(pass, call)
+			if kind != 0 {
+				//checkPrintfFwd(pass, w, call, kind)
+				fmt.Printf("%v %v %v %v\n", pass, w, call, kind)
+				return true
+			}
+
+			// If the call is to another function in this package,
+			// maybe we will find out it is printf-like later.
+			// Remember this call for later checking.
+			if fn != nil && fn.Pkg() == pass.Pkg && byObj[fn] != nil {
+				callee := byObj[fn]
+				callee.callers = append(callee.callers, printfCaller{w, call})
+			}
+
+			return true
+		})
+	}
+	return nil, nil
+}
+
+func match(info *types.Info, arg ast.Expr, param *types.Var) bool {
+	id, ok := arg.(*ast.Ident)
+	return ok && info.ObjectOf(id) == param
+}
+
+// Kind is a kind of fmt function behavior.
+type Kind int
+
+const (
+	KindNone   Kind = iota // not a fmt wrapper function
+	KindPrint              // function behaves like fmt.Print
+	KindPrintf             // function behaves like fmt.Printf
+	KindErrorf             // function behaves like fmt.Errorf
+)
+
+func (kind Kind) String() string {
+	switch kind {
+	case KindPrint:
+		return "print"
+	case KindPrintf:
+		return "printf"
+	case KindErrorf:
+		return "errorf"
+	}
+	return ""
+}
+
+// isWrapper is a fact indicating that a function is a print or printf wrapper.
+type isWrapper struct{ Kind Kind }
+
+func (f *isWrapper) AFact() {}
+
+func (f *isWrapper) String() string {
+	switch f.Kind {
+	case KindPrintf:
+		return "printfWrapper"
+	case KindPrint:
+		return "printWrapper"
+	case KindErrorf:
+		return "errorfWrapper"
+	default:
+		return "unknownWrapper"
+	}
+}
+
+func printfNameAndKind(pass *Pass, call *ast.CallExpr) (fn *types.Func, kind Kind) {
+	fn, _ = typeutil.Callee(pass.TypesInfo, call).(*types.Func)
+	if fn == nil {
+		return nil, 0
+	}
+
+	_, ok := isPrint[fn.FullName()]
+	if !ok {
+		// Next look up just "printf", for use with -printf.funcs.
+		_, ok = isPrint[strings.ToLower(fn.Name())]
+	}
+	if ok {
+		if fn.FullName() == "fmt.Errorf" {
+			kind = KindErrorf
+		} else if strings.HasSuffix(fn.Name(), "f") {
+			kind = KindPrintf
+		} else {
+			kind = KindPrint
+		}
+		return fn, kind
+	}
+
+	//var fact isWrapper
+	//if pass.ImportObjectFact(fn, &fact) {
+	//	return fn, fact.Kind
+	//}
+
+	return fn, KindNone
+}
+
+var isPrint = stringSet{
+	"fmt.Errorf":   true,
+	"fmt.Fprint":   true,
+	"fmt.Fprintf":  true,
+	"fmt.Fprintln": true,
+	"fmt.Print":    true,
+	"fmt.Printf":   true,
+	"fmt.Println":  true,
+	"fmt.Sprint":   true,
+	"fmt.Sprintf":  true,
+	"fmt.Sprintln": true,
+
+	"runtime/trace.Logf": true,
+
+	"log.Print":             true,
+	"log.Printf":            true,
+	"log.Println":           true,
+	"log.Fatal":             true,
+	"log.Fatalf":            true,
+	"log.Fatalln":           true,
+	"log.Panic":             true,
+	"log.Panicf":            true,
+	"log.Panicln":           true,
+	"(*log.Logger).Fatal":   true,
+	"(*log.Logger).Fatalf":  true,
+	"(*log.Logger).Fatalln": true,
+	"(*log.Logger).Panic":   true,
+	"(*log.Logger).Panicf":  true,
+	"(*log.Logger).Panicln": true,
+	"(*log.Logger).Print":   true,
+	"(*log.Logger).Printf":  true,
+	"(*log.Logger).Println": true,
+
+	"(*testing.common).Error":  true,
+	"(*testing.common).Errorf": true,
+	"(*testing.common).Fatal":  true,
+	"(*testing.common).Fatalf": true,
+	"(*testing.common).Log":    true,
+	"(*testing.common).Logf":   true,
+	"(*testing.common).Skip":   true,
+	"(*testing.common).Skipf":  true,
+	// *testing.T and B are detected by induction, but testing.TB is
+	// an interface and the inference can't follow dynamic calls.
+	"(testing.TB).Error":  true,
+	"(testing.TB).Errorf": true,
+	"(testing.TB).Fatal":  true,
+	"(testing.TB).Fatalf": true,
+	"(testing.TB).Log":    true,
+	"(testing.TB).Logf":   true,
+	"(testing.TB).Skip":   true,
+	"(testing.TB).Skipf":  true,
+}
+
+// stringSet is a set-of-nonempty-strings-valued flag.
+// Note: elements without a '.' get lower-cased.
+type stringSet map[string]bool
+
+func (ss stringSet) String() string {
+	var list []string
+	for name := range ss {
+		list = append(list, name)
+	}
+	sort.Strings(list)
+	return strings.Join(list, ",")
+}
+
+func (ss stringSet) Set(flag string) error {
+	for _, name := range strings.Split(flag, ",") {
+		if len(name) == 0 {
+			return fmt.Errorf("empty string")
+		}
+		if !strings.Contains(name, ".") {
+			name = strings.ToLower(name)
+		}
+		ss[name] = true
+	}
+	return nil
+}
+
+//
+
 func main() {
 	cd := check.Must(os.Getwd())
 	rd := check.Must(findDirWithFile(cd, "go.mod"))
@@ -78,11 +384,18 @@ func main() {
 	fmt.Println(mp)
 
 	cfg := &packages.Config{
-		Mode: packages.NeedSyntax | packages.NeedTypes,
+		Mode: packages.NeedSyntax | packages.NeedTypes | packages.NeedTypesInfo,
 	}
 
 	pn := fmt.Sprintf("%s/%s", mp, do)
 	pkgs := check.Must(packages.Load(cfg, pn))
 
-	log.Println(pkgs)
+	for _, pkg := range pkgs {
+		pass := Pass{
+			Files:     pkg.Syntax,
+			Pkg:       pkg.Types,
+			TypesInfo: pkg.TypesInfo,
+		}
+		_ = check.Must(findPrintfLike(&pass))
+	}
 }
