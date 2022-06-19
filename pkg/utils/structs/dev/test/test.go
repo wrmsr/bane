@@ -1,19 +1,19 @@
 //go:build !nodev
 
-package test
+package main
 
 import (
 	"fmt"
 
-	stu "github.com/wrmsr/bane/pkg/utils/structs"
+	"github.com/wrmsr/bane/pkg/utils/structs/def"
 )
 
 //go:generate go run github.com/wrmsr/bane/pkg/utils/structs/dev/gen
 
-var _ = stu.Def(
-	stu.Struct("Foo",
-		stu.Field("bar", stu.Type[int]()),
-		stu.Field("baz", stu.Type[int]()),
+var _ = def.Def(
+	def.Struct("Foo",
+		def.Field("bar", def.Type[int]()),
+		def.Field("baz", def.Default(5)),
 	),
 )
 
@@ -21,6 +21,6 @@ func foof(s string, a ...any) {
 	fmt.Printf(s, a...)
 }
 
-func Foo() {
+func main() {
 	foof("hi %s\n", "there")
 }

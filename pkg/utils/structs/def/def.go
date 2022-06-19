@@ -1,6 +1,8 @@
-package structs
+package def
 
 import "reflect"
+
+//
 
 type RootDef interface {
 	isRootDef()
@@ -28,6 +30,18 @@ func Struct(name string, opts ...StructOpt) StructDef {
 		Name: name,
 		Opts: opts,
 	}
+}
+
+//
+
+type InitOpt struct {
+	Fn any
+}
+
+func (o InitOpt) isStructOpt() {}
+
+func Init(fn any) InitOpt {
+	return InitOpt{Fn: fn}
 }
 
 //
@@ -61,4 +75,16 @@ func (o TypeOpt[T]) isFieldOpt() {}
 func Type[T any]() TypeOpt[T] {
 	var z T
 	return TypeOpt[T]{Type: reflect.TypeOf(z)}
+}
+
+//
+
+type DefaultOpt[T any] struct {
+	Val T
+}
+
+func (o DefaultOpt[T]) isFieldOpt() {}
+
+func Default[T any](val T) DefaultOpt[T] {
+	return DefaultOpt[T]{Val: val}
 }

@@ -6,6 +6,8 @@ SRC=\
 	cmd \
 	pkg \
 
+BREW_DEPS=\
+
 
 ### clean
 
@@ -35,7 +37,13 @@ gen-antlr:
   	wd="$$(pwd)" ; \
   	for d in $$(find ${SRC} -name '*.g4' -exec dirname \{\} \; | sort | uniq) ; do \
   	  	rm -rf "$$d/parser" ; \
-		for f in $$(find "$$d" -name '*.g4' | sort) ; do \
+  	  	fs=$$(find "$$d" -name '*.g4' | sort) ; \
+  	  	nf=0 ; \
+  	  	for f in $$fs ; do \
+  	  		mt=$$(if [[ $$(uname) = "Darwin" ]] ; then stat -f %m "$$f" ; else stat -c %Y "$$f" ; fi) ; \
+  	  		echo "$$f $$mt" ; \
+  	  	done ; \
+		for f in $$fs ; do \
 			echo "$$f" ; \
 			( \
 				cd $$(dirname "$$f") && \

@@ -55,7 +55,7 @@ TODO:
   -
  - json accelerator? StructTool accelerator?
 */
-package structs
+package def
 
 import "testing"
 
