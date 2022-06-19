@@ -9,7 +9,7 @@ func IterateSlice[T any](s []T) Iterator[T] {
 	return &SliceIterator[T]{s: s}
 }
 
-func Of[T any](vs ...T) Iterable[T] {
+func Of[T any](vs ...T) CanIterate[T] {
 	return &SliceIterator[T]{s: vs}
 }
 

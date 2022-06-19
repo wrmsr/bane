@@ -11,12 +11,12 @@ func (e IteratorExhaustedError) Error() string {
 //
 
 type Iterator[T any] interface {
-	Iterable[T]
+	CanIterate[T]
 
 	HasNext() bool
 	Next() T
 }
 
-type Iterable[T any] interface {
+type CanIterate[T any] interface {
 	Iterate() Iterator[T]
 }

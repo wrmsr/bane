@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"testing"
+
+	bt "github.com/wrmsr/bane/pkg/utils/types"
 )
 
 type IntComparer struct{}
@@ -26,8 +28,9 @@ func TestTreapMap(t *testing.T) {
 	m = m.Set(54, "I'm")
 	m = m.Set(55, "here")
 
-	m.ForEach(func(k int, v string) {
-		fmt.Println("[", k, "] =", v)
+	m.ForEach(func(kv bt.Kv[int, string]) bool {
+		fmt.Println("[", kv.K, "] =", kv.V)
+		return true
 	})
 	fmt.Println("Count:", m.Count())
 

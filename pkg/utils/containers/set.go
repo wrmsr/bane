@@ -7,7 +7,7 @@ import its "github.com/wrmsr/bane/pkg/utils/iterators"
 type Set[T comparable] interface {
 	Contains(T) bool
 
-	its.Iterable[T]
+	its.CanIterate[T]
 }
 
 type MutSet[T comparable] interface {
@@ -25,7 +25,7 @@ type setImpl[T comparable] struct {
 	m map[T]struct{}
 }
 
-func newSetImpl[T comparable](it its.Iterable[T]) setImpl[T] {
+func newSetImpl[T comparable](it its.CanIterate[T]) setImpl[T] {
 	s := setImpl[T]{
 		m: make(map[T]struct{}),
 	}
@@ -35,7 +35,7 @@ func newSetImpl[T comparable](it its.Iterable[T]) setImpl[T] {
 	return s
 }
 
-func NewSet[T comparable](it its.Iterable[T]) Set[T] {
+func NewSet[T comparable](it its.CanIterate[T]) Set[T] {
 	return newSetImpl(it)
 }
 
@@ -60,7 +60,7 @@ type mutSetImpl[T comparable] struct {
 	setImpl[T]
 }
 
-func NewMutSet[T comparable](it its.Iterable[T]) MutSet[T] {
+func NewMutSet[T comparable](it its.CanIterate[T]) MutSet[T] {
 	return mutSetImpl[T]{newSetImpl(it)}
 }
 

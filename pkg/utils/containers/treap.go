@@ -61,12 +61,13 @@ type TreapNode[T any] struct {
 }
 
 // ForEach does inorder traversal of the treap
-func (n *TreapNode[T]) ForEach(fn func(v T)) {
+func (n *TreapNode[T]) ForEach(fn func(v T) bool) bool {
 	if n != nil {
-		n.Left.ForEach(fn)
-		fn(n.Value)
-		n.Right.ForEach(fn)
+		if !n.Left.ForEach(fn) || !fn(n.Value) || !n.Right.ForEach(fn) {
+			return false
+		}
 	}
+	return true
 }
 
 // Find finds the node in the treap with matching value
@@ -281,16 +282,17 @@ func (m TreapMap[K, V]) Delete(key K) TreapMap[K, V] {
 	return TreapMap[K, V]{n, m.c}
 }
 
-func (m TreapMap[K, V]) ForEach(fn func(key K, value V)) {
-	m.n.ForEach(func(kv bt.Kv[K, V]) {
-		fn(kv.K, kv.V)
+func (m TreapMap[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool {
+	return m.n.ForEach(func(kv bt.Kv[K, V]) bool {
+		return fn(kv)
 	})
 }
 
 func (m TreapMap[K, V]) Count() int {
 	result := 0
-	m.n.ForEach(func(_ bt.Kv[K, V]) {
+	m.n.ForEach(func(_ bt.Kv[K, V]) bool {
 		result++
+		return true
 	})
 	return result
 }
