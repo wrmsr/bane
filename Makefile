@@ -34,27 +34,36 @@ gen-antlr:
 	if [ ! -f "$$af" ] ; then \
   		curl "https://www.antlr.org/download/$$af" -o "$$af" ; \
   	fi ; \
+	mtime() { \
+		if [[ $$(uname) = "Darwin" ]] ; \
+		then stat -f %m "$$1" ; else stat -c %Y "$$1" ; fi \
+	} ; \
   	wd="$$(pwd)" ; \
   	for d in $$(find ${SRC} -name '*.g4' -exec dirname \{\} \; | sort | uniq) ; do \
-  	  	rm -rf "$$d/parser" ; \
   	  	fs=$$(find "$$d" -name '*.g4' | sort) ; \
   	  	nf=0 ; \
   	  	for f in $$fs ; do \
-  	  		mt=$$(if [[ $$(uname) = "Darwin" ]] ; then stat -f %m "$$f" ; else stat -c %Y "$$f" ; fi) ; \
-  	  		echo "$$f $$mt" ; \
+			mt=$$(mtime "$$f") ; \
+			bf="$${f%.*}" ; \
+			f2="$$(dirname $$bf)/parser/$$(basename $$bf).interp" ; \
+			mt2=$$(mtime "$$f2") ; \
+			if [ "$$mt" -gt "$$mt2" ] ; then nf=1 ; fi ; \
   	  	done ; \
-		for f in $$fs ; do \
-			echo "$$f" ; \
-			( \
-				cd $$(dirname "$$f") && \
-				java \
-					-jar "$$wd/$$af" \
-					-Dlanguage=Go \
-					$$(basename "$$f") \
-					-visitor \
-					-o parser \
-			) ; \
-		done ; \
+		if [ $$nf -ne 0 ] ; then \
+			rm -rf "$$d/parser" ; \
+			for f in $$fs ; do \
+				echo "$$f" ; \
+				( \
+					cd $$(dirname "$$f") && \
+					java \
+						-jar "$$wd/$$af" \
+						-Dlanguage=Go \
+						$$(basename "$$f") \
+						-visitor \
+						-o parser \
+				) ; \
+			done ; \
+		fi ; \
 	done
 
 .PHONY: gen-go
