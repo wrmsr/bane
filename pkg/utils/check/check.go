@@ -21,3 +21,9 @@ func NotNil(v any, s ...string) any {
 	}
 	return v
 }
+
+func NoErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}

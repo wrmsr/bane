@@ -2,25 +2,19 @@ package inject
 
 import (
 	"reflect"
+
+	rfl "github.com/wrmsr/bane/pkg/utils/reflect"
 )
 
 type Injector struct {
-	bs Bindings
+	bs bindings
 	pm providerMap
 }
 
-func NewInjector(bs Bindings) *Injector {
-	pm := make(providerMap)
-	for _, b := range bs.bs {
-		if _, ok := pm[b.key]; ok {
-			panic(DuplicateBindingError{b.key})
-		}
-		pm[b.key] = b.provider.providerFn()
-	}
-
+func NewInjector(bs bindings) *Injector {
 	return &Injector{
 		bs: bs,
-		pm: pm,
+		pm: makeProviderMap(bs),
 	}
 }
 
@@ -41,8 +35,7 @@ func (i *Injector) Provide(o any) any {
 }
 
 func (i *Injector) ProvideArgs(fn any) []any {
-	fnty := reflect.TypeOf(fn)
-
+	fnty := rfl.AsValue(fn).Type()
 	ni := fnty.NumIn()
 	as := make([]any, ni)
 	for n := 0; n < ni; n++ {
@@ -65,7 +58,7 @@ func (i *Injector) Inject(fn any) []any {
 		avs[n] = reflect.ValueOf(a)
 	}
 
-	rvs := reflect.ValueOf(fn).Call(avs)
+	rvs := rfl.AsValue(fn).Call(avs)
 	rs := make([]any, len(rvs))
 	for n, rv := range rvs {
 		rs[n] = rv.Interface()

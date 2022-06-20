@@ -20,7 +20,7 @@ func AsType(v any) reflect.Type {
 		return v
 	}
 
-	rv := reflect.ValueOf(v)
+	rv := AsValue(v)
 	if rv.Kind() == reflect.Pointer && rv.IsNil() {
 		return rv.Type().Elem()
 	}

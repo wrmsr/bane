@@ -7,21 +7,21 @@ import (
 	"github.com/wrmsr/bane/pkg/utils/log"
 )
 
+type fooInt int
+
 func TestInjector(t *testing.T) {
 	inj := NewInjector(
-		Bindings{
+		bindings{
 			bs: []Binding{
-				{
-					key:      ToKey(Type[int]()),
-					provider: Const(420),
-				},
+				toBinding(420),
+				toBinding(func() fooInt { return 2 }),
 			},
 		},
 	)
 	tu.AssertEqual(t, inj.Provide(Key{ty: Type[int]()}).(int), 420)
 
-	mul2 := func(i int) int {
-		return i * 2
+	mul2 := func(i int, f fooInt) int {
+		return i * int(f)
 	}
 
 	n := inj.InjectOne(mul2)
