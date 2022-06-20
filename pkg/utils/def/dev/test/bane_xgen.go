@@ -1,3 +1,5 @@
+//go:build !nodev
+
 package main
 
 type Foo struct {
