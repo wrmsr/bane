@@ -2,6 +2,8 @@ package inject
 
 import (
 	"reflect"
+	"sync"
+	"sync/atomic"
 
 	rfl "github.com/wrmsr/bane/pkg/utils/reflect"
 )
@@ -89,5 +91,34 @@ func (p funcProvider) providedTy() reflect.Type {
 func (p funcProvider) providerFn() providerFn {
 	return func(i any) any {
 		return i.(*Injector).InjectOne(p.fn)
+	}
+}
+
+//
+
+type singletonProvider struct {
+	p Provider
+}
+
+func Singleton(p any) Provider {
+	return singletonProvider{p: toProvider(p)}
+}
+
+var _ Provider = singletonProvider{}
+
+func (p singletonProvider) providedTy() reflect.Type {
+	return p.p.providedTy()
+}
+
+func (p singletonProvider) providerFn() providerFn {
+	var o sync.Once
+	var v atomic.Value
+	type box struct{ v any }
+	fn := p.p.providerFn()
+	return func(i any) any {
+		o.Do(func() {
+			v.Store(box{fn(i)})
+		})
+		return v.Load().(box).v
 	}
 }

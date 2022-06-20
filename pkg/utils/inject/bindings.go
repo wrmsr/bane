@@ -34,6 +34,14 @@ func toBinding(o any) Binding {
 	return Binding{key: Key{ty: rv.Type()}, provider: Const(o)}
 }
 
+func toBindings(os []any) []Binding {
+	bs := make([]Binding, len(os))
+	for i, o := range os {
+		bs[i] = toBinding(o)
+	}
+	return bs
+}
+
 //
 
 type Bindings interface {
@@ -59,6 +67,12 @@ func (bs bindings) ForEach(fn func(Binding) bool) bool {
 		}
 	}
 	return true
+}
+
+func Bind(os ...any) Bindings {
+	return &bindings{
+		bs: toBindings(os),
+	}
 }
 
 //

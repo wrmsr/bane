@@ -7,11 +7,11 @@ import (
 )
 
 type Injector struct {
-	bs bindings
+	bs Bindings
 	pm providerMap
 }
 
-func NewInjector(bs bindings) *Injector {
+func NewInjector(bs Bindings) *Injector {
 	return &Injector{
 		bs: bs,
 		pm: makeProviderMap(bs),
