@@ -122,3 +122,18 @@ build:
 		-tags nodev \
 		-o bin/bane \
 		"${MOD}/cmd/bane"
+
+
+### docker
+
+DOCKER_COMPOSE=docker-compose -f docker/docker-compose.yml
+
+.PHONY: docker-stop
+docker-stop:
+	${DOCKER_COMPOSE} stop
+
+
+.PHONY: docker-reup
+docker-reup: docker-stop
+	${DOCKER_COMPOSE} rm -f
+	${DOCKER_COMPOSE} up

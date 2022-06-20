@@ -2,7 +2,7 @@ version: '3'
 
 services:
 
-  bane-mysql-master:
+  bane-mysql:
     image: 'mysql:8'
     platform: 'linux/x86_64'
     restart: 'unless-stopped'
