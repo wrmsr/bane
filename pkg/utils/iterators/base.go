@@ -11,12 +11,28 @@ func (e IteratorExhaustedError) Error() string {
 //
 
 type Iterator[T any] interface {
-	CanIterate[T]
+	Iterable[T]
 
 	HasNext() bool
 	Next() T
 }
 
-type CanIterate[T any] interface {
+type Iterable[T any] interface {
 	Iterate() Iterator[T]
+}
+
+//
+
+type factoryIterable[T any] struct {
+	fn func() Iterator[T]
+}
+
+func factory[T any](fn func() Iterator[T]) Iterable[T] {
+	return factoryIterable[T]{fn: fn}
+}
+
+var _ Iterable[int] = factoryIterable[int]{}
+
+func (f factoryIterable[T]) Iterate() Iterator[T] {
+	return f.fn()
 }

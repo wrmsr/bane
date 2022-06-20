@@ -6,8 +6,8 @@ type countIterator struct {
 	n int
 }
 
-func Count() Iterator[int] {
-	return &countIterator{}
+func Count() Iterable[int] {
+	return factory(func() Iterator[int] { return &countIterator{} })
 }
 
 var _ Iterator[int] = &countIterator{}
@@ -32,12 +32,14 @@ type rangeIterator struct {
 	n, stop, step int
 }
 
-func Range(start, stop, step int) Iterator[int] {
-	return &rangeIterator{
-		n:    start,
-		stop: stop,
-		step: step,
-	}
+func Range(start, stop, step int) Iterable[int] {
+	return factory(func() Iterator[int] {
+		return &rangeIterator{
+			n:    start,
+			stop: stop,
+			step: step,
+		}
+	})
 }
 
 var _ Iterator[int] = &rangeIterator{}

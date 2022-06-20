@@ -41,7 +41,7 @@ func (m OrdMap[K, V]) TryGet(k K) (V, bool) {
 }
 
 func (m OrdMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
-	return its.IterateSlice(m.s)
+	return its.Slice(m.s)
 }
 
 func (m OrdMap[K, V]) Put(k K, v V) bool {

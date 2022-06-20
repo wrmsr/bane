@@ -7,12 +7,12 @@ import (
 )
 
 type CanForEachInt interface {
-	CanForEach[int]
+	Traversable[int]
 }
 
 type FooForEach struct{}
 
-var _ CanForEach[int] = FooForEach{}
+var _ Traversable[int] = FooForEach{}
 var _ CanForEachInt = FooForEach{}
 
 func (f FooForEach) ForEach(fn func(v int) bool) bool {

@@ -1,29 +1,31 @@
 package iterators
 
-type SliceIterator[T any] struct {
+type sliceIterator[T any] struct {
 	s []T
 	i int
 }
 
-func IterateSlice[T any](s []T) Iterator[T] {
-	return &SliceIterator[T]{s: s}
+func Slice[T any](s []T) Iterable[T] {
+	return factory[T](func() Iterator[T] {
+		return &sliceIterator[T]{s: s}
+	})
 }
 
-func Of[T any](vs ...T) CanIterate[T] {
-	return &SliceIterator[T]{s: vs}
+func Of[T any](vs ...T) Iterable[T] {
+	return &sliceIterator[T]{s: vs}
 }
 
-var _ Iterator[any] = &SliceIterator[any]{}
+var _ Iterator[any] = &sliceIterator[any]{}
 
-func (i *SliceIterator[T]) Iterate() Iterator[T] {
+func (i *sliceIterator[T]) Iterate() Iterator[T] {
 	return i
 }
 
-func (i SliceIterator[T]) HasNext() bool {
+func (i sliceIterator[T]) HasNext() bool {
 	return i.i < len(i.s)
 }
 
-func (i *SliceIterator[T]) Next() T {
+func (i *sliceIterator[T]) Next() T {
 	if i.i >= len(i.s) {
 		panic(IteratorExhaustedError{})
 	}

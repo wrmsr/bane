@@ -45,7 +45,7 @@ func toBindings(os []any) []Binding {
 //
 
 type Bindings interface {
-	its.CanForEach[Binding]
+	its.Traversable[Binding]
 }
 
 type bindings struct {

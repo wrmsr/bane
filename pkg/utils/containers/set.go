@@ -1,6 +1,9 @@
 package containers
 
-import its "github.com/wrmsr/bane/pkg/utils/iterators"
+import (
+	its "github.com/wrmsr/bane/pkg/utils/iterators"
+	bt "github.com/wrmsr/bane/pkg/utils/types"
+)
 
 //
 
@@ -8,7 +11,8 @@ type Set[T comparable] interface {
 	Len() int
 	Contains(T) bool
 
-	its.CanIterate[T]
+	its.Iterable[T]
+	its.Traversable[T]
 }
 
 type MutSet[T comparable] interface {
@@ -26,7 +30,7 @@ type setImpl[T comparable] struct {
 	m map[T]struct{}
 }
 
-func newSetImpl[T comparable](it its.CanIterate[T]) setImpl[T] {
+func newSetImpl[T comparable](it its.Iterable[T]) setImpl[T] {
 	s := setImpl[T]{
 		m: make(map[T]struct{}),
 	}
@@ -36,7 +40,7 @@ func newSetImpl[T comparable](it its.CanIterate[T]) setImpl[T] {
 	return s
 }
 
-func NewSet[T comparable](it its.CanIterate[T]) Set[T] {
+func NewSet[T comparable](it its.Iterable[T]) Set[T] {
 	return newSetImpl(it)
 }
 
@@ -56,7 +60,21 @@ func (s setImpl[T]) Contains(t T) bool {
 }
 
 func (s setImpl[T]) Iterate() its.Iterator[T] {
-	its.IterateMap(s.m)
+	return its.Transform(
+		its.Map(s.m),
+		func(kv bt.Kv[T, struct{}]) T {
+			return kv.K
+		},
+	).Iterate()
+}
+
+func (s setImpl[T]) ForEach(fn func(T) bool) bool {
+	for v, _ := range s.m {
+		if !fn(v) {
+			return false
+		}
+	}
+	return true
 }
 
 //
@@ -65,7 +83,7 @@ type mutSetImpl[T comparable] struct {
 	setImpl[T]
 }
 
-func NewMutSet[T comparable](it its.CanIterate[T]) MutSet[T] {
+func NewMutSet[T comparable](it its.Iterable[T]) MutSet[T] {
 	return mutSetImpl[T]{newSetImpl(it)}
 }
 
