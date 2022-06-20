@@ -1,16 +1,8 @@
 package def
 
-import "reflect"
-
-//
-
-type RootDef interface {
-	isRootDef()
-}
-
-func Def(defs ...RootDef) any {
-	return nil
-}
+import (
+	"reflect"
+)
 
 //
 
@@ -26,6 +18,7 @@ type StructDef struct {
 func (sd StructDef) isRootDef() {}
 
 func Struct(name string, opts ...StructOpt) StructDef {
+	//pkg := getCallingPackage()
 	return StructDef{
 		Name: name,
 		Opts: opts,

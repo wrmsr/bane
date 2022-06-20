@@ -61,11 +61,9 @@ import "testing"
 
 //
 
-var _ = Def(
-	Struct("Foo",
-		Field("bar", Type[int]()),
-		Field("baz", Type[int]()),
-	),
+var _ = Struct("Foo",
+	Field("bar", Type[int]()),
+	Field("baz", Type[int]()),
 )
 
 //
