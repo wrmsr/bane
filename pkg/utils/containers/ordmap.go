@@ -2,6 +2,7 @@ package containers
 
 import (
 	its "github.com/wrmsr/bane/pkg/utils/iterators"
+	"github.com/wrmsr/bane/pkg/utils/slices"
 	bt "github.com/wrmsr/bane/pkg/utils/types"
 )
 
@@ -109,7 +110,7 @@ func (m *ordMapImpl[K, V]) Delete(k K) bool {
 	if !ok {
 		return false
 	}
-	m.s = DeleteAt(m.s, i)
+	m.s = slices.DeleteAt(m.s, i)
 	return true
 }
 
