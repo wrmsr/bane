@@ -69,7 +69,7 @@ func (s setImpl[T]) Iterate() its.Iterator[T] {
 }
 
 func (s setImpl[T]) ForEach(fn func(T) bool) bool {
-	for v, _ := range s.m {
+	for v := range s.m {
 		if !fn(v) {
 			return false
 		}

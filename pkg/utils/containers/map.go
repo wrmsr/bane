@@ -62,7 +62,7 @@ func (m mapImpl[K, V]) TryGet(k K) (V, bool) {
 }
 
 func (m mapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
-	return its.Map[K, V](m.m)
+	return its.Map[K, V](m.m).Iterate()
 }
 
 func (m mapImpl[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
