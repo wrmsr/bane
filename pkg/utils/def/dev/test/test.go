@@ -5,10 +5,10 @@ package main
 import (
 	"fmt"
 
-	"github.com/wrmsr/bane/pkg/utils/structs/def"
+	"github.com/wrmsr/bane/pkg/utils/def"
 )
 
-//go:generate go run github.com/wrmsr/bane/pkg/utils/structs/dev/gen
+//go:generate go run github.com/wrmsr/bane/pkg/utils/def/dev/gen
 
 var _ = def.Def(
 	def.Struct("Foo",
