@@ -85,6 +85,17 @@ func NewParser(r io.Reader) *Parser {
 	}
 }
 
+//var charMap = map[string]rune{
+//	"space":     ' ',
+//	"newline":   '\n',
+//	"backspace": '\b',
+//	"tab":       '\t',
+//	"linefeed":  '\n',
+//	"page":      '\f',
+//	"return":    '\r',
+//	"rubout":    0x7f,
+//}
+
 var spaceRunes = ctr.NewSetOf(
 	' ',
 	'\f',
@@ -105,7 +116,10 @@ func (p *Parser) Parse() (*Cons, error) {
 
 	c := &Cons{
 		Int(10),
-		Int(20),
+		&Cons{
+			Int(20),
+			nil,
+		},
 	}
 
 	if err := p.rd.err(); err != io.EOF {
