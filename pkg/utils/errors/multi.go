@@ -31,16 +31,15 @@ import (
 )
 
 var (
-	_singlelineSeparator = []byte("; ")
+	singleLineSep = []byte("; ")
 
-	_multilinePrefix = []byte("the following errors occurred:")
-
-	_multilineSeparator = []byte("\n -  ")
-	_multilineIndent    = []byte("    ")
+	multiLinePrefix = []byte("the following errors occurred:")
+	multiLineSep    = []byte("\n -  ")
+	multiLineIndent = []byte("    ")
 )
 
 var _bufferPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return &bytes.Buffer{}
 	},
 }
@@ -69,15 +68,15 @@ type multiError struct {
 
 var _ errorGroup = (*multiError)(nil)
 
-func (merr *multiError) Errors() []error {
-	if merr == nil {
+func (me *multiError) Errors() []error {
+	if me == nil {
 		return nil
 	}
-	return merr.errors
+	return me.errors
 }
 
-func (merr *multiError) As(target interface{}) bool {
-	for _, err := range merr.Errors() {
+func (me *multiError) As(target any) bool {
+	for _, err := range me.Errors() {
 		if errors.As(err, target) {
 			return true
 		}
@@ -85,8 +84,8 @@ func (merr *multiError) As(target interface{}) bool {
 	return false
 }
 
-func (merr *multiError) Is(target error) bool {
-	for _, err := range merr.Errors() {
+func (me *multiError) Is(target error) bool {
+	for _, err := range me.Errors() {
 		if errors.Is(err, target) {
 			return true
 		}
@@ -94,46 +93,46 @@ func (merr *multiError) Is(target error) bool {
 	return false
 }
 
-func (merr *multiError) Error() string {
-	if merr == nil {
+func (me *multiError) Error() string {
+	if me == nil {
 		return ""
 	}
 
 	buff := _bufferPool.Get().(*bytes.Buffer)
 	buff.Reset()
 
-	merr.writeSingleline(buff)
+	me.writeSingleline(buff)
 
 	result := buff.String()
 	_bufferPool.Put(buff)
 	return result
 }
 
-func (merr *multiError) Format(f fmt.State, c rune) {
+func (me *multiError) Format(f fmt.State, c rune) {
 	if c == 'v' && f.Flag('+') {
-		merr.writeMultiline(f)
+		me.writeMultiline(f)
 	} else {
-		merr.writeSingleline(f)
+		me.writeSingleline(f)
 	}
 }
 
-func (merr *multiError) writeSingleline(w io.Writer) {
+func (me *multiError) writeSingleline(w io.Writer) {
 	first := true
-	for _, item := range merr.errors {
+	for _, item := range me.errors {
 		if first {
 			first = false
 		} else {
-			w.Write(_singlelineSeparator)
+			_, _ = w.Write(singleLineSep)
 		}
-		io.WriteString(w, item.Error())
+		_, _ = io.WriteString(w, item.Error())
 	}
 }
 
-func (merr *multiError) writeMultiline(w io.Writer) {
-	w.Write(_multilinePrefix)
-	for _, item := range merr.errors {
-		w.Write(_multilineSeparator)
-		writePrefixLine(w, _multilineIndent, fmt.Sprintf("%+v", item))
+func (me *multiError) writeMultiline(w io.Writer) {
+	_, _ = w.Write(multiLinePrefix)
+	for _, item := range me.errors {
+		_, _ = w.Write(multiLineSep)
+		writePrefixLine(w, multiLineIndent, fmt.Sprintf("%+v", item))
 	}
 }
 
@@ -143,7 +142,7 @@ func writePrefixLine(w io.Writer, prefix []byte, s string) {
 		if first {
 			first = false
 		} else {
-			w.Write(prefix)
+			_, _ = w.Write(prefix)
 		}
 
 		idx := strings.IndexByte(s, '\n')
@@ -151,7 +150,7 @@ func writePrefixLine(w io.Writer, prefix []byte, s string) {
 			idx = len(s) - 1
 		}
 
-		io.WriteString(w, s[:idx+1])
+		_, _ = io.WriteString(w, s[:idx+1])
 		s = s[idx+1:]
 	}
 }
@@ -245,8 +244,8 @@ func Append(left error, right error) error {
 		}
 	}
 
-	errors := [2]error{left, right}
-	return fromSlice(errors[0:])
+	es := [2]error{left, right}
+	return fromSlice(es[0:])
 }
 
 func AppendInto(into *error, err error) (errored bool) {

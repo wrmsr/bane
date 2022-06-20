@@ -11,6 +11,8 @@ import (
 //
 
 type Value interface {
+	IsIdentity() bool
+
 	String() string
 
 	isValue()
@@ -55,6 +57,15 @@ func (v Char) isValue()    {}
 func (v String) isValue()  {}
 func (v Atom) isValue()    {}
 func (v *Cons) isValue()   {}
+
+func (Bool) IsIdentity() bool    { return true }
+func (Int) IsIdentity() bool     { return true }
+func (Float) IsIdentity() bool   { return true }
+func (Complex) IsIdentity() bool { return true }
+func (Char) IsIdentity() bool    { return true }
+func (String) IsIdentity() bool  { return true }
+func (Atom) IsIdentity() bool    { return false }
+func (*Cons) IsIdentity() bool   { return false }
 
 func (v Bool) String() string {
 	if v {
@@ -147,5 +158,23 @@ func AsString(v Value) string {
 		return "()"
 	} else {
 		return v.String()
+	}
+}
+
+func MakeList(vals ...Value) *Cons {
+	var p, q *Cons
+	for _, v := range vals {
+		AppendValue(&p, &q, v)
+	}
+	return p
+}
+
+func AppendValue(p **Cons, q **Cons, v Value) {
+	if *p == nil {
+		*p = new(Cons)
+		*q, (*p).Car = *p, v
+	} else {
+		r := new(Cons)
+		r.Car, (*q).Cdr, *q = v, r, r
 	}
 }

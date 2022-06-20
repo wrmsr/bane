@@ -2,99 +2,37 @@ package lisp
 
 import (
 	"bufio"
+	"errors"
+	"fmt"
 	"io"
+	"strconv"
+	"strings"
 
 	ctr "github.com/wrmsr/bane/pkg/utils/containers"
+	eu "github.com/wrmsr/bane/pkg/utils/errors"
 )
 
 //
 
-type runeReader struct {
-	rd *bufio.Reader
-
-	p bool
-	r rune
+type ParseError struct {
 	e error
 }
 
-func newRuneReader(r io.Reader) runeReader {
-	return runeReader{
-		rd: bufio.NewReader(r),
-	}
+func (e ParseError) Error() string {
+	return e.e.Error()
 }
 
-func (rd *runeReader) peekErr() (rune, error) {
-	if rd.p {
-		return rd.r, rd.e
-	}
-
-	rd.p = true
-	rd.r, _, rd.e = rd.rd.ReadRune()
-	return rd.r, rd.e
+func (e ParseError) Unwrap() error {
+	return e.e
 }
 
-func (rd *runeReader) nextErr() (rune, error) {
-	if rd.p {
-		r, e := rd.r, rd.e
-		rd.p = false
-		rd.r, rd.e = 0, nil
-		return r, e
-	}
-
-	r, _, e := rd.rd.ReadRune()
-	return r, e
-}
-
-func (rd *runeReader) peek() rune {
-	r, e := rd.peekErr()
-	if e != nil {
-		panic(e)
-	}
-	return r
-}
-
-func (rd *runeReader) next() rune {
-	r, e := rd.nextErr()
-	if e != nil {
-		panic(e)
-	}
-	return r
-}
-
-func (rd *runeReader) more() bool {
-	_, e := rd.peekErr()
-	return e == nil
-}
-
-func (rd *runeReader) err() error {
-	if !rd.p {
-		return nil
-	}
-	return rd.e
-}
+var (
+	UnexpectedEofErr  = ParseError{errors.New("unexpected EOF")}
+	UnexpectedCharErr = ParseError{errors.New("unexpected char")}
+	IllegalCharErr    = ParseError{errors.New("illegal char")}
+)
 
 //
-
-type Parser struct {
-	rd runeReader
-}
-
-func NewParser(r io.Reader) *Parser {
-	return &Parser{
-		rd: newRuneReader(r),
-	}
-}
-
-//var charMap = map[string]rune{
-//	"space":     ' ',
-//	"newline":   '\n',
-//	"backspace": '\b',
-//	"tab":       '\t',
-//	"linefeed":  '\n',
-//	"page":      '\f',
-//	"return":    '\r',
-//	"rubout":    0x7f,
-//}
 
 var spaceRunes = ctr.NewSetOf(
 	' ',
@@ -105,25 +43,169 @@ var spaceRunes = ctr.NewSetOf(
 	'\v',
 )
 
-func (p *Parser) skipSpace() {
-	for p.rd.more() && spaceRunes.Contains(p.rd.peek()) {
-		p.rd.next()
+func isSpace(r rune) bool {
+	return spaceRunes.Contains(r)
+}
+
+func isAtomChar(r rune) bool {
+	return !(r == '(' || r == ')' || r == '"' || isSpace(r))
+}
+
+//
+
+type Parser struct {
+	rd *bufio.Reader
+
+	pp bool
+	pr rune
+}
+
+func NewParser(r io.Reader) *Parser {
+	return &Parser{
+		rd: bufio.NewReader(r),
 	}
 }
 
-func (p *Parser) Parse() (*Cons, error) {
-	p.skipSpace()
-
-	c := &Cons{
-		Int(10),
-		&Cons{
-			Int(20),
-			nil,
-		},
+func (pa *Parser) peek() (rune, bool) {
+	if pa.pp {
+		return pa.pr, true
 	}
 
-	if err := p.rd.err(); err != io.EOF {
-		return c, err
+	r, ok := pa.read()
+	if !ok {
+		return 0, false
 	}
-	return c, nil
+
+	pa.pp, pa.pr = true, r
+	return r, true
+}
+
+func (pa *Parser) mustPeek() rune {
+	if r, ok := pa.peek(); ok {
+		return r
+	}
+	panic(UnexpectedEofErr)
+}
+
+func (pa *Parser) read() (rune, bool) {
+	if pa.pp {
+		r := pa.pr
+		pa.pp = false
+		return r, true
+	}
+
+	r, _, e := pa.rd.ReadRune()
+	if e != nil {
+		if e == io.EOF {
+			return 0, false
+		}
+		panic(ParseError{e})
+	}
+
+	return r, true
+}
+
+func (pa *Parser) mustRead() rune {
+	if r, ok := pa.read(); ok {
+		return r
+	}
+	panic(UnexpectedEofErr)
+}
+
+func (pa *Parser) skipSpace() {
+	for {
+		r, ok := pa.peek()
+		if !ok || !isSpace(r) {
+			break
+		}
+		pa.read()
+	}
+}
+
+func (pa *Parser) parseString() Value {
+	if pa.mustRead() != '"' {
+		panic(UnexpectedCharErr)
+	}
+
+	var sb strings.Builder
+	for {
+		c := pa.mustRead()
+		if c == '"' {
+			break
+		}
+		sb.WriteRune(c)
+		if c == '\\' {
+			sb.WriteRune(pa.mustRead())
+		}
+
+	}
+
+	ret, err := strconv.Unquote(sb.String())
+	if err != nil {
+		panic(ParseError{err})
+	} else {
+		return String(ret)
+	}
+}
+
+func (pa *Parser) parseValue() Value {
+	pa.skipSpace()
+
+	r := pa.mustPeek()
+	switch r {
+	case 0:
+		panic(IllegalCharErr)
+	case '"':
+		return pa.parseString()
+	}
+
+	panic(ParseError{fmt.Errorf("unexpected character: %v", r)})
+
+}
+
+//func (pa *Parser) parseSimple() Value {
+//	p := pa.p - 1
+//	n := len(pa.s)
+//
+//	/* scan until the next space or EOF */
+//	for pa.p < n && isAtomChar(pa.s[pa.p]) {
+//		pa.p++
+//	}
+//
+//	/* extract the token */
+//	src := pa.s[p:pa.p]
+//	val := string(src)
+//
+//	/* check for token types */
+//	if iv, err := strconv.ParseInt(val, 0, 64); err == nil {
+//		return Int(iv)
+//	} else if fv, err := strconv.ParseFloat(val, 64); err == nil {
+//		return Float(fv)
+//	} else if cv, err := strconv.ParseComplex(val, 128); err == nil {
+//		return Complex(cv)
+//	} else {
+//		return Atom(val)
+//	}
+//}
+
+func (pa *Parser) Parse() (ret *Cons, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r, ok := r.(ParseError); ok {
+				err = eu.Append(err, r)
+			} else {
+				panic(r)
+			}
+		}
+	}()
+
+	ret = &Cons{
+		pa.parseValue(),
+		nil,
+	}
+
+	if _, ok := pa.peek(); ok {
+		err = eu.Append(err, UnexpectedCharErr)
+	}
+	return
 }
