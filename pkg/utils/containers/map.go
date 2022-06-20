@@ -8,11 +8,13 @@ import (
 //
 
 type Map[K comparable, V any] interface {
+	Len() int
 	Contains(k K) bool
 	Get(k K) V
 	TryGet(k K) (V, bool)
 
 	its.CanIterate[bt.Kv[K, V]]
+	its.CanForEach[bt.Kv[K, V]]
 }
 
 type MutMap[K comparable, V any] interface {
@@ -41,6 +43,10 @@ func NewMap[K comparable, V any]() Map[K, V] {
 
 var _ Map[int, any] = mapImpl[int, any]{}
 
+func (m mapImpl[K, V]) Len() int {
+	return len(m.m)
+}
+
 func (m mapImpl[K, V]) Contains(k K) bool {
 	_, ok := m.m[k]
 	return ok
@@ -57,6 +63,15 @@ func (m mapImpl[K, V]) TryGet(k K) (V, bool) {
 
 func (m mapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
 	return its.IterateMap[K, V](m.m)
+}
+
+func (m mapImpl[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
+	for k, v := range m.m {
+		if !fn(bt.KvOf(k, v)) {
+			return false
+		}
+	}
+	return true
 }
 
 //

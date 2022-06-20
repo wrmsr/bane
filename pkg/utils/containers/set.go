@@ -5,6 +5,7 @@ import its "github.com/wrmsr/bane/pkg/utils/iterators"
 //
 
 type Set[T comparable] interface {
+	Len() int
 	Contains(T) bool
 
 	its.CanIterate[T]
@@ -45,13 +46,17 @@ func NewSetOf[T comparable](vs ...T) Set[T] {
 
 var _ Set[int] = setImpl[int]{}
 
+func (s setImpl[T]) Len() int {
+	return len(s.m)
+}
+
 func (s setImpl[T]) Contains(t T) bool {
 	_, ok := s.m[t]
 	return ok
 }
 
 func (s setImpl[T]) Iterate() its.Iterator[T] {
-	panic("nyi")
+	its.IterateMap(s.m)
 }
 
 //

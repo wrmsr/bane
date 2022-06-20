@@ -1,5 +1,33 @@
 package iterators
 
+//
+
+type countIterator struct {
+	n int
+}
+
+func Count() Iterator[int] {
+	return &countIterator{}
+}
+
+var _ Iterator[int] = &countIterator{}
+
+func (i *countIterator) Iterate() Iterator[int] {
+	return i
+}
+
+func (i countIterator) HasNext() bool {
+	return true
+}
+
+func (i *countIterator) Next() int {
+	n := i.n
+	i.n++
+	return n
+}
+
+//
+
 type rangeIterator struct {
 	n, stop, step int
 }
@@ -19,7 +47,11 @@ func (i *rangeIterator) Iterate() Iterator[int] {
 }
 
 func (i rangeIterator) HasNext() bool {
-	return i.n < i.stop
+	if i.step >= 0 {
+		return i.n < i.stop
+	} else {
+		return i.n > i.stop
+	}
 }
 
 func (i *rangeIterator) Next() int {
