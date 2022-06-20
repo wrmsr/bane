@@ -17,6 +17,7 @@ type Set[T comparable] interface {
 
 type MutSet[T comparable] interface {
 	Set[T]
+	Mutable
 
 	Add(value T)
 	TryAdd(value T) bool
@@ -92,6 +93,8 @@ func NewMutSetOf[T comparable](vs ...T) MutSet[T] {
 }
 
 var _ MutSet[int] = mutSetImpl[int]{}
+
+func (m mutSetImpl[T]) isMutable() {}
 
 func (m mutSetImpl[T]) Add(value T) {
 	m.m[value] = struct{}{}

@@ -16,26 +16,26 @@ func (i IntComparer) Compare(left, right int) int {
 
 func TestTreapMap(t *testing.T) {
 	m := NewTreapMap[int, string](IntComparer{})
-	fmt.Println("Count:", m.Count())
+	fmt.Println("Len:", m.Len())
 
 	for i := 0; i < 32; i++ {
-		m = m.Set(i, strconv.Itoa(i))
+		m = m.With(i, strconv.Itoa(i))
 	}
 
-	m = m.Set(52, "hello")
-	m = m.Set(53, "world")
-	m = m.Set(52, "Hello")
-	m = m.Set(54, "I'm")
-	m = m.Set(55, "here")
+	m = m.With(52, "hello")
+	m = m.With(53, "world")
+	m = m.With(52, "Hello")
+	m = m.With(54, "I'm")
+	m = m.With(55, "here")
 
 	m.ForEach(func(kv bt.Kv[int, string]) bool {
 		fmt.Println("[", kv.K, "] =", kv.V)
 		return true
 	})
-	fmt.Println("Count:", m.Count())
+	fmt.Println("Len:", m.Len())
 
-	old := m.Set(500, "five hundred")
-	m = m.Delete(53)
+	old := m.With(500, "five hundred")
+	m = m.Without(53)
 
 	fmt.Println(m.Get(53))
 	fmt.Println(old.Get(53))

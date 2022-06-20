@@ -41,6 +41,7 @@
 package containers
 
 import (
+	its "github.com/wrmsr/bane/pkg/utils/iterators"
 	rndu "github.com/wrmsr/bane/pkg/utils/rand"
 	bt "github.com/wrmsr/bane/pkg/utils/types"
 )
@@ -184,7 +185,7 @@ func (n *TreapNode[T]) Diff(other *TreapNode[T], c Comparer[T]) *TreapNode[T] {
 		return n
 	}
 
-	// TODO -- use  count
+	// TODO -- use count
 	if n.Priority >= other.Priority {
 		left, dupe, right := other.Split(n.Value, c)
 		left, right = n.Left.Diff(left, c), n.Right.Diff(right, c)
@@ -245,54 +246,84 @@ func (c treapMapComparer[K, V]) Compare(kv1, kv2 bt.Kv[K, V]) int {
 	return c(kv1, kv2)
 }
 
-type TreapMap[K comparable, V any] struct {
+type treapMap[K comparable, V any] struct {
 	n *TreapNode[bt.Kv[K, V]]
 	c Comparer[bt.Kv[K, V]]
 }
 
-func NewTreapMap[K comparable, V any](keyCompare Comparer[K]) TreapMap[K, V] {
-	return TreapMap[K, V]{
+func NewTreapMap[K comparable, V any](keyCompare Comparer[K]) PerMap[K, V] {
+	return treapMap[K, V]{
 		c: treapMapComparer[K, V](func(v1, v2 bt.Kv[K, V]) int {
 			return keyCompare.Compare(v1.K, v2.K)
 		}),
 	}
 }
 
-func (m TreapMap[K, V]) Get(key K) (any, bool) {
-	n := m.n.Find(bt.KvOf[K, V](key, bt.Zero[V]()), m.c)
-	if n == nil {
-		return nil, false
-	}
-	return n.Value.V, true
-}
+var _ PerMap[int, string] = treapMap[int, string]{}
 
-func (m TreapMap[K, V]) Set(key K, value V) TreapMap[K, V] {
-	node := &TreapNode[bt.Kv[K, V]]{
-		bt.KvOf(key, value),
-		int(rndu.FastUint32()),
-		nil,
-		nil,
-	}
-	n := m.n.Union(node, m.c, true)
-	return TreapMap[K, V]{n, m.c}
-}
+func (m treapMap[K, V]) isPersistent() {}
 
-func (m TreapMap[K, V]) Delete(key K) TreapMap[K, V] {
-	n := m.n.Delete(bt.KvOf[K, V](key, bt.Zero[V]()), m.c)
-	return TreapMap[K, V]{n, m.c}
-}
-
-func (m TreapMap[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool {
-	return m.n.ForEach(func(kv bt.Kv[K, V]) bool {
-		return fn(kv)
-	})
-}
-
-func (m TreapMap[K, V]) Count() int {
+func (m treapMap[K, V]) Len() int {
+	// TODO: memo
 	result := 0
 	m.n.ForEach(func(_ bt.Kv[K, V]) bool {
 		result++
 		return true
 	})
 	return result
+}
+
+func (m treapMap[K, V]) Contains(k K) bool {
+	_, ok := m.TryGet(k)
+	return ok
+}
+
+func (m treapMap[K, V]) Get(k K) V {
+	if v, ok := m.TryGet(k); ok {
+		return v
+	}
+	var z V
+	return z
+}
+
+func (m treapMap[K, V]) TryGet(k K) (V, bool) {
+	n := m.n.Find(bt.KvOf[K, V](k, bt.Zero[V]()), m.c)
+	if n == nil {
+		var z V
+		return z, false
+	}
+	return n.Value.V, true
+}
+
+func (m treapMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+	panic("implement me")
+}
+
+func (m treapMap[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool {
+	return m.n.ForEach(func(kv bt.Kv[K, V]) bool {
+		return fn(kv)
+	})
+}
+
+func (m treapMap[K, V]) With(k K, v V) PerMap[K, V] {
+	node := &TreapNode[bt.Kv[K, V]]{
+		bt.KvOf(k, v),
+		int(rndu.FastUint32()),
+		nil,
+		nil,
+	}
+	n := m.n.Union(node, m.c, true)
+	return treapMap[K, V]{n, m.c}
+}
+
+func (m treapMap[K, V]) Without(k K) PerMap[K, V] {
+	n := m.n.Delete(bt.KvOf[K, V](k, bt.Zero[V]()), m.c)
+	return treapMap[K, V]{n, m.c}
+}
+
+func (m treapMap[K, V]) Default(k K, v V) PerMap[K, V] {
+	if _, ok := m.TryGet(k); ok {
+		return m
+	}
+	return m.With(k, v)
 }

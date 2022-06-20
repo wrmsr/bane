@@ -9,12 +9,12 @@ import (
 
 type OrdMap[K comparable, V any] interface {
 	Map[K, V]
-
-	isOrd()
+	Ordered
 }
 
 type MutOrdMap[K comparable, V any] interface {
 	OrdMap[K, V]
+	MutMap[K, V]
 }
 
 //
@@ -37,7 +37,7 @@ func NewOrdMap[K comparable, V any]() OrdMap[K, V] {
 
 var _ OrdMap[int, any] = ordMapImpl[int, any]{}
 
-func (m ordMapImpl[K, V]) isOrd() {}
+func (m ordMapImpl[K, V]) isOrdered() {}
 
 func (m ordMapImpl[K, V]) Len() int {
 	return len(m.s)
@@ -90,6 +90,8 @@ func NewMutOrdMap[K comparable, V any]() MutOrdMap[K, V] {
 }
 
 var _ MutMap[int, any] = &mutOrdMapImpl[int, any]{}
+
+func (m *ordMapImpl[K, V]) isMutable() {}
 
 func (m *ordMapImpl[K, V]) Put(k K, v V) bool {
 	i, ok := m.m[k]

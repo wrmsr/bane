@@ -19,6 +19,7 @@ type Map[K comparable, V any] interface {
 
 type MutMap[K comparable, V any] interface {
 	Map[K, V]
+	Mutable
 
 	Put(k K, v V) bool
 	Delete(k K) bool
@@ -85,6 +86,8 @@ func NewMutMap[K comparable, V any]() MutMap[K, V] {
 }
 
 var _ MutMap[int, any] = mutMapImpl[int, any]{}
+
+func (m mutMapImpl[K, V]) isMutable() {}
 
 func (m mutMapImpl[K, V]) Put(k K, v V) bool {
 	r := m.Contains(k)

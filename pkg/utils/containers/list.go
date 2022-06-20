@@ -16,6 +16,7 @@ type List[T any] interface {
 
 type MutList[T any] interface {
 	List[T]
+	Mutable
 
 	Append(v T)
 	Delete(i int)
@@ -81,6 +82,8 @@ func NewMutListOf[T comparable](vs ...T) MutList[T] {
 }
 
 var _ MutList[int] = &mutListImpl[int]{}
+
+func (l *mutListImpl[T]) isMutable() {}
 
 func (l *mutListImpl[T]) Append(v T) {
 	l.s = append(l.s, v)
