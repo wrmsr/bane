@@ -18,11 +18,26 @@ type StructDef struct {
 func (sd StructDef) isRootDef() {}
 
 func Struct(name string, opts ...StructOpt) StructDef {
-	//pkg := getCallingPackage()
-	return StructDef{
+	return addPackageRootDef(globalRegistry, getCallingPackage(), StructDef{
 		Name: name,
 		Opts: opts,
-	}
+	})
+}
+
+//
+
+type XStructExpectsDef struct {
+	Name string
+
+	FieldNames []string
+	NumInits   int
+}
+
+func (sed XStructExpectsDef) isRootDef() {}
+
+func (sed XStructExpectsDef) Register() any {
+	addPackageRootDef(globalRegistry, getCallingPackage(), sed)
+	return nil
 }
 
 //

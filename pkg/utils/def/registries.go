@@ -2,8 +2,27 @@ package def
 
 import (
 	"errors"
+	"reflect"
 
 	rtu "github.com/wrmsr/bane/pkg/utils/runtime"
+)
+
+//
+
+type RegistryError struct {
+	err error
+}
+
+func (e RegistryError) Error() string {
+	return e.err.Error()
+}
+
+func (e RegistryError) Unwrap() error {
+	return e.err
+}
+
+var (
+	RegistrySealedError = RegistryError{errors.New("registry sealed")}
 )
 
 //
@@ -18,7 +37,7 @@ var _thisPackage = func() string { return _getCallingPackage() }()
 func getCallingPackage() string {
 	pkg := _getCallingPackage()
 	if pkg == _thisPackage {
-		panic(errors.New("must not call from this package"))
+		panic(RegistryError{errors.New("must not call from this package")})
 	}
 	return pkg
 }
@@ -26,13 +45,51 @@ func getCallingPackage() string {
 //
 
 type packageRegistry struct {
-	name string
+	name   string
+	sealed bool
+
+	rootDefs    []RootDef
+	rootDefsMap map[reflect.Type][]RootDef
 }
 
 func newPackageRegistry(name string) *packageRegistry {
 	return &packageRegistry{
 		name: name,
+
+		rootDefsMap: make(map[reflect.Type][]RootDef),
 	}
+}
+
+func (r *packageRegistry) addRootDef(def RootDef) RootDef {
+	if r.sealed {
+		panic(RegistrySealedError)
+	}
+
+	r.rootDefs = append(r.rootDefs, def)
+
+	dty := reflect.TypeOf(def)
+	r.rootDefsMap[dty] = append(r.rootDefsMap[dty], def)
+
+	return def
+}
+
+func (r *packageRegistry) addRootDefs(defs ...RootDef) *packageRegistry {
+	if r.sealed {
+		panic(RegistrySealedError)
+	}
+	for _, def := range defs {
+		r.addRootDef(def)
+	}
+	return r
+}
+
+func (r *packageRegistry) seal() *packageRegistry {
+	if r.sealed {
+		return r
+	}
+
+	r.sealed = true
+	return r
 }
 
 //
@@ -47,11 +104,20 @@ func newRegistry() *registry {
 	}
 }
 
-func (r *registry) Package(name string) *packageRegistry {
+func (r *registry) getPackage(name string) *packageRegistry {
 	if p, ok := r.packages[name]; ok {
 		return p
 	}
 	p := newPackageRegistry(name)
 	r.packages[name] = p
 	return p
+}
+
+//
+
+var globalRegistry = newRegistry()
+
+func addPackageRootDef[T RootDef](r *registry, pkg string, def T) T {
+	r.getPackage(pkg).addRootDef(def)
+	return def
 }
