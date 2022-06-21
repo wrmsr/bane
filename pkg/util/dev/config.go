@@ -1,13 +1,8 @@
 //go:build !nodev
 
-package testing
+package dev
 
-import (
-	"testing"
-	"time"
-)
-
-//
+import "time"
 
 type Config struct {
 	DefaultTimeout time.Duration
@@ -17,10 +12,4 @@ func DefaultConfig() Config {
 	return Config{
 		DefaultTimeout: time.Duration(10) * time.Second,
 	}
-}
-
-//
-
-func Main(t *testing.M, init func()) {
-	init()
 }

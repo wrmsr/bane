@@ -19,7 +19,7 @@ func NewInjector(bs Bindings) *Injector {
 }
 
 func (i *Injector) TryProvide(o any) (any, bool) {
-	k := ToKey(o)
+	k := AsKey(o)
 	if p, ok := i.pm[k]; ok {
 		return p(i), true
 	}
@@ -27,7 +27,7 @@ func (i *Injector) TryProvide(o any) (any, bool) {
 }
 
 func (i *Injector) Provide(o any) any {
-	k := ToKey(o)
+	k := AsKey(o)
 	if v, ok := i.TryProvide(k); ok {
 		return v
 	}
@@ -40,7 +40,7 @@ func (i *Injector) ProvideArgs(fn any) []any {
 	as := make([]any, ni)
 	for n := 0; n < ni; n++ {
 		aty := fnty.In(n)
-		ak := ToKey(aty)
+		ak := AsKey(aty)
 		if v, ok := i.TryProvide(ak); ok {
 			as[n] = v
 			continue
@@ -72,4 +72,8 @@ func (i *Injector) InjectOne(fn any) any {
 		panic(genericErrorf("expected 1 return value: %v", fn))
 	}
 	return rs[0]
+}
+
+func Provide[T any](i *Injector) T {
+	return i.Provide(KeyOf[T]()).(T)
 }

@@ -19,7 +19,7 @@ func (ds *DeferStack) Defer(fn func()) {
 	})
 }
 
-func (ds *DeferStack) Close() (err error) {
+func (ds *DeferStack) Call() (err error) {
 	fns := ds.fns
 	for i := len(fns) - 1; i >= 0; i-- {
 		err = Append(err, fns[i]())

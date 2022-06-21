@@ -13,7 +13,7 @@ type Binding struct {
 	provider Provider
 }
 
-func toBinding(o any) Binding {
+func asBinding(o any) Binding {
 	if o == nil {
 		panic(genericErrorf("must explicitly bind nil"))
 	}
@@ -28,16 +28,16 @@ func toBinding(o any) Binding {
 
 	rv := reflect.ValueOf(o)
 	if rv.Kind() == reflect.Func {
-		return toBinding(Func(rv))
+		return asBinding(Func(rv))
 	}
 
 	return Binding{key: Key{ty: rv.Type()}, provider: Const(o)}
 }
 
-func toBindings(os []any) []Binding {
+func asBindings(os []any) []Binding {
 	bs := make([]Binding, len(os))
 	for i, o := range os {
-		bs[i] = toBinding(o)
+		bs[i] = asBinding(o)
 	}
 	return bs
 }
@@ -73,7 +73,7 @@ func (bs bindings) ForEach(fn func(Binding) bool) bool {
 
 func Bind(os ...any) Bindings {
 	return &bindings{
-		bs: toBindings(os),
+		bs: asBindings(os),
 	}
 }
 

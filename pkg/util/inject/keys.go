@@ -14,7 +14,12 @@ type Key struct {
 	tag any
 }
 
-func ToKey(o any) Key {
+func KeyOf[T any]() Key {
+	var z T
+	return Key{ty: reflect.TypeOf(z)}
+}
+
+func AsKey(o any) Key {
 	if k, ok := o.(Key); ok {
 		return k
 	}

@@ -1,9 +1,12 @@
+//go:build !nodev
+
 package dev
 
 import (
+	"errors"
 	"sync"
+	"sync/atomic"
 
-	au "github.com/wrmsr/bane/pkg/util/atomic"
 	inj "github.com/wrmsr/bane/pkg/util/inject"
 )
 
@@ -20,27 +23,48 @@ func Bind() inj.Bindings                            { return binders.Bind() }
 
 //
 
-type devInjector struct {
-	mtx  sync.Mutex
-	once sync.Once
-
+type injectorAndCloser struct {
 	injector *inj.Injector
 	closer   func() error
 }
 
-func (i *devInjector) get() *inj.Injector {
-
+type devInjector struct {
+	mtx sync.Mutex
+	val atomic.Value // injectorAndCloser
 }
 
-var (
-	_injector = au.NewLazy(func() *inj.Injector {
-		return inj.New
+func (i *devInjector) setup(bs inj.Bindings) (*inj.Injector, func() error) {
+	i.mtx.Lock()
+	defer i.mtx.Unlock()
 
+	if i.val.Load() != nil {
+		panic(errors.New("dev injector already setup"))
+	}
+
+	injector, closer := inj.NewDeferInjector(bs)
+	i.val.Store(injectorAndCloser{
+		injector: injector,
+		closer:   closer,
 	})
-)
+	return injector, closer
+}
+
+func (i *devInjector) get() *inj.Injector {
+	if val := i.val.Load(); val != nil {
+		iac := val.(injectorAndCloser)
+		return iac.injector
+	}
+	panic(errors.New("dev injector not setup"))
+}
+
+var _injector devInjector
+
+func SetupInjector() (*inj.Injector, func() error) {
+	return _injector.setup(Bind())
+}
 
 func Injector() *inj.Injector {
-	return _injector.Get()
+	return _injector.get()
 }
 
 //

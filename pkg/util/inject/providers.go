@@ -20,7 +20,7 @@ type Provider interface {
 
 //
 
-func toProvider(o any) Provider {
+func asProvider(o any) Provider {
 	if _, ok := o.(Binding); ok {
 		panic(genericErrorf("must not use bindings as providers"))
 	}
@@ -101,7 +101,7 @@ type singletonProvider struct {
 }
 
 func Singleton(p any) Provider {
-	return singletonProvider{p: toProvider(p)}
+	return singletonProvider{p: asProvider(p)}
 }
 
 var _ Provider = singletonProvider{}

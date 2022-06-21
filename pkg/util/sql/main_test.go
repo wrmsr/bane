@@ -1,6 +1,6 @@
 //go:build !nodev
 
-package docker
+package sql
 
 import (
 	"testing"
