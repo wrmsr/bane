@@ -1,7 +1,6 @@
 package dot
 
 import (
-	"bufio"
 	"fmt"
 	"strings"
 	"testing"
@@ -17,6 +16,6 @@ func TestRender(*testing.T) {
 	}
 
 	var sb strings.Builder
-	Render(bufio.NewWriter(&sb), g)
+	Render(&sb, g)
 	fmt.Println(sb.String())
 }

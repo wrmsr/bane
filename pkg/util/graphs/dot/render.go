@@ -1,18 +1,21 @@
 package dot
 
 import (
-	"bufio"
 	"html"
 )
 
-func write(w *bufio.Writer, s string) {
+type StringWriter interface {
+	WriteString(string) (int, error)
+}
+
+func write(w StringWriter, s string) {
 	_, err := w.WriteString(s)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func Render(w *bufio.Writer, o any) {
+func Render(w StringWriter, o any) {
 	switch o := o.(type) {
 	case Raw:
 		write(w, o.Raw)
