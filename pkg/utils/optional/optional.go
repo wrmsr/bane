@@ -25,6 +25,18 @@ func (o Optional[T]) Present() bool {
 	return o.p
 }
 
+func (o Optional[T]) IfPresent(fn func()) {
+	if o.p {
+		fn()
+	}
+}
+
+func (o Optional[T]) IfAbsent(fn func()) {
+	if !o.p {
+		fn()
+	}
+}
+
 func (o Optional[T]) Value() T {
 	if !o.p {
 		panic(NoValueError{})

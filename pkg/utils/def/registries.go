@@ -99,6 +99,10 @@ func addPackageDef[T PackageDef](r *registry, pkg string, def T) T {
 	return def
 }
 
-func GetPackageSpec() *PackageSpec {
+func X_addPackageDef(def PackageDef) {
+	globalRegistry.getPackage(getCallingPackage()).addDef(def)
+}
+
+func X_getPackageSpec() *PackageSpec {
 	return globalRegistry.getPackage(getCallingPackage()).spec()
 }

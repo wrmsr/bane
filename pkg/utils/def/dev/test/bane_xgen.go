@@ -9,42 +9,46 @@ import (
 )
 
 var _ = func() any {
-	def.X_structExpectsDef{
-		Name: "Foo",
-		Fields: []string{
-			"bar",
-			"baz",
+	def.X_addPackageDef(
+		def.X_packageExpect{
+			Structs: map[string]def.X_structExpect{
+				"Foo": {
+					Fields: map[string]def.X_fieldExpect{
+						"bar": {
+							Ty: def.Type[int]().Type,
+						},
+						"baz": {
+							HasDefault: true,
+						},
+					},
+					NumInits: 1,
+				},
+			},
 		},
-		Defaults: []string{
-			"baz",
-		},
-		Inits: 1,
-	}.Register()
+	)
 	return nil
 }()
 
 var (
-	_bane_init_once sync.Once
+	_bane_def_init_once sync.Once
 
-	_bane_init__Foo__default_baz int
-	_bane_init__Foo__inits       []func(*Foo)
+	_bane_def_field_default__Foo__baz int
+
+	_bane_def_struct_inits__Foo []func(*Foo)
 )
 
-func _bane_init() {
-	_bane_init_once.Do(func() {
-		init := def.X_getPackageInit()
+func _bane_def_init() {
+	_bane_def_init_once.Do(func() {
+		spec := def.X_getPackageSpec()
 
-		init_Foo := init.Structs["Foo"]
-		_bane_init__Foo__default_baz = init_Foo.Fields["baz"].Default.(int)
-		_bane_init__Foo__inits = make([]func(*Foo), len(init_Foo.Inits))
-		if len(_bane_init__Foo__inits) != 1 {
-			panic("Foo")
-		}
-		for i, f := range init_Foo.Inits {
-			var ok bool
-			if _bane_init__Foo__inits[i], ok = f.(func(*Foo)); !ok {
-				panic("Foo")
-			}
+		struct_spec__Foo := spec.Struct("Foo")
+
+		field_spec__Foo__baz := struct_spec__Foo.Field("baz")
+		_bane_def_field_default__Foo__baz = field_spec__Foo__baz.Default().(int)
+
+		_bane_def_struct_inits__Foo = make([]func(*Foo), len(struct_spec__Foo.Inits()))
+		for i, f := range struct_spec__Foo.Inits() {
+			_bane_def_struct_inits__Foo[i] = f.(func(*Foo))
 		}
 	})
 }
@@ -55,9 +59,9 @@ type Foo struct {
 }
 
 func (f *Foo) init() {
-	_bane_init()
-	f.baz = _bane_init__Foo__default_baz
-	for _, fn := range _bane_init__Foo__inits {
+	_bane_def_init()
+	f.baz = _bane_def_field_default__Foo__baz
+	for _, fn := range _bane_def_struct_inits__Foo {
 		fn(f)
 	}
 }
