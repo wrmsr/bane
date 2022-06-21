@@ -46,8 +46,12 @@ gen-antlr:
 			mt=$$(mtime "$$f") ; \
 			bf="$${f%.*}" ; \
 			f2="$$(dirname $$bf)/parser/$$(basename $$bf).interp" ; \
-			mt2=$$(mtime "$$f2") ; \
-			if [ "$$mt" -gt "$$mt2" ] ; then nf=1 ; fi ; \
+			if [ ! -f "$$f2" ] ; then \
+				nf=1 ; \
+			else \
+				mt2=$$(mtime "$$f2") ; \
+				if [ "$$mt" -gt "$$mt2" ] ; then nf=1 ; fi ; \
+			fi ; \
   	  	done ; \
 		if [ $$nf -ne 0 ] ; then \
 			rm -rf "$$d/parser" ; \
@@ -74,10 +78,10 @@ gen-go:
 ### check
 
 .PHONY: check
-check: check-nodev check-fmt check-vet
+check: check-dev check-fmt check-vet
 
-.PHONY: check-nodev
-check-nodev:
+.PHONY: check-dev
+check-dev:
 	r=0 ; \
 	for f in $$(( \
 		find ${SRC} -name 'dev.go' -or -name '*_dev.go' ; \

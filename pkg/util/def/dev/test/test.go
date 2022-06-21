@@ -8,7 +8,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/def"
 )
 
-//go:generate go run github.com/wrmsr/bane/pkg/utils/def/dev/gen
+//go:generate go run github.com/wrmsr/bane/pkg/util/def/dev/gen
 
 var _ = def.Struct("Foo",
 	def.Field("bar", def.Type[int]()),

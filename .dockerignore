@@ -1,0 +1,10 @@
+*.sock
+.cache
+.git
+.idea
+antlr-*-complete.jar
+bin
+build
+
+!.git/HEAD
+!.git/refs

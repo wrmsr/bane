@@ -1,5 +1,5 @@
 /*
-go build -buildmode c-shared -tags nodev -o bin/libfoo.so "github.com/wrmsr/bane/pkg/utils/test/dll"
+go build -buildmode c-shared -tags nodev -o bin/libfoo.so "github.com/wrmsr/bane/pkg/util/test/dll"
 
 import ctypes as ct
 l = ct.CDLL('bin/libfoo.so')

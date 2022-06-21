@@ -2,7 +2,7 @@
 
 package main
 
-//go:generate go run github.com/wrmsr/bane/pkg/utils/enums/dev/gen -type=RoundingMode
+//go:generate go run github.com/wrmsr/bane/pkg/util/enums/dev/gen -type=RoundingMode
 
 type RoundingMode byte
 
