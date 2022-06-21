@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestRender(*testing.T) {
+func TestRender(t *testing.T) {
 	g := Graph{
 		Stmts: []Stmt{
 			NewNode("a").SetAttr("shape", "box"),
@@ -18,4 +18,6 @@ func TestRender(*testing.T) {
 	var sb strings.Builder
 	Render(&sb, g)
 	fmt.Println(sb.String())
+
+	//tu.AssertNoErr(t, Open(context.Background(), sb.String()))
 }
