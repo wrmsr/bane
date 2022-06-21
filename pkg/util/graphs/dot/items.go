@@ -173,6 +173,14 @@ func AsAttrs(o any) Attrs {
 	panic(typeError(o))
 }
 
+func (a *Attrs) Set(k string, v any) *Attrs {
+	if a.Attrs == nil {
+		a.Attrs = make(map[string]Value)
+	}
+	a.Attrs[k] = AsValue(v)
+	return a
+}
+
 //
 
 type Stmt interface {
@@ -211,6 +219,10 @@ type Edge struct {
 	Attrs Attrs
 }
 
+func NewEdge(left, right any) Edge {
+	return Edge{Left: AsId(left), Right: AsId(right)}
+}
+
 //
 
 type Node struct {
@@ -219,6 +231,15 @@ type Node struct {
 	Id Id
 
 	Attrs Attrs
+}
+
+func NewNode(id any) Node {
+	return Node{Id: AsId(id)}
+}
+
+func (n Node) SetAttr(k string, v any) Node {
+	n.Attrs.Set(k, v)
+	return n
 }
 
 //
