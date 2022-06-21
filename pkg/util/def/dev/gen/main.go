@@ -102,16 +102,44 @@ func reifyIdentStr(node ast.Node) string {
 	panic(fmt.Errorf("illegal ident str: %v", node))
 }
 
-func reifyDef(node *ast.CallExpr, ti *types.Info) any {
-	fn, _ := typeutil.Callee(ti, node).(*types.Func)
+func reifyDef(node ast.Node, ti *types.Info) any {
+	call := node.(*ast.CallExpr)
+	fn, _ := typeutil.Callee(ti, call).(*types.Func)
 	check.NotNil(fn)
 
 	pn := rtu.ParseName(fn.FullName())
 	switch pn.Obj {
+
 	case "Struct":
-		return def.StructDef{
-			Name: reifyIdentStr(node.Args[0]),
+		opts := make([]def.StructOpt, len(call.Args)-1)
+		for i, arg := range call.Args[1:] {
+			opts[i] = reifyDef(arg, ti).(def.StructOpt)
 		}
+		return def.StructDef{
+			Name: reifyIdentStr(call.Args[0]),
+			Opts: opts,
+		}
+
+	case "Field":
+		opts := make([]def.FieldOpt, len(call.Args)-1)
+		for i, arg := range call.Args[1:] {
+			opts[i] = reifyDef(arg, ti).(def.FieldOpt)
+		}
+		return def.FieldDef{
+			Name: reifyIdentStr(call.Args[0]),
+			Opts: opts,
+		}
+
+	case "Type":
+		idx := call.Fun.(*ast.IndexExpr)
+		panic(idx)
+
+	case "Default":
+		panic(call)
+
+	case "Init":
+		panic(call)
+
 	}
 
 	panic(fmt.Errorf("unhandled type: %T", node))
