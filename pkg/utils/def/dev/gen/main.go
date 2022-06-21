@@ -7,12 +7,13 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
+	"go/parser"
+	"go/printer"
 	"go/token"
 	"go/types"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 
 	"golang.org/x/mod/modfile"
@@ -23,6 +24,8 @@ import (
 	ctr "github.com/wrmsr/bane/pkg/utils/containers"
 	eu "github.com/wrmsr/bane/pkg/utils/errors"
 )
+
+//
 
 func findDirWithFile(cd, fn string) (string, error) {
 	for {
@@ -336,32 +339,6 @@ var isPrint = ctr.NewSetOf(
 	"(testing.TB).Skipf",
 )
 
-// stringSet is a set-of-nonempty-strings-valued flag.
-// Note: elements without a '.' get lower-cased.
-type stringSet map[string]bool
-
-func (ss stringSet) String() string {
-	var list []string
-	for name := range ss {
-		list = append(list, name)
-	}
-	sort.Strings(list)
-	return strings.Join(list, ",")
-}
-
-func (ss stringSet) Set(flag string) error {
-	for _, name := range strings.Split(flag, ",") {
-		if len(name) == 0 {
-			return fmt.Errorf("empty string")
-		}
-		if !strings.Contains(name, ".") {
-			name = strings.ToLower(name)
-		}
-		ss[name] = true
-	}
-	return nil
-}
-
 //
 
 func main() {
@@ -381,6 +358,13 @@ func main() {
 
 	cfg := &packages.Config{
 		Mode: packages.NeedSyntax | packages.NeedTypes | packages.NeedTypesInfo,
+		ParseFile: func(fset *token.FileSet, filename string, src []byte) (*ast.File, error) {
+			const mode = parser.AllErrors | parser.ParseComments
+			if filepath.Base(filename) == "bane_xgen.go" {
+				src = []byte{}
+			}
+			return parser.ParseFile(fset, filename, src, mode)
+		},
 	}
 
 	pn := fmt.Sprintf("%s/%s", mp, do)
@@ -393,5 +377,10 @@ func main() {
 			TypesInfo: pkg.TypesInfo,
 		}
 		_ = check.Must(findPrintfLike(&pass))
+
+		for _, fil := range pkg.Syntax {
+			_ = printer.Fprint(os.Stdout, pkg.Fset, fil)
+		}
 	}
+
 }
