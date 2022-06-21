@@ -32,10 +32,16 @@ func _bane_init() {
 		init := def.X_getPackageInit()
 
 		init_Foo := init.Structs["Foo"]
-		_bane_init__Foo__default_baz = init_Foo.Defaults["baz"].(int)
+		_bane_init__Foo__default_baz = init_Foo.Fields["baz"].Default.(int)
 		_bane_init__Foo__inits = make([]func(*Foo), len(init_Foo.Inits))
+		if len(_bane_init__Foo__inits) != 1 {
+			panic("Foo")
+		}
 		for i, f := range init_Foo.Inits {
-			_bane_init__Foo__inits[i] = f.(func(*Foo))
+			var ok bool
+			if _bane_init__Foo__inits[i], ok = f.(func(*Foo)); !ok {
+				panic("Foo")
+			}
 		}
 	})
 }

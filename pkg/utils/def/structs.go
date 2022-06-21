@@ -26,18 +26,6 @@ func Struct(name string, opts ...StructOpt) StructDef {
 
 //
 
-type InitOpt struct {
-	Fn any
-}
-
-func (o InitOpt) isStructOpt() {}
-
-func Init(fn any) InitOpt {
-	return InitOpt{Fn: fn}
-}
-
-//
-
 type FieldOpt interface {
 	isFieldOpt()
 }
@@ -58,25 +46,37 @@ func Field(name string, opts ...FieldOpt) FieldDef {
 
 //
 
-type TypeOpt[T any] struct {
+type TypeOpt struct {
 	Type reflect.Type
 }
 
-func (o TypeOpt[T]) isFieldOpt() {}
+func (o TypeOpt) isFieldOpt() {}
 
-func Type[T any]() TypeOpt[T] {
+func Type[T any]() TypeOpt {
 	var z T
-	return TypeOpt[T]{Type: reflect.TypeOf(z)}
+	return TypeOpt{Type: reflect.TypeOf(z)}
 }
 
 //
 
-type DefaultOpt[T any] struct {
-	Val T
+type DefaultOpt struct {
+	Val any
 }
 
-func (o DefaultOpt[T]) isFieldOpt() {}
+func (o DefaultOpt) isFieldOpt() {}
 
-func Default[T any](val T) DefaultOpt[T] {
-	return DefaultOpt[T]{Val: val}
+func Default(val any) DefaultOpt {
+	return DefaultOpt{Val: val}
+}
+
+//
+
+type InitOpt struct {
+	Fn any
+}
+
+func (o InitOpt) isStructOpt() {}
+
+func Init(fn any) InitOpt {
+	return InitOpt{Fn: fn}
 }
