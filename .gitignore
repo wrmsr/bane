@@ -1,6 +1,6 @@
 *.sock
 *.swp
 .DS_Store
+.cache/
 .idea/
-antlr-*.jar
 bin/

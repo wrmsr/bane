@@ -14,7 +14,7 @@ BREW_DEPS=\
 .PHONY: clean
 clean:
 	rm -rf \
-		antlr-*.jar \
+		.cache \
 		bin \
 
 	ds=$$(find ${SRC} -name parser -type d) && \
@@ -31,8 +31,10 @@ ANTLR_VERSION=4.10.1
 .PHONY: gen-antlr
 gen-antlr:
 	af="antlr-${ANTLR_VERSION}-complete.jar" ; \
-	if [ ! -f "$$af" ] ; then \
-  		curl "https://www.antlr.org/download/$$af" -o "$$af" ; \
+	mkdir -p .cache ; \
+	afp=".cache/$$af" ; \
+	if [ ! -f "$$afp" ] ; then \
+  		curl "https://www.antlr.org/download/$$af" -o "$$afp" ; \
   	fi ; \
 	mtime() { \
 		if [[ $$(uname) = "Darwin" ]] ; \
@@ -60,7 +62,7 @@ gen-antlr:
 				( \
 					cd $$(dirname "$$f") && \
 					java \
-						-jar "$$wd/$$af" \
+						-jar "$$wd/$$afp" \
 						-Dlanguage=Go \
 						$$(basename "$$f") \
 						-visitor \
@@ -141,3 +143,8 @@ docker-stop:
 docker-reup: docker-stop
 	${DOCKER_COMPOSE} rm -f
 	${DOCKER_COMPOSE} up
+
+.PHONY: docker-invalidate
+docker-invalidate:
+	date +%s > docker/.dockertimestamp
+	docker rmi -f docker_bane-dev

@@ -13,7 +13,7 @@ services:
     expose:
       - '3306'
     ports:
-      - '32220:3306'
+      - '33221:3306'
 
   bane-postgres:
     image: 'postgres:14'
@@ -24,4 +24,27 @@ services:
     expose:
       - '5432'
     ports:
-      - '32221:5432'
+      - '33222:5432'
+
+  bane-dev:
+    build:
+      context: '../'
+      dockerfile: 'docker/dev/Dockerfile'
+    restart: 'unless-stopped'
+    cap_add:
+      - 'SYS_PTRACE'
+    security_opt:
+      - 'apparmor:unconfined'
+    volumes:
+      - '.:/bane'
+    depends_on:
+      - 'bane-mysql'
+      - 'bane-postgres'
+    links:
+      - 'bane-mysql'
+      - 'bane-postgres'
+    expose:
+      - '8000'
+    ports:
+      - '33220:8000'
+

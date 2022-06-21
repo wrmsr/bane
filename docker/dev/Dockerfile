@@ -1,4 +1,6 @@
 FROM ubuntu:22.04
+COPY docker/.dockertimestamp /
+
 
 RUN ( \
     export DEBIAN_FRONTEND=noninteractive && \
