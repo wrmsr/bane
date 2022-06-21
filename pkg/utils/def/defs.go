@@ -6,6 +6,12 @@ import (
 
 //
 
+type PackageDef interface {
+	isPackageDef()
+}
+
+//
+
 type StructOpt interface {
 	isStructOpt()
 }
@@ -15,10 +21,10 @@ type StructDef struct {
 	Opts []StructOpt
 }
 
-func (sd StructDef) isRootDef() {}
+func (sd StructDef) isPackageDef() {}
 
 func Struct(name string, opts ...StructOpt) StructDef {
-	return addPackageRootDef(globalRegistry, getCallingPackage(), StructDef{
+	return addPackageDef(globalRegistry, getCallingPackage(), StructDef{
 		Name: name,
 		Opts: opts,
 	})

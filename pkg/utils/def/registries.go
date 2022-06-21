@@ -2,7 +2,6 @@ package def
 
 import (
 	"errors"
-	"reflect"
 
 	rtu "github.com/wrmsr/bane/pkg/utils/runtime"
 )
@@ -44,64 +43,30 @@ func getCallingPackage() string {
 
 //
 
-type X_packageInit struct {
-	Structs map[string]X_structInit
-}
-
-//
-
 type packageRegistry struct {
-	name   string
-	sealed bool
-
-	rootDefs    []RootDef
-	rootDefsMap map[reflect.Type][]RootDef
-
-	init *X_packageInit
+	name  string
+	defs  []PackageDef
+	_spec *PackageSpec
 }
 
 func newPackageRegistry(name string) *packageRegistry {
 	return &packageRegistry{
 		name: name,
-
-		rootDefsMap: make(map[reflect.Type][]RootDef),
 	}
 }
 
-func (r *packageRegistry) addRootDef(def RootDef) RootDef {
-	if r.sealed {
+func (r *packageRegistry) addDef(def PackageDef) {
+	if r._spec != nil {
 		panic(RegistrySealedError)
 	}
-
-	r.rootDefs = append(r.rootDefs, def)
-
-	dty := reflect.TypeOf(def)
-	r.rootDefsMap[dty] = append(r.rootDefsMap[dty], def)
-
-	return def
+	r.defs = append(r.defs, def)
 }
 
-func (r *packageRegistry) addRootDefs(defs ...RootDef) *packageRegistry {
-	if r.sealed {
-		panic(RegistrySealedError)
+func (r *packageRegistry) spec() *PackageSpec {
+	if r._spec == nil {
+		r._spec = newPackageSpec(r.name, r.defs)
 	}
-	for _, def := range defs {
-		r.addRootDef(def)
-	}
-	return r
-}
-
-func (r *packageRegistry) seal() *packageRegistry {
-	if r.sealed {
-		return r
-	}
-
-	r.init = &X_packageInit{
-		Structs: (&structInitBuilder{reg: r}).buildInit(),
-	}
-
-	r.sealed = true
-	return r
+	return r._spec
 }
 
 //
@@ -129,13 +94,11 @@ func (r *registry) getPackage(name string) *packageRegistry {
 
 var globalRegistry = newRegistry()
 
-func addPackageRootDef[T RootDef](r *registry, pkg string, def T) T {
-	r.getPackage(pkg).addRootDef(def)
+func addPackageDef[T PackageDef](r *registry, pkg string, def T) T {
+	r.getPackage(pkg).addDef(def)
 	return def
 }
 
-func X_getPackageInit() *X_packageInit {
-	pr := globalRegistry.getPackage(getCallingPackage())
-	pr.seal()
-	return pr.init
+func GetPackageSpec() *PackageSpec {
+	return globalRegistry.getPackage(getCallingPackage()).spec()
 }

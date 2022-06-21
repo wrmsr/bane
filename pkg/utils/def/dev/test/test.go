@@ -23,9 +23,6 @@ func foof(s string, a ...any) {
 }
 
 //
-// TODO: codegen
-
-//
 
 func main() {
 	foof("hi %s\n", "there")

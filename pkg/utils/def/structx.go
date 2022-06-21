@@ -16,11 +16,10 @@ type X_structExpectsDef struct {
 	Inits int
 }
 
-func (sed X_structExpectsDef) isRootDef() {}
+func (sed X_structExpectsDef) isPackageDef() {}
 
-func (sed X_structExpectsDef) Register() any {
-	addPackageRootDef(globalRegistry, getCallingPackage(), sed)
-	return nil
+func (sed X_structExpectsDef) Register() {
+	addPackageDef(globalRegistry, getCallingPackage(), sed)
 }
 
 //

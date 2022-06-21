@@ -8,17 +8,20 @@ import (
 	"github.com/wrmsr/bane/pkg/utils/def"
 )
 
-var _ = def.X_structExpectsDef{
-	Name: "Foo",
-	Fields: []string{
-		"bar",
-		"baz",
-	},
-	Defaults: []string{
-		"baz",
-	},
-	Inits: 1,
-}.Register()
+var _ = func() any {
+	def.X_structExpectsDef{
+		Name: "Foo",
+		Fields: []string{
+			"bar",
+			"baz",
+		},
+		Defaults: []string{
+			"baz",
+		},
+		Inits: 1,
+	}.Register()
+	return nil
+}()
 
 var (
 	_bane_init_once sync.Once
@@ -47,7 +50,8 @@ func _bane_init() {
 }
 
 type Foo struct {
-	bar, baz int
+	bar int
+	baz int
 }
 
 func (f *Foo) init() {
