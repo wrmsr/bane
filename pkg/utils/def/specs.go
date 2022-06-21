@@ -13,13 +13,8 @@ type SpecError struct {
 	err error
 }
 
-func (e SpecError) Error() string {
-	return e.err.Error()
-}
-
-func (e SpecError) Unwrap() error {
-	return e.err
-}
+func (e SpecError) Error() string { return e.err.Error() }
+func (e SpecError) Unwrap() error { return e.err }
 
 //
 
@@ -53,7 +48,12 @@ func newFieldSpec(name string, defs []FieldDef) *FieldSpec {
 		}
 	}
 
-	ty.IfAbsent(func() { panic(RegistryError{fmt.Errorf("no type: %s", name)}) })
+	if !ty.Present() {
+		if !dfl.Present() {
+			panic(RegistryError{fmt.Errorf("no type: %s", name)})
+		}
+		ty = opt.Just(reflect.TypeOf(dfl.Value()))
+	}
 
 	return &FieldSpec{
 		name: name,

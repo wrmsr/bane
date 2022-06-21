@@ -12,13 +12,8 @@ type RegistryError struct {
 	err error
 }
 
-func (e RegistryError) Error() string {
-	return e.err.Error()
-}
-
-func (e RegistryError) Unwrap() error {
-	return e.err
-}
+func (e RegistryError) Error() string { return e.err.Error() }
+func (e RegistryError) Unwrap() error { return e.err }
 
 var (
 	RegistrySealedError = RegistryError{errors.New("registry sealed")}

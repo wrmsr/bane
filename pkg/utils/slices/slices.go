@@ -1,6 +1,12 @@
 package slices
 
-import bt "github.com/wrmsr/bane/pkg/utils/types"
+import (
+	"sort"
+
+	"golang.org/x/exp/constraints"
+
+	bt "github.com/wrmsr/bane/pkg/utils/types"
+)
 
 func DeleteAt[T any](s []T, i int) []T {
 	copy(s[i:], s[i+1:])
@@ -38,4 +44,23 @@ func Reversed[T any](s []T) []T {
 		n--
 	}
 	return r
+}
+
+func Sort[T constraints.Ordered](s []T) []T {
+	sort.Slice(s, func(i, j int) bool {
+		return s[i] < s[j]
+	})
+	return s
+}
+
+func Equal[T comparable](l, r []T) bool {
+	if len(l) != len(r) {
+		return false
+	}
+	for i := range l {
+		if l[i] != r[i] {
+			return false
+		}
+	}
+	return true
 }
