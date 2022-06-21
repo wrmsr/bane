@@ -379,8 +379,12 @@ func main() {
 		_ = check.Must(findPrintfLike(&pass))
 
 		for _, fil := range pkg.Syntax {
+			_ = ast.Fprint(os.Stdout, pkg.Fset, fil, nil)
 			_ = printer.Fprint(os.Stdout, pkg.Fset, fil)
+
+			ast.Inspect(fil, func(node ast.Node) bool {
+				return true
+			})
 		}
 	}
-
 }
