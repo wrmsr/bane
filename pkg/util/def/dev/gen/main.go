@@ -14,15 +14,19 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	"golang.org/x/mod/modfile"
+	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/go/types/typeutil"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	ctr "github.com/wrmsr/bane/pkg/util/container"
+	"github.com/wrmsr/bane/pkg/util/def"
 	eu "github.com/wrmsr/bane/pkg/util/errors"
+	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 )
 
 //
@@ -341,7 +345,13 @@ var isPrint = ctr.NewSetOf(
 
 //
 
+func defsPackage() string {
+	return reflect.TypeOf(def.PackageSpec{}).PkgPath()
+}
+
 func main() {
+	dp := defsPackage()
+
 	cd := check.Must(os.Getwd())
 	rd := check.Must(findDirWithFile(cd, "go.mod"))
 	if !strings.HasPrefix(cd, rd) {
@@ -382,7 +392,17 @@ func main() {
 			_ = ast.Fprint(os.Stdout, pkg.Fset, fil, nil)
 			_ = printer.Fprint(os.Stdout, pkg.Fset, fil)
 
-			ast.Inspect(fil, func(node ast.Node) bool {
+			astutil.Apply(fil, nil, func(c *astutil.Cursor) bool {
+				switch n := c.Node().(type) {
+				case *ast.CallExpr:
+					fn, _ := typeutil.Callee(pkg.TypesInfo, n).(*types.Func)
+					if fn != nil {
+						pn := rtu.ParseName(fn.FullName())
+						if pn.Pkg == dp {
+							fmt.Println(pn)
+						}
+					}
+				}
 				return true
 			})
 		}
