@@ -44,6 +44,8 @@ func toBindings(os []any) []Binding {
 
 //
 
+type Binder = func() Bindings
+
 type Bindings interface {
 	its.Traversable[Binding]
 }
@@ -72,6 +74,18 @@ func (bs bindings) ForEach(fn func(Binding) bool) bool {
 func Bind(os ...any) Bindings {
 	return &bindings{
 		bs: toBindings(os),
+	}
+}
+
+func Append(ps ...Bindings) Bindings {
+	var rps []Bindings
+	for _, p := range ps {
+		if p != nil {
+			rps = append(rps, p)
+		}
+	}
+	return &bindings{
+		ps: rps,
 	}
 }
 

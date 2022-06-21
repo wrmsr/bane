@@ -14,6 +14,16 @@ type Key struct {
 	tag any
 }
 
+func ToKey(o any) Key {
+	if k, ok := o.(Key); ok {
+		return k
+	}
+
+	return Key{
+		ty: rfl.AsType(o),
+	}
+}
+
 func (k Key) String() string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("Key{ty: %s", k.ty.Name()))
@@ -25,14 +35,4 @@ func (k Key) String() string {
 	}
 	sb.WriteString("}")
 	return sb.String()
-}
-
-func ToKey(o any) Key {
-	if k, ok := o.(Key); ok {
-		return k
-	}
-
-	return Key{
-		ty: rfl.AsType(o),
-	}
 }
