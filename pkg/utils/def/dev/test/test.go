@@ -29,4 +29,8 @@ func foof(s string, a ...any) {
 
 func main() {
 	foof("hi %s\n", "there")
+
+	var f Foo
+	f.init()
+	fmt.Printf("%+v\n", f)
 }

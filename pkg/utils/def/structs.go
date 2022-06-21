@@ -26,22 +26,6 @@ func Struct(name string, opts ...StructOpt) StructDef {
 
 //
 
-type XStructExpectsDef struct {
-	Name string
-
-	FieldNames []string
-	NumInits   int
-}
-
-func (sed XStructExpectsDef) isRootDef() {}
-
-func (sed XStructExpectsDef) Register() any {
-	addPackageRootDef(globalRegistry, getCallingPackage(), sed)
-	return nil
-}
-
-//
-
 type InitOpt struct {
 	Fn any
 }

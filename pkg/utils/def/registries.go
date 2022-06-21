@@ -44,12 +44,20 @@ func getCallingPackage() string {
 
 //
 
+type X_packageInit struct {
+	Structs map[string]X_structInit
+}
+
+//
+
 type packageRegistry struct {
 	name   string
 	sealed bool
 
 	rootDefs    []RootDef
 	rootDefsMap map[reflect.Type][]RootDef
+
+	init *X_packageInit
 }
 
 func newPackageRegistry(name string) *packageRegistry {
@@ -88,6 +96,10 @@ func (r *packageRegistry) seal() *packageRegistry {
 		return r
 	}
 
+	r.init = &X_packageInit{
+		Structs: (&structInitBuilder{reg: r}).buildInit(),
+	}
+
 	r.sealed = true
 	return r
 }
@@ -120,4 +132,10 @@ var globalRegistry = newRegistry()
 func addPackageRootDef[T RootDef](r *registry, pkg string, def T) T {
 	r.getPackage(pkg).addRootDef(def)
 	return def
+}
+
+func X_getPackageInit() *X_packageInit {
+	pr := globalRegistry.getPackage(getCallingPackage())
+	pr.seal()
+	return pr.init
 }
