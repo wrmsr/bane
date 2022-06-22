@@ -1,6 +1,9 @@
 package lisp
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 //
 
@@ -20,6 +23,16 @@ func (k NumKind) Coerce(vt NumKind) NumKind {
 	}
 }
 
+//
+
+type Number interface {
+	Value
+	Kind() NumKind
+	AsInt() Int
+	AsFloat() Float
+	AsComplex() Complex
+}
+
 func AsNumber(v Value) Number {
 	if r, ok := v.(Number); ok {
 		return r
@@ -31,6 +44,37 @@ func AsNumbers(v1 Value, v2 Value) (Number, Number, NumKind) {
 	r1, r2 := AsNumber(v1), AsNumber(v2)
 	return r1, r2, r1.Kind().Coerce(r2.Kind())
 }
+
+//
+
+func (v Int) Kind() NumKind      { return NumInt }
+func (v Int) AsInt() Int         { return v }
+func (v Int) AsFloat() Float     { return Float(v) }
+func (v Int) AsComplex() Complex { return Complex(complex(float64(v), 0)) }
+
+func (v Float) Kind() NumKind      { return NumFloat }
+func (v Float) AsInt() Int         { return Int(v) }
+func (v Float) AsFloat() Float     { return v }
+func (v Float) AsComplex() Complex { return Complex(complex(float64(v), 0)) }
+
+func (v Complex) Kind() NumKind      { return NumComplex }
+func (v Complex) AsInt() Int         { return Int(v.AsRealNumber()) }
+func (v Complex) AsFloat() Float     { return Float(v.AsRealNumber()) }
+func (v Complex) AsComplex() Complex { return v }
+
+func (v Complex) Magnitude() Float {
+	return Float(math.Hypot(real(v), imag(v)))
+}
+
+func (v Complex) AsRealNumber() float64 {
+	cv := complex128(v)
+	if imag(cv) != 0 {
+		panic("cast: cannot convert complex numbers with non-zero imaginary part into real numbers")
+	}
+	return real(cv)
+}
+
+//
 
 func NumberAdd(a Value, b Value) Value {
 	switch x, y, vt := AsNumbers(a, b); vt {

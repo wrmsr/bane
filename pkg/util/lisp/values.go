@@ -18,12 +18,9 @@ type Value interface {
 	isValue()
 }
 
-type Number interface {
+type Callable interface {
 	Value
-	Kind() NumKind
-	AsInt() Int
-	AsFloat() Float
-	AsComplex() Complex
+	Call([]Value) Value
 }
 
 //
