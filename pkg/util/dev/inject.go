@@ -5,8 +5,8 @@ package dev
 import (
 	"errors"
 	"sync"
-	"sync/atomic"
 
+	au "github.com/wrmsr/bane/pkg/util/atomic"
 	inj "github.com/wrmsr/bane/pkg/util/inject"
 )
 
@@ -30,7 +30,7 @@ type injectorAndCloser struct {
 
 type devInjector struct {
 	mtx sync.Mutex
-	val atomic.Value // injectorAndCloser
+	val au.Value[*injectorAndCloser]
 }
 
 func (i *devInjector) setup(bs inj.Bindings) (*inj.Injector, func() error) {
@@ -42,7 +42,7 @@ func (i *devInjector) setup(bs inj.Bindings) (*inj.Injector, func() error) {
 	}
 
 	injector, closer := inj.NewDeferInjector(bs)
-	i.val.Store(injectorAndCloser{
+	i.val.Store(&injectorAndCloser{
 		injector: injector,
 		closer:   closer,
 	})
@@ -51,8 +51,7 @@ func (i *devInjector) setup(bs inj.Bindings) (*inj.Injector, func() error) {
 
 func (i *devInjector) get() *inj.Injector {
 	if val := i.val.Load(); val != nil {
-		iac := val.(injectorAndCloser)
-		return iac.injector
+		return val.injector
 	}
 	panic(errors.New("dev injector not setup"))
 }
