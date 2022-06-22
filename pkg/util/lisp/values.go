@@ -148,6 +148,55 @@ func (v *Cons) String() string {
 
 //
 
+func AsValue(v any) Value {
+	if v == nil {
+		return nil
+	}
+	if v, ok := v.(Value); ok {
+		return v
+	}
+
+	switch v := v.(type) {
+
+	case bool:
+		return Bool(v)
+
+	case int:
+		return Int(v)
+	case int8:
+		return Int(v)
+	case int16:
+		return Int(v)
+	case int32:
+		return Int(v)
+	case int64:
+		return Int(v)
+	case uint8:
+		return Int(v)
+	case uint16:
+		return Int(v)
+	case uint32:
+		return Int(v)
+	case uint64:
+		return Int(v)
+
+	case float32:
+		return Float(v)
+	case float64:
+		return Float(v)
+
+	case complex64:
+		return Complex(v)
+	case complex128:
+		return Complex(v)
+
+	case string:
+		return String(v)
+	}
+
+	panic(fmt.Errorf("can't make value: %T %v", v, v))
+}
+
 func AsCons(v Value) (*Cons, bool) {
 	r, ok := v.(*Cons)
 	return r, ok || v == nil

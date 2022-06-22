@@ -26,13 +26,13 @@ func (o Op) String() string {
 
 type Instr struct {
 	op  Op
-	arg any
+	arg Value
 }
 
-func mkIns(op Op, arg any) Instr {
+func mkIns(op Op, arg Value) Instr {
 	return Instr{op: op, arg: arg}
 }
 
 func (i Instr) String() string {
-	return fmt.Sprintf("%-8s%v", i.op.String(), i.arg)
+	return fmt.Sprintf("%-8s%v", i.op, i.arg)
 }

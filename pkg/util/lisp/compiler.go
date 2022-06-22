@@ -35,13 +35,19 @@ func NewCompiler() *Compiler {
 func (co *Compiler) compileValue(p *Program, v Value) {
 	if v.IsIdentity() {
 		p.add(mkIns(OpLdConst, v))
-	} else if _, ok := v.(Atom); ok {
-		panic("nyi")
-	} else if sl, ok := AsCons(v); ok {
-		co.compileList(p, sl)
-	} else {
-		panic("invalid value type")
+		return
 	}
+
+	if _, ok := v.(Atom); ok {
+		panic("nyi")
+	}
+
+	if sl, ok := AsCons(v); ok {
+		co.compileList(p, sl)
+		return
+	}
+
+	panic("invalid value type")
 }
 
 func (co *Compiler) compileBlock(p *Program, v *Cons) {
