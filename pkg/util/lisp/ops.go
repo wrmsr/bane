@@ -9,6 +9,8 @@ type Op int8
 const (
 	OpInvalid Op = iota
 	OpLdConst
+	OpLdVar
+	OpApply
 	OpReturn
 )
 
@@ -16,6 +18,10 @@ func (o Op) String() string {
 	switch o {
 	case OpLdConst:
 		return "ldconst"
+	case OpLdVar:
+		return "ldvar"
+	case OpApply:
+		return "apply"
 	case OpReturn:
 		return "return"
 	}

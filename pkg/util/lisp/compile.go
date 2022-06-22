@@ -38,8 +38,9 @@ func (co *Compiler) compileValue(p *Program, v Value) {
 		return
 	}
 
-	if _, ok := v.(Atom); ok {
-		panic("nyi")
+	if at, ok := v.(Atom); ok {
+		p.add(mkIns(OpLdVar, at))
+		return
 	}
 
 	if sl, ok := AsCons(v); ok {
@@ -65,6 +66,25 @@ func (co *Compiler) compileBlock(p *Program, v *Cons) {
 	}
 }
 
+func (co Compiler) compileArgs(p *Program, v *Cons, n int) int {
+	na := 0
+	for s := v; s != nil; {
+		vv, ok := AsCons(s.Cdr)
+		if !ok {
+			panic(fmt.Sprintf("list is not applicable: %s", v))
+		}
+
+		co.compileValue(p, s.Car)
+		s = vv
+		na++
+	}
+
+	if !(n < 0 || n == na) {
+		panic(fmt.Sprintf("expect %d arguments, got %d.", n, na))
+	}
+	return na
+}
+
 func (co *Compiler) compileList(p *Program, v *Cons) {
 	if v == nil {
 		p.add(mkIns(OpLdConst, nil))
@@ -73,7 +93,9 @@ func (co *Compiler) compileList(p *Program, v *Cons) {
 
 	at, ok := v.Car.(Atom)
 	if !ok {
-		panic("nyi")
+		na := co.compileArgs(p, v, -1)
+		p.add(mkIns(OpApply, AsValue(na)))
+		return
 	}
 
 	vv, ok := AsCons(v.Cdr)
@@ -85,7 +107,8 @@ func (co *Compiler) compileList(p *Program, v *Cons) {
 	case "begin":
 		co.compileBlock(p, vv)
 	default:
-		panic("nyi")
+		na := co.compileArgs(p, v, -1)
+		p.add(mkIns(OpApply, AsValue(na)))
 	}
 }
 

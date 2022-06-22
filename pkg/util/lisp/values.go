@@ -20,6 +20,10 @@ type Value interface {
 
 type Number interface {
 	Value
+	Kind() NumKind
+	AsInt() Int
+	AsFloat() Float
+	AsComplex() Complex
 }
 
 //

@@ -16,6 +16,10 @@ func NewScope(parent *Scope) *Scope {
 	}
 }
 
+func (sc *Scope) Set(key string, val Value) {
+	sc.defs[key] = val
+}
+
 //
 
 func Evaluate(s *Scope, p Program) Value {
