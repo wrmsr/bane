@@ -2,8 +2,10 @@ package lisp
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"strconv"
+	"strings"
 
 	eu "github.com/wrmsr/bane/pkg/util/errors"
 )
@@ -25,7 +27,6 @@ func (e ParseError) Unwrap() error {
 var (
 	UnexpectedEofErr  = ParseError{errors.New("unexpected EOF")}
 	UnexpectedCharErr = ParseError{errors.New("unexpected char")}
-	IllegalCharErr    = ParseError{errors.New("illegal char")}
 )
 
 //
@@ -42,8 +43,29 @@ func NewParser(r io.Reader) *Parser {
 
 //
 
-func isAtomChar(r rune) bool {
-	return !(r == '(' || r == ')' || r == '"' || isSpace(r))
+var charMap = map[string]rune{
+	"space":     ' ',
+	"newline":   '\n',
+	"backspace": '\b',
+	"tab":       '\t',
+	"linefeed":  '\n',
+	"page":      '\f',
+	"return":    '\r',
+	"rubout":    0x7f,
+}
+
+func (pa *Parser) parseChar(ch string) Char {
+	if charMap[ch] != 0 {
+		return Char(charMap[ch])
+	} else if chars := []rune(ch); len(chars) == 1 {
+		return Char(chars[0])
+	} else {
+		panic(ParseError{fmt.Errorf("invalid character name #\\%s", ch)})
+	}
+}
+
+func isAtomChar(ch rune) bool {
+	return !(ch == '(' || ch == ')' || ch == '"' || isSpace(ch))
 }
 
 func (pa *Parser) parseSimple() Value {
@@ -54,7 +76,13 @@ func (pa *Parser) parseSimple() Value {
 		return 0
 	})
 
-	if iv, err := strconv.ParseInt(val, 0, 64); err == nil {
+	if val == "#t" {
+		return Bool(true)
+	} else if val == "#f" {
+		return Bool(false)
+	} else if strings.HasPrefix(val, `#\`) {
+		return pa.parseChar(val[2:])
+	} else if iv, err := strconv.ParseInt(val, 0, 64); err == nil {
 		return Int(iv)
 	} else if fv, err := strconv.ParseFloat(val, 64); err == nil {
 		return Float(fv)
@@ -70,7 +98,9 @@ func (pa *Parser) parseString() Value {
 		panic(UnexpectedCharErr)
 	}
 
-	s := pa.pr.readWhile(func(ch rune) int {
+	var sb strings.Builder
+	sb.WriteRune('"')
+	pa.pr.readWhileInto(&sb, func(ch rune) int {
 		if ch == '"' {
 			return 0
 		}
@@ -79,6 +109,9 @@ func (pa *Parser) parseString() Value {
 		}
 		return 1
 	})
+	pa.pr.mustRead()
+	sb.WriteRune('"')
+	s := sb.String()
 
 	ret, err := strconv.Unquote(s)
 	if err != nil {
@@ -90,24 +123,34 @@ func (pa *Parser) parseString() Value {
 
 func (pa *Parser) parseValue() Value {
 	pa.pr.skipSpace()
-
-	r := pa.pr.mustPeek()
-	switch r {
-	case 0:
-		panic(IllegalCharErr)
+	ch := pa.pr.mustPeek()
+	switch ch {
+	case '\'':
+		return MakeList(Atom("quote"), pa.parseValue())
+	case ')':
+		pa.pr.mustRead()
+		return Atom(")")
 	case '"':
 		return pa.parseString()
+	case '(':
+		pa.pr.mustRead()
+		return pa.parseList(false)
 	default:
 		return pa.parseSimple()
 	}
-
-	//panic(ParseError{fmt.Errorf("unexpected character: %v", r)})
-
 }
 
-func (pa *Parser) parseList() *Cons {
+func (pa *Parser) parseList(topLevel bool) *Cons {
 	var p, q *Cons
-	for !pa.pr.isEof() {
+	for {
+		pa.pr.skipSpace()
+		if pa.pr.isEof() {
+			if !topLevel {
+				panic(UnexpectedEofErr)
+			}
+			break
+		}
+
 		vv := pa.parseValue()
 		if vv == Atom(")") {
 			break
@@ -132,19 +175,19 @@ func (pa *Parser) parseList() *Cons {
 //
 
 func (pa *Parser) Parse() (ret *Cons, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			if r, ok := r.(ParseError); ok {
-				err = eu.Append(err, r)
-			} else {
-				panic(r)
-			}
-		}
-	}()
+	//defer func() {
+	//	if r := recover(); r != nil {
+	//		if r, ok := r.(ParseError); ok {
+	//			err = eu.Append(err, r)
+	//		} else {
+	//			panic(r)
+	//		}
+	//	}
+	//}()
 
 	var body *Cons
 	if !pa.pr.isEof() {
-		body = pa.parseList()
+		body = pa.parseList(true)
 		if !pa.pr.isEof() {
 			err = eu.Append(err, UnexpectedCharErr)
 		}

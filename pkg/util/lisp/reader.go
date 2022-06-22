@@ -37,16 +37,16 @@ func (pr *peekReader) peek() opt.Optional[rune] {
 	return pr.pch
 }
 
-func (pr *peekReader) isEof() bool {
-	och := pr.peek()
-	return !och.Present()
-}
-
 func (pr *peekReader) mustPeek() rune {
 	if och := pr.peek(); och.Present() {
 		return och.Value()
 	}
 	panic(UnexpectedEofErr)
+}
+
+func (pr *peekReader) isEof() bool {
+	och := pr.peek()
+	return !och.Present()
 }
 
 func (pr *peekReader) read() opt.Optional[rune] {
@@ -103,10 +103,13 @@ func (pr *peekReader) skipSpace() {
 	pr.skipWhile(isSpace)
 }
 
-func (pr *peekReader) readWhile(fn func(ch rune) int) string {
-	var sb strings.Builder
+type RuneWriter interface {
+	WriteRune(r rune) (int, error)
+}
+
+func (pr *peekReader) readWhileInto(w RuneWriter, fn func(ch rune) int) {
 	for {
-		och := pr.read()
+		och := pr.peek()
 		if !och.Present() {
 			break
 		}
@@ -116,10 +119,14 @@ func (pr *peekReader) readWhile(fn func(ch rune) int) string {
 			break
 		}
 
-		sb.WriteRune(och.Value())
-		for r -= 1; r > 0; r-- {
-			sb.WriteRune(pr.mustRead())
+		for ; r > 0; r-- {
+			_, _ = w.WriteRune(pr.mustRead())
 		}
 	}
+}
+
+func (pr *peekReader) readWhile(fn func(ch rune) int) string {
+	var sb strings.Builder
+	pr.readWhileInto(&sb, fn)
 	return sb.String()
 }
