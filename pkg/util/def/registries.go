@@ -59,7 +59,7 @@ func (r *packageRegistry) addDef(def PackageDef) {
 
 func (r *packageRegistry) spec() *PackageSpec {
 	if r._spec == nil {
-		r._spec = newPackageSpec(r.name, r.defs)
+		r._spec = NewPackageSpec(r.name, r.defs)
 	}
 	return r._spec
 }

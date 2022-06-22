@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/def"
 	"github.com/wrmsr/bane/pkg/util/def/dev/gen/impl"
 )
 
@@ -19,13 +20,17 @@ func main() {
 			//_ = printer.Fprint(os.Stdout, pkg.Fset, fil)
 
 			defs := impl.FindPkgDefCalls(fil, pkg.TypesInfo)
-			for _, d := range defs {
+			rdefs := make([]def.PackageDef, len(defs))
+			for i, d := range defs {
 				//_ = ast.Fprint(os.Stdout, pkg.Fset, d, nil)
 				//_ = printer.Fprint(os.Stdout, pkg.Fset, d)
 
 				rd := impl.ReifyDef(d, pkg.TypesInfo)
-				fmt.Printf("%+v\n", rd)
+				rdefs[i] = rd.(def.PackageDef)
 			}
+
+			pspec := def.NewPackageSpec("?", rdefs)
+			fmt.Println(pspec)
 		}
 	}
 }

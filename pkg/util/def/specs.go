@@ -1,6 +1,7 @@
 package def
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -22,25 +23,29 @@ type FieldSpec struct {
 	name string
 	defs []FieldDef
 
-	ty  reflect.Type
-	dfl opt.Optional[any]
+	ty  any
+	dfl any
 }
 
-func newFieldSpec(name string, defs []FieldDef) *FieldSpec {
-	var ty opt.Optional[reflect.Type]
-	var dfl opt.Optional[any]
+func NewFieldSpec(name string, defs []FieldDef) *FieldSpec {
+	var ty any
+	var dfl any
 
 	for _, d := range defs {
 		for _, o := range d.Opts {
 			switch o := o.(type) {
 
 			case TypeOpt:
-				ty.IfPresent(func() { panic(RegistryError{fmt.Errorf("duplicate types: %s", name)}) })
-				ty = opt.Just(o.Ty.(reflect.Type))
+				if ty != nil {
+					panic(RegistryError{fmt.Errorf("duplicate types: %s", name)})
+				}
+				ty = o.Ty
 
 			case DefaultOpt:
-				dfl.IfPresent(func() { panic(RegistryError{fmt.Errorf("duplicate defaults: %s", name)}) })
-				dfl = opt.Just(o.Val)
+				if dfl != nil {
+					panic(RegistryError{fmt.Errorf("duplicate defaults: %s", name)})
+				}
+				dfl = o.Val
 
 			default:
 				panic(RegistryError{fmt.Errorf("%T", o)})
@@ -48,24 +53,27 @@ func newFieldSpec(name string, defs []FieldDef) *FieldSpec {
 		}
 	}
 
-	if !ty.Present() {
-		if !dfl.Present() {
+	if ty == nil {
+		if dfl == nil {
 			panic(RegistryError{fmt.Errorf("no type: %s", name)})
 		}
-		ty = opt.Just(reflect.TypeOf(dfl.Value()))
+		ty = reflect.TypeOf(dfl)
 	}
 
 	return &FieldSpec{
 		name: name,
 		defs: defs,
 
-		ty:  ty.Value(),
+		ty:  ty,
 		dfl: dfl,
 	}
 }
 
 func (fs FieldSpec) Default() any {
-	return fs.dfl.Value()
+	if fs.dfl == nil {
+		panic(errors.New("no default"))
+	}
+	return fs.dfl
 }
 
 //
@@ -78,7 +86,7 @@ type StructSpec struct {
 	inits  []any
 }
 
-func newStructSpec(name string, defs []StructDef) *StructSpec {
+func NewStructSpec(name string, defs []StructDef) *StructSpec {
 	fdm := make(map[string][]FieldDef)
 	var inits []any
 
@@ -100,7 +108,7 @@ func newStructSpec(name string, defs []StructDef) *StructSpec {
 
 	fields := make(map[string]*FieldSpec, len(fdm))
 	for fn, fds := range fdm {
-		fields[fn] = newFieldSpec(fn, fds)
+		fields[fn] = NewFieldSpec(fn, fds)
 	}
 
 	return &StructSpec{
@@ -132,7 +140,7 @@ type PackageSpec struct {
 	structs map[string]*StructSpec
 }
 
-func newPackageSpec(name string, defs []PackageDef) *PackageSpec {
+func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 	sdm := make(map[string][]StructDef)
 	var ex opt.Optional[X_packageExpect]
 
@@ -153,7 +161,7 @@ func newPackageSpec(name string, defs []PackageDef) *PackageSpec {
 
 	structs := make(map[string]*StructSpec, len(sdm))
 	for sn, sds := range sdm {
-		structs[sn] = newStructSpec(sn, sds)
+		structs[sn] = NewStructSpec(sn, sds)
 	}
 
 	ps := &PackageSpec{

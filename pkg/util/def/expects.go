@@ -34,7 +34,7 @@ type X_fieldExpect struct {
 }
 
 func (fx X_fieldExpect) check(fs *FieldSpec) {
-	if fs.dfl.Present() != fx.HasDefault {
+	if (fs.dfl != nil) != fx.HasDefault {
 		panic(ExpectError{fmt.Errorf("%s defaults differ", fs.name)})
 	}
 }
