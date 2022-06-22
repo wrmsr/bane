@@ -1,4 +1,12 @@
+{{define "fieldVars"}}
+    _{{$.Struct.Pkg.Ns}}_def_field_default__{{.Struct.Spec.Name}}__{{.Spec.Name}} int
+{{end}}
+
 {{define "structVars"}}
+    {{range $_, $v := .Fields}}
+        {{include "fieldVars" $v}}
+    {{end}}
+
     _{{$.Pkg.Ns}}_def_struct_inits__{{.Spec.Name}} [1]func(*{{.Spec.Name}})
 {{end}}
 
@@ -8,10 +16,6 @@ var (
     {{range $_, $v := .Structs}}
         {{include "structVars" $v}}
     {{end}}
-
-    _{{$.Ns}}_def_field_default__Foo__baz int
-
-    _{{$.Ns}}_def_struct_inits__Foo [1]func(*Foo)
 )
 
 func _{{$.Ns}}_def_init() {
