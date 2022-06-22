@@ -3,6 +3,7 @@
 package main
 
 import (
+	"reflect"
 	"sync"
 
 	"github.com/wrmsr/bane/pkg/util/def"
@@ -15,7 +16,7 @@ var _ = func() any {
 				"Foo": {
 					Fields: map[string]def.X_fieldExpect{
 						"bar": {
-							Ty: def.Type[int]().Type,
+							Ty: def.Type[int]().Ty.(reflect.Type),
 						},
 						"baz": {
 							HasDefault: true,

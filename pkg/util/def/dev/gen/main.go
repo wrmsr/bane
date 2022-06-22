@@ -132,13 +132,25 @@ func reifyDef(node ast.Node, ti *types.Info) any {
 
 	case "Type":
 		idx := call.Fun.(*ast.IndexExpr)
-		panic(idx)
+		return def.TypeOpt{
+			Ty: idx.Index,
+		}
 
 	case "Default":
-		panic(call)
+		if len(call.Args) != 1 {
+			panic(call)
+		}
+		return def.DefaultOpt{
+			Val: call.Args[0],
+		}
 
 	case "Init":
-		panic(call)
+		if len(call.Args) != 1 {
+			panic(call)
+		}
+		return def.InitOpt{
+			Fn: call.Args[0],
+		}
 
 	}
 

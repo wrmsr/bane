@@ -36,7 +36,7 @@ func newFieldSpec(name string, defs []FieldDef) *FieldSpec {
 
 			case TypeOpt:
 				ty.IfPresent(func() { panic(RegistryError{fmt.Errorf("duplicate types: %s", name)}) })
-				ty = opt.Just(o.Type)
+				ty = opt.Just(o.Ty.(reflect.Type))
 
 			case DefaultOpt:
 				dfl.IfPresent(func() { panic(RegistryError{fmt.Errorf("duplicate defaults: %s", name)}) })

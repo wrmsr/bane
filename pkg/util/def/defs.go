@@ -53,14 +53,14 @@ func Field(name string, opts ...FieldOpt) FieldDef {
 //
 
 type TypeOpt struct {
-	Type reflect.Type
+	Ty any
 }
 
 func (o TypeOpt) isFieldOpt() {}
 
 func Type[T any]() TypeOpt {
 	var z T
-	return TypeOpt{Type: reflect.TypeOf(z)}
+	return TypeOpt{Ty: reflect.TypeOf(z)}
 }
 
 //
