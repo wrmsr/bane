@@ -35,7 +35,7 @@ var (
 
 	_bane_def_field_default__Foo__baz int
 
-	_bane_def_struct_inits__Foo []func(*Foo)
+	_bane_def_struct_inits__Foo [1]func(*Foo)
 )
 
 func _bane_def_init() {
@@ -47,7 +47,6 @@ func _bane_def_init() {
 		field_spec__Foo__baz := struct_spec__Foo.Field("baz")
 		_bane_def_field_default__Foo__baz = field_spec__Foo__baz.Default().(int)
 
-		_bane_def_struct_inits__Foo = make([]func(*Foo), len(struct_spec__Foo.Inits()))
 		for i, f := range struct_spec__Foo.Inits() {
 			_bane_def_struct_inits__Foo[i] = f.(func(*Foo))
 		}

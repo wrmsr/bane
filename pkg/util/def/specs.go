@@ -120,6 +120,10 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 	}
 }
 
+func (ss StructSpec) Fields() map[string]*FieldSpec {
+	return ss.fields
+}
+
 func (ss StructSpec) Field(name string) *FieldSpec {
 	if ss, ok := ss.fields[name]; ok {
 		return ss
@@ -176,6 +180,10 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 	}
 
 	return ps
+}
+
+func (ps PackageSpec) Structs() map[string]*StructSpec {
+	return ps.structs
 }
 
 func (ps PackageSpec) Struct(name string) *StructSpec {

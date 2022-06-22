@@ -31,6 +31,9 @@ func main() {
 
 			pspec := def.NewPackageSpec("?", rdefs)
 			fmt.Println(pspec)
+
+			s := impl.NewFileGen(pspec).Gen()
+			fmt.Println(s)
 		}
 	}
 }
