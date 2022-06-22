@@ -24,8 +24,8 @@ func Evaluate(s *Scope, p Program) Value {
 
 	for pc < len(p.insns) {
 		ins := p.insns[pc]
-
 		switch pc++; ins.op {
+
 		case OpLdConst:
 			st = append(st, ins.arg.(Value))
 
