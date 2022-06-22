@@ -20,44 +20,19 @@ package dotenv
 
 import (
 	"bytes"
-	"os"
 	"strings"
 	"testing"
 )
 
-var noopPresets = make(map[string]string)
-
 func parseAndCompare(t *testing.T, rawEnvLine string, expectedKey string, expectedValue string) {
-	key, value, _ := parseLine(rawEnvLine, noopPresets)
+	key, value, _ := NewParser().parseLine(rawEnvLine)
 	if key != expectedKey || value != expectedValue {
 		t.Errorf("Expected '%v' to parse as '%v' => '%v', got '%v' => '%v' instead", rawEnvLine, expectedKey, expectedValue, key, value)
 	}
 }
 
-func loadEnvAndCompareValues(t *testing.T, loader func(files ...string) error, envFileName string, expectedValues map[string]string, presets map[string]string) {
-	// first up, clear the env
-	os.Clearenv()
-
-	for k, v := range presets {
-		os.Setenv(k, v)
-	}
-
-	err := loader(envFileName)
-	if err != nil {
-		t.Fatalf("Error loading %v", envFileName)
-	}
-
-	for k := range expectedValues {
-		envValue := os.Getenv(k)
-		v := expectedValues[k]
-		if envValue != v {
-			t.Errorf("Mismatch for key '%v': expected '%v' got '%v'", k, v, envValue)
-		}
-	}
-}
-
 func TestParse(t *testing.T) {
-	envMap, err := Parse(bytes.NewReader([]byte("ONE=1\nTWO='2'\nTHREE = \"3\"")))
+	envMap, err := Parse(bytes.NewReader([]byte("ONE=1\nTWO='2'\nTHREE = \"3\"")), nil)
 	expectedValues := map[string]string{
 		"ONE":   "1",
 		"TWO":   "2",
@@ -123,7 +98,7 @@ func TestExpanding(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			env, err := Parse(strings.NewReader(tt.input))
+			env, err := Parse(strings.NewReader(tt.input), nil)
 			if err != nil {
 				t.Errorf("Error: %s", err.Error())
 			}
@@ -226,7 +201,7 @@ func TestParsing(t *testing.T) {
 	// it 'throws an error if line format is incorrect' do
 	// expect{env('lol$wut')}.to raise_error(Dotenv::FormatError)
 	badlyFormattedLine := "lol$wut"
-	_, _, err := parseLine(badlyFormattedLine, noopPresets)
+	_, _, err := NewParser().parseLine(badlyFormattedLine)
 	if err == nil {
 		t.Errorf("Expected \"%v\" to return error, but it didn't", badlyFormattedLine)
 	}

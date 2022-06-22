@@ -26,6 +26,8 @@ import (
 	"strings"
 )
 
+//
+
 type Parser struct {
 	m map[string]string
 }
@@ -35,6 +37,21 @@ func NewParser() *Parser {
 		m: make(map[string]string),
 	}
 }
+
+func (p *Parser) Update(m map[string]string) *Parser {
+	if m != nil {
+		for k, v := range m {
+			p.m[k] = v
+		}
+	}
+	return p
+}
+
+func (p *Parser) Env() map[string]string {
+	return p.m
+}
+
+//
 
 func isIgnoredLine(line string) bool {
 	trimmedLine := strings.TrimSpace(line)
@@ -64,6 +81,16 @@ func (p *Parser) Parse(r io.Reader) error {
 	}
 	return nil
 }
+
+func Parse(r io.Reader, m map[string]string) (map[string]string, error) {
+	pa := NewParser()
+	if err := pa.Update(m).Parse(r); err != nil {
+		return nil, err
+	}
+	return pa.Env(), nil
+}
+
+//
 
 var exportRegex = regexp.MustCompile(`^\s*(?:export\s+)?(.*?)\s*$`)
 
@@ -119,6 +146,8 @@ func (p *Parser) parseLine(line string) (key string, value string, err error) {
 	return
 }
 
+//
+
 var (
 	singleQuotesRegex  = regexp.MustCompile(`\A'(.*)'\z`)
 	doubleQuotesRegex  = regexp.MustCompile(`\A"(.*)"\z`)
@@ -159,6 +188,8 @@ func (p *Parser) parseValue(value string) string {
 
 	return value
 }
+
+//
 
 var expandVarRegex = regexp.MustCompile(`(\\)?(\$)(\()?\{?([A-Z0-9_]+)?\}?`)
 
