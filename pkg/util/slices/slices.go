@@ -64,3 +64,29 @@ func Equal[T comparable](l, r []T) bool {
 	}
 	return true
 }
+
+func Map[T, R any](fn func(t T) R, s []T) []R {
+	r := make([]R, len(s))
+	for i, v := range s {
+		r[i] = fn(v)
+	}
+	return r
+}
+
+func Filter[T any](fn func(t T) bool, s []T) []T {
+	var r []T
+	for _, v := range s {
+		if fn(v) {
+			r = append(r, v)
+		}
+	}
+	return r
+}
+
+func FlatMap[T, R any](fn func(t T) []R, s []T) []R {
+	var r []R
+	for _, v := range s {
+		r = append(r, fn(v)...)
+	}
+	return r
+}

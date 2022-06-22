@@ -69,6 +69,10 @@ func NewFieldSpec(name string, defs []FieldDef) *FieldSpec {
 	}
 }
 
+func (fs FieldSpec) Name() string {
+	return fs.name
+}
+
 func (fs FieldSpec) Default() any {
 	if fs.dfl == nil {
 		panic(errors.New("no default"))
@@ -118,6 +122,10 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 		fields: fields,
 		inits:  inits,
 	}
+}
+
+func (ss StructSpec) Name() string {
+	return ss.name
 }
 
 func (ss StructSpec) Fields() map[string]*FieldSpec {
@@ -180,6 +188,10 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 	}
 
 	return ps
+}
+
+func (ps PackageSpec) Name() string {
+	return ps.name
 }
 
 func (ps PackageSpec) Structs() map[string]*StructSpec {
