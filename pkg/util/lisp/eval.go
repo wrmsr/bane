@@ -2,10 +2,21 @@ package lisp
 
 import "fmt"
 
+//
+
 type Scope struct {
 	parent *Scope
 	defs   map[string]Value
 }
+
+func NewScope(parent *Scope) *Scope {
+	return &Scope{
+		parent: parent,
+		defs:   make(map[string]Value),
+	}
+}
+
+//
 
 func Evaluate(s *Scope, p Program) Value {
 	pc := 0
