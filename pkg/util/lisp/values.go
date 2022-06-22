@@ -161,9 +161,9 @@ func AsString(v Value) string {
 	}
 }
 
-func MakeList(vals ...Value) *Cons {
+func MakeList(vs ...Value) *Cons {
 	var p, q *Cons
-	for _, v := range vals {
+	for _, v := range vs {
 		AppendValue(&p, &q, v)
 	}
 	return p
