@@ -67,7 +67,7 @@ func Evaluate(s *Scope, p Program) Value {
 
 			fn, ok := vv[0].(Callable)
 			if !ok {
-				panic("eval: object is not appliable: " + AsString(vv[0]))
+				panic(fmt.Sprintf("object is not applicable: %s", AsString(vv[0])))
 			}
 			st = append(st, fn.Call(vv[1:]))
 

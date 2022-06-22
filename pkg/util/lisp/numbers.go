@@ -47,19 +47,20 @@ func AsNumbers(v1 Value, v2 Value) (Number, Number, NumKind) {
 
 //
 
-func (v Int) Kind() NumKind      { return NumInt }
-func (v Int) AsInt() Int         { return v }
+func (v Int) Kind() NumKind     { return NumInt }
+func (v Float) Kind() NumKind   { return NumFloat }
+func (v Complex) Kind() NumKind { return NumComplex }
+
+func (v Int) AsInt() Int     { return v }
+func (v Float) AsInt() Int   { return Int(v) }
+func (v Complex) AsInt() Int { return Int(v.AsRealNumber()) }
+
 func (v Int) AsFloat() Float     { return Float(v) }
-func (v Int) AsComplex() Complex { return Complex(complex(float64(v), 0)) }
+func (v Float) AsFloat() Float   { return v }
+func (v Complex) AsFloat() Float { return Float(v.AsRealNumber()) }
 
-func (v Float) Kind() NumKind      { return NumFloat }
-func (v Float) AsInt() Int         { return Int(v) }
-func (v Float) AsFloat() Float     { return v }
-func (v Float) AsComplex() Complex { return Complex(complex(float64(v), 0)) }
-
-func (v Complex) Kind() NumKind      { return NumComplex }
-func (v Complex) AsInt() Int         { return Int(v.AsRealNumber()) }
-func (v Complex) AsFloat() Float     { return Float(v.AsRealNumber()) }
+func (v Int) AsComplex() Complex     { return Complex(complex(float64(v), 0)) }
+func (v Float) AsComplex() Complex   { return Complex(complex(v, 0)) }
 func (v Complex) AsComplex() Complex { return v }
 
 func (v Complex) Magnitude() Float {
@@ -69,7 +70,7 @@ func (v Complex) Magnitude() Float {
 func (v Complex) AsRealNumber() float64 {
 	cv := complex128(v)
 	if imag(cv) != 0 {
-		panic("cast: cannot convert complex numbers with non-zero imaginary part into real numbers")
+		panic("cannot convert complex numbers with non-zero imaginary part into real numbers")
 	}
 	return real(cv)
 }
