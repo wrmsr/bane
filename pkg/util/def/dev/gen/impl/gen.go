@@ -15,14 +15,16 @@ import (
 )
 
 type FileGen struct {
-	pkg *def.PackageSpec
+	ps *def.PackageSpec
 }
 
 func NewFileGen(pkg *def.PackageSpec) *FileGen {
 	return &FileGen{
-		pkg: pkg,
+		ps: pkg,
 	}
 }
+
+//
 
 //go:embed gen.tpl
 var genTplEmbed embed.FS
@@ -41,12 +43,36 @@ type fileGenFieldData struct {
 	Spec   *def.FieldSpec
 }
 
+func (fg *FileGen) makeFieldData(sd *fileGenStructData, fs *def.FieldSpec) *fileGenFieldData {
+	return &fileGenFieldData{
+		Struct: sd,
+		Spec:   fs,
+	}
+}
+
+//
+
 type fileGenStructData struct {
 	Pkg  *fileGenPkgData
 	Spec *def.StructSpec
 
 	Fields []*fileGenFieldData
 }
+
+func (fg *FileGen) makeStructData(pd *fileGenPkgData, ss *def.StructSpec) *fileGenStructData {
+	sd := &fileGenStructData{
+		Pkg:  pd,
+		Spec: ss,
+	}
+
+	sd.Fields = slices.Map(func(fs *def.FieldSpec) *fileGenFieldData {
+		return fg.makeFieldData(sd, fs)
+	}, maps.Values(ss.Fields()))
+
+	return sd
+}
+
+//
 
 type fileGenPkgData struct {
 	Ns   string
@@ -55,27 +81,23 @@ type fileGenPkgData struct {
 	Structs []*fileGenStructData
 }
 
-func (fg *FileGen) Gen() string {
+func (fg *FileGen) makePkgData() *fileGenPkgData {
 	pd := &fileGenPkgData{
 		Ns:   "bane",
-		Spec: fg.pkg,
+		Spec: fg.ps,
 	}
 
 	pd.Structs = slices.Map(func(ss *def.StructSpec) *fileGenStructData {
-		sd := &fileGenStructData{
-			Pkg:  pd,
-			Spec: ss,
-		}
+		return fg.makeStructData(pd, ss)
+	}, maps.Values(fg.ps.Structs()))
 
-		sd.Fields = slices.Map(func(fs *def.FieldSpec) *fileGenFieldData {
-			return &fileGenFieldData{
-				Struct: sd,
-				Spec:   fs,
-			}
-		}, maps.Values(ss.Fields()))
+	return pd
+}
 
-		return sd
-	}, maps.Values(fg.pkg.Structs()))
+//
+
+func (fg *FileGen) Gen() string {
+	pd := fg.makePkgData()
 
 	var sb strings.Builder
 	check.NoErr(genTpl.Execute(&sb, &pd))
