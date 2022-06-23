@@ -1,5 +1,12 @@
 {{/* fields */}}
 
+{{define "fieldExpects"}}
+                    "{{.Spec.Name}}": {
+                        Ty: def.Type[int]().Ty.(reflect.Type),
+                        HasDefault: false,
+                    },
+{{end}}
+
 {{define "fieldVars"}}
     _{{.Struct.Pkg.Ns}}_def_field_default__{{.Struct.Spec.Name}}__{{.Spec.Name}} int
 {{end}}
@@ -15,9 +22,20 @@
 
 {{/* structs */}}
 
+{{define "structExpects"}}
+            "{{.Spec.Name}}": {
+                Fields: map[string]def.X_fieldExpect{
+                    {{range $_, $v := .Fields -}}
+                    {{include "fieldExpects" $v}}
+                    {{- end}}
+                },
+                NumInits: {{.Spec.Inits | len}},
+            },
+{{end}}
+
 {{define "structVars"}}
     {{range $_, $v := .Fields -}}
-    {{include "fieldVars" $v}}
+        {{include "fieldVars" $v}}
     {{- end}}
 
     _{{.Pkg.Ns}}_def_struct_inits__{{.Spec.Name}} [{{.Spec.Inits | len}}]func(*{{.Spec.Name}})
@@ -40,13 +58,26 @@ type {{.Spec.Name}} struct {
     {{include "fieldInit" $v}}
     {{- end}}
 
-    {{range $i := intRange 0 (.Spec.Inits | len)}}
+    {{range $i := intRange 0 (.Spec.Inits | len) -}}
     _{{$.Pkg.Ns}}_def_struct_inits__{{$.Spec.Name}}[{{$i}}] = struct_spec__{{$.Spec.Name}}.Inits()[{{$i}}].(func(*{{$.Spec.Name}}))
-    {{end -}}
+    {{- end}}
 {{end}}
 
 
 {{/* package */}}
+
+{{define "packageExpects"}}
+var _ = func() any {
+    def.X_addPackageDef(def.X_packageExpect{
+        Structs: map[string]def.X_structExpect{
+            {{range $_, $v := .Structs -}}
+            {{include "structExpects" $v}}
+            {{- end}}
+        },
+    })
+    return nil
+}()
+{{end}}
 
 {{define "packageVars"}}
 var (
@@ -59,9 +90,11 @@ var (
 {{end}}
 
 {{define "packageDecls"}}
+
 {{range $_, $v := .Structs -}}
 {{include "structDecls" $v}}
 {{- end}}
+
 {{end}}
 
 {{define "packageInit"}}
@@ -77,6 +110,7 @@ func _{{.Ns}}_def_init() {
 {{end}}
 
 {{define "package"}}
+{{include "packageExpects" .}}
 {{include "packageVars" .}}
 {{include "packageDecls" .}}
 {{include "packageInit" .}}
