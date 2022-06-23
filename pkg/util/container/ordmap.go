@@ -25,15 +25,22 @@ type ordMapImpl[K comparable, V any] struct {
 	m map[K]int
 }
 
-func newOrdMapImpl[K comparable, V any]() ordMapImpl[K, V] {
-	return ordMapImpl[K, V]{
+func newOrdMapImpl[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) ordMapImpl[K, V] {
+	m := ordMapImpl[K, V]{
 		s: make([]bt.Kv[K, V], 0),
 		m: make(map[K]int),
 	}
+	if it != nil {
+		for it := it.Iterate(); it.HasNext(); {
+			c := it.Next()
+			m.put(c.K, c.V)
+		}
+	}
+	return m
 }
 
-func NewOrdMap[K comparable, V any]() OrdMap[K, V] {
-	return newOrdMapImpl[K, V]()
+func NewOrdMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) OrdMap[K, V] {
+	return newOrdMapImpl[K, V](it)
 }
 
 var _ OrdMap[int, any] = ordMapImpl[int, any]{}
@@ -66,7 +73,7 @@ func (m ordMapImpl[K, V]) TryGet(k K) (V, bool) {
 }
 
 func (m ordMapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
-	return its.Slice(m.s).Iterate()
+	return its.OfSlice(m.s).Iterate()
 }
 
 func (m ordMapImpl[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
@@ -84,9 +91,9 @@ type mutOrdMapImpl[K comparable, V any] struct {
 	ordMapImpl[K, V]
 }
 
-func NewMutOrdMap[K comparable, V any]() MutOrdMap[K, V] {
+func NewMutOrdMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) MutOrdMap[K, V] {
 	return &mutOrdMapImpl[K, V]{
-		ordMapImpl: newOrdMapImpl[K, V](),
+		ordMapImpl: newOrdMapImpl[K, V](it),
 	}
 }
 
@@ -94,7 +101,7 @@ var _ MutMap[int, any] = &mutOrdMapImpl[int, any]{}
 
 func (m *ordMapImpl[K, V]) isMutable() {}
 
-func (m *ordMapImpl[K, V]) Put(k K, v V) bool {
+func (m *ordMapImpl[K, V]) put(k K, v V) bool {
 	i, ok := m.m[k]
 	if !ok {
 		m.s[i].V = v
@@ -105,7 +112,11 @@ func (m *ordMapImpl[K, V]) Put(k K, v V) bool {
 	return true
 }
 
-func (m *ordMapImpl[K, V]) Delete(k K) bool {
+func (m *mutOrdMapImpl[K, V]) Put(k K, v V) bool {
+	return m.put(k, v)
+}
+
+func (m *ordMapImpl[K, V]) delete(k K) bool {
 	i, ok := m.m[k]
 	if !ok {
 		return false
@@ -114,7 +125,11 @@ func (m *ordMapImpl[K, V]) Delete(k K) bool {
 	return true
 }
 
-func (m *ordMapImpl[K, V]) Default(k K, v V) bool {
+func (m *mutOrdMapImpl[K, V]) Delete(k K) bool {
+	return m.delete(k)
+}
+
+func (m *ordMapImpl[K, V]) default_(k K, v V) bool {
 	_, ok := m.m[k]
 	if !ok {
 		return false
@@ -122,4 +137,8 @@ func (m *ordMapImpl[K, V]) Default(k K, v V) bool {
 	m.m[k] = len(m.s)
 	m.s = append(m.s, bt.KvOf(k, v))
 	return true
+}
+
+func (m *mutOrdMapImpl[K, V]) Default(k K, v V) bool {
+	return m.default_(k, v)
 }

@@ -4,27 +4,27 @@ import bt "github.com/wrmsr/bane/pkg/util/types"
 
 //
 
-type transformIterator[F, T any] struct {
+type mapIterator[F, T any] struct {
 	it Iterator[F]
 	fn func(f F) T
 }
 
-func Transform[F, T any](it Iterable[F], fn func(f F) T) Iterable[T] {
-	return factory(func() Iterator[T] { return &transformIterator[F, T]{it: it.Iterate(), fn: fn} })
+func Map[F, T any](it Iterable[F], fn func(f F) T) Iterable[T] {
+	return factory(func() Iterator[T] { return &mapIterator[F, T]{it: it.Iterate(), fn: fn} })
 
 }
 
-var _ Iterator[string] = &transformIterator[int, string]{}
+var _ Iterator[string] = &mapIterator[int, string]{}
 
-func (i *transformIterator[F, T]) Iterate() Iterator[T] {
+func (i *mapIterator[F, T]) Iterate() Iterator[T] {
 	return i
 }
 
-func (i *transformIterator[F, T]) HasNext() bool {
+func (i *mapIterator[F, T]) HasNext() bool {
 	return i.it.HasNext()
 }
 
-func (i *transformIterator[F, T]) Next() T {
+func (i *mapIterator[F, T]) Next() T {
 	return i.fn(i.it.Next())
 }
 

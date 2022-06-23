@@ -5,7 +5,7 @@ type sliceIterator[T any] struct {
 	i int
 }
 
-func Slice[T any](s []T) Iterable[T] {
+func OfSlice[T any](s []T) Iterable[T] {
 	return factory[T](func() Iterator[T] {
 		return &sliceIterator[T]{s: s}
 	})

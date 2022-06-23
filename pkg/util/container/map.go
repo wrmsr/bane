@@ -32,14 +32,21 @@ type mapImpl[K comparable, V any] struct {
 	m map[K]V
 }
 
-func newMapImpl[K comparable, V any]() mapImpl[K, V] {
+func newMapImpl[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) mapImpl[K, V] {
+	m := make(map[K]V)
+	if it != nil {
+		for it := it.Iterate(); it.HasNext(); {
+			c := it.Next()
+			m[c.K] = c.V
+		}
+	}
 	return mapImpl[K, V]{
-		m: make(map[K]V),
+		m: m,
 	}
 }
 
-func NewMap[K comparable, V any]() Map[K, V] {
-	return newMapImpl[K, V]()
+func NewMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) Map[K, V] {
+	return newMapImpl[K, V](it)
 }
 
 var _ Map[int, any] = mapImpl[int, any]{}
@@ -63,7 +70,7 @@ func (m mapImpl[K, V]) TryGet(k K) (V, bool) {
 }
 
 func (m mapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
-	return its.Map[K, V](m.m).Iterate()
+	return its.OfMap[K, V](m.m).Iterate()
 }
 
 func (m mapImpl[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
@@ -81,8 +88,8 @@ type mutMapImpl[K comparable, V any] struct {
 	mapImpl[K, V]
 }
 
-func NewMutMap[K comparable, V any]() MutMap[K, V] {
-	return mutMapImpl[K, V]{newMapImpl[K, V]()}
+func NewMutMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) MutMap[K, V] {
+	return mutMapImpl[K, V]{newMapImpl[K, V](it)}
 }
 
 var _ MutMap[int, any] = mutMapImpl[int, any]{}

@@ -35,8 +35,10 @@ func newSetImpl[T comparable](it its.Iterable[T]) setImpl[T] {
 	s := setImpl[T]{
 		m: make(map[T]struct{}),
 	}
-	for i := it.Iterate(); i.HasNext(); {
-		s.m[i.Next()] = struct{}{}
+	if it != nil {
+		for it := it.Iterate(); it.HasNext(); {
+			s.m[it.Next()] = struct{}{}
+		}
 	}
 	return s
 }
@@ -61,8 +63,8 @@ func (s setImpl[T]) Contains(t T) bool {
 }
 
 func (s setImpl[T]) Iterate() its.Iterator[T] {
-	return its.Transform(
-		its.Map(s.m),
+	return its.Map(
+		its.OfMap(s.m),
 		func(kv bt.Kv[T, struct{}]) T {
 			return kv.K
 		},

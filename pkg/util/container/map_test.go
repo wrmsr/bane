@@ -7,7 +7,7 @@ import (
 )
 
 func TestMap(t *testing.T) {
-	m := NewMutMap[int, string]()
+	m := NewMutMap[int, string](nil)
 	m.Put(10, "ten")
 	m.Put(20, "twenty")
 	m.Put(30, "thirty")

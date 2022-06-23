@@ -251,10 +251,10 @@ type treapMap[K comparable, V any] struct {
 	c Comparer[bt.Kv[K, V]]
 }
 
-func NewTreapMap[K comparable, V any](keyCompare Comparer[K]) PerMap[K, V] {
+func NewTreapMap[K comparable, V any](cmp Comparer[K]) PerMap[K, V] {
 	return treapMap[K, V]{
 		c: treapMapComparer[K, V](func(v1, v2 bt.Kv[K, V]) int {
-			return keyCompare.Compare(v1.K, v2.K)
+			return cmp.Compare(v1.K, v2.K)
 		}),
 	}
 }

@@ -2,7 +2,7 @@ package iterators
 
 import bt "github.com/wrmsr/bane/pkg/util/types"
 
-func Map[K comparable, V any](m map[K]V) Iterable[bt.Kv[K, V]] {
+func OfMap[K comparable, V any](m map[K]V) Iterable[bt.Kv[K, V]] {
 	return factory(func() Iterator[bt.Kv[K, V]] {
 		kvs := make([]bt.Kv[K, V], len(m))
 		i := 0
@@ -10,6 +10,6 @@ func Map[K comparable, V any](m map[K]V) Iterable[bt.Kv[K, V]] {
 			kvs[i] = bt.KvOf(k, v)
 			i++
 		}
-		return Slice[bt.Kv[K, V]](kvs).Iterate()
+		return OfSlice[bt.Kv[K, V]](kvs).Iterate()
 	})
 }

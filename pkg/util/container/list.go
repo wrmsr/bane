@@ -28,19 +28,21 @@ type listImpl[T any] struct {
 	s []T
 }
 
-func newListImpl[T comparable](it its.Iterable[T]) listImpl[T] {
+func newListImpl[T any](it its.Iterable[T]) listImpl[T] {
 	s := listImpl[T]{}
-	for i := it.Iterate(); i.HasNext(); {
-		s.s = append(s.s, i.Next())
+	if it != nil {
+		for it := it.Iterate(); it.HasNext(); {
+			s.s = append(s.s, it.Next())
+		}
 	}
 	return s
 }
 
-func NewList[T comparable](it its.Iterable[T]) List[T] {
+func NewList[T any](it its.Iterable[T]) List[T] {
 	return newListImpl(it)
 }
 
-func NewListOf[T comparable](vs ...T) List[T] {
+func NewListOf[T any](vs ...T) List[T] {
 	return NewList(its.Of(vs...))
 }
 
@@ -55,7 +57,7 @@ func (l listImpl[T]) Get(i int) T {
 }
 
 func (l listImpl[T]) Iterate() its.Iterator[T] {
-	return its.Slice(l.s).Iterate()
+	return its.OfSlice(l.s).Iterate()
 }
 
 func (l listImpl[T]) ForEach(fn func(v T) bool) bool {
@@ -73,11 +75,11 @@ type mutListImpl[T any] struct {
 	listImpl[T]
 }
 
-func NewMutList[T comparable](it its.Iterable[T]) MutList[T] {
+func NewMutList[T any](it its.Iterable[T]) MutList[T] {
 	return &mutListImpl[T]{newListImpl(it)}
 }
 
-func NewMutListOf[T comparable](vs ...T) MutList[T] {
+func NewMutListOf[T any](vs ...T) MutList[T] {
 	return NewMutList(its.Of(vs...))
 }
 

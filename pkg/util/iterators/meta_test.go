@@ -6,8 +6,8 @@ import (
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 )
 
-func TestTransform(t *testing.T) {
-	tu.AssertDeepEqual(t, Take[int](Transform(Count(), func(v int) int { return v * 2 }), 5), []int{0, 2, 4, 6, 8})
+func TestMap(t *testing.T) {
+	tu.AssertDeepEqual(t, Take[int](Map(Count(), func(v int) int { return v * 2 }), 5), []int{0, 2, 4, 6, 8})
 }
 
 func TestFilter(t *testing.T) {
