@@ -47,9 +47,7 @@ func _bane_def_init() {
 		field_spec__Foo__baz := struct_spec__Foo.Field("baz")
 		_bane_def_field_default__Foo__baz = field_spec__Foo__baz.Default().(int)
 
-		for i, f := range struct_spec__Foo.Inits() {
-			_bane_def_struct_inits__Foo[i] = f.(func(*Foo))
-		}
+		_bane_def_struct_inits__Foo[0] = struct_spec__Foo.Inits()[0].(func(*Foo))
 	})
 }
 

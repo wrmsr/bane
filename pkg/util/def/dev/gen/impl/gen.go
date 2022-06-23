@@ -26,18 +26,6 @@ func NewFileGen(pkg *def.PackageSpec) *FileGen {
 
 //
 
-//go:embed gen.tpl
-var genTplEmbed embed.FS
-
-var genTpl = func() *template.Template {
-	tmpl := template.New("?")
-	tmplu.WithInclude(tmpl)
-	check.Must(tmpl.ParseFS(genTplEmbed, "*.tpl"))
-	return tmpl.Lookup("gen.tpl")
-}()
-
-//
-
 type fileGenFieldData struct {
 	Struct *fileGenStructData
 	Spec   *def.FieldSpec
@@ -96,10 +84,34 @@ func (fg *FileGen) makePkgData() *fileGenPkgData {
 
 //
 
+//go:embed gen.tpl
+var genTmplEmbed embed.FS
+
+var genTmpl = func() *template.Template {
+	tmpl := template.New("?")
+
+	tmplu.WithInclude(tmpl)
+
+	tmpl.Funcs(template.FuncMap{
+		"indent":   tmplu.Indent,
+		"intRange": tmplu.IntRange,
+	})
+
+	check.Must(tmpl.ParseFS(genTmplEmbed, "*.tpl"))
+	return tmpl.Lookup("gen.tpl")
+}()
+
+//
+
 func (fg *FileGen) Gen() string {
 	pd := fg.makePkgData()
 
+	tmpl := check.Must(genTmpl.Parse(`{{include "package" .}}`))
+
 	var sb strings.Builder
-	check.NoErr(genTpl.Execute(&sb, &pd))
-	return strings.ReplaceAll(sb.String(), "    ", "\t")
+	check.NoErr(tmpl.Execute(&sb, &pd))
+	s := sb.String()
+
+	//s = strings.ReplaceAll(s, "    ", "\t")
+	return s
 }
