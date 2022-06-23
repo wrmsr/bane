@@ -4,6 +4,10 @@
     _{{.Struct.Pkg.Ns}}_def_field_default__{{.Struct.Spec.Name}}__{{.Spec.Name}} int
 {{end}}
 
+{{define "fieldDecls"}}
+    {{.Spec.Name}} int
+{{end}}
+
 {{define "fieldInit"}}
     field_spec__{{.Struct.Spec.Name}}__{{.Spec.Name}} := struct_spec__{{.Struct.Spec.Name}}.Field("{{.Spec.Name}}")
 {{end}}
@@ -17,6 +21,16 @@
     {{- end}}
 
     _{{.Pkg.Ns}}_def_struct_inits__{{.Spec.Name}} [{{.Spec.Inits | len}}]func(*{{.Spec.Name}})
+{{end}}
+
+{{define "structDecls"}}
+type {{.Spec.Name}} struct {
+
+    {{range $_, $v := .Fields -}}
+    {{include "fieldDecls" $v}}
+    {{- end}}
+
+}
 {{end}}
 
 {{define "structInit"}}
@@ -39,9 +53,15 @@ var (
     _{{.Ns}}_def_init_once sync.Once
 
     {{range $_, $v := .Structs -}}
-        {{include "structVars" $v}}
+    {{include "structVars" $v}}
     {{- end}}
 )
+{{end}}
+
+{{define "packageDecls"}}
+{{range $_, $v := .Structs -}}
+{{include "structDecls" $v}}
+{{- end}}
 {{end}}
 
 {{define "packageInit"}}
@@ -58,5 +78,6 @@ func _{{.Ns}}_def_init() {
 
 {{define "package"}}
 {{include "packageVars" .}}
+{{include "packageDecls" .}}
 {{include "packageInit" .}}
 {{end}}
