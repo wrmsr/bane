@@ -6,5 +6,5 @@ import (
 )
 
 func TestTpch(t *testing.T) {
-	fmt.Printf("%+v\n", Region)
+	fmt.Printf("%+v\n", Entities)
 }

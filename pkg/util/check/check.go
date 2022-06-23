@@ -1,6 +1,12 @@
 package check
 
-import bt "github.com/wrmsr/bane/pkg/util/types"
+import (
+	"fmt"
+
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
+
+//
 
 func NotZero[T comparable](v T, s ...string) T {
 	if v == bt.Zero[T]() {
@@ -26,4 +32,42 @@ func NoErr(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func Condition(b bool) {
+	if !b {
+		panic("condition not met")
+	}
+}
+
+//
+
+type HasLen interface {
+	Len() int
+}
+
+func NotEmpty(ctr HasLen) {
+	if ctr.Len() < 1 {
+		panic("must not be empty")
+	}
+}
+
+//
+
+type Container[T any] interface {
+	Contains(v T) bool
+}
+
+func Contains[T any](ctr Container[T], v T) T {
+	if !ctr.Contains(v) {
+		panic(fmt.Sprintf("container must contain %v", v))
+	}
+	return v
+}
+
+func NotContains[T any](ctr Container[T], v T) T {
+	if ctr.Contains(v) {
+		panic(fmt.Sprintf("container must not contain %v", v))
+	}
+	return v
 }

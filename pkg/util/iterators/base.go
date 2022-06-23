@@ -27,7 +27,7 @@ type factoryIterable[T any] struct {
 	fn func() Iterator[T]
 }
 
-func factory[T any](fn func() Iterator[T]) Iterable[T] {
+func Factory[T any](fn func() Iterator[T]) Iterable[T] {
 	return factoryIterable[T]{fn: fn}
 }
 

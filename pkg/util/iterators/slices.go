@@ -6,7 +6,7 @@ type sliceIterator[T any] struct {
 }
 
 func OfSlice[T any](s []T) Iterable[T] {
-	return factory[T](func() Iterator[T] {
+	return Factory[T](func() Iterator[T] {
 		return &sliceIterator[T]{s: s}
 	})
 }

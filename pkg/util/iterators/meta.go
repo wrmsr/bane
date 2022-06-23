@@ -10,7 +10,7 @@ type mapIterator[F, T any] struct {
 }
 
 func Map[F, T any](it Iterable[F], fn func(f F) T) Iterable[T] {
-	return factory(func() Iterator[T] { return &mapIterator[F, T]{it: it.Iterate(), fn: fn} })
+	return Factory(func() Iterator[T] { return &mapIterator[F, T]{it: it.Iterate(), fn: fn} })
 
 }
 
@@ -39,7 +39,7 @@ type filterIterator[T any] struct {
 }
 
 func Filter[T any](it Iterable[T], fn func(v T) bool) Iterable[T] {
-	return factory(func() Iterator[T] { return &filterIterator[T]{it: it.Iterate(), fn: fn} })
+	return Factory(func() Iterator[T] { return &filterIterator[T]{it: it.Iterate(), fn: fn} })
 }
 
 var _ Iterator[int] = &filterIterator[int]{}
@@ -83,7 +83,7 @@ type enumerateIterator[T any] struct {
 }
 
 func Enumerate[T any](it Iterable[T]) Iterable[bt.Kv[int, T]] {
-	return factory(func() Iterator[bt.Kv[int, T]] { return &enumerateIterator[T]{i: it.Iterate()} })
+	return Factory(func() Iterator[bt.Kv[int, T]] { return &enumerateIterator[T]{i: it.Iterate()} })
 }
 
 var _ Iterator[bt.Kv[int, any]] = &enumerateIterator[any]{}
@@ -111,7 +111,7 @@ type chunkIterator[T any] struct {
 }
 
 func Chunk[T any](i Iterable[T], n int) Iterable[[]T] {
-	return factory(func() Iterator[[]T] { return &chunkIterator[T]{i: i.Iterate(), n: n} })
+	return Factory(func() Iterator[[]T] { return &chunkIterator[T]{i: i.Iterate(), n: n} })
 }
 
 var _ Iterator[[]any] = &chunkIterator[any]{}
