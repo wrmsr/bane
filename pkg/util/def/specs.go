@@ -1,7 +1,6 @@
 package def
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
@@ -74,9 +73,6 @@ func (fs FieldSpec) Name() string {
 }
 
 func (fs FieldSpec) Default() any {
-	if fs.dfl == nil {
-		panic(errors.New("no default"))
-	}
 	return fs.dfl
 }
 

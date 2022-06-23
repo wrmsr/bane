@@ -2,8 +2,9 @@ package templates
 
 import (
 	"bytes"
-	"strings"
 	"text/template"
+
+	tmplfn "github.com/wrmsr/bane/pkg/util/templates/funcs"
 )
 
 func WithInclude(tmpl *template.Template) *template.Template {
@@ -18,16 +19,8 @@ func WithInclude(tmpl *template.Template) *template.Template {
 	})
 }
 
-func Indent(n int, s, v string) string {
-	pad := strings.Repeat(s, n)
-	return pad + strings.Replace(v, "\n", "\n"+pad, -1)
-}
-
-func IntRange(start, end int) []int {
-	n := end - start
-	r := make([]int, n)
-	for i := 0; i < n; i++ {
-		r[i] = start + i
-	}
-	return r
+func WithStd(tmpl *template.Template) *template.Template {
+	tmpl = tmpl.Funcs(template.FuncMap(tmplfn.Std))
+	tmpl = WithInclude(tmpl)
+	return tmpl
 }

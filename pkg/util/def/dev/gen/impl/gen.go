@@ -88,15 +88,7 @@ func (fg *FileGen) makePkgData() *fileGenPkgData {
 var genTmplEmbed embed.FS
 
 var genTmpl = func() *template.Template {
-	tmpl := template.New("?")
-
-	tmplu.WithInclude(tmpl)
-
-	tmpl.Funcs(template.FuncMap{
-		"indent":   tmplu.Indent,
-		"intRange": tmplu.IntRange,
-	})
-
+	tmpl := tmplu.WithStd(template.New("?"))
 	check.Must(tmpl.ParseFS(genTmplEmbed, "*.tpl"))
 	return tmpl.Lookup("gen.tpl")
 }()

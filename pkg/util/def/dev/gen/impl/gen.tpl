@@ -1,14 +1,19 @@
 {{/* fields */}}
 
 {{define "fieldExpects"}}
-                    "{{.Spec.Name}}": {
-                        Ty: def.Type[int]().Ty.(reflect.Type),
-                        HasDefault: false,
-                    },
+    "{{.Spec.Name}}": {
+        Ty: def.Type[int]().Ty.(reflect.Type),
+
+        {{if not (kindIs "invalid" .Spec.Default)}}
+        HasDefault: true,
+        {{end}}
+    },
 {{end}}
 
 {{define "fieldVars"}}
+    {{if not (kindIs "invalid" .Spec.Default)}}
     _{{.Struct.Pkg.Ns}}_def_field_default__{{.Struct.Spec.Name}}__{{.Spec.Name}} int
+    {{end}}
 {{end}}
 
 {{define "fieldDecls"}}
@@ -17,38 +22,42 @@
 
 {{define "fieldInit"}}
     field_spec__{{.Struct.Spec.Name}}__{{.Spec.Name}} := struct_spec__{{.Struct.Spec.Name}}.Field("{{.Spec.Name}}")
+
+    {{if not (kindIs "invalid" .Spec.Default)}}
+    _{{.Struct.Pkg.Ns}}_def_field_default__{{.Struct.Spec.Name}}__{{.Spec.Name}} = field_spec__{{.Struct.Spec.Name}}__{{.Spec.Name}}.Default().(int)
+    {{end}}
 {{end}}
 
 
 {{/* structs */}}
 
 {{define "structExpects"}}
-            "{{.Spec.Name}}": {
-                Fields: map[string]def.X_fieldExpect{
-                    {{range $_, $v := .Fields -}}
-                    {{include "fieldExpects" $v}}
-                    {{- end}}
-                },
-                NumInits: {{.Spec.Inits | len}},
-            },
+    "{{.Spec.Name}}": {
+        Fields: map[string]def.X_fieldExpect{
+            {{range $_, $v := .Fields}}
+            {{include "fieldExpects" $v | indent 8 " "}}
+            {{end}}
+        },
+        NumInits: {{.Spec.Inits | len}},
+    },
 {{end}}
 
 {{define "structVars"}}
     {{range $_, $v := .Fields -}}
-        {{include "fieldVars" $v}}
+    {{include "fieldVars" $v | indent 4 " "}}
     {{- end}}
 
     _{{.Pkg.Ns}}_def_struct_inits__{{.Spec.Name}} [{{.Spec.Inits | len}}]func(*{{.Spec.Name}})
 {{end}}
 
 {{define "structDecls"}}
-type {{.Spec.Name}} struct {
+    type {{.Spec.Name}} struct {
 
-    {{range $_, $v := .Fields -}}
-    {{include "fieldDecls" $v}}
-    {{- end}}
+        {{range $_, $v := .Fields -}}
+        {{include "fieldDecls" $v}}
+        {{- end}}
 
-}
+    }
 {{end}}
 
 {{define "structInit"}}
@@ -67,51 +76,51 @@ type {{.Spec.Name}} struct {
 {{/* package */}}
 
 {{define "packageExpects"}}
-var _ = func() any {
-    def.X_addPackageDef(def.X_packageExpect{
-        Structs: map[string]def.X_structExpect{
-            {{range $_, $v := .Structs -}}
-            {{include "structExpects" $v}}
-            {{- end}}
-        },
-    })
-    return nil
-}()
+    var _ = func() any {
+        def.X_addPackageDef(def.X_packageExpect{
+            Structs: map[string]def.X_structExpect{
+                {{range $_, $v := .Structs}}
+                {{include "structExpects" $v | indent 8 " "}}
+                {{end}}
+            },
+        })
+        return nil
+    }()
 {{end}}
 
 {{define "packageVars"}}
-var (
-    _{{.Ns}}_def_init_once sync.Once
+    var (
+        _{{.Ns}}_def_init_once sync.Once
 
-    {{range $_, $v := .Structs -}}
-    {{include "structVars" $v}}
-    {{- end}}
-)
+        {{range $_, $v := .Structs -}}
+        {{include "structVars" $v}}
+        {{- end}}
+    )
 {{end}}
 
 {{define "packageDecls"}}
 
-{{range $_, $v := .Structs -}}
-{{include "structDecls" $v}}
-{{- end}}
+    {{range $_, $v := .Structs -}}
+    {{include "structDecls" $v}}
+    {{- end}}
 
 {{end}}
 
 {{define "packageInit"}}
-func _{{.Ns}}_def_init() {
-    _{{.Ns}}_def_init_once.Do(func() {
-        spec := def.X_getPackageSpec()
+    func _{{.Ns}}_def_init() {
+        _{{.Ns}}_def_init_once.Do(func() {
+            spec := def.X_getPackageSpec()
 
-        {{range $_, $v := .Structs -}}
-            {{include "structInit" $v | indent 4 " "}}
-        {{- end}}
-    })
-}
+            {{range $_, $v := .Structs -}}
+                {{include "structInit" $v | indent 4 " "}}
+            {{- end}}
+        })
+    }
 {{end}}
 
 {{define "package"}}
-{{include "packageExpects" .}}
-{{include "packageVars" .}}
-{{include "packageDecls" .}}
-{{include "packageInit" .}}
+    {{include "packageExpects" .}}
+    {{include "packageVars" .}}
+    {{include "packageDecls" .}}
+    {{include "packageInit" .}}
 {{end}}

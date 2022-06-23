@@ -10,13 +10,7 @@ import (
 )
 
 func TestInclude(t *testing.T) {
-	tmpl := template.New("?")
-
-	WithInclude(tmpl)
-
-	tmpl.Funcs(template.FuncMap{
-		"indent": Indent,
-	})
+	tmpl := WithStd(template.New("?"))
 
 	check.Must(tmpl.Parse(`
 {{define "foo"}}
