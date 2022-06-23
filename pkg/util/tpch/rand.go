@@ -2,7 +2,10 @@ package tpch
 
 import (
 	"errors"
+	"fmt"
 	"strings"
+
+	mathu "github.com/wrmsr/bane/pkg/util/math"
 )
 
 //
@@ -38,35 +41,35 @@ func newIntGen(seed int64, expectedUsagePerRow int) *intGen {
 var _ gen = &intGen{}
 
 const (
-	_INT_GEN_MULTIPLIER = 16807
-	_INT_GEN_MODULUS    = 2147483647
+	intGenMultiplier = int64(16807)
+	intGenModulus    = int64(2147483647)
 )
 
 func (g *intGen) next() int64 {
 	if g.usage >= g.expectedUsagePerRow {
 		panic(errors.New("unexpected usages"))
 	}
-	g.seed = (g.seed * _INT_GEN_MULTIPLIER) % _INT_GEN_MODULUS
+	g.seed = (g.seed * intGenMultiplier) % intGenModulus
 	g.usage++
 	return g.seed
 }
 
 func (g *intGen) rand(lowValue, highValue int64) int64 {
 	g.next()
-	intRange := int32(highValue) - int32(lowValue) + 1
+	intRange := highValue - lowValue + 1
 	doubleRange := float64(intRange)
-	valueInRange := int32((1.0 * float64(g.seed) / float64(_INT_GEN_MODULUS)) * doubleRange)
+	valueInRange := int32((1.0 * float64(g.seed) / float64(intGenModulus)) * doubleRange)
 	return int64(int32(lowValue) + valueInRange)
 }
 
 func (g *intGen) advanceSeed(count int) {
-	multiplier := _INT_GEN_MULTIPLIER
+	multiplier := intGenMultiplier
 	for count > 0 {
 		if count%2 != 0 {
-			g.seed = (int64(multiplier) * g.seed) % _INT_GEN_MODULUS
+			g.seed = (multiplier * g.seed) % intGenModulus
 		}
 		count = count / 2
-		multiplier = (multiplier * multiplier) % _INT_GEN_MODULUS
+		multiplier = (multiplier * multiplier) % intGenModulus
 	}
 }
 
@@ -84,69 +87,69 @@ func (g *intGen) advanceRows(rowCount int) {
 
 //
 
-//type longGen struct {
-//	seed                int
-//	expectedUsagePerRow int
-//
-//	usage int
-//}
-//
-//func newLongGen(seed, expectedUsagePerRow int) *longGen {
-//	return &longGen{
-//		seed:                seed,
-//		expectedUsagePerRow: expectedUsagePerRow,
-//	}
-//}
-//
-//var _ gen = &longGen{}
-//
-//const (
-//	_LONG_GEN_MULTIPLIER = 6364136223846793005
-//	_LONG_GEN_INCREMENT  = 1
-//)
-//
-//func (g *longGen) next() int {
-//	if g.usage >= g.expectedUsagePerRow {
-//		panic(errors.New("unexpected usages"))
-//	}
-//	g.seed = (g.seed * _LONG_GEN_MULTIPLIER) + _LONG_GEN_INCREMENT
-//	g.usage++
-//	return g.seed
-//}
-//
-//func (g *longGen) rand(lowValue, highValue int) int {
-//	g.next()
-//	valueInRange := mathu.AbsInt(g.seed) % (highValue - lowValue + 1)
-//	return lowValue + valueInRange
-//}
-//
-//const (
-//	_LONG_GEN_MULTIPLIER_32 = 16807
-//	_LONG_GEN_MODULUS_32    = 2147483647
-//)
-//
-//func (g *longGen) advanceSeed(count int) {
-//	multiplier := _LONG_GEN_MULTIPLIER_32
-//	for count > 0 {
-//		if count%2 != 0 {
-//			g.seed = (multiplier * g.seed) % _LONG_GEN_MODULUS_32
-//		}
-//		count = count / 2
-//		multiplier = (multiplier * multiplier) % _LONG_GEN_MODULUS_32
-//	}
-//}
-//
-//func (g *longGen) rowFinished() {
-//	g.advanceSeed(g.expectedUsagePerRow - g.usage)
-//	g.usage = 0
-//}
-//
-//func (g *longGen) advanceRows(rowCount int) {
-//	if g.usage > 0 {
-//		g.rowFinished()
-//	}
-//	g.advanceSeed(g.expectedUsagePerRow * rowCount)
-//}
+type longGen struct {
+	seed                int64
+	expectedUsagePerRow int
+
+	usage int
+}
+
+func newLongGen(seed int64, expectedUsagePerRow int) *longGen {
+	return &longGen{
+		seed:                seed,
+		expectedUsagePerRow: expectedUsagePerRow,
+	}
+}
+
+var _ gen = &longGen{}
+
+const (
+	longGenMultiplier = 6364136223846793005
+	longGenIncrement  = 1
+)
+
+func (g *longGen) next() int64 {
+	if g.usage >= g.expectedUsagePerRow {
+		panic(errors.New("unexpected usages"))
+	}
+	g.seed = (g.seed * longGenMultiplier) + longGenIncrement
+	g.usage++
+	return g.seed
+}
+
+func (g *longGen) rand(lowValue, highValue int64) int64 {
+	g.next()
+	valueInRange := mathu.AbsInt64(g.seed) % (highValue - lowValue + 1)
+	return lowValue + valueInRange
+}
+
+const (
+	_LONG_GEN_MULTIPLIER_32 = int64(16807)
+	_LONG_GEN_MODULUS_32    = int64(2147483647)
+)
+
+func (g *longGen) advanceSeed(count int) {
+	multiplier := _LONG_GEN_MULTIPLIER_32
+	for count > 0 {
+		if count%2 != 0 {
+			g.seed = (multiplier * g.seed) % _LONG_GEN_MODULUS_32
+		}
+		count = count / 2
+		multiplier = (multiplier * multiplier) % _LONG_GEN_MODULUS_32
+	}
+}
+
+func (g *longGen) rowFinished() {
+	g.advanceSeed(g.expectedUsagePerRow - g.usage)
+	g.usage = 0
+}
+
+func (g *longGen) advanceRows(rowCount int) {
+	if g.usage > 0 {
+		g.rowFinished()
+	}
+	g.advanceSeed(g.expectedUsagePerRow * rowCount)
+}
 
 //
 
@@ -176,10 +179,10 @@ type randomAlphaNumeric struct {
 var _ALPHA_NUMERIC = strings.Split("0123456789abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,", "")
 
 const (
-	_ALPHA_NUMERIC_LOW_LENGTH_MULTIPLIER  = 0.4
-	_ALPHA_NUMERIC_HIGH_LENGTH_MULTIPLIER = 1.6
+	alphaNumericLowLengthMultiplier  = 0.4
+	alphaNumericHighLengthMultiplier = 1.6
 
-	_ALPHA_NUMERIC_USAGE_PER_ROW = 9
+	alphaNumericUsagePerRow = 9
 )
 
 func newRandomAlphaNumeric(
@@ -189,11 +192,11 @@ func newRandomAlphaNumeric(
 ) *randomAlphaNumeric {
 	return &randomAlphaNumeric{
 		genRandom: genRandom{
-			gen: newIntGen(seed, _ALPHA_NUMERIC_USAGE_PER_ROW*expectedRowCount),
+			gen: newIntGen(seed, alphaNumericUsagePerRow*expectedRowCount),
 		},
 
-		minLength: int(float64(averageLength) * _ALPHA_NUMERIC_LOW_LENGTH_MULTIPLIER),
-		maxLength: int(float64(averageLength) * _ALPHA_NUMERIC_HIGH_LENGTH_MULTIPLIER),
+		minLength: int(float64(averageLength) * alphaNumericLowLengthMultiplier),
+		maxLength: int(float64(averageLength) * alphaNumericHighLengthMultiplier),
 	}
 }
 
@@ -212,58 +215,97 @@ func (r *randomAlphaNumeric) nextValue() string {
 	return sb.String()
 }
 
-/*
-class RandomBoundedInt(GenRandom):
+//
 
-    def __init__(
-            self,
-            seed: int,
-            lowValue: int,
-            highValue: int,
-            expectedRowCount: int = 1,
-    ) -> None:
-        super().__init__(IntGen(seed, expectedRowCount))
+type randomBoundedInt struct {
+	genRandom
 
-        self._lowValue = lowValue
-        self._highValue = highValue
+	lowValue  int64
+	highValue int64
+}
 
-    def next_value(self) -> int:
-        return self._gen.rand(self._lowValue, self._highValue)
+func newRandomBoundedInt(
+	seed int64,
+	lowValue int,
+	highValue int,
+	expectedRowCount int, // = 1,
+) *randomBoundedInt {
+	return &randomBoundedInt{
+		genRandom: genRandom{
+			gen: newIntGen(seed, expectedRowCount),
+		},
 
+		lowValue:  int64(lowValue),
+		highValue: int64(highValue),
+	}
+}
 
-class RandomBoundedLong(GenRandom):
+func (r *randomBoundedInt) nextValue() int32 {
+	return int32(r.gen.rand(r.lowValue, r.highValue))
+}
 
-    def __init__(
-            self,
-            seed: int,
-            use_64_bits: bool,
-            lowValue: int,
-            highValue: int,
-            expectedRowCount: int = 1,
-    ) -> None:
-        gen_cls = LongGen if use_64_bits else IntGen
-        super().__init__(gen_cls(seed, expectedRowCount))
+//
 
-        self._lowValue = lowValue
-        self._highValue = highValue
+type randomBoundedLong struct {
+	genRandom
 
-    def next_value(self) -> int:
-        return self._gen.rand(self._lowValue, self._highValue)
+	lowValue  int64
+	highValue int64
+}
 
+func newRandomBoundedLong(
+	seed int64,
+	use64bits bool,
+	lowValue int,
+	highValue int,
+	expectedRowCount int, // = 1,
+) *randomBoundedLong {
+	var gen gen
+	if use64bits {
+		gen = newLongGen(seed, expectedRowCount)
+	} else {
+		gen = newIntGen(seed, expectedRowCount)
+	}
 
-class RandomPhoneNumber(GenRandom):
+	return &randomBoundedLong{
+		genRandom: genRandom{
+			gen: gen,
+		},
 
-    _NATIONS_MAX = 90  # limited by country codes in phone numbers
+		lowValue:  int64(lowValue),
+		highValue: int64(highValue),
+	}
+}
 
-    def __init__(self, seed: int, expectedRowCount: int = 1) -> None:
-        super().__init__(IntGen(seed, 3 * expectedRowCount))
+func (r *randomBoundedLong) nextValue() int64 {
+	return r.gen.rand(r.lowValue, r.highValue)
+}
 
-    def next_value(self, nation_key: int) -> str:
-        return '%02d-%03d-%03d-%04d' % (
-            (10 + (nation_key % self._NATIONS_MAX)),
-            self._gen.rand(100, 999),
-            self._gen.rand(100, 999),
-            self._gen.rand(1000, 9999),
-        )
+//
 
-*/
+type randomPhoneNumber struct {
+	genRandom
+}
+
+func newRandomPhoneNumber(
+	seed int64,
+	expectedRowCount int, // = 1,
+) *randomPhoneNumber {
+	return &randomPhoneNumber{
+		genRandom: genRandom{
+			gen: newIntGen(seed, 3*expectedRowCount),
+		},
+	}
+}
+
+const phoneNumberNationsMax = 90 // limited by country codes in phone numbers
+
+func (r *randomPhoneNumber) nextValue(nationKey int) string {
+	return fmt.Sprintf(
+		"%02d-%03d-%03d-%04d",
+		10+(nationKey%phoneNumberNationsMax),
+		r.gen.rand(100, 999),
+		r.gen.rand(100, 999),
+		r.gen.rand(1000, 9999),
+	)
+}
