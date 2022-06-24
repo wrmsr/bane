@@ -66,3 +66,23 @@ func Dedent(s string) string {
 	}
 	return sb.String()
 }
+
+func TrimSplit(s, cutset, sep string) []string {
+	var r []string
+	for _, p := range strings.Split(strings.Trim(s, cutset), sep) {
+		if p = strings.Trim(s, cutset); p != "" {
+			r = append(r, p)
+		}
+	}
+	return r
+}
+
+func TrimSpaceSplit(s, sep string) []string {
+	var r []string
+	for _, p := range strings.Split(strings.TrimSpace(s), sep) {
+		if p = strings.TrimSpace(s); p != "" {
+			r = append(r, p)
+		}
+	}
+	return r
+}

@@ -1,6 +1,13 @@
 package tpch
 
-import "github.com/wrmsr/bane/pkg/util/check"
+import (
+	"strings"
+
+	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/slices"
+)
+
+//
 
 type textDist struct {
 	name string
@@ -68,4 +75,68 @@ func (td *textDist) randomValue(gen gen) string {
 func (td *textDist) randomBytesValue(gen gen) []byte {
 	randomValue := gen.rand(0, int64(td.maxWeight-1))
 	return td.bytesSeq[randomValue]
+}
+
+//
+
+type randomString struct {
+	genRandom
+
+	dist *textDist
+}
+
+func newRandomString(
+	seed int64,
+	dist *textDist,
+	expectedRowCount int, // = 1
+) *randomString {
+	return &randomString{
+		genRandom: genRandom{
+			gen: newIntGen(seed, expectedRowCount),
+		},
+
+		dist: dist,
+	}
+}
+
+func (r *randomString) nextValue() string {
+	return r.dist.randomValue(r.gen)
+}
+
+//
+
+type randomStringSequence struct {
+	genRandom
+
+	count int
+	dist  *textDist
+}
+
+func newRandomStringSequence(
+	seed int64,
+	count int,
+	dist *textDist,
+	expectedRowCount int, // = 1
+) *randomStringSequence {
+	return &randomStringSequence{
+		genRandom: genRandom{
+			gen: newIntGen(seed, expectedRowCount),
+		},
+
+		count: count,
+		dist:  dist,
+	}
+}
+
+func (r *randomStringSequence) nextValue() string {
+	check.Condition(r.count < len(r.dist.values))
+	values := slices.Copy(r.dist.values)
+
+	// randomize first 'count' elements of the string
+	for currentPos := 0; currentPos < r.count; currentPos++ {
+		swapPos := r.gen.rand(int64(currentPos), int64(len(values)-1))
+		values[currentPos], values[swapPos] = values[swapPos], values[currentPos]
+	}
+
+	return strings.Join(values[:r.count], " ")
 }

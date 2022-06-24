@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	mathu "github.com/wrmsr/bane/pkg/util/math"
 )
 
@@ -25,16 +26,17 @@ type gen interface {
 //
 
 type intGen struct {
-	seed                int64
-	expectedUsagePerRow int
+	seed int64
 
-	usage int
+	expectedUsagePerRow int
+	usage               int
 }
 
 func newIntGen(seed int64, expectedUsagePerRow int) *intGen {
 	return &intGen{
-		seed:                seed,
-		expectedUsagePerRow: expectedUsagePerRow,
+		seed: seed,
+
+		expectedUsagePerRow: check.NotZero(expectedUsagePerRow),
 	}
 }
 
@@ -96,8 +98,9 @@ type longGen struct {
 
 func newLongGen(seed int64, expectedUsagePerRow int) *longGen {
 	return &longGen{
-		seed:                seed,
-		expectedUsagePerRow: expectedUsagePerRow,
+		seed: seed,
+
+		expectedUsagePerRow: check.NotZero(expectedUsagePerRow),
 	}
 }
 
