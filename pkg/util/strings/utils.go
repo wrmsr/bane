@@ -112,3 +112,33 @@ func TrimCut(s, cutset, sep string) (before, after string, found bool) {
 func TrimSpaceCut(s, sep string) (before, after string, found bool) {
 	return MapCut(s, strings.TrimSpace, sep)
 }
+
+//
+
+func IndexAllFunc(s string, f func(rune) bool) []int {
+	var r []int
+	for i, c := range []rune(s) {
+		if f(c) {
+			r = append(r, i)
+		}
+	}
+	return r
+}
+
+func SplitFunc(s string, f func(rune) bool) []string {
+	var ret []string
+	rs := []rune(s)
+	l := 0
+	for i, r := range rs {
+		if f(r) {
+			if l != i {
+				ret = append(ret, string(rs[l:i]))
+			}
+			l = i
+		}
+	}
+	if l != len(rs) {
+		ret = append(ret, string(rs[l:]))
+	}
+	return ret
+}

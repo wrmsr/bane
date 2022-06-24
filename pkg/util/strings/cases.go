@@ -14,8 +14,12 @@ func ToCamel(s string) string {
 }
 
 func ToSnake(s string) string {
-	//uppers := slices.IndexMap()
-	//uppers: ta.List[ta.Optional[int]] = [i for i, c in enumerate(name) if c.isupper()]
+	//uppers := IndexAllFunc(s, unicode.IsUpper)
+	var sb strings.Builder
+	//for i := 1; i < len(uppers); i++ {
+	//	sb.WriteString("_")
+	//	sb.WriteString(s[])
+	//}
 	//return '_'.join([name[l:r].lower() for l, r in zip([None] + uppers, uppers + [None])]).strip('_')  # type: ignore
-	panic("nyi")
+	return sb.String()
 }

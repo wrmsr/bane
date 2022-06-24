@@ -109,6 +109,14 @@ func Filter[T any](fn func(t T) bool, s []T) []T {
 	return r
 }
 
+func Flatten[T any](s [][]T) []T {
+	var r []T
+	for _, v := range s {
+		r = append(r, v...)
+	}
+	return r
+}
+
 func FlatMap[T, R any](fn func(t T) []R, s []T) []R {
 	var r []R
 	for _, v := range s {
