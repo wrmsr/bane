@@ -79,6 +79,26 @@ func Map[T, R any](fn func(t T) R, s []T) []R {
 	return r
 }
 
+func IndexMap[T, R any](fn func(i int, t T) R, s []T) []R {
+	r := make([]R, len(s))
+	for i, v := range s {
+		r[i] = fn(i, v)
+	}
+	return r
+}
+
+func ZipMap[T, U, R any](fn func(t T, u U) R, ts []T, us []U) []R {
+	l := len(ts)
+	if len(us) < l {
+		l = len(us)
+	}
+	r := make([]R, len(l))
+	for i := 0; i < l; i++ {
+		r[i] = fn(ts[i], us[i])
+	}
+	return r
+}
+
 func Filter[T any](fn func(t T) bool, s []T) []T {
 	var r []T
 	for _, v := range s {
