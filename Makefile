@@ -21,6 +21,14 @@ clean:
 	for d in "$$ds" ; do rm -rf "$$d" ; done
 
 
+### deps
+
+.PHONY: dep-update
+dep-update:
+	${GO} get -u ./...
+	${GO} mod tidy
+
+
 ### gen
 
 .PHONY: gen

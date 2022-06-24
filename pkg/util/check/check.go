@@ -1,57 +1,50 @@
 package check
 
 import (
-	"fmt"
-
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
 
-func NotZero[T comparable](v T, s ...string) T {
+func NotZero[T comparable](v T, details ...any) T {
 	if v == bt.Zero[T]() {
-		if len(s) > 0 {
-			panic(s[0])
-		}
-		panic("cannot be nil")
+		panic(checkError("cannot be zero", []any{v}, details...))
 	}
 	return v
 }
 
-func NotNil(v any, s ...string) any {
+func NotNil(v any, details ...any) any {
 	if v == nil {
-		if len(s) > 0 {
-			panic(s[0])
-		}
-		panic("cannot be nil")
+		panic(checkError("cannot be nil", []any{v}, details...))
 	}
 	return v
 }
 
-func NoErr(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-func Condition(b bool) {
+func Condition(b bool, details ...any) {
 	if !b {
-		panic("condition not met")
+		panic(checkError("condition not met", nil, details...))
 	}
 }
 
-func Equal[T comparable](actual, expected T) T {
+func Equal[T comparable](actual, expected T, details ...any) T {
 	if actual != expected {
-		panic(fmt.Sprintf("must be equal: %v != %v", actual, expected))
+		panic(checkError("must be equal", []any{actual, expected}, details...))
 	}
 	return actual
 }
 
-func NotEqual[T comparable](actual, expected T) T {
+func NotEqual[T comparable](actual, expected T, details ...any) T {
 	if actual == expected {
-		panic(fmt.Sprintf("must not be equal: %v == %v", actual, expected))
+		panic(checkError("must not be equal", []any{actual, expected}, details...))
 	}
 	return actual
+}
+
+func Single[T any](s []T, details ...any) T {
+	if len(s) != 1 {
+		panic(checkError("must be single", []any{s}, details...))
+	}
+	return s[0]
 }
 
 //
@@ -60,10 +53,11 @@ type HasLen interface {
 	Len() int
 }
 
-func NotEmpty(ctr HasLen) {
+func NotEmpty[T HasLen](ctr T, details ...any) T {
 	if ctr.Len() < 1 {
-		panic("must not be empty")
+		panic(checkError("must not be empty", []any{ctr}, details...))
 	}
+	return ctr
 }
 
 //
@@ -72,16 +66,16 @@ type Container[T any] interface {
 	Contains(v T) bool
 }
 
-func Contains[T any](ctr Container[T], v T) T {
+func Contains[T any](ctr Container[T], v T, details ...any) T {
 	if !ctr.Contains(v) {
-		panic(fmt.Sprintf("container must contain %v", v))
+		panic(checkError("container must contain", []any{ctr, v}, details...))
 	}
 	return v
 }
 
-func NotContains[T any](ctr Container[T], v T) T {
+func NotContains[T any](ctr Container[T], v T, details ...any) T {
 	if ctr.Contains(v) {
-		panic(fmt.Sprintf("container must not contain %v", v))
+		panic(checkError("container must not contain", []any{ctr, v}, details...))
 	}
 	return v
 }

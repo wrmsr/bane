@@ -1,7 +1,6 @@
 package container
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -15,6 +14,6 @@ func (e KeyError[K]) String() string {
 	return fmt.Sprintf("keyError{%v}", e.Key)
 }
 
-func (e KeyError[K]) Error() error {
-	return errors.New(e.String())
+func (e KeyError[K]) Error() string {
+	return e.String()
 }
