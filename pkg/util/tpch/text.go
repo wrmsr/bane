@@ -6,6 +6,7 @@ import (
 
 	au "github.com/wrmsr/bane/pkg/util/atomic"
 	"github.com/wrmsr/bane/pkg/util/check"
+	ctr "github.com/wrmsr/bane/pkg/util/container"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
@@ -25,19 +26,20 @@ type textDist struct {
 
 func newTextDist(
 	name string,
-	weightsByValue map[string]int,
+	weightsByValue ctr.OrdMap[string, int],
 ) *textDist {
 	td := &textDist{
 		name: name,
 
-		values:  make([]string, len(weightsByValue)),
-		weights: make([]int, len(weightsByValue)),
+		values:  make([]string, weightsByValue.Len()),
+		weights: make([]int, weightsByValue.Len()),
 	}
 
 	runningWeight := 0
 	isValid := true
 	i := 0
-	for k, v := range weightsByValue {
+	for it := weightsByValue.Iterate(); it.HasNext(); {
+		k, v := it.Next().Unpack()
 		td.values[i] = k
 		runningWeight += v
 		td.weights[i] = runningWeight
@@ -55,7 +57,7 @@ func newTextDist(
 		for _, value := range td.values {
 			bytesValue := []byte(value)
 			check.Equal(len(bytesValue), len(value))
-			for j := weightsByValue[value]; j > 0; j-- {
+			for j := weightsByValue.Get(value); j > 0; j-- {
 				td.seq[i] = value
 				td.bytesSeq[i] = bytesValue
 				i++

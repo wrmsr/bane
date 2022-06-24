@@ -7,6 +7,7 @@ import (
 
 	au "github.com/wrmsr/bane/pkg/util/atomic"
 	"github.com/wrmsr/bane/pkg/util/check"
+	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
 )
@@ -70,12 +71,12 @@ func (tdl textDistsLoader) loadDists(lines its.Iterator[string]) textDists {
 
 func (tdl textDistsLoader) loadDist(lines its.Iterator[string], name string) *textDist {
 	count := -1
-	members := make(map[string]int)
+	members := ctr.NewMutOrdMap[string, int](nil)
 	for lines.HasNext() {
 		line := lines.Next()
 
 		if tdl.isEnd(name, line) {
-			check.Condition(count == len(members))
+			check.Condition(count == members.Len())
 			return newTextDist(name, members)
 		}
 
@@ -88,12 +89,13 @@ func (tdl textDistsLoader) loadDist(lines its.Iterator[string], name string) *te
 		if strings.ToLower(value) == "count" {
 			count = weight
 		} else {
-			members[value] = weight
+			members.Put(value, weight)
 		}
 	}
 
 	panic(name)
 }
+
 func (tdl textDistsLoader) isEnd(name, line string) bool {
 	parts := stru.TrimSpaceSplit(line, " ")
 	if strings.ToUpper(parts[0]) == "END" {
