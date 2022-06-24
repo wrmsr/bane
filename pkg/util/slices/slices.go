@@ -90,3 +90,15 @@ func FlatMap[T, R any](fn func(t T) []R, s []T) []R {
 	}
 	return r
 }
+
+func Repeat[T any](s []T, n int) []T {
+	r := make([]T, n*len(s))
+	p := 0
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			r[p] = s[j]
+			p++
+		}
+	}
+	return r
+}

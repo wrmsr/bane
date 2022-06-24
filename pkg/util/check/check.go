@@ -40,6 +40,20 @@ func Condition(b bool) {
 	}
 }
 
+func Equal[T comparable](actual, expected T) T {
+	if actual != expected {
+		panic(fmt.Sprintf("must be equal: %v != %v", actual, expected))
+	}
+	return actual
+}
+
+func NotEqual[T comparable](actual, expected T) T {
+	if actual == expected {
+		panic(fmt.Sprintf("must not be equal: %v == %v", actual, expected))
+	}
+	return actual
+}
+
 //
 
 type HasLen interface {

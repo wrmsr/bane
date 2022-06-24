@@ -176,7 +176,7 @@ type randomAlphaNumeric struct {
 	maxLength int
 }
 
-var _ALPHA_NUMERIC = strings.Split("0123456789abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,", "")
+var alphaNumeric = strings.Split("0123456789abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,", "")
 
 const (
 	alphaNumericLowLengthMultiplier  = 0.4
@@ -208,7 +208,7 @@ func (r *randomAlphaNumeric) nextValue() string {
 		if i%5 == 0 {
 			charIndex = int(r.gen.rand(0, 0x7FFFFFFF))
 		}
-		sb.WriteString(_ALPHA_NUMERIC[charIndex&0x3F])
+		sb.WriteString(alphaNumeric[charIndex&0x3F])
 		charIndex = (charIndex >> 6) & 0x7FFFFFFF
 	}
 
