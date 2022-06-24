@@ -219,3 +219,13 @@ func (i *flattenIterator[T]) Next() T {
 	}
 	return i.ci.Next()
 }
+
+//
+
+func FlatMap[F, T any](it Iterable[F], fn func(f F) Iterable[T]) Iterable[T] {
+	return Flatten(Map(it, fn))
+}
+
+func FlatSliceMap[F, T any](it Iterable[F], fn func(f F) []T) Iterable[T] {
+	return Flatten(Map(Map(it, fn), func(s []T) Iterable[T] { return OfSlice(s) }))
+}

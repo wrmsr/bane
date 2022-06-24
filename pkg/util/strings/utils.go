@@ -67,22 +67,48 @@ func Dedent(s string) string {
 	return sb.String()
 }
 
-func TrimSplit(s, cutset, sep string) []string {
+//
+
+type StrFn = func(string) string
+
+func Trimmer(cutset string) StrFn {
+	return func(s string) string {
+		return strings.Trim(s, cutset)
+	}
+}
+
+func MapSplit(s string, fn StrFn, sep string) []string {
 	var r []string
-	for _, p := range strings.Split(strings.Trim(s, cutset), sep) {
-		if p = strings.Trim(p, cutset); p != "" {
+	for _, p := range strings.Split(fn(s), sep) {
+		if p = fn(p); p != "" {
 			r = append(r, p)
 		}
 	}
 	return r
 }
 
+func TrimSplit(s, cutset, sep string) []string {
+	return MapSplit(s, Trimmer(cutset), sep)
+}
+
 func TrimSpaceSplit(s, sep string) []string {
-	var r []string
-	for _, p := range strings.Split(strings.TrimSpace(s), sep) {
-		if p = strings.TrimSpace(p); p != "" {
-			r = append(r, p)
-		}
+	return MapSplit(s, strings.TrimSpace, sep)
+}
+
+func MapCut(s string, fn StrFn, sep string) (before, after string, found bool) {
+	b, a, found := strings.Cut(fn(s), sep)
+	if !found {
+		return
 	}
-	return r
+	before = fn(b)
+	after = fn(a)
+	return
+}
+
+func TrimCut(s, cutset, sep string) (before, after string, found bool) {
+	return MapCut(s, Trimmer(cutset), sep)
+}
+
+func TrimSpaceCut(s, sep string) (before, after string, found bool) {
+	return MapCut(s, strings.TrimSpace, sep)
 }

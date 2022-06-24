@@ -1,9 +1,14 @@
 package procfs
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 
+	ctr "github.com/wrmsr/bane/pkg/util/container"
+	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -69,14 +74,19 @@ nonvoluntary_ctxt_switches:	1
 
 func TestProcStatus(t *testing.T) {
 	s := procStatusContent
-	lines :=
-	its.Map(
-		its.OfSlice(stru.TrimSpaceSplit(s, "\n")),
-		func (l string) bt.Kv[string, string] {
 
+	lines := its.OfSlice(stru.TrimSpaceSplit(s, "\n"))
+	kvs := its.FlatMap(lines, func(l string) its.Iterable[bt.Kv[string, string]] {
+		k, v, ok := stru.TrimSpaceCut(l, ":")
+		if !ok {
+			return opt.None[bt.Kv[string, string]]()
 		}
-	)
+		return opt.Just(bt.KvOf(strings.TrimSpace(k), v))
+	})
+	m := ctr.NewOrdMap(kvs)
 
+	fmt.Println(m)
+	tu.AssertDeepEqual(t, m.Get("Threads"), "1")
 }
 
 const procNetNetstatContent = `
