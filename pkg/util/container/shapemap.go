@@ -1,7 +1,7 @@
 package container
 
 import (
-	"fmt"
+	"errors"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -21,7 +21,7 @@ func NewMapShape[K comparable](ks its.Iterable[K]) MapShape[K] {
 	for it := ks.Iterate(); it.HasNext(); {
 		k := it.Next()
 		if _, ok := m[k]; ok {
-			panic(fmt.Errorf("duplicate key: %v", k))
+			panic(KeyError[K]{k})
 		}
 		s = append(s, k)
 		m[k] = i
@@ -66,10 +66,15 @@ type ShapeMap[K comparable, V any] struct {
 
 func NewShapeMap[K comparable, V any](shape MapShape[K], vs its.Iterable[V]) ShapeMap[K, V] {
 	s := make([]V, 0, shape.Len())
-	i := 0
-	for it := vs.Iterate(); it.HasNext(); {
-		s[i] = it.Next()
-		i++
+	if vs != nil {
+		i := 0
+		for it := vs.Iterate(); it.HasNext(); {
+			s[i] = it.Next()
+			i++
+		}
+		if i != shape.Len() {
+			panic(errors.New("length mismatch"))
+		}
 	}
 	return ShapeMap[K, V]{
 		shape: shape,
@@ -117,4 +122,35 @@ func (m ShapeMap[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool {
 		}
 	}
 	return true
+}
+
+//
+
+type MutShapeMap[K comparable, V any] struct {
+	ShapeMap[K, V]
+}
+
+func NewMutShapeMap[K comparable, V any](shape MapShape[K], vs its.Iterable[V]) MutShapeMap[K, V] {
+	return MutShapeMap[K, V]{NewShapeMap(shape, vs)}
+}
+
+var _ MutMap[int, string] = MutShapeMap[int, string]{}
+
+func (m MutShapeMap[K, V]) isMutable() {}
+
+func (m MutShapeMap[K, V]) Put(k K, v V) {
+	if i, ok := m.shape.m[k]; ok {
+		m.vs[i] = v
+		return
+	}
+	panic(KeyError[K]{k})
+}
+
+func (m MutShapeMap[K, V]) Delete(k K) {
+	var z V
+	m.Put(k, z)
+}
+
+func (m MutShapeMap[K, V]) Default(k K, v V) bool {
+	return false
 }
