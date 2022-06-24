@@ -105,9 +105,9 @@ func TestProcNetNetstat(t *testing.T) {
 			return opt.None[bt.Kv[string, ctr.OrdMap[string, string]]]()
 		}
 
-		kt, kl, _ := stru.TrimSpaceCut(ls[0], ":")
-		vt, vl, _ := stru.TrimSpaceCut(ls[1], ":")
-		if kt != vt {
+		kt, kl, kok := stru.TrimSpaceCut(ls[0], ":")
+		vt, vl, vok := stru.TrimSpaceCut(ls[1], ":")
+		if !kok || !vok || kt != vt {
 			return opt.None[bt.Kv[string, ctr.OrdMap[string, string]]]()
 		}
 
