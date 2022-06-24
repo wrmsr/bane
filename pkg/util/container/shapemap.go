@@ -77,6 +77,10 @@ func NewShapeMap[K comparable, V any](shape MapShape[K], vs its.Iterable[V]) Sha
 	}
 }
 
+func (m ShapeMap[K, V]) Shape() MapShape[K] {
+	return m.shape
+}
+
 var _ Map[int, string] = ShapeMap[int, string]{}
 
 func (m ShapeMap[K, V]) Len() int {

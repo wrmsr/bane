@@ -136,24 +136,22 @@ func (m ordMapImpl[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
 	return true
 }
 
-func (m *ordMapImpl[K, V]) put(k K, v V) bool {
+func (m *ordMapImpl[K, V]) put(k K, v V) {
 	i, ok := m.m[k]
 	if ok {
 		m.s[i].V = v
-		return false
+		return
 	}
 	m.m[k] = len(m.s)
 	m.s = append(m.s, bt.KvOf(k, v))
-	return true
 }
 
-func (m *ordMapImpl[K, V]) delete(k K) bool {
+func (m *ordMapImpl[K, V]) delete(k K) {
 	i, ok := m.m[k]
 	if !ok {
-		return false
+		return
 	}
 	m.s = slices.DeleteAt(m.s, i)
-	return true
 }
 
 func (m *ordMapImpl[K, V]) default_(k K, v V) bool {
@@ -190,12 +188,12 @@ var _ MutMap[int, any] = &mutOrdMapImpl[int, any]{}
 
 func (m *mutOrdMapImpl[K, V]) isMutable() {}
 
-func (m *mutOrdMapImpl[K, V]) Put(k K, v V) bool {
-	return m.put(k, v)
+func (m *mutOrdMapImpl[K, V]) Put(k K, v V) {
+	m.put(k, v)
 }
 
-func (m *mutOrdMapImpl[K, V]) Delete(k K) bool {
-	return m.delete(k)
+func (m *mutOrdMapImpl[K, V]) Delete(k K) {
+	m.delete(k)
 }
 
 func (m *mutOrdMapImpl[K, V]) Default(k K, v V) bool {
