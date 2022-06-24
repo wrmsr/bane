@@ -15,27 +15,27 @@ import (
 
 type textDists map[string]*textDist
 
-func (td textDists) grammars() *textDist          { return td["grammar"] }
-func (td textDists) noun_phrase() *textDist       { return td["np"] }
-func (td textDists) verb_phrase() *textDist       { return td["vp"] }
-func (td textDists) prepositions() *textDist      { return td["prepositions"] }
-func (td textDists) nouns() *textDist             { return td["nouns"] }
-func (td textDists) verbs() *textDist             { return td["verbs"] }
-func (td textDists) articles() *textDist          { return td["articles"] }
-func (td textDists) adjectives() *textDist        { return td["adjectives"] }
-func (td textDists) adverbs() *textDist           { return td["adverbs"] }
-func (td textDists) auxiliaries() *textDist       { return td["auxillaries"] }
-func (td textDists) terminators() *textDist       { return td["terminators"] }
-func (td textDists) order_priorities() *textDist  { return td["o_oprio"] }
-func (td textDists) ship_instructions() *textDist { return td["instruct"] }
-func (td textDists) ship_modes() *textDist        { return td["smode"] }
-func (td textDists) return_flags() *textDist      { return td["rflag"] }
-func (td textDists) part_containers() *textDist   { return td["p_cntr"] }
-func (td textDists) part_colors() *textDist       { return td["colors"] }
-func (td textDists) part_types() *textDist        { return td["p_types"] }
-func (td textDists) market_segments() *textDist   { return td["msegmnt"] }
-func (td textDists) nations() *textDist           { return td["nations"] }
-func (td textDists) regions() *textDist           { return td["regions"] }
+func (td textDists) Grammars() *textDist         { return td["grammar"] }
+func (td textDists) NounPhrase() *textDist       { return td["np"] }
+func (td textDists) VerbPhrase() *textDist       { return td["vp"] }
+func (td textDists) Prepositions() *textDist     { return td["prepositions"] }
+func (td textDists) Nouns() *textDist            { return td["nouns"] }
+func (td textDists) Verbs() *textDist            { return td["verbs"] }
+func (td textDists) Articles() *textDist         { return td["articles"] }
+func (td textDists) Adjectives() *textDist       { return td["adjectives"] }
+func (td textDists) Adverbs() *textDist          { return td["adverbs"] }
+func (td textDists) Auxiliaries() *textDist      { return td["auxillaries"] }
+func (td textDists) Terminators() *textDist      { return td["terminators"] }
+func (td textDists) OrderPriorities() *textDist  { return td["o_oprio"] }
+func (td textDists) ShipInstructions() *textDist { return td["instruct"] }
+func (td textDists) ShipModes() *textDist        { return td["smode"] }
+func (td textDists) ReturnFlags() *textDist      { return td["rflag"] }
+func (td textDists) PartContainers() *textDist   { return td["p_cntr"] }
+func (td textDists) PartColors() *textDist       { return td["colors"] }
+func (td textDists) PartTypes() *textDist        { return td["p_types"] }
+func (td textDists) MarketSegments() *textDist   { return td["msegmnt"] }
+func (td textDists) Nations() *textDist          { return td["nations"] }
+func (td textDists) Regions() *textDist          { return td["regions"] }
 
 //
 

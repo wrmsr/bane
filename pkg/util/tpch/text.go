@@ -1,6 +1,7 @@
 package tpch
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -139,4 +140,142 @@ func (r *randomStringSequence) nextValue() string {
 	}
 
 	return strings.Join(values[:r.count], " ")
+}
+
+//
+
+type textPoolGen struct {
+	size              int
+	maxSentenceLength int
+
+	dists textDists
+
+	buf  []byte
+	pos  int
+	last byte
+	gen  gen
+}
+
+func newTextPoolGen(
+	size int,
+	maxSentenceLength int,
+	dists textDists,
+) *textPoolGen {
+	g := &textPoolGen{
+		size:              size,
+		maxSentenceLength: maxSentenceLength,
+
+		dists: dists,
+
+		buf: make([]byte, 0, size+maxSentenceLength),
+		gen: newIntGen(933588178, 0x7FFFFFFF),
+	}
+
+	i := 0
+	for g.pos < size {
+		g.generateSentence()
+		i++
+	}
+	g.buf = g.buf[:size]
+
+	return g
+}
+
+func (g *textPoolGen) write(b []byte) {
+	if len(b) < 1 {
+		return
+	}
+	bl := len(b)
+	copy(g.buf[g.pos:g.pos+bl], b)
+	g.pos += bl
+	g.last = b[bl-1]
+}
+
+func (g *textPoolGen) writeString(s string) {
+	g.write([]byte(s))
+}
+
+func (g *textPoolGen) erase(i int) {
+	check.Condition(i <= g.pos)
+	g.pos--
+	if g.pos > 0 {
+		g.last = g.buf[g.pos-1]
+	} else {
+		g.last = 0
+	}
+}
+
+func (g *textPoolGen) rand(dist *textDist) []byte {
+	return dist.randomBytesValue(g.gen)
+}
+
+func (g *textPoolGen) generateVerbPhrase() {
+	syntax := g.rand(g.dists.VerbPhrase())
+	for i := 0; i < len(syntax); i += 2 {
+		var source *textDist
+		if syntax[i] == 'D' {
+			source = g.dists.Adverbs()
+		} else if syntax[i] == 'V' {
+			source = g.dists.Verbs()
+		} else if syntax[i] == 'X' {
+			source = g.dists.Auxiliaries()
+		} else {
+			panic(fmt.Errorf("unknown token: %v", syntax[i]))
+		}
+		word := g.rand(source)
+		g.write(word)
+		g.writeString(" ")
+	}
+}
+
+func (g *textPoolGen) generateNounPhrase() {
+	syntax := g.rand(g.dists.NounPhrase())
+	for i := 0; i < len(syntax); i++ {
+		var source *textDist
+		if syntax[i] == 'A' {
+			source = g.dists.Articles()
+		} else if syntax[i] == 'J' {
+			source = g.dists.Adjectives()
+		} else if syntax[i] == 'D' {
+			source = g.dists.Adverbs()
+		} else if syntax[i] == 'N' {
+			source = g.dists.Nouns()
+		} else if syntax[i] == ',' {
+			g.erase(1)
+			g.writeString(", ")
+			continue
+		} else if syntax[i] == ' ' {
+			continue
+		} else {
+			panic(fmt.Errorf("unknown token: %v", syntax[i]))
+		}
+		word := g.rand(source)
+		g.write(word)
+		g.writeString(" ")
+	}
+}
+
+func (g *textPoolGen) generateSentence() {
+	syntax := g.rand(g.dists.Grammars())
+	for i := 0; i < len(syntax); i += 2 {
+		if syntax[i] == 'V' {
+			g.generateVerbPhrase()
+		} else if syntax[i] == 'N' {
+			g.generateNounPhrase()
+		} else if syntax[i] == 'P' {
+			preposition := g.rand(g.dists.Prepositions())
+			g.write(preposition)
+			g.writeString(" the ")
+			g.generateNounPhrase()
+		} else if syntax[i] == 'T' {
+			g.erase(1)
+			terminator := g.rand(g.dists.Terminators())
+			g.write(terminator)
+		} else {
+			panic(fmt.Errorf("unknown token: %v", syntax[i]))
+		}
+		if g.last != ' ' {
+			g.writeString(" ")
+		}
+	}
 }
