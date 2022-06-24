@@ -27,6 +27,33 @@ func TestBuilder(t *testing.T) {
 				Name: "bar",
 			},
 		},
+		Where: &InfixExpr{
+			Op: AndOp,
+			Args: []Expr{
+				&InfixExpr{
+					Op: EqOp,
+					Args: []Expr{
+						&Identifier{
+							Name: "baz",
+						},
+						&Literal{
+							String: "500",
+						},
+					},
+				},
+				&InfixExpr{
+					Op: EqOp,
+					Args: []Expr{
+						&Identifier{
+							Name: "baz2",
+						},
+						&Literal{
+							String: "501",
+						},
+					},
+				},
+			},
+		},
 	}
 
 	var sb strings.Builder

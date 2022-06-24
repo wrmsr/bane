@@ -17,6 +17,21 @@ func Render(w iou.DiscardStringWriter, n Node) {
 	case *Identifier:
 		w.WriteString(n.Name)
 
+	case *InfixExpr:
+		for i, a := range n.Args {
+			if i > 0 {
+				w.WriteString(" ")
+				w.WriteString(n.Op.String())
+				w.WriteString(" ")
+			}
+			Render(w, a)
+		}
+
+	case *UnaryExpr:
+		w.WriteString(n.Op.String())
+		w.WriteString(" ")
+		Render(w, n.Arg)
+
 	// raw
 
 	case *Raw:
