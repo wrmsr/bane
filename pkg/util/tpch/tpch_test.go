@@ -6,6 +6,8 @@ import (
 )
 
 func TestTpch(t *testing.T) {
-	fmt.Println(getTextDists())
-	fmt.Printf("%+v\n", Entities)
+	regionGen := generateRegions(nil, nil).Iterate()
+	for i := 0; i < 3; i++ {
+		fmt.Println(regionGen.Next())
+	}
 }

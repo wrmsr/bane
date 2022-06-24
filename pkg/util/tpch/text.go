@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	au "github.com/wrmsr/bane/pkg/util/atomic"
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
@@ -76,6 +77,10 @@ func (td *textDist) randomValue(gen gen) string {
 func (td *textDist) randomBytesValue(gen gen) []byte {
 	randomValue := gen.rand(0, int64(td.maxWeight-1))
 	return td.bytesSeq[randomValue]
+}
+
+func (td *textDist) size() int {
+	return len(td.values)
 }
 
 //
@@ -156,18 +161,18 @@ type textPoolGen struct {
 	gen  gen
 }
 
-func newTextPoolGen(
+func genTextPool(
 	size int,
 	maxSentenceLength int,
 	dists textDists,
-) *textPoolGen {
+) []byte {
 	g := &textPoolGen{
 		size:              size,
 		maxSentenceLength: maxSentenceLength,
 
 		dists: dists,
 
-		buf: make([]byte, 0, size+maxSentenceLength),
+		buf: make([]byte, size+maxSentenceLength),
 		gen: newIntGen(933588178, 0x7FFFFFFF),
 	}
 
@@ -178,7 +183,7 @@ func newTextPoolGen(
 	}
 	g.buf = g.buf[:size]
 
-	return g
+	return g.buf
 }
 
 func (g *textPoolGen) write(b []byte) {
@@ -278,4 +283,80 @@ func (g *textPoolGen) generateSentence() {
 			g.writeString(" ")
 		}
 	}
+}
+
+//
+
+const (
+	textPoolDefaultSize       = 300 * 1024 * 1024
+	textPoolMaxSentenceLength = 256
+)
+
+type textPool struct {
+	buf []byte
+}
+
+func newTextPool(
+	size int,
+	dists textDists,
+) *textPool {
+	return &textPool{
+		buf: genTextPool(size, textPoolMaxSentenceLength, dists),
+	}
+}
+
+func (p textPool) size() int {
+	return len(p.buf)
+}
+
+func (p textPool) getText(begin, end int) string {
+	return string(p.buf[begin:end])
+}
+
+var defaultTextPoolLazy = au.NewLazy(func() *textPool {
+	return newTextPool(textPoolDefaultSize, getTextDists())
+})
+
+func getDefaultTextPool() *textPool {
+	return defaultTextPoolLazy.Get()
+}
+
+//
+
+type randomText struct {
+	genRandom
+
+	pool *textPool
+
+	minLength int
+	maxLength int
+}
+
+const (
+	randomTextLowLengthMultiplier  = 0.4
+	randomTextHighLengthMultiplier = 1.6
+)
+
+func newRandomText(
+	seed int64,
+	pool *textPool,
+	averageTextLength float32,
+	expectedRowCount int, // = 1
+) *randomText {
+	return &randomText{
+		genRandom: genRandom{
+			gen: newIntGen(seed, expectedRowCount*2),
+		},
+
+		pool: pool,
+
+		minLength: int(averageTextLength * randomTextLowLengthMultiplier),
+		maxLength: int(averageTextLength * randomTextHighLengthMultiplier),
+	}
+}
+
+func (r *randomText) nextValue() string {
+	offset := r.gen.rand(0, int64(r.pool.size()-r.maxLength))
+	length := r.gen.rand(int64(r.minLength), int64(r.maxLength))
+	return r.pool.getText(int(offset), int(offset+length))
 }
