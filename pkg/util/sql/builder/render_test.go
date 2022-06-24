@@ -11,49 +11,23 @@ import (
 func TestBuilder(t *testing.T) {
 	stmt := &Select{
 		Items: []*SelectItem{
-			{
-				Expr: &Identifier{
-					Name: "foo",
-				},
-			},
-			{
-				Expr: &Literal{
-					String: "420",
-				},
-			},
+			NewSelectItem(NewIdentifier("foo"), nil),
+			NewSelectItem(NewLiteral("foo"), nil),
 		},
-		From: &Table{
-			Identifier: &Identifier{
-				Name: "bar",
-			},
-		},
-		Where: &InfixExpr{
-			Op: AndOp,
-			Args: []Expr{
-				&InfixExpr{
-					Op: EqOp,
-					Args: []Expr{
-						&Identifier{
-							Name: "baz",
-						},
-						&Literal{
-							String: "500",
-						},
-					},
-				},
-				&InfixExpr{
-					Op: EqOp,
-					Args: []Expr{
-						&Identifier{
-							Name: "baz2",
-						},
-						&Literal{
-							String: "501",
-						},
-					},
-				},
-			},
-		},
+		From: NewTable(NewIdentifier("bar")),
+		Where: NewInfixExpr(
+			AndOp,
+			NewInfixExpr(
+				EqOp,
+				NewIdentifier("baz"),
+				NewLiteral("500"),
+			),
+			NewInfixExpr(
+				NeOp,
+				NewIdentifier("baz2"),
+				NewLiteral("501"),
+			),
+		),
 	}
 
 	var sb strings.Builder

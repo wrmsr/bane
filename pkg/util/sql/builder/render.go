@@ -40,7 +40,7 @@ func Render(w iou.DiscardStringWriter, n Node) {
 	// relation
 
 	case *Table:
-		Render(w, n.Identifier)
+		Render(w, n.Name)
 
 	// stmt
 
@@ -67,9 +67,9 @@ func Render(w iou.DiscardStringWriter, n Node) {
 	case *SelectItem:
 		Render(w, n.Expr)
 
-		if n.Identifier != nil {
+		if n.Label != nil {
 			w.WriteString("AS ")
-			Render(w, n.Identifier)
+			Render(w, n.Label)
 		}
 
 	default:

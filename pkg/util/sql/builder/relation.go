@@ -1,5 +1,7 @@
 package builder
 
+import "github.com/wrmsr/bane/pkg/util/check"
+
 //
 
 type Relation interface {
@@ -17,5 +19,11 @@ func (r *relation) isRelation() {}
 
 type Table struct {
 	relation
-	Identifier *Identifier
+	Name *Identifier
+}
+
+func NewTable(name *Identifier) *Table {
+	return &Table{
+		Name: check.NotZero(name),
+	}
 }

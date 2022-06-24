@@ -1,6 +1,10 @@
 package builder
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/wrmsr/bane/pkg/util/check"
+)
 
 //
 
@@ -22,11 +26,23 @@ type Literal struct {
 	String string
 }
 
+func NewLiteral(s string) *Literal {
+	return &Literal{
+		String: check.NotZero(s),
+	}
+}
+
 //
 
 type Identifier struct {
 	expr
 	Name string
+}
+
+func NewIdentifier(name string) *Identifier {
+	return &Identifier{
+		Name: check.NotZero(name),
+	}
 }
 
 //
@@ -92,6 +108,13 @@ type InfixExpr struct {
 	Args []Expr
 }
 
+func NewInfixExpr(op InfixOp, args ...Expr) *InfixExpr {
+	return &InfixExpr{
+		Op:   op,
+		Args: check.NotEmptySlice(args),
+	}
+}
+
 //
 
 type UnaryOp int8
@@ -116,4 +139,11 @@ type UnaryExpr struct {
 	expr
 	Op  UnaryOp
 	Arg Expr
+}
+
+func NewUnaryExpr(op UnaryOp, arg Expr) *UnaryExpr {
+	return &UnaryExpr{
+		Op:  op,
+		Arg: check.NotNil(arg).(Expr),
+	}
 }

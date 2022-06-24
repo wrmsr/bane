@@ -47,6 +47,13 @@ func Single[T any](s []T, details ...any) T {
 	return s[0]
 }
 
+func NotEmptySlice[T any](s []T, details ...any) []T {
+	if len(s) < 1 {
+		panic(checkError("must not be empty slice", []any{s}, details...))
+	}
+	return s
+}
+
 //
 
 type HasLen interface {

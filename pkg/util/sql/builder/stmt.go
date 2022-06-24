@@ -1,5 +1,7 @@
 package builder
 
+import "github.com/wrmsr/bane/pkg/util/check"
+
 //
 
 type Stmt interface {
@@ -26,6 +28,13 @@ type Select struct {
 
 type SelectItem struct {
 	node
-	Expr       Expr
-	Identifier *Identifier
+	Expr  Expr
+	Label *Identifier
+}
+
+func NewSelectItem(expr Expr, label *Identifier) *SelectItem {
+	return &SelectItem{
+		Expr:  check.NotNil(expr).(Expr),
+		Label: label,
+	}
 }
