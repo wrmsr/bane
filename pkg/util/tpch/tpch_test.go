@@ -6,5 +6,6 @@ import (
 )
 
 func TestTpch(t *testing.T) {
+	fmt.Println(getTextDists())
 	fmt.Printf("%+v\n", Entities)
 }

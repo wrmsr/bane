@@ -24,11 +24,12 @@ type Iterable[T any] interface {
 //
 
 type factoryIterable[T any] struct {
-	fn func() Iterator[T]
+	fn  func() Iterator[T]
+	src any
 }
 
-func Factory[T any](fn func() Iterator[T]) Iterable[T] {
-	return factoryIterable[T]{fn: fn}
+func Factory[T any](fn func() Iterator[T], src any) Iterable[T] {
+	return factoryIterable[T]{fn: fn, src: src}
 }
 
 var _ Iterable[int] = factoryIterable[int]{}

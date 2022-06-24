@@ -11,5 +11,5 @@ func OfMap[K comparable, V any](m map[K]V) Iterable[bt.Kv[K, V]] {
 			i++
 		}
 		return OfSlice[bt.Kv[K, V]](kvs).Iterate()
-	})
+	}, m)
 }

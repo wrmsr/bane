@@ -1,17 +1,74 @@
 package tpch
 
 import (
+	"embed"
 	"strconv"
 	"strings"
 
+	au "github.com/wrmsr/bane/pkg/util/atomic"
 	"github.com/wrmsr/bane/pkg/util/check"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
 )
 
-type textDistLoading struct{}
+//
 
-func (tdl textDistLoading) loadDist(lines its.Iterator[string], name string) *textDist {
+type textDists map[string]*textDist
+
+func (td textDists) grammars() *textDist          { return td["grammar"] }
+func (td textDists) noun_phrase() *textDist       { return td["np"] }
+func (td textDists) verb_phrase() *textDist       { return td["vp"] }
+func (td textDists) prepositions() *textDist      { return td["prepositions"] }
+func (td textDists) nouns() *textDist             { return td["nouns"] }
+func (td textDists) verbs() *textDist             { return td["verbs"] }
+func (td textDists) articles() *textDist          { return td["articles"] }
+func (td textDists) adjectives() *textDist        { return td["adjectives"] }
+func (td textDists) adverbs() *textDist           { return td["adverbs"] }
+func (td textDists) auxiliaries() *textDist       { return td["auxillaries"] }
+func (td textDists) terminators() *textDist       { return td["terminators"] }
+func (td textDists) order_priorities() *textDist  { return td["o_oprio"] }
+func (td textDists) ship_instructions() *textDist { return td["instruct"] }
+func (td textDists) ship_modes() *textDist        { return td["smode"] }
+func (td textDists) return_flags() *textDist      { return td["rflag"] }
+func (td textDists) part_containers() *textDist   { return td["p_cntr"] }
+func (td textDists) part_colors() *textDist       { return td["colors"] }
+func (td textDists) part_types() *textDist        { return td["p_types"] }
+func (td textDists) market_segments() *textDist   { return td["msegmnt"] }
+func (td textDists) nations() *textDist           { return td["nations"] }
+func (td textDists) regions() *textDist           { return td["regions"] }
+
+//
+
+type textDistsLoader struct{}
+
+func (tdl textDistsLoader) LoadDists(buf string) textDists {
+	lines := its.OfSlice(stru.TrimSpaceSplit(buf, "\n"))
+	lines = its.Filter(lines, func(s string) bool { return !strings.HasPrefix(s, "#") })
+	return tdl.loadDists(lines.Iterate())
+}
+
+func (tdl textDistsLoader) loadDists(lines its.Iterator[string]) textDists {
+	dists := make(textDists)
+
+	for lines.HasNext() {
+		line := lines.Next()
+
+		parts := stru.TrimSpaceSplit(line, " ")
+		if len(parts) != 2 {
+			continue
+		}
+
+		if strings.ToUpper(parts[0]) == "BEGIN" {
+			name := parts[1]
+			dist := tdl.loadDist(lines, name)
+			dists[strings.ToLower(name)] = dist
+		}
+	}
+
+	return dists
+}
+
+func (tdl textDistsLoader) loadDist(lines its.Iterator[string], name string) *textDist {
 	count := -1
 	members := make(map[string]int)
 	for lines.HasNext() {
@@ -37,7 +94,7 @@ func (tdl textDistLoading) loadDist(lines its.Iterator[string], name string) *te
 
 	panic(name)
 }
-func (tdl textDistLoading) isEnd(name, line string) bool {
+func (tdl textDistsLoader) isEnd(name, line string) bool {
 	parts := stru.TrimSpaceSplit(line, " ")
 	if strings.ToUpper(parts[0]) == "END" {
 		check.Condition(len(parts) == 2 && strings.ToLower(parts[1]) == strings.ToLower(name))
@@ -46,76 +103,16 @@ func (tdl textDistLoading) isEnd(name, line string) bool {
 	return false
 }
 
-/*
-func (tdl textDistLoading) LoadDist(buf string) map[str]*TextDist {
-	return tdl._loadDists((
-		l
-		for l in buf.splitlines()
-		for l in [l.strip()]
-		if not l.startswith('#')
-	))
+//
+
+//go:embed textdists.dss
+var textDistsEmbed embed.FS
+
+var textDistsLazy = au.NewLazy(func() textDists {
+	buf := string(check.Must(textDistsEmbed.ReadFile("textdists.dss")))
+	return textDistsLoader{}.LoadDists(buf)
+})
+
+func getTextDists() textDists {
+	return textDistsLazy.Get()
 }
-
-@classmethod
-def loadDists(cls, lines: ta.Iterable[str]) -> ta.Mapping[str, TextDist]:
-	dists: ta.Dict[str, TextDist] = {}
-
-	lines = iter(lines)
-	while True:
-		line = next(lines, None)
-		if line is None:
-			break
-
-		parts = line.strip().split()
-		if len(parts) != 2:
-			continue
-
-		if parts[0].upper() == 'BEGIN':
-			name = parts[1]
-			dist = cls._load_dist(lines, name)
-			dists[name.lower()] = dist
-
-	return dists
-
-
-
-class TextDists:
-
-    def __init__(self, dists_by_name: ta.Mapping[str, TextDist]) -> None:
-        super().__init__()
-
-        self._dists_by_name = dists_by_name
-
-    @classmethod
-    def load_defaults(cls) -> ta.Mapping[str, TextDist]:
-        return TextDistLoading.loadDist(
-            pkg_resources.resource_string(__package__, 'dists.dss').decode('utf-8'))
-
-    DEFAULT: 'TextDists' = properties.cached_class(lambda cls: cls(cls.load_defaults()))
-
-    def __getitem__(self, name: str) -> TextDist:
-        return self._dists_by_name[name]
-
-    grammars: TextDist = property(lambda self: self['grammar'])
-    noun_phrase: TextDist = property(lambda self: self['np'])
-    verb_phrase: TextDist = property(lambda self: self['vp'])
-    prepositions: TextDist = property(lambda self: self['prepositions'])
-    nouns: TextDist = property(lambda self: self['nouns'])
-    verbs: TextDist = property(lambda self: self['verbs'])
-    articles: TextDist = property(lambda self: self['articles'])
-    adjectives: TextDist = property(lambda self: self['adjectives'])
-    adverbs: TextDist = property(lambda self: self['adverbs'])
-    auxiliaries: TextDist = property(lambda self: self['auxillaries'])
-    terminators: TextDist = property(lambda self: self['terminators'])
-    order_priorities: TextDist = property(lambda self: self['o_oprio'])
-    ship_instructions: TextDist = property(lambda self: self['instruct'])
-    ship_modes: TextDist = property(lambda self: self['smode'])
-    return_flags: TextDist = property(lambda self: self['rflag'])
-    part_containers: TextDist = property(lambda self: self['p_cntr'])
-    part_colors: TextDist = property(lambda self: self['colors'])
-    part_types: TextDist = property(lambda self: self['p_types'])
-    market_segments: TextDist = property(lambda self: self['msegmnt'])
-    nations: TextDist = property(lambda self: self['nations'])
-    regions: TextDist = property(lambda self: self['regions'])
-
-*/

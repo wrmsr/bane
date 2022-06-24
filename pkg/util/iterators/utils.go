@@ -50,7 +50,7 @@ func CheckUnique[T comparable](it Iterable[T]) Iterable[T] {
 			}
 			return v
 		}).Iterate()
-	})
+	}, it)
 }
 
 func CheckUniqueKeys[K comparable, V any](it Iterable[bt.Kv[K, V]]) Iterable[bt.Kv[K, V]] {
@@ -62,5 +62,5 @@ func CheckUniqueKeys[K comparable, V any](it Iterable[bt.Kv[K, V]]) Iterable[bt.
 			}
 			return kv
 		}).Iterate()
-	})
+	}, it)
 }

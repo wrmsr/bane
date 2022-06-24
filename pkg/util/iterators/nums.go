@@ -7,7 +7,7 @@ type countIterator struct {
 }
 
 func Count() Iterable[int] {
-	return Factory(func() Iterator[int] { return &countIterator{} })
+	return Factory(func() Iterator[int] { return &countIterator{} }, nil)
 }
 
 var _ Iterator[int] = &countIterator{}
@@ -39,7 +39,7 @@ func Range(start, stop, step int) Iterable[int] {
 			stop: stop,
 			step: step,
 		}
-	})
+	}, nil)
 }
 
 var _ Iterator[int] = &rangeIterator{}

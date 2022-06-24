@@ -70,7 +70,7 @@ func Dedent(s string) string {
 func TrimSplit(s, cutset, sep string) []string {
 	var r []string
 	for _, p := range strings.Split(strings.Trim(s, cutset), sep) {
-		if p = strings.Trim(s, cutset); p != "" {
+		if p = strings.Trim(p, cutset); p != "" {
 			r = append(r, p)
 		}
 	}
@@ -80,7 +80,7 @@ func TrimSplit(s, cutset, sep string) []string {
 func TrimSpaceSplit(s, sep string) []string {
 	var r []string
 	for _, p := range strings.Split(strings.TrimSpace(s), sep) {
-		if p = strings.TrimSpace(s); p != "" {
+		if p = strings.TrimSpace(p); p != "" {
 			r = append(r, p)
 		}
 	}
