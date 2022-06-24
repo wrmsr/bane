@@ -9,4 +9,4 @@ type Node interface {
 type node struct {
 }
 
-func (n *node) isNode() {}
+func (n node) isNode() {}

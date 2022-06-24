@@ -11,13 +11,13 @@ func Render(w iou.DiscardStringWriter, n Node) {
 
 	// expr
 
-	case *Literal:
+	case Literal:
 		w.WriteString(n.String)
 
-	case *Identifier:
+	case Identifier:
 		w.WriteString(n.Name)
 
-	case *InfixExpr:
+	case InfixExpr:
 		for i, a := range n.Args {
 			if i > 0 {
 				w.WriteString(" ")
@@ -27,29 +27,29 @@ func Render(w iou.DiscardStringWriter, n Node) {
 			Render(w, a)
 		}
 
-	case *UnaryExpr:
+	case UnaryExpr:
 		w.WriteString(n.Op.String())
 		w.WriteString(" ")
 		Render(w, n.Arg)
 
 	// raw
 
-	case *Raw:
+	case Raw:
 		w.WriteString(n.Raw)
 
 	// relation
 
-	case *Table:
+	case Table:
 		Render(w, n.Name)
 
-		if n.Alias != nil {
+		if n.Alias.Present() {
 			w.WriteString(" AS ")
-			Render(w, n.Alias)
+			Render(w, n.Alias.Value())
 		}
 
 	// stmt
 
-	case *Select:
+	case Select:
 		w.WriteString("SELECT ")
 
 		for i, si := range n.Items {
@@ -69,12 +69,12 @@ func Render(w iou.DiscardStringWriter, n Node) {
 			Render(w, n.Where)
 		}
 
-	case *SelectItem:
+	case SelectItem:
 		Render(w, n.Expr)
 
-		if n.Label != nil {
+		if n.Label.Present() {
 			w.WriteString(" AS ")
-			Render(w, n.Label)
+			Render(w, n.Label.Value())
 		}
 
 	default:

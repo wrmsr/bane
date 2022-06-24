@@ -17,7 +17,7 @@ type expr struct {
 	node
 }
 
-func (e *expr) isExpr() {}
+func (e expr) isExpr() {}
 
 //
 
@@ -26,8 +26,8 @@ type Literal struct {
 	String string
 }
 
-func NewLiteral(s string) *Literal {
-	return &Literal{
+func NewLiteral(s string) Literal {
+	return Literal{
 		String: check.NotZero(s),
 	}
 }
@@ -39,8 +39,8 @@ type Identifier struct {
 	Name string
 }
 
-func NewIdentifier(name string) *Identifier {
-	return &Identifier{
+func NewIdentifier(name string) Identifier {
+	return Identifier{
 		Name: check.NotZero(name),
 	}
 }
@@ -118,8 +118,8 @@ type InfixExpr struct {
 	Args []Expr
 }
 
-func NewInfixExpr(op InfixOp, args ...Expr) *InfixExpr {
-	return &InfixExpr{
+func NewInfixExpr(op InfixOp, args ...Expr) InfixExpr {
+	return InfixExpr{
 		Op:   op,
 		Args: check.NotEmptySlice(args),
 	}
@@ -176,8 +176,8 @@ type UnaryExpr struct {
 	Arg Expr
 }
 
-func NewUnaryExpr(op UnaryOp, arg Expr) *UnaryExpr {
-	return &UnaryExpr{
+func NewUnaryExpr(op UnaryOp, arg Expr) UnaryExpr {
+	return UnaryExpr{
 		Op:  op,
 		Arg: check.NotNil(arg).(Expr),
 	}

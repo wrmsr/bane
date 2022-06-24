@@ -9,8 +9,8 @@ import (
 )
 
 func TestBuilder(t *testing.T) {
-	stmt := &Select{
-		Items: []*SelectItem{
+	stmt := Select{
+		Items: []SelectItem{
 			NewSelectItem(NewIdentifier("foo")),
 			NewSelectItem(NewLiteral("foo")),
 		},

@@ -1,6 +1,9 @@
 package builder
 
-import "github.com/wrmsr/bane/pkg/util/check"
+import (
+	"github.com/wrmsr/bane/pkg/util/check"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
+)
 
 //
 
@@ -13,13 +16,13 @@ type stmt struct {
 	node
 }
 
-func (s *stmt) isStmt() {}
+func (s stmt) isStmt() {}
 
 //
 
 type Select struct {
 	stmt
-	Items []*SelectItem
+	Items []SelectItem
 	From  Relation
 	Where Expr
 }
@@ -29,16 +32,16 @@ type Select struct {
 type SelectItem struct {
 	node
 	Expr  Expr
-	Label *Identifier
+	Label opt.Optional[Identifier]
 }
 
-func NewSelectItemAs(expr Expr, label *Identifier) *SelectItem {
-	return &SelectItem{
+func NewSelectItemAs(expr Expr, label opt.Optional[Identifier]) SelectItem {
+	return SelectItem{
 		Expr:  check.NotNil(expr).(Expr),
 		Label: label,
 	}
 }
 
-func NewSelectItem(expr Expr) *SelectItem {
-	return NewSelectItemAs(expr, nil)
+func NewSelectItem(expr Expr) SelectItem {
+	return NewSelectItemAs(expr, opt.None[Identifier]())
 }
