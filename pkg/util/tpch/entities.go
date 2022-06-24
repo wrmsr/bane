@@ -1,11 +1,23 @@
 package tpch
 
 import (
+	"fmt"
+	"reflect"
+	"strconv"
+	"strings"
+	"time"
+
+	au "github.com/wrmsr/bane/pkg/util/atomic"
 	"github.com/wrmsr/bane/pkg/util/check"
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
+
+//
+
+type Identifier int64
 
 //
 
@@ -46,6 +58,8 @@ type Column struct {
 
 	precision int
 	scale     int
+
+	fld reflect.StructField
 }
 
 func (c Column) Type() Type   { return c.ty }
@@ -53,6 +67,37 @@ func (c Column) Name() string { return c.name }
 
 func (c Column) Precision() int { return c.precision }
 func (c Column) Scale() int     { return c.scale }
+
+func reflectColumn(fld reflect.StructField) Column {
+	col := Column{
+		fld: fld,
+	}
+
+	switch fld.Type {
+	case rfl.Type[int64]():
+		col.ty = IntegerType
+	case rfl.Type[Identifier]():
+		col.ty = IdentifierType
+	case rfl.Type[time.Time]():
+		col.ty = DateType
+	case rfl.Type[float64]():
+		col.ty = DoubleType
+	case rfl.Type[string]():
+		col.ty = VarcharType
+	default:
+		panic(fmt.Errorf("unhandled entity field type: %v", fld.Type))
+	}
+
+	tag := fld.Tag.Get("tpch")
+	if strings.Contains(tag, ",") {
+		var prec string
+		tag, prec, _ = strings.Cut(tag, ",")
+		col.precision = check.Must(strconv.Atoi(prec))
+	}
+
+	col.name = tag
+	return col
+}
 
 //
 
@@ -63,13 +108,15 @@ type Entity struct {
 	indexes    ctr.List[ctr.List[string]]
 
 	columns ctr.OrdMap[string, Column]
+
+	ty reflect.Type
 }
 
-func NewEntity(
+func reflectEntity(
+	ty reflect.Type,
 	name string,
 	primaryKey []string,
 	indexes [][]string,
-	columns []Column,
 ) *Entity {
 	e := &Entity{
 		name: check.NotZero(name),
@@ -79,7 +126,15 @@ func NewEntity(
 			return ctr.NewList(its.OfSlice(s))
 		})),
 
-		columns: ctr.NewOrdMap(its.CheckUniqueKeys(its.Map(its.OfSlice(columns), bt.KvMaker(Column.Name)))),
+		columns: ctr.NewOrdMap(its.Map(
+			its.Range(0, ty.NumField(), 1),
+			func(i int) bt.Kv[string, Column] {
+				col := reflectColumn(ty.Field(i))
+				return bt.KvOf(col.name, col)
+			}),
+		),
+
+		ty: ty,
 	}
 
 	its.ForAll(its.AsTraversable(its.Values[string, Column](e.columns)), func(c Column) {
@@ -113,9 +168,9 @@ type EntitySet struct {
 	entities ctr.Map[string, *Entity]
 }
 
-func NewEntitySet(entities []*Entity) *EntitySet {
+func newEntitySet(entities []*Entity) *EntitySet {
 	return &EntitySet{
-		entities: ctr.NewMap(its.Map(its.OfSlice(entities), bt.KvMaker((*Entity).Name))),
+		entities: ctr.NewMap(its.CheckUniqueKeys(its.Map(its.OfSlice(entities), bt.KvMaker((*Entity).Name)))),
 	}
 }
 
@@ -123,131 +178,174 @@ func (es EntitySet) Entities() ctr.Map[string, *Entity] { return es.entities }
 
 //
 
-var (
-	Entities = NewEntitySet([]*Entity{
-		NewEntity(
-			"region",
-			[]string{"r_regionkey"},
-			nil,
-			[]Column{
-				{name: "r_regionkey", ty: IdentifierType},
-				{name: "r_name", ty: VarcharType, precision: 25},
-				{name: "r_comment", ty: VarcharType, precision: 152},
-			},
-		),
+var _entities []*Entity
 
-		NewEntity(
-			"nation",
-			[]string{"n_nationkey"},
-			[][]string{{"n_regionkey"}},
-			[]Column{
-				{name: "n_nationkey", ty: IdentifierType},
-				{name: "n_name", ty: VarcharType, precision: 25},
-				{name: "n_regionkey", ty: IdentifierType},
-				{name: "n_comment", ty: VarcharType, precision: 152},
-			},
-		),
+func _registerEntity(e *Entity) any {
+	_entities = append(_entities, e)
+	return _entities
+}
 
-		NewEntity(
-			"part",
-			[]string{"p_partkey"},
-			nil,
-			[]Column{
-				{name: "p_partkey", ty: IdentifierType},
-				{name: "p_name", ty: VarcharType, precision: 55},
-				{name: "p_mfgr", ty: VarcharType, precision: 25},
-				{name: "p_brand", ty: VarcharType, precision: 10},
-				{name: "p_type", ty: VarcharType, precision: 25},
-				{name: "p_size", ty: IntegerType},
-				{name: "p_container", ty: VarcharType, precision: 10},
-				{name: "p_retailprice", ty: DoubleType},
-				{name: "p_comment", ty: VarcharType, precision: 23},
-			},
-		),
+var entitiesOnce = au.NewLazy(func() *EntitySet {
+	return newEntitySet(_entities)
+})
 
-		NewEntity(
-			"supplier",
-			[]string{"s_suppkey"},
-			[][]string{{"s_nationkey"}},
-			[]Column{
-				{name: "s_suppkey", ty: IdentifierType},
-				{name: "s_name", ty: VarcharType, precision: 25},
-				{name: "s_address", ty: VarcharType, precision: 40},
-				{name: "s_nationkey", ty: IdentifierType},
-				{name: "s_phone", ty: VarcharType, precision: 15},
-				{name: "s_acctbal", ty: DoubleType},
-				{name: "s_comment", ty: VarcharType, precision: 101},
-			},
-		),
+func getEntities() *EntitySet {
+	return entitiesOnce.Get()
+}
 
-		NewEntity(
-			"part_supplier",
-			[]string{"ps_suppkey", "ps_partkey"},
-			nil,
-			[]Column{
-				{name: "ps_partkey", ty: IdentifierType},
-				{name: "ps_suppkey", ty: IdentifierType},
-				{name: "ps_availqty", ty: IntegerType},
-				{name: "ps_supplycost", ty: DoubleType},
-				{name: "ps_comment", ty: VarcharType, precision: 199},
-			},
-		),
+//
 
-		NewEntity(
-			"customer",
-			[]string{"c_custkey"},
-			[][]string{{"c_nationkey"}},
-			[]Column{
-				{name: "c_custkey", ty: IdentifierType},
-				{name: "c_name", ty: VarcharType, precision: 25},
-				{name: "c_address", ty: VarcharType, precision: 40},
-				{name: "c_nationkey", ty: IdentifierType},
-				{name: "c_phone", ty: VarcharType, precision: 25},
-				{name: "c_acctbal", ty: DoubleType},
-				{name: "c_mktsegment", ty: VarcharType, precision: 10},
-				{name: "c_comment", ty: VarcharType, precision: 117},
-			},
-		),
+var _ = _registerEntity(reflectEntity(
+	rfl.Type[Region](),
+	"region",
+	[]string{"r_regionkey"},
+	nil,
+))
 
-		NewEntity(
-			"order",
-			[]string{"o_orderkey"},
-			[][]string{{"o_custkey"}},
-			[]Column{
-				{name: "o_orderkey", ty: IdentifierType},
-				{name: "o_custkey", ty: IdentifierType},
-				{name: "o_orderstatus", ty: VarcharType, precision: 1},
-				{name: "o_totalprice", ty: DoubleType},
-				{name: "o_orderdate", ty: DateType},
-				{name: "o_orderpriority", ty: VarcharType, precision: 15},
-				{name: "o_clerk", ty: VarcharType, precision: 15},
-				{name: "o_shippriority", ty: IntegerType},
-				{name: "o_comment", ty: VarcharType, precision: 79},
-			},
-		),
+type Region struct {
+	RegionKey Identifier `tpch:"r_regionkey"`
+	Name      string     `tpch:"r_name,25"`
+	Comment   string     `tpch:"r_comment,152"`
+}
 
-		NewEntity(
-			"line_item",
-			[]string{"l_orderkey", "l_linenumber"},
-			[][]string{{"l_partkey"}, {"l_suppkey"}},
-			[]Column{
-				{name: "l_orderkey", ty: IdentifierType},
-				{name: "l_partkey", ty: IdentifierType},
-				{name: "l_suppkey", ty: IdentifierType},
-				{name: "l_linenumber", ty: IntegerType},
-				{name: "l_quantity", ty: DoubleType},
-				{name: "l_extendedprice", ty: DoubleType},
-				{name: "l_discount", ty: DoubleType},
-				{name: "l_tax", ty: DoubleType},
-				{name: "l_returnflag", ty: VarcharType, precision: 1},
-				{name: "l_linestatus", ty: VarcharType, precision: 1},
-				{name: "l_shipdate", ty: DateType},
-				{name: "l_commitdate", ty: DateType},
-				{name: "l_receiptdate", ty: DateType},
-				{name: "l_shipinstruct", ty: VarcharType, precision: 25},
-				{name: "l_shipmode", ty: VarcharType, precision: 10},
-				{name: "l_comment", ty: VarcharType, precision: 44},
-			},
-		),
-	})
-)
+//
+
+var _ = _registerEntity(reflectEntity(
+	rfl.Type[Nation](),
+	"nation",
+	[]string{"n_nationkey"},
+	[][]string{{"n_regionkey"}},
+))
+
+type Nation struct {
+	NationKey Identifier `tpch:"n_nationkey"`
+	Name      string     `tpch:"n_name,25"`
+	RegionKey Identifier `tpch:"n_regionkey"`
+	Comment   string     `tpch:"n_comment,152"`
+}
+
+//
+
+var _ = _registerEntity(reflectEntity(
+	rfl.Type[Part](),
+	"part",
+	[]string{"p_partkey"},
+	nil,
+))
+
+type Part struct {
+	PartKey      Identifier `tpch:"p_partkey"`
+	Name         string     `tpch:"p_name,55"`
+	Manufacturer string     `tpch:"p_mfgr,25"`
+	Brand        string     `tpch:"p_brand,10"`
+	Type         string     `tpch:"p_type,25"`
+	Size         int64      `tpch:"p_size"`
+	Container    string     `tpch:"p_container,10"`
+	RetailPrice  float64    `tpch:"p_retailprice"`
+	Comment      string     `tpch:"p_comment,23"`
+}
+
+//
+
+var _ = _registerEntity(reflectEntity(
+	rfl.Type[Supplier](),
+	"supplier",
+	[]string{"s_suppkey"},
+	[][]string{{"s_nationkey"}},
+))
+
+type Supplier struct {
+	SupplierKey    Identifier `tpch:"s_suppkey"`
+	Name           string     `tpch:"s_name,25"`
+	Address        string     `tpch:"s_address,40"`
+	NationKey      Identifier `tpch:"s_nationkey"`
+	Phone          string     `tpch:"s_phone,15"`
+	AccountBalance float64    `tpch:"s_acctbal"`
+	Comment        string     `tpch:"s_comment,101"`
+}
+
+//
+
+var _ = _registerEntity(reflectEntity(
+	rfl.Type[PartSupplier](),
+	"part_supplier",
+	[]string{"ps_suppkey", "ps_partkey"},
+	nil,
+))
+
+type PartSupplier struct {
+	PartKey           Identifier `tpch:"ps_partkey"`
+	SupplierKey       Identifier `tpch:"ps_suppkey"`
+	AvailableQuantity int64      `tpch:"ps_availqty"`
+	SupplyCost        float64    `tpch:"ps_supplycost"`
+	Comment           string     `tpch:"ps_comment,199"`
+}
+
+//
+
+var _ = _registerEntity(reflectEntity(
+	rfl.Type[Customer](),
+	"customer",
+	[]string{"c_custkey"},
+	[][]string{{"c_nationkey"}},
+))
+
+type Customer struct {
+	CustomerKey    Identifier `tpch:"c_custkey"`
+	Name           string     `tpch:"c_name,25"`
+	Address        string     `tpch:"c_address,40"`
+	NationKey      Identifier `tpch:"c_nationkey"`
+	Phone          string     `tpch:"c_phone,25"`
+	AccountBalance float64    `tpch:"c_acctbal"`
+	MarketSegment  string     `tpch:"c_mktsegment,10"`
+	Comment        string     `tpch:"c_comment,117"`
+}
+
+//
+
+var _ = _registerEntity(reflectEntity(
+	rfl.Type[Order](),
+	"order",
+	[]string{"o_orderkey"},
+	[][]string{{"o_custkey"}},
+))
+
+type Order struct {
+	OrderKey      Identifier `tpch:"o_orderkey"`
+	CustomerKey   Identifier `tpch:"o_custkey"`
+	OrderStatus   string     `tpch:"o_orderstatus,1"`
+	TotalPrice    float64    `tpch:"o_totalprice"`
+	OrderDate     time.Time  `tpch:"o_orderdate"`
+	OrderPriority string     `tpch:"o_orderpriority,15"`
+	Clerk         string     `tpch:"o_clerk,15"`
+	ShipPriority  int64      `tpch:"o_shippriority"`
+	Comment       string     `tpch:"o_comment,79"`
+}
+
+//
+
+var _ = _registerEntity(reflectEntity(
+	rfl.Type[LineItem](),
+	"line_item",
+	[]string{"l_orderkey", "l_linenumber"},
+	[][]string{{"l_partkey"}, {"l_suppkey"}},
+))
+
+type LineItem struct {
+	OrderKey      Identifier `tpch:"l_orderkey"`
+	PartKey       Identifier `tpch:"l_partkey"`
+	SupplierKey   Identifier `tpch:"l_suppkey"`
+	LineNumber    int64      `tpch:"l_linenumber"`
+	Quantity      float64    `tpch:"l_quantity"`
+	ExtendedPrice float64    `tpch:"l_extendedprice"`
+	Discount      float64    `tpch:"l_discount"`
+	Tax           float64    `tpch:"l_tax"`
+	ReturnFlag    string     `tpch:"l_returnflag,1"`
+	LineStatus    string     `tpch:"l_linestatus,1"`
+	ShipDate      time.Time  `tpch:"l_shipdate"`
+	CommitDate    time.Time  `tpch:"l_commitdate"`
+	ReceiptDate   time.Time  `tpch:"l_receiptdate"`
+	ShipInstruct  string     `tpch:"l_shipinstruct,25"`
+	ShipMode      string     `tpch:"l_shipmode,10"`
+	Comment       string     `tpch:"l_comment,44"`
+}

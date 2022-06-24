@@ -10,7 +10,9 @@ type mapIterator[F, T any] struct {
 }
 
 func Map[F, T any](it Iterable[F], fn func(f F) T) Iterable[T] {
-	return Factory(func() Iterator[T] { return &mapIterator[F, T]{it: it.Iterate(), fn: fn} }, it)
+	return Factory(func() Iterator[T] {
+		return &mapIterator[F, T]{it: it.Iterate(), fn: fn}
+	}, it)
 
 }
 
@@ -39,7 +41,9 @@ type filterIterator[T any] struct {
 }
 
 func Filter[T any](it Iterable[T], fn func(v T) bool) Iterable[T] {
-	return Factory(func() Iterator[T] { return &filterIterator[T]{it: it.Iterate(), fn: fn} }, it)
+	return Factory(func() Iterator[T] {
+		return &filterIterator[T]{it: it.Iterate(), fn: fn}
+	}, it)
 }
 
 var _ Iterator[int] = &filterIterator[int]{}
@@ -83,7 +87,9 @@ type enumerateIterator[T any] struct {
 }
 
 func Enumerate[T any](it Iterable[T]) Iterable[bt.Kv[int, T]] {
-	return Factory(func() Iterator[bt.Kv[int, T]] { return &enumerateIterator[T]{i: it.Iterate()} }, it)
+	return Factory(func() Iterator[bt.Kv[int, T]] {
+		return &enumerateIterator[T]{i: it.Iterate()}
+	}, it)
 }
 
 var _ Iterator[bt.Kv[int, any]] = &enumerateIterator[any]{}
@@ -104,6 +110,33 @@ func (i *enumerateIterator[T]) Next() bt.Kv[int, T] {
 
 //
 
+type zipIterator[L, R any] struct {
+	l Iterator[L]
+	r Iterator[R]
+}
+
+func Zip[L, R any](l Iterable[L], r Iterable[R]) Iterable[bt.Pair[L, R]] {
+	return Factory(func() Iterator[bt.Pair[L, R]] {
+		return &zipIterator[L, R]{l: l.Iterate(), r: r.Iterate()}
+	}, bt.PairOf(l, r))
+}
+
+var _ Iterator[bt.Pair[int, string]] = &zipIterator[int, string]{}
+
+func (i *zipIterator[L, R]) Iterate() Iterator[bt.Pair[L, R]] {
+	return i
+}
+
+func (i *zipIterator[L, R]) HasNext() bool {
+	return i.l.HasNext() && i.r.HasNext()
+}
+
+func (i *zipIterator[L, R]) Next() bt.Pair[L, R] {
+	return bt.PairOf(i.l.Next(), i.r.Next())
+}
+
+//
+
 type chunkIterator[T any] struct {
 	i Iterator[T]
 	n int
@@ -111,7 +144,9 @@ type chunkIterator[T any] struct {
 }
 
 func Chunk[T any](it Iterable[T], n int) Iterable[[]T] {
-	return Factory(func() Iterator[[]T] { return &chunkIterator[T]{i: it.Iterate(), n: n} }, it)
+	return Factory(func() Iterator[[]T] {
+		return &chunkIterator[T]{i: it.Iterate(), n: n}
+	}, it)
 }
 
 var _ Iterator[[]any] = &chunkIterator[any]{}
