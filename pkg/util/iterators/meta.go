@@ -170,3 +170,52 @@ func (i *chunkIterator[T]) Next() []T {
 	i.s = s
 	return s
 }
+
+//
+
+type flattenIterator[T any] struct {
+	it Iterator[Iterable[T]]
+	ci Iterator[T]
+}
+
+func Flatten[T any](it Iterable[Iterable[T]]) Iterable[T] {
+	return Factory(func() Iterator[T] {
+		return &flattenIterator[T]{
+			it: it.Iterate(),
+		}
+	}, it)
+}
+
+var _ Iterator[int] = &flattenIterator[int]{}
+
+func (i *flattenIterator[T]) Iterate() Iterator[T] {
+	return i
+}
+
+func (i *flattenIterator[T]) HasNext() bool {
+	if i.ci != nil {
+		if i.ci.HasNext() {
+			return true
+		}
+		i.ci = nil
+	}
+
+	for {
+		if !i.it.HasNext() {
+			return false
+		}
+
+		ci := i.it.Next().Iterate()
+		if ci.HasNext() {
+			i.ci = ci
+			return true
+		}
+	}
+}
+
+func (i *flattenIterator[T]) Next() T {
+	if !i.HasNext() {
+		panic(IteratorExhaustedError{})
+	}
+	return i.ci.Next()
+}

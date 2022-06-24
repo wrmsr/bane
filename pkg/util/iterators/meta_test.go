@@ -13,3 +13,7 @@ func TestMap(t *testing.T) {
 func TestFilter(t *testing.T) {
 	tu.AssertDeepEqual(t, Take[int](Filter(Count(), func(v int) bool { return v%3 == 0 }), 5), []int{0, 3, 6, 9, 12})
 }
+
+func TestFlatten(t *testing.T) {
+	tu.AssertDeepEqual(t, Take[int](Flatten(Map(Count(), func(i int) Iterable[int] { return Of[int](i, i*2) })), 7), []int{0, 0, 1, 2, 2, 4, 3})
+}

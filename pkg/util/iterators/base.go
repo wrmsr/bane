@@ -2,6 +2,12 @@ package iterators
 
 //
 
+type Iterable[T any] interface {
+	Iterate() Iterator[T]
+}
+
+//
+
 type IteratorExhaustedError struct{}
 
 func (e IteratorExhaustedError) Error() string {
@@ -15,10 +21,6 @@ type Iterator[T any] interface {
 
 	HasNext() bool
 	Next() T
-}
-
-type Iterable[T any] interface {
-	Iterate() Iterator[T]
 }
 
 //
