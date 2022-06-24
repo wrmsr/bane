@@ -1,6 +1,9 @@
 package iterators
 
-import bt "github.com/wrmsr/bane/pkg/util/types"
+import (
+	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
 //
 
@@ -137,38 +140,54 @@ func (i *zipIterator[L, R]) Next() bt.Pair[L, R] {
 
 //
 
-type chunkIterator[T any] struct {
+func Kvs[K comparable, V any](it Iterable[bt.Pair[K, V]]) Iterable[bt.Kv[K, V]] {
+	return Map(it, func(p bt.Pair[K, V]) bt.Kv[K, V] {
+		return bt.KvOf(p.L, p.R)
+	})
+}
+
+//
+
+type chunkSharedIterator[T any] struct {
 	i Iterator[T]
 	n int
 	s []T
 }
 
-func Chunk[T any](it Iterable[T], n int) Iterable[[]T] {
+func ChunkShared[T any](it Iterable[T], n int) Iterable[[]T] {
 	return Factory(func() Iterator[[]T] {
-		return &chunkIterator[T]{i: it.Iterate(), n: n}
+		return &chunkSharedIterator[T]{i: it.Iterate(), n: n}
 	}, it)
 }
 
-var _ Iterator[[]any] = &chunkIterator[any]{}
+var _ Iterator[[]any] = &chunkSharedIterator[any]{}
 
-func (i *chunkIterator[T]) Iterate() Iterator[[]T] {
+func (i *chunkSharedIterator[T]) Iterate() Iterator[[]T] {
 	return i
 }
 
-func (i chunkIterator[T]) HasNext() bool {
+func (i chunkSharedIterator[T]) HasNext() bool {
 	return i.i.HasNext()
 }
 
-func (i *chunkIterator[T]) Next() []T {
+func (i *chunkSharedIterator[T]) Next() []T {
 	s := i.s
 	if s != nil {
 		s = s[:0]
 	}
-	for i.i.HasNext() {
+	n := 0
+	for n < i.n && i.i.HasNext() {
 		s = append(s, i.i.Next())
+		n++
 	}
 	i.s = s
 	return s
+}
+
+//
+
+func Chunk[T any](it Iterable[T], n int) Iterable[[]T] {
+	return Map(ChunkShared(it, n), func(s []T) []T { return slices.Copy(s) })
 }
 
 //

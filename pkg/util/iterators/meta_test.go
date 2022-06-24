@@ -17,3 +17,7 @@ func TestFilter(t *testing.T) {
 func TestFlatten(t *testing.T) {
 	tu.AssertDeepEqual(t, Take[int](Flatten(Map(Count(), func(i int) Iterable[int] { return Of[int](i, i*2) })), 7), []int{0, 0, 1, 2, 2, 4, 3})
 }
+
+func TestChunk(t *testing.T) {
+	tu.AssertDeepEqual(t, Seq[[]int](Chunk(Range(0, 10, 1), 3)), [][]int{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9}})
+}
