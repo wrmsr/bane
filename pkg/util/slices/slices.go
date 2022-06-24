@@ -92,7 +92,7 @@ func ZipMap[T, U, R any](fn func(t T, u U) R, ts []T, us []U) []R {
 	if len(us) < l {
 		l = len(us)
 	}
-	r := make([]R, len(l))
+	r := make([]R, l)
 	for i := 0; i < l; i++ {
 		r[i] = fn(ts[i], us[i])
 	}
