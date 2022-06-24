@@ -2,99 +2,90 @@ package dot
 
 import (
 	"html"
+
+	iou "github.com/wrmsr/bane/pkg/util/io"
 )
 
-type StringWriter interface {
-	WriteString(string) (int, error)
-}
-
-func write(w StringWriter, s string) {
-	_, err := w.WriteString(s)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func Render(w StringWriter, o any) {
+func Render(w iou.DiscardStringWriter, o any) {
 	switch o := o.(type) {
 	case Raw:
-		write(w, o.Raw)
+		w.WriteString(o.Raw)
 
 	case Text:
-		write(w, html.EscapeString(o.Text))
+		w.WriteString(html.EscapeString(o.Text))
 
 	case Cell:
-		write(w, "<td>")
+		w.WriteString("<td>")
 		Render(w, o.Value)
-		write(w, "</td>")
+		w.WriteString("</td>")
 
 	case Row:
-		write(w, "<tr>")
+		w.WriteString("<tr>")
 		for _, c := range o.Cells {
 			Render(w, c)
 		}
-		write(w, "</tr>")
+		w.WriteString("</tr>")
 
 	case Table:
-		write(w, "<table>")
+		w.WriteString("<table>")
 		for _, r := range o.Rows {
 			Render(w, r)
 		}
-		write(w, "</table>")
+		w.WriteString("</table>")
 
 	case Id:
-		write(w, "\"")
-		write(w, o.Id)
-		write(w, "\"")
+		w.WriteString("\"")
+		w.WriteString(o.Id)
+		w.WriteString("\"")
 
 	case Attrs:
 		if o.Attrs == nil {
 			return
 		}
-		write(w, "[")
+		w.WriteString("[")
 		i := 0
 		for k, v := range o.Attrs {
 			if i > 0 {
-				write(w, ", ")
+				w.WriteString(", ")
 			}
-			write(w, k)
-			write(w, "=<")
+			w.WriteString(k)
+			w.WriteString("=<")
 			Render(w, v)
-			write(w, ">")
+			w.WriteString(">")
 			i++
 		}
-		write(w, "]")
+		w.WriteString("]")
 
 	case RawStmt:
-		write(w, o.Raw)
-		write(w, "\n")
+		w.WriteString(o.Raw)
+		w.WriteString("\n")
 
 	case Edge:
 		Render(w, o.Left)
-		write(w, " -> ")
+		w.WriteString(" -> ")
 		Render(w, o.Right)
 		if len(o.Attrs.Attrs) > 0 {
-			write(w, " ")
+			w.WriteString(" ")
 			Render(w, o.Attrs)
 		}
-		write(w, ";\n")
+		w.WriteString(";\n")
 
 	case Node:
 		Render(w, o.Id)
 		if len(o.Attrs.Attrs) > 0 {
-			write(w, " ")
+			w.WriteString(" ")
 			Render(w, o.Attrs)
 		}
-		write(w, ";\n")
+		w.WriteString(";\n")
 
 	case Graph:
-		write(w, "digraph ")
+		w.WriteString("digraph ")
 		Render(w, o.Id)
-		write(w, " {\n")
+		w.WriteString(" {\n")
 		for _, s := range o.Stmts {
 			Render(w, s)
 		}
-		write(w, "}\n")
+		w.WriteString("}\n")
 
 	default:
 		panic(typeError(o))

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	iou "github.com/wrmsr/bane/pkg/util/io"
 )
 
 func TestRender(t *testing.T) {
@@ -16,7 +18,7 @@ func TestRender(t *testing.T) {
 	}
 
 	var sb strings.Builder
-	Render(&sb, g)
+	Render(iou.NewDiscardStringWriter(&sb), g)
 	fmt.Println(sb.String())
 
 	//tu.AssertNoErr(t, Open(context.Background(), sb.String()))
