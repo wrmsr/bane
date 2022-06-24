@@ -42,6 +42,11 @@ func Render(w iou.DiscardStringWriter, n Node) {
 	case *Table:
 		Render(w, n.Name)
 
+		if n.Alias != nil {
+			w.WriteString(" AS ")
+			Render(w, n.Alias)
+		}
+
 	// stmt
 
 	case *Select:
@@ -68,7 +73,7 @@ func Render(w iou.DiscardStringWriter, n Node) {
 		Render(w, n.Expr)
 
 		if n.Label != nil {
-			w.WriteString("AS ")
+			w.WriteString(" AS ")
 			Render(w, n.Label)
 		}
 

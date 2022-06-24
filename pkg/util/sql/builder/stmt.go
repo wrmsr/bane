@@ -32,9 +32,13 @@ type SelectItem struct {
 	Label *Identifier
 }
 
-func NewSelectItem(expr Expr, label *Identifier) *SelectItem {
+func NewSelectItemAs(expr Expr, label *Identifier) *SelectItem {
 	return &SelectItem{
 		Expr:  check.NotNil(expr).(Expr),
 		Label: label,
 	}
+}
+
+func NewSelectItem(expr Expr) *SelectItem {
+	return NewSelectItemAs(expr, nil)
 }

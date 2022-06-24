@@ -19,11 +19,17 @@ func (r *relation) isRelation() {}
 
 type Table struct {
 	relation
-	Name *Identifier
+	Name  *Identifier
+	Alias *Identifier
+}
+
+func NewTableAs(name *Identifier, alias *Identifier) *Table {
+	return &Table{
+		Name:  check.NotZero(name),
+		Alias: alias,
+	}
 }
 
 func NewTable(name *Identifier) *Table {
-	return &Table{
-		Name: check.NotZero(name),
-	}
+	return NewTableAs(name, nil)
 }

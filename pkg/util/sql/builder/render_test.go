@@ -11,19 +11,16 @@ import (
 func TestBuilder(t *testing.T) {
 	stmt := &Select{
 		Items: []*SelectItem{
-			NewSelectItem(NewIdentifier("foo"), nil),
-			NewSelectItem(NewLiteral("foo"), nil),
+			NewSelectItem(NewIdentifier("foo")),
+			NewSelectItem(NewLiteral("foo")),
 		},
 		From: NewTable(NewIdentifier("bar")),
-		Where: NewInfixExpr(
-			AndOp,
-			NewInfixExpr(
-				EqOp,
+		Where: And(
+			Eq(
 				NewIdentifier("baz"),
 				NewLiteral("500"),
 			),
-			NewInfixExpr(
-				NeOp,
+			Ne(
 				NewIdentifier("baz2"),
 				NewLiteral("501"),
 			),

@@ -102,6 +102,16 @@ func (o InfixOp) String() string {
 	panic(fmt.Errorf("invalid infix op: %d", o))
 }
 
+func (o InfixOp) IsBoolean() bool {
+	switch o {
+	case
+		AndOp,
+		OrOp:
+		return true
+	}
+	return false
+}
+
 type InfixExpr struct {
 	expr
 	Op   InfixOp
@@ -114,6 +124,31 @@ func NewInfixExpr(op InfixOp, args ...Expr) *InfixExpr {
 		Args: check.NotEmptySlice(args),
 	}
 }
+
+func NewInfixExprOrSelf(op InfixOp, args ...Expr) Expr {
+	if len(args) == 1 {
+		return args[0]
+	}
+	return NewInfixExpr(
+		op,
+		args...,
+	)
+}
+
+func Add(args ...Expr) Expr { return NewInfixExprOrSelf(AddOp, args...) }
+func Sub(args ...Expr) Expr { return NewInfixExprOrSelf(SubOp, args...) }
+func Mul(args ...Expr) Expr { return NewInfixExprOrSelf(MulOp, args...) }
+func Div(args ...Expr) Expr { return NewInfixExprOrSelf(DivOp, args...) }
+
+func Lt(args ...Expr) Expr  { return NewInfixExprOrSelf(LtOp, args...) }
+func Lte(args ...Expr) Expr { return NewInfixExprOrSelf(LteOp, args...) }
+func Eq(args ...Expr) Expr  { return NewInfixExprOrSelf(EqOp, args...) }
+func Ne(args ...Expr) Expr  { return NewInfixExprOrSelf(NeOp, args...) }
+func Gt(args ...Expr) Expr  { return NewInfixExprOrSelf(GtOp, args...) }
+func Gte(args ...Expr) Expr { return NewInfixExprOrSelf(GteOp, args...) }
+
+func And(args ...Expr) Expr { return NewInfixExprOrSelf(AndOp, args...) }
+func Or(args ...Expr) Expr  { return NewInfixExprOrSelf(OrOp, args...) }
 
 //
 
@@ -147,3 +182,5 @@ func NewUnaryExpr(op UnaryOp, arg Expr) *UnaryExpr {
 		Arg: check.NotNil(arg).(Expr),
 	}
 }
+
+func Not(arg Expr) Expr { return NewUnaryExpr(NotOp, arg) }
