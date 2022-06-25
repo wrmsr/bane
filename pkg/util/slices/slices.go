@@ -37,9 +37,47 @@ func Find[T comparable](s []T, v T) (int, bool) {
 	return -1, false
 }
 
+func FindLast[T comparable](s []T, v T) (int, bool) {
+	for i := len(s) - 1; i >= 0; i-- {
+		if s[i] == v {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+func FindFunc[T comparable](s []T, fn func(v T) bool) (int, bool) {
+	for i, c := range s {
+		if fn(c) {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+func FindFuncLast[T comparable](s []T, fn func(v T) bool) (int, bool) {
+	for i := len(s) - 1; i >= 0; i-- {
+		if fn(s[i]) {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
 func Contains[T comparable](s []T, v T) bool {
 	_, ok := Find(s, v)
 	return ok
+}
+
+func Reverse[T any](s []T) []T {
+	x := len(s)
+	mx := x / 2
+	r := x - 1
+	for l := 0; l < mx; l++ {
+		s[l], s[r] = s[r], s[l]
+		r--
+	}
+	return s
 }
 
 func Reversed[T any](s []T) []T {
