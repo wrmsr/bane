@@ -92,6 +92,7 @@ check: check-dev check-fmt check-vet
 
 .PHONY: check-dev
 check-dev:
+	${GO} run "${MOD}/pkg/util/dev/cmd/checkdev" ${SRC}
 	r=0 ; \
 	for f in $$(( \
 		find ${SRC} -name 'dev.go' -or -name '*_dev.go' ; \
