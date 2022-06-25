@@ -12,18 +12,17 @@ import (
 func TestBuilder(t *testing.T) {
 	n := NewFunc(
 		NewIdent("foo"),
-		nil,
+		[]Param{
+			NewParam(
+				NewIdent("x"),
+				NewNameType(NewIdent("int"))),
+		},
 		opt.None[Type](),
 		NewBlock(
-
 			NewIf(
 				NewLit("foo"),
 				NewBlock(
-					NewExprStmt(NewLit("bar")),
-				),
-			),
-		),
-	)
+					NewExprStmt(NewLit("bar"))))))
 
 	var sb strings.Builder
 	Render(iou.NewIndentWriter(iou.NewDiscardStringWriter(&sb), "\t"), n)

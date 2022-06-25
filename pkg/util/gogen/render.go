@@ -2,6 +2,7 @@ package gogen
 
 import (
 	"fmt"
+	"strconv"
 
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
@@ -22,9 +23,6 @@ func Render(w *iou.IndentWriter, n Node) {
 
 	// base
 
-	case Type:
-		Render(w, n.Name)
-
 	// decl
 
 	case Import:
@@ -39,7 +37,7 @@ func Render(w *iou.IndentWriter, n Node) {
 			renderImport(w, i)
 		}
 		w.Dedent()
-		w.WriteString(")\n")
+		w.WriteString(")\n\n")
 
 	case Param:
 		Render(w, n.Name)
@@ -61,6 +59,11 @@ func Render(w *iou.IndentWriter, n Node) {
 			Render(w, n.Type.Value())
 		}
 		Render(w, n.Body)
+		w.WriteString("\n")
+
+	case StmtDecl:
+		Render(w, n.Stmt)
+		w.WriteString("\n")
 
 	// expr
 
@@ -85,7 +88,18 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString(" ")
 		Render(w, n.Arg)
 
+	case Addr:
+		w.WriteString("&")
+		Render(w, n.Value)
+
+	case Deref:
+		w.WriteString("*")
+		Render(w, n.Value)
+
 	// raw
+
+	case Raw:
+		w.WriteString(n.Raw)
 
 	// stmt
 
@@ -112,6 +126,46 @@ func Render(w *iou.IndentWriter, n Node) {
 			Render(w, n.Else)
 		}
 		w.WriteString("\n\n")
+
+	case Var:
+		w.WriteString("var ")
+		Render(w, n.Name)
+		w.WriteString(" ")
+		Render(w, n.Type)
+
+	case ShortVar:
+		Render(w, n.Name)
+		w.WriteString(" := ")
+		Render(w, n.Value)
+
+	// type
+
+	case NameType:
+		Render(w, n.Name)
+
+	case Slice:
+		w.WriteString("[]")
+		Render(w, n.Elem)
+
+	case Array:
+		w.WriteString("[")
+		if n.Len.Present() {
+			w.WriteString(strconv.Itoa(n.Len.Value()))
+		} else {
+			w.WriteString("...")
+		}
+		w.WriteString("]")
+		Render(w, n.Elem)
+
+	case Ptr:
+		w.WriteString("*")
+		Render(w, n.Elem)
+
+	case Map:
+		w.WriteString("map[")
+		Render(w, n.Key)
+		w.WriteString("]")
+		Render(w, n.Value)
 
 	//
 

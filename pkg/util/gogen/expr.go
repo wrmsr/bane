@@ -184,3 +184,29 @@ func NewUnaryExpr(op UnaryOp, arg Expr) UnaryExpr {
 }
 
 func Not(arg Expr) Expr { return NewUnaryExpr(NotOp, arg) }
+
+//
+
+type Addr struct {
+	expr
+	Value Expr
+}
+
+func NewAddr(value Expr) Addr {
+	return Addr{
+		Value: value,
+	}
+}
+
+//
+
+type Deref struct {
+	expr
+	Value Expr
+}
+
+func NewDeref(value Expr) Deref {
+	return Deref{
+		Value: value,
+	}
+}

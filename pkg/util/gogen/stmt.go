@@ -65,3 +65,33 @@ func NewIfElse(cond Expr, then, else_ Block) If {
 func NewIf(cond Expr, then Block) If {
 	return NewIfElse(cond, then, NewBlock())
 }
+
+//
+
+type Var struct {
+	stmt
+	Name Ident
+	Type Type
+}
+
+func NewVar(name Ident, type_ Type) Var {
+	return Var{
+		Name: name,
+		Type: type_,
+	}
+}
+
+//
+
+type ShortVar struct {
+	stmt
+	Name  Ident
+	Value Expr
+}
+
+func NewShortVar(name Ident, value Expr) ShortVar {
+	return ShortVar{
+		Name:  name,
+		Value: value,
+	}
+}

@@ -83,3 +83,16 @@ func NewFunc(name Ident, params []Param, type_ opt.Optional[Type], body Block) F
 		Body:   body,
 	}
 }
+
+//
+
+type StmtDecl struct {
+	decl
+	Stmt Stmt
+}
+
+func NewStmtDecl(stmt Stmt) StmtDecl {
+	return StmtDecl{
+		Stmt: stmt,
+	}
+}
