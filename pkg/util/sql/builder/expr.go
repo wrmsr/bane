@@ -21,13 +21,13 @@ func (e expr) isExpr() {}
 
 //
 
-type Literal struct {
+type Lit struct {
 	expr
 	String string
 }
 
-func NewLiteral(s string) Literal {
-	return Literal{
+func NewLiteral(s string) Lit {
+	return Lit{
 		String: check.NotZero(s),
 	}
 }

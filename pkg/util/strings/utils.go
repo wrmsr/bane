@@ -58,11 +58,13 @@ func Dedent(s string) string {
 	}
 
 	var sb strings.Builder
-	for _, l := range lines {
+	for i, l := range lines {
 		if l != "" {
 			sb.WriteString(l[n.Value():])
 		}
-		sb.WriteRune('\n')
+		if i < len(l)-1 {
+			sb.WriteRune('\n')
+		}
 	}
 	return sb.String()
 }

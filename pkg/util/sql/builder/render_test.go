@@ -9,7 +9,7 @@ import (
 )
 
 func TestBuilder(t *testing.T) {
-	stmt := Select{
+	n := Select{
 		Items: []SelectItem{
 			NewSelectItem(NewIdent("foo")),
 			NewSelectItem(NewLiteral("foo")),
@@ -28,6 +28,6 @@ func TestBuilder(t *testing.T) {
 	}
 
 	var sb strings.Builder
-	Render(iou.NewDiscardStringWriter(&sb), stmt)
+	Render(iou.NewDiscardStringWriter(&sb), n)
 	fmt.Println(sb.String())
 }

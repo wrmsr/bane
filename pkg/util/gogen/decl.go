@@ -18,4 +18,5 @@ func (e decl) isDecl() {}
 type Func struct {
 	decl
 	Name Ident
+	Body Block
 }

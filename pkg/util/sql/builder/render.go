@@ -11,7 +11,7 @@ func Render(w iou.DiscardStringWriter, n Node) {
 
 	// expr
 
-	case Literal:
+	case Lit:
 		w.WriteString(n.String)
 
 	case Ident:
@@ -76,6 +76,8 @@ func Render(w iou.DiscardStringWriter, n Node) {
 			w.WriteString(" AS ")
 			Render(w, n.Label.Value())
 		}
+
+	//
 
 	default:
 		panic(fmt.Errorf("unhandled node type: %T", n))
