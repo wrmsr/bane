@@ -36,6 +36,7 @@ services:
     security_opt:
       - 'apparmor:unconfined'
     volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
       - '.:/bane'
     depends_on:
       - 'bane-mysql'
@@ -47,4 +48,3 @@ services:
       - '8000'
     ports:
       - '33220:8000'
-
