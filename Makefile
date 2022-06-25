@@ -34,8 +34,8 @@ dep-update:
 
 .PHONY: dep-tidy
 dep-tidy:
-	${GO} get -u ./...
 	${GO} mod tidy
+
 
 ### gen
 
