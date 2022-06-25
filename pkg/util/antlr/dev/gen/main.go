@@ -16,6 +16,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	httpu "github.com/wrmsr/bane/pkg/util/http"
 	osu "github.com/wrmsr/bane/pkg/util/os"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
@@ -23,10 +24,14 @@ import (
 func main() {
 	check.Condition(check.Must(os.Stat(".cache")).IsDir())
 
-	// jarUrl := fmt.Sprintf("https://www.antlr.org/download/%s", jarFile)
 	antlrVer := os.Args[1]
 	jarName := fmt.Sprintf("antlr-%s-complete.jar", antlrVer)
 	jarPath := filepath.Join(check.Must(os.Getwd()), ".cache", jarName)
+	if !check.Must(osu.Exists(jarPath)) {
+		jarUrl := fmt.Sprintf("https://www.antlr.org/download/%s", jarName)
+		fmt.Println(jarUrl)
+		check.NoErr(httpu.DownloadFile(jarUrl, jarPath))
+	}
 
 	type g4File struct {
 		path string
