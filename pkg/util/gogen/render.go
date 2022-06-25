@@ -6,6 +6,17 @@ import (
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
 
+func renderImport(w *iou.IndentWriter, n Import) {
+	if n.Alias.Present() {
+		Render(w, n.Alias.Value())
+		w.WriteString(" ")
+	}
+	w.WriteString("\"")
+	w.WriteString(n.Spec)
+	w.WriteString("\"")
+	w.WriteString("\n")
+}
+
 func Render(w *iou.IndentWriter, n Node) {
 	switch n := n.(type) {
 
@@ -15,6 +26,20 @@ func Render(w *iou.IndentWriter, n Node) {
 		Render(w, n.Name)
 
 	// decl
+
+	case Import:
+		w.WriteString("import ")
+		renderImport(w, n)
+		w.WriteString("\n")
+
+	case Imports:
+		w.WriteString("import (\n")
+		w.Indent()
+		for _, i := range n.Imports {
+			renderImport(w, i)
+		}
+		w.Dedent()
+		w.WriteString(")\n")
 
 	case Param:
 		Render(w, n.Name)
@@ -86,7 +111,7 @@ func Render(w *iou.IndentWriter, n Node) {
 			w.WriteString("else ")
 			Render(w, n.Else)
 		}
-		w.WriteString("\n")
+		w.WriteString("\n\n")
 
 	//
 

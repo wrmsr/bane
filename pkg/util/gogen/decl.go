@@ -1,6 +1,9 @@
 package gogen
 
-import opt "github.com/wrmsr/bane/pkg/util/optional"
+import (
+	"github.com/wrmsr/bane/pkg/util/check"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
+)
 
 //
 
@@ -14,6 +17,38 @@ type decl struct {
 }
 
 func (e decl) isDecl() {}
+
+//
+
+type Import struct {
+	node
+	Spec  string
+	Alias opt.Optional[Ident]
+}
+
+func NewImportAs(spec string, alias opt.Optional[Ident]) Import {
+	return Import{
+		Spec:  check.NotZero(spec),
+		Alias: alias,
+	}
+}
+
+func NewImport(spec string) Import {
+	return NewImportAs(spec, opt.None[Ident]())
+}
+
+//
+
+type Imports struct {
+	node
+	Imports []Import
+}
+
+func NewImports(imports []Import) Imports {
+	return Imports{
+		Imports: imports,
+	}
+}
 
 //
 
