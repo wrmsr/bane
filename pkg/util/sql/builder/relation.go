@@ -22,17 +22,17 @@ func (r relation) isRelation() {}
 
 type Table struct {
 	relation
-	Name  Identifier
-	Alias opt.Optional[Identifier]
+	Name  Ident
+	Alias opt.Optional[Ident]
 }
 
-func NewTableAs(name Identifier, alias opt.Optional[Identifier]) Table {
+func NewTableAs(name Ident, alias opt.Optional[Ident]) Table {
 	return Table{
 		Name:  check.NotZero(name),
 		Alias: alias,
 	}
 }
 
-func NewTable(name Identifier) Table {
-	return NewTableAs(name, opt.None[Identifier]())
+func NewTable(name Ident) Table {
+	return NewTableAs(name, opt.None[Ident]())
 }

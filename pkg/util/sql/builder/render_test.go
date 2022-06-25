@@ -11,17 +11,17 @@ import (
 func TestBuilder(t *testing.T) {
 	stmt := Select{
 		Items: []SelectItem{
-			NewSelectItem(NewIdentifier("foo")),
+			NewSelectItem(NewIdent("foo")),
 			NewSelectItem(NewLiteral("foo")),
 		},
-		From: NewTable(NewIdentifier("bar")),
+		From: NewTable(NewIdent("bar")),
 		Where: And(
 			Eq(
-				NewIdentifier("baz"),
+				NewIdent("baz"),
 				NewLiteral("500"),
 			),
 			Ne(
-				NewIdentifier("baz2"),
+				NewIdent("baz2"),
 				NewLiteral("501"),
 			),
 		),

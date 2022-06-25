@@ -34,13 +34,13 @@ func NewLiteral(s string) Literal {
 
 //
 
-type Identifier struct {
+type Ident struct {
 	expr
 	Name string
 }
 
-func NewIdentifier(name string) Identifier {
-	return Identifier{
+func NewIdent(name string) Ident {
+	return Ident{
 		Name: check.NotZero(name),
 	}
 }

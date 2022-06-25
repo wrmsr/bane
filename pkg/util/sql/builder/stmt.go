@@ -32,10 +32,10 @@ type Select struct {
 type SelectItem struct {
 	node
 	Expr  Expr
-	Label opt.Optional[Identifier]
+	Label opt.Optional[Ident]
 }
 
-func NewSelectItemAs(expr Expr, label opt.Optional[Identifier]) SelectItem {
+func NewSelectItemAs(expr Expr, label opt.Optional[Ident]) SelectItem {
 	return SelectItem{
 		Expr:  check.NotNil(expr).(Expr),
 		Label: label,
@@ -43,5 +43,5 @@ func NewSelectItemAs(expr Expr, label opt.Optional[Identifier]) SelectItem {
 }
 
 func NewSelectItem(expr Expr) SelectItem {
-	return NewSelectItemAs(expr, opt.None[Identifier]())
+	return NewSelectItemAs(expr, opt.None[Ident]())
 }

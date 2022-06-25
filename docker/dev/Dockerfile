@@ -114,6 +114,8 @@ COPY \
 \
     /root/
 
+RUN sed -i '/^\[ -z \"\$PS1\" \]/d' /root/.bashrc
+
 
 ## entrypoint
 

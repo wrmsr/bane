@@ -14,7 +14,7 @@ func Render(w iou.DiscardStringWriter, n Node) {
 	case Literal:
 		w.WriteString(n.String)
 
-	case Identifier:
+	case Ident:
 		w.WriteString(n.Name)
 
 	case InfixExpr:
