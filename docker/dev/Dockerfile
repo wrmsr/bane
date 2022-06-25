@@ -17,25 +17,39 @@ RUN ( \
         ca-certificates \
         clang \
         curl \
+        dnsutils \
         dumb-init \
         gcc \
         gdb \
         git \
         gnupg \
+        htop \
+        iputils-ping \
+        iputils-tracepath \
+        jq \
+        less \
         lsb-release \
         lsof \
         make \
+        man-db \
         moreutils \
         nano \
         ncdu \
+        net-tools \
+        netcat \
         pkg-config \
+        protobuf-compiler \
+        python \
         silversearcher-ag \
         socat \
         software-properties-common \
         strace \
+        tcpdump \
         tmux \
+        unzip \
         vim \
         wget \
+        zip \
 \
 )
 
@@ -99,8 +113,6 @@ COPY \
     docker/dev/.vimrc \
 \
     /root/
-
-RUN echo 'source ~/.bashrc' >> ~/.bash_profile
 
 
 ## entrypoint
