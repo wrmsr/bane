@@ -23,11 +23,19 @@ clean:
 
 ### deps
 
+.PHONY: deps
+deps:
+	${GO} get -u ./...
+
 .PHONY: dep-update
 dep-update:
 	${GO} get -u ./...
-	${GO} mod tidy
+	${MAKE} dep-tidy
 
+.PHONY: dep-tidy
+dep-tidy:
+	${GO} get -u ./...
+	${GO} mod tidy
 
 ### gen
 
