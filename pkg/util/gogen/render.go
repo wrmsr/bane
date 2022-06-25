@@ -96,6 +96,23 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString("*")
 		Render(w, n.Value)
 
+	case Index:
+		Render(w, n.Value)
+		w.WriteString("[")
+		Render(w, n.Index)
+		w.WriteString("]")
+
+	case Call:
+		Render(w, n.Func)
+		w.WriteString("(")
+		for i, a := range n.Args {
+			if i > 0 {
+				w.WriteString(", ")
+			}
+			Render(w, a)
+		}
+		w.WriteString(")")
+
 	// raw
 
 	case Raw:

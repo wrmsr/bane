@@ -210,3 +210,33 @@ func NewDeref(value Expr) Deref {
 		Value: value,
 	}
 }
+
+//
+
+type Index struct {
+	expr
+	Value Expr
+	Index Expr
+}
+
+func NewIndex(value, index Expr) Index {
+	return Index{
+		Value: value,
+		Index: index,
+	}
+}
+
+//
+
+type Call struct {
+	expr
+	Func Expr
+	Args []Expr
+}
+
+func NewCall(func_ Expr, args ...Expr) Call {
+	return Call{
+		Func: func_,
+		Args: args,
+	}
+}
