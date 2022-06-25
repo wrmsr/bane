@@ -35,6 +35,7 @@ RUN ( \
         strace \
         tmux \
         vim \
+        wget \
 \
 )
 
@@ -77,11 +78,29 @@ RUN ( \
     mkdir /build && cd /build && \
     if [ "$(uname -m)" = "aarch64" ] ; then GO_ARCH="arm64" ; else GO_ARCH="amd64" ; fi && \
     GO_FILE="go$GO_VERSION.linux-$GO_ARCH.tar.gz" && \
-    curl "https://go.dev/dl/$GO_FILE" -o "/build/$GO_FILE" && \
-    ls -al "$GO_FILE" && \
+    wget -q "https://go.dev/dl/$GO_FILE" && \
     tar xzf "$GO_FILE" && \
+    chown -R root:root ./go && \
+    mv -v go /usr/local && \
+    echo "\
+export GOPATH="'$'"HOME/go\
+export PATH="'$'"PATH:/usr/local/go/bin:"'$'"GOPATH/bin\
+" >> /root/.bashrc && \
     cd / && rm -rf /build \
 )
+
+
+## config
+
+COPY \
+\
+    docker/dev/.gdbinit \
+    docker/dev/.tmux.conf \
+    docker/dev/.vimrc \
+\
+    /root/
+
+RUN echo 'source ~/.bashrc' >> ~/.bash_profile
 
 
 ## entrypoint
