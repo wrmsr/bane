@@ -24,6 +24,22 @@ func ForAll[T any](tv Traversable[T], fn func(v T)) {
 
 //
 
+type traversableIterable[T any] struct {
+	Iterable[T]
+}
+
+func AsTraversable[T any](it Iterable[T]) Traversable[T] {
+	return traversableIterable[T]{it}
+}
+
+var _ Traversable[any] = traversableIterable[any]{}
+
+func (t traversableIterable[T]) ForEach(fn func(v T) bool) bool {
+	return ForEach[T](t, fn)
+}
+
+//
+
 type fnTraversable[T any] struct {
 	fn func(fn func(v T) bool) bool
 }
@@ -32,10 +48,4 @@ var _ Traversable[any] = fnTraversable[any]{}
 
 func (f fnTraversable[T]) ForEach(fn func(v T) bool) bool {
 	return f.fn(fn)
-}
-
-func AsTraversable[T any](it Iterable[T]) Traversable[T] {
-	return fnTraversable[T]{func(fn func(v T) bool) bool {
-		return ForEach[T](it, fn)
-	}}
 }

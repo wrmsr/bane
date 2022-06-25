@@ -92,6 +92,10 @@ func NewMutMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) MutMap[K, V] {
 	return mutMapImpl[K, V]{newMapImpl[K, V](it)}
 }
 
+func WrapMap[K comparable, V any](m map[K]V) MutMap[K, V] {
+	return mutMapImpl[K, V]{mapImpl[K, V]{m}}
+}
+
 var _ MutMap[int, any] = mutMapImpl[int, any]{}
 
 func (m mutMapImpl[K, V]) isMutable() {}

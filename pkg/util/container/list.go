@@ -83,6 +83,10 @@ func NewMutListOf[T any](vs ...T) MutList[T] {
 	return NewMutList(its.Of(vs...))
 }
 
+func WrapSlice[T any](s []T) MutList[T] {
+	return &mutListImpl[T]{listImpl[T]{s}}
+}
+
 var _ MutList[int] = &mutListImpl[int]{}
 
 func (l *mutListImpl[T]) isMutable() {}

@@ -12,11 +12,6 @@ type StackFrame struct {
 	Line int
 }
 
-type ParsedName struct {
-	Pkg string
-	Obj string
-}
-
 func GetStackTrace(n, ofs int) []StackFrame {
 	pcs := make([]uintptr, n)
 	nf := runtime.Callers(

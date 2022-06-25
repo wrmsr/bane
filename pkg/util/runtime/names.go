@@ -2,6 +2,11 @@ package runtime
 
 import "strings"
 
+type ParsedName struct {
+	Pkg string
+	Obj string
+}
+
 func ParseName(name string) ParsedName {
 	sl := strings.LastIndexByte(name, '/')
 	if sl < 0 {
