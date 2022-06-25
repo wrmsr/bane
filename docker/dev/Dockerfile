@@ -39,7 +39,7 @@ RUN ( \
         netcat \
         pkg-config \
         protobuf-compiler \
-        python \
+        python3 \
         silversearcher-ag \
         socat \
         software-properties-common \
@@ -96,9 +96,9 @@ RUN ( \
     tar xzf "$GO_FILE" && \
     chown -R root:root ./go && \
     mv -v go /usr/local && \
-    echo "\
-export GOPATH="'$'"HOME/go\
-export PATH="'$'"PATH:/usr/local/go/bin:"'$'"GOPATH/bin\
+    echo "\n\
+export GOPATH="'$'"HOME/go\n\
+export PATH="'$'"PATH:/usr/local/go/bin:"'$'"GOPATH/bin\n\
 " >> /root/.bashrc && \
     cd / && rm -rf /build \
 )

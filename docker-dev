@@ -12,4 +12,4 @@ docker exec \
     --privileged \
     --detach-keys 'ctrl-o,ctrl-d' \
     -it docker-bane-dev-1 \
-    bash --login -c "$*"
+    bash -c "cat /root/.bashrc && $*"
