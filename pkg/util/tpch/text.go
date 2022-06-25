@@ -220,13 +220,14 @@ func (g *textPoolGen) generateVerbPhrase() {
 	syntax := g.rand(g.dists.VerbPhrase())
 	for i := 0; i < len(syntax); i += 2 {
 		var source *textDist
-		if syntax[i] == 'D' {
+		switch syntax[i] {
+		case 'D':
 			source = g.dists.Adverbs()
-		} else if syntax[i] == 'V' {
+		case 'V':
 			source = g.dists.Verbs()
-		} else if syntax[i] == 'X' {
+		case 'X':
 			source = g.dists.Auxiliaries()
-		} else {
+		default:
 			panic(fmt.Errorf("unknown token: %v", syntax[i]))
 		}
 		word := g.rand(source)
@@ -239,21 +240,22 @@ func (g *textPoolGen) generateNounPhrase() {
 	syntax := g.rand(g.dists.NounPhrase())
 	for i := 0; i < len(syntax); i++ {
 		var source *textDist
-		if syntax[i] == 'A' {
+		switch syntax[i] {
+		case 'A':
 			source = g.dists.Articles()
-		} else if syntax[i] == 'J' {
+		case 'J':
 			source = g.dists.Adjectives()
-		} else if syntax[i] == 'D' {
+		case 'D':
 			source = g.dists.Adverbs()
-		} else if syntax[i] == 'N' {
+		case 'N':
 			source = g.dists.Nouns()
-		} else if syntax[i] == ',' {
+		case ',':
 			g.erase(1)
 			g.writeString(", ")
 			continue
-		} else if syntax[i] == ' ' {
+		case ' ':
 			continue
-		} else {
+		default:
 			panic(fmt.Errorf("unknown token: %v", syntax[i]))
 		}
 		word := g.rand(source)
@@ -265,20 +267,21 @@ func (g *textPoolGen) generateNounPhrase() {
 func (g *textPoolGen) generateSentence() {
 	syntax := g.rand(g.dists.Grammars())
 	for i := 0; i < len(syntax); i += 2 {
-		if syntax[i] == 'V' {
+		switch syntax[i] {
+		case 'V':
 			g.generateVerbPhrase()
-		} else if syntax[i] == 'N' {
+		case 'N':
 			g.generateNounPhrase()
-		} else if syntax[i] == 'P' {
+		case 'P':
 			preposition := g.rand(g.dists.Prepositions())
 			g.write(preposition)
 			g.writeString(" the ")
 			g.generateNounPhrase()
-		} else if syntax[i] == 'T' {
+		case 'T':
 			g.erase(1)
 			terminator := g.rand(g.dists.Terminators())
 			g.write(terminator)
-		} else {
+		default:
 			panic(fmt.Errorf("unknown token: %v", syntax[i]))
 		}
 		if g.last != ' ' {

@@ -6,5 +6,5 @@ import (
 )
 
 func TestAsm(t *testing.T) {
-	fmt.Println(__addints(3, 4))
+	fmt.Printf("%x\n", __addints(3, 4))
 }
