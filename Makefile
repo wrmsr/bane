@@ -38,47 +38,7 @@ ANTLR_VERSION=4.10.1
 
 .PHONY: gen-antlr
 gen-antlr:
-	af="antlr-${ANTLR_VERSION}-complete.jar" ; \
-	mkdir -p .cache ; \
-	afp=".cache/$$af" ; \
-	if [ ! -f "$$afp" ] ; then \
-  		curl "https://www.antlr.org/download/$$af" -o "$$afp" ; \
-  	fi ; \
-	mtime() { \
-		if [[ $$(uname) = "Darwin" ]] ; \
-		then stat -f %m "$$1" ; else stat -c %Y "$$1" ; fi \
-	} ; \
-  	wd="$$(pwd)" ; \
-  	for d in $$(find ${SRC} -name '*.g4' -exec dirname \{\} \; | sort | uniq) ; do \
-  	  	fs=$$(find "$$d" -name '*.g4' | sort) ; \
-  	  	nf=0 ; \
-  	  	for f in $$fs ; do \
-			mt=$$(mtime "$$f") ; \
-			bf="$${f%.*}" ; \
-			f2="$$(dirname $$bf)/parser/$$(basename $$bf).interp" ; \
-			if [ ! -f "$$f2" ] ; then \
-				nf=1 ; \
-			else \
-				mt2=$$(mtime "$$f2") ; \
-				if [ "$$mt" -gt "$$mt2" ] ; then nf=1 ; fi ; \
-			fi ; \
-  	  	done ; \
-		if [ $$nf -ne 0 ] ; then \
-			rm -rf "$$d/parser" ; \
-			for f in $$fs ; do \
-				echo "$$f" ; \
-				( \
-					cd $$(dirname "$$f") && \
-					java \
-						-jar "$$wd/$$afp" \
-						-Dlanguage=Go \
-						$$(basename "$$f") \
-						-visitor \
-						-o parser \
-				) ; \
-			done ; \
-		fi ; \
-	done
+	${GO} run "${MOD}/pkg/util/antlr/dev/gen" ${ANTLR_VERSION} ${SRC}
 
 .PHONY: gen-go
 gen-go:

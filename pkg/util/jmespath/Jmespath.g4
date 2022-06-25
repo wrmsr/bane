@@ -27,7 +27,6 @@ https://github.com/burtcorp/jmespath-java/blob/f119644209001be06bdc6382d6f5cc9c5
 */
 grammar Jmespath;
 
-
 singleExpression
     : expression EOF
     ;

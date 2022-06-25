@@ -3,19 +3,28 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	osu "github.com/wrmsr/bane/pkg/util/os"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 func main() {
 	check.Condition(check.Must(os.Stat(".cache")).IsDir())
+
+	// jarUrl := fmt.Sprintf("https://www.antlr.org/download/%s", jarFile)
+	antlrVer := os.Args[1]
+	jarName := fmt.Sprintf("antlr-%s-complete.jar", antlrVer)
+	jarPath := filepath.Join(check.Must(os.Getwd()), ".cache", jarName)
 
 	type g4File struct {
 		path string
@@ -23,7 +32,7 @@ func main() {
 	}
 
 	var g4s []g4File
-	for _, arg := range os.Args[1:] {
+	for _, arg := range os.Args[2:] {
 		check.NoErr(filepath.Walk(arg, func(path string, info fs.FileInfo, err error) error {
 			if strings.HasSuffix(info.Name(), ".g4") {
 				g4s = append(g4s, g4File{path, info})
@@ -65,7 +74,33 @@ func main() {
 	}
 
 	for dir, dirG4s := range needsBuildsByDir {
-		fmt.Println(dir)
-		fmt.Println(dirG4s)
+		parserDir := filepath.Join(dir, "parser")
+		if check.Must(osu.Exists(parserDir)) {
+			check.NoErr(os.RemoveAll(parserDir))
+		}
+
+		for _, g4 := range dirG4s {
+			func() {
+				fmt.Println(g4.path)
+
+				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
+				defer cancel()
+
+				cmd := exec.CommandContext(
+					ctx,
+					"java",
+					"-jar", jarPath,
+					"-Dlanguage=Go",
+					g4.info.Name(),
+					"-visitor",
+					"-o", "parser",
+				)
+				cmd.Dir = dir
+
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+				check.NoErr(cmd.Run())
+			}()
+		}
 	}
 }
