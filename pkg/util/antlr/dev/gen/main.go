@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/wrmsr/bane/pkg/util/check"
 	osu "github.com/wrmsr/bane/pkg/util/os"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -73,18 +75,22 @@ func main() {
 		}
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
+	defer cancel()
+
+	eg, ctx := errgroup.WithContext(ctx)
 	for dir, dirG4s := range needsBuildsByDir {
+		dir := dir
+
 		parserDir := filepath.Join(dir, "parser")
 		if check.Must(osu.Exists(parserDir)) {
 			check.NoErr(os.RemoveAll(parserDir))
 		}
 
 		for _, g4 := range dirG4s {
-			func() {
+			g4 := g4
+			eg.Go(func() error {
 				fmt.Println(g4.path)
-
-				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
-				defer cancel()
 
 				cmd := exec.CommandContext(
 					ctx,
@@ -99,8 +105,9 @@ func main() {
 
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
-				check.NoErr(cmd.Run())
-			}()
+				return cmd.Run()
+			})
 		}
 	}
+	check.NoErr(eg.Wait())
 }
