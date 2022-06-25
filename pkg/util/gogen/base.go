@@ -6,7 +6,6 @@ type Node interface {
 	isNode()
 }
 
-type node struct {
-}
+type node struct{}
 
 func (n node) isNode() {}
