@@ -47,10 +47,8 @@ func main() {
 				return nil
 			}
 
-			//check.NoErr(ioutil.WriteFile(path, []byte(newSrc), info.Mode().Perm()))
 			fmt.Println(path)
-			fmt.Println(src)
-			fmt.Println()
+			check.NoErr(ioutil.WriteFile(path, []byte(newSrc), info.Mode().Perm()))
 
 			numModified++
 			return nil
