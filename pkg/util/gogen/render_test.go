@@ -6,13 +6,22 @@ import (
 	"testing"
 
 	iou "github.com/wrmsr/bane/pkg/util/io"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
 )
 
 func TestBuilder(t *testing.T) {
-	n := NewIf(
-		NewLit("foo"),
+	n := NewFunc(
+		NewIdent("foo"),
+		nil,
+		opt.None[Type](),
 		NewBlock(
-			NewExprStmt(NewLit("bar")),
+
+			NewIf(
+				NewLit("foo"),
+				NewBlock(
+					NewExprStmt(NewLit("bar")),
+				),
+			),
 		),
 	)
 

@@ -94,9 +94,9 @@ func (o InfixOp) String() string {
 		return ">="
 
 	case AndOp:
-		return "AND"
+		return "&&"
 	case OrOp:
-		return "OR"
+		return "||"
 
 	}
 	panic(fmt.Errorf("invalid infix op: %d", o))
@@ -164,7 +164,7 @@ func (o UnaryOp) String() string {
 	switch o {
 
 	case NotOp:
-		return "NOT"
+		return "!"
 
 	}
 	panic(fmt.Errorf("invalid unary op: %d", o))

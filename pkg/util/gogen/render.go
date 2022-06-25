@@ -9,9 +9,33 @@ import (
 func Render(w *iou.IndentWriter, n Node) {
 	switch n := n.(type) {
 
+	// base
+
+	case Type:
+		Render(w, n.Name)
+
 	// decl
 
+	case Param:
+		Render(w, n.Name)
+		w.WriteString(" ")
+		Render(w, n.Type)
+
 	case Func:
+		w.WriteString("func ")
+		Render(w, n.Name)
+		w.WriteString("(")
+		for i, p := range n.Params {
+			if i > 0 {
+				w.WriteString(", ")
+			}
+			Render(w, p)
+		}
+		w.WriteString(")")
+		if n.Type.Present() {
+			Render(w, n.Type.Value())
+		}
+		Render(w, n.Body)
 
 	// expr
 
@@ -51,7 +75,7 @@ func Render(w *iou.IndentWriter, n Node) {
 			Render(w, s)
 		}
 		w.Dedent()
-		w.WriteString("}\n")
+		w.WriteString("}")
 
 	case If:
 		w.WriteString("if ")
