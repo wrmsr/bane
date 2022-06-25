@@ -93,18 +93,6 @@ check: check-dev check-fmt check-vet
 .PHONY: check-dev
 check-dev:
 	${GO} run "${MOD}/pkg/util/dev/cmd/checkdev" ${SRC}
-	r=0 ; \
-	for f in $$(( \
-		find ${SRC} -name 'dev.go' -or -name '*_dev.go' ; \
-		(find ${SRC} -name '*.go' | grep '/dev/') ; \
-	) | sort | uniq) ; do \
-  		if [[ "$$(head $$f)" != "//go:build !nodev"* ]] ; then \
-  		  	r=1; \
-			t=$$(mktemp) ; cat "$$f" > "$$t" ; \
-			(printf "//go:build !nodev\n\n" ; cat "$$t" ) > "$$f" ; \
-	  	fi ; \
-	done ; \
-	if [ $$r -ne 0 ] ; then exit 1 ; fi
 
 .PHONY: check-fmt
 check-fmt:

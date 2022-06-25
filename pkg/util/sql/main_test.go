@@ -1,5 +1,3 @@
-//go:build !nodev
-
 package sql
 
 import (
