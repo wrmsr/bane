@@ -34,15 +34,15 @@ var _ = func() any {
 }()
 
 var (
-	_bane_def_init_once sync.Once
+	_def_def_init_once sync.Once
 
-	_bane_def_field_default__Foo__baz int
+	_def_def_field_default__Foo__baz int
 
-	_bane_def_struct_inits__Foo [1]func(*Foo)
+	_def_def_struct_inits__Foo [1]func(*Foo)
 )
 
-func _bane_def_init() {
-	_bane_def_init_once.Do(func() {
+func _def_def_init() {
+	_def_def_init_once.Do(func() {
 		spec := def.X_getPackageSpec()
 
 		struct_spec__Foo := spec.Struct("Foo")
@@ -54,10 +54,9 @@ func _bane_def_init() {
 		field_spec__Foo__baz := struct_spec__Foo.Field("baz")
 		_ = field_spec__Foo__baz
 
-		_bane_def_field_default__Foo__baz = field_spec__Foo__baz.Default().(int)
+		_def_def_field_default__Foo__baz = field_spec__Foo__baz.Default().(int)
 
-		_bane_def_struct_inits__Foo[0] = struct_spec__Foo.Inits()[0].(func(*Foo))
-
+		_def_def_struct_inits__Foo[0] = struct_spec__Foo.Inits()[0].(func(*Foo))
 	})
 }
 
@@ -68,10 +67,10 @@ type Foo struct {
 }
 
 func (f *Foo) init() {
-	_bane_def_init()
+	_def_def_init()
 
-	f.baz = _bane_def_field_default__Foo__baz
+	f.baz = _def_def_field_default__Foo__baz
 
-	_bane_def_struct_inits__Foo[0](f)
+	_def_def_struct_inits__Foo[0](f)
 
 }

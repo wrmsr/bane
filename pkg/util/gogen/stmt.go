@@ -17,19 +17,6 @@ func (s stmt) isStmt() {}
 
 //
 
-type ExprStmt struct {
-	stmt
-	Expr Expr
-}
-
-func NewExprStmt(expr Expr) ExprStmt {
-	return ExprStmt{
-		Expr: check.NotNil(expr).(Expr),
-	}
-}
-
-//
-
 type Block struct {
 	stmt
 	Body []Stmt
@@ -43,6 +30,47 @@ func NewBlock(body ...Stmt) Block {
 
 func (b Block) Empty() bool {
 	return len(b.Body) < 1
+}
+
+//
+
+type Const struct {
+	stmt
+	Name  Ident
+	Value Expr
+}
+
+func NewConst(name Ident, value Expr) Const {
+	return Const{
+		Name:  name,
+		Value: value,
+	}
+}
+
+//
+
+type Consts struct {
+	stmt
+	Consts []Const
+}
+
+func NewConsts(consts []Const) Consts {
+	return Consts{
+		Consts: consts,
+	}
+}
+
+//
+
+type ExprStmt struct {
+	stmt
+	Expr Expr
+}
+
+func NewExprStmt(expr Expr) ExprStmt {
+	return ExprStmt{
+		Expr: check.NotNil(expr).(Expr),
+	}
 }
 
 //
@@ -68,6 +96,21 @@ func NewIf(cond Expr, then Block) If {
 
 //
 
+type ShortVar struct {
+	stmt
+	Name  Ident
+	Value Expr
+}
+
+func NewShortVar(name Ident, value Expr) ShortVar {
+	return ShortVar{
+		Name:  name,
+		Value: value,
+	}
+}
+
+//
+
 type Var struct {
 	stmt
 	Name Ident
@@ -83,15 +126,13 @@ func NewVar(name Ident, type_ Type) Var {
 
 //
 
-type ShortVar struct {
+type Vars struct {
 	stmt
-	Name  Ident
-	Value Expr
+	Vars []Var
 }
 
-func NewShortVar(name Ident, value Expr) ShortVar {
-	return ShortVar{
-		Name:  name,
-		Value: value,
+func NewVars(vars []Var) Vars {
+	return Vars{
+		Vars: vars,
 	}
 }

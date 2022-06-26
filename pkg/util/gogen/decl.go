@@ -20,6 +20,31 @@ func (e decl) isDecl() {}
 
 //
 
+type Func struct {
+	decl
+	Receiver opt.Optional[Param]
+	Name     opt.Optional[Ident]
+	Params   []Param
+	Type     opt.Optional[Type]
+	Body     Block
+}
+
+func NewMethod(receiver opt.Optional[Param], name opt.Optional[Ident], params []Param, type_ opt.Optional[Type], body Block) Func {
+	return Func{
+		Receiver: receiver,
+		Name:     name,
+		Params:   params,
+		Type:     type_,
+		Body:     body,
+	}
+}
+
+func NewFunc(name opt.Optional[Ident], params []Param, type_ opt.Optional[Type], body Block) Func {
+	return NewMethod(opt.None[Param](), name, params, type_, body)
+}
+
+//
+
 type Import struct {
 	node
 	Spec  string
@@ -67,25 +92,6 @@ func NewParam(name Ident, type_ Type) Param {
 
 //
 
-type Func struct {
-	decl
-	Name   Ident
-	Params []Param
-	Type   opt.Optional[Type]
-	Body   Block
-}
-
-func NewFunc(name Ident, params []Param, type_ opt.Optional[Type], body Block) Func {
-	return Func{
-		Name:   name,
-		Params: params,
-		Type:   type_,
-		Body:   body,
-	}
-}
-
-//
-
 type StmtDecl struct {
 	decl
 	Stmt Stmt
@@ -94,5 +100,35 @@ type StmtDecl struct {
 func NewStmtDecl(stmt Stmt) StmtDecl {
 	return StmtDecl{
 		Stmt: stmt,
+	}
+}
+
+//
+
+type Struct struct {
+	decl
+	Name   Ident
+	Fields []StructField
+}
+
+func NewStruct(name Ident, fields []StructField) Struct {
+	return Struct{
+		Name:   name,
+		Fields: fields,
+	}
+}
+
+//
+
+type StructField struct {
+	node
+	Name Ident
+	Type Type
+}
+
+func NewStructField(name Ident, type_ Type) StructField {
+	return StructField{
+		Name: name,
+		Type: type_,
 	}
 }

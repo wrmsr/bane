@@ -11,7 +11,7 @@ import (
 
 func TestBuilder(t *testing.T) {
 	n := NewFunc(
-		NewIdent("foo"),
+		opt.Just(NewIdent("foo")),
 		[]Param{
 			NewParam(
 				NewIdent("x"),

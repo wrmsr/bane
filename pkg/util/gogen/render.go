@@ -7,6 +7,27 @@ import (
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
 
+func renderFunc(w *iou.IndentWriter, n Func) {
+	if n.Name.Present() {
+		w.WriteString("func ")
+		Render(w, n.Name.Value())
+	} else {
+		w.WriteString("func")
+	}
+	w.WriteString("(")
+	for i, p := range n.Params {
+		if i > 0 {
+			w.WriteString(", ")
+		}
+		Render(w, p)
+	}
+	w.WriteString(")")
+	if n.Type.Present() {
+		Render(w, n.Type.Value())
+	}
+	Render(w, n.Body)
+}
+
 func renderImport(w *iou.IndentWriter, n Import) {
 	if n.Alias.Present() {
 		Render(w, n.Alias.Value())
@@ -18,12 +39,30 @@ func renderImport(w *iou.IndentWriter, n Import) {
 	w.WriteString("\n")
 }
 
+func renderConst(w *iou.IndentWriter, n Const) {
+	Render(w, n.Name)
+	w.WriteString(" ")
+	Render(w, n.Value)
+	w.WriteString("\n")
+}
+
+func renderVar(w *iou.IndentWriter, n Var) {
+	Render(w, n.Name)
+	w.WriteString(" ")
+	Render(w, n.Type)
+	w.WriteString("\n")
+}
+
 func Render(w *iou.IndentWriter, n Node) {
 	switch n := n.(type) {
 
 	// base
 
 	// decl
+
+	case Func:
+		renderFunc(w, n)
+		w.WriteString("\n")
 
 	case Import:
 		w.WriteString("import ")
@@ -44,21 +83,21 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString(" ")
 		Render(w, n.Type)
 
-	case Func:
-		w.WriteString("func ")
+	case Struct:
+		w.WriteString("type ")
 		Render(w, n.Name)
-		w.WriteString("(")
-		for i, p := range n.Params {
-			if i > 0 {
-				w.WriteString(", ")
-			}
-			Render(w, p)
+		w.WriteString("struct {")
+		w.Indent()
+		for _, f := range n.Fields {
+			Render(w, f)
 		}
-		w.WriteString(")")
-		if n.Type.Present() {
-			Render(w, n.Type.Value())
-		}
-		Render(w, n.Body)
+		w.Dedent()
+		w.WriteString(")\n")
+
+	case StructField:
+		Render(w, n.Name)
+		w.WriteString(" ")
+		Render(w, n.Type)
 		w.WriteString("\n")
 
 	case StmtDecl:
@@ -67,40 +106,9 @@ func Render(w *iou.IndentWriter, n Node) {
 
 	// expr
 
-	case Lit:
-		w.WriteString(n.String)
-
-	case Ident:
-		w.WriteString(n.Name)
-
-	case InfixExpr:
-		for i, a := range n.Args {
-			if i > 0 {
-				w.WriteString(" ")
-				w.WriteString(n.Op.String())
-				w.WriteString(" ")
-			}
-			Render(w, a)
-		}
-
-	case UnaryExpr:
-		w.WriteString(n.Op.String())
-		w.WriteString(" ")
-		Render(w, n.Arg)
-
 	case Addr:
 		w.WriteString("&")
 		Render(w, n.Value)
-
-	case Deref:
-		w.WriteString("*")
-		Render(w, n.Value)
-
-	case Index:
-		Render(w, n.Value)
-		w.WriteString("[")
-		Render(w, n.Index)
-		w.WriteString("]")
 
 	case Call:
 		Render(w, n.Func)
@@ -113,16 +121,62 @@ func Render(w *iou.IndentWriter, n Node) {
 		}
 		w.WriteString(")")
 
+	case Deref:
+		w.WriteString("*")
+		Render(w, n.Value)
+
+	case Field:
+		Render(w, n.Value)
+		w.WriteString(".")
+		Render(w, n.Name)
+
+	case FuncExpr:
+		renderFunc(w, n.Func)
+
+	case Ident:
+		w.WriteString(n.Name)
+
+	case Index:
+		Render(w, n.Value)
+		w.WriteString("[")
+		Render(w, n.Index)
+		w.WriteString("]")
+
+	case InfixExpr:
+		for i, a := range n.Args {
+			if i > 0 {
+				w.WriteString(" ")
+				w.WriteString(n.Op.String())
+				w.WriteString(" ")
+			}
+			Render(w, a)
+		}
+
+	case Lit:
+		w.WriteString(n.String)
+
+	case Paren:
+		w.WriteString("(")
+		Render(w, n.Value)
+		w.WriteString(")")
+
+	case TypeAssert:
+		Render(w, n.Value)
+		w.WriteString(".(")
+		Render(w, n.Type)
+		w.WriteString(")")
+
+	case UnaryExpr:
+		w.WriteString(n.Op.String())
+		w.WriteString(" ")
+		Render(w, n.Arg)
+
 	// raw
 
 	case Raw:
 		w.WriteString(n.Raw)
 
 	// stmt
-
-	case ExprStmt:
-		Render(w, n.Expr)
-		w.WriteString("\n")
 
 	case Block:
 		w.WriteString("{\n")
@@ -132,6 +186,23 @@ func Render(w *iou.IndentWriter, n Node) {
 		}
 		w.Dedent()
 		w.WriteString("}")
+
+	case Const:
+		w.WriteString("const ")
+		renderConst(w, n)
+
+	case Consts:
+		w.WriteString("const (\n")
+		w.Indent()
+		for _, c := range n.Consts {
+			renderConst(w, c)
+		}
+		w.Dedent()
+		w.WriteString(")\n\n")
+
+	case ExprStmt:
+		Render(w, n.Expr)
+		w.WriteString("\n")
 
 	case If:
 		w.WriteString("if ")
@@ -144,25 +215,25 @@ func Render(w *iou.IndentWriter, n Node) {
 		}
 		w.WriteString("\n\n")
 
-	case Var:
-		w.WriteString("var ")
-		Render(w, n.Name)
-		w.WriteString(" ")
-		Render(w, n.Type)
-
 	case ShortVar:
 		Render(w, n.Name)
 		w.WriteString(" := ")
 		Render(w, n.Value)
 
+	case Var:
+		w.WriteString("var ")
+		renderVar(w, n)
+
+	case Vars:
+		w.WriteString("var (\n")
+		w.Indent()
+		for _, v := range n.Vars {
+			renderVar(w, v)
+		}
+		w.Dedent()
+		w.WriteString(")\n\n")
+
 	// type
-
-	case NameType:
-		Render(w, n.Name)
-
-	case Slice:
-		w.WriteString("[]")
-		Render(w, n.Elem)
 
 	case Array:
 		w.WriteString("[")
@@ -174,15 +245,22 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString("]")
 		Render(w, n.Elem)
 
-	case Ptr:
-		w.WriteString("*")
-		Render(w, n.Elem)
-
 	case Map:
 		w.WriteString("map[")
 		Render(w, n.Key)
 		w.WriteString("]")
 		Render(w, n.Value)
+
+	case NameType:
+		Render(w, n.Name)
+
+	case Ptr:
+		w.WriteString("*")
+		Render(w, n.Elem)
+
+	case Slice:
+		w.WriteString("[]")
+		Render(w, n.Elem)
 
 	//
 

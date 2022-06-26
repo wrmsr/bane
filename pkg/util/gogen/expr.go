@@ -21,14 +21,70 @@ func (e expr) isExpr() {}
 
 //
 
-type Lit struct {
+type Addr struct {
 	expr
-	String string
+	Value Expr
 }
 
-func NewLit(s string) Lit {
-	return Lit{
-		String: check.NotZero(s),
+func NewAddr(value Expr) Addr {
+	return Addr{
+		Value: value,
+	}
+}
+
+//
+
+type Call struct {
+	expr
+	Func Expr
+	Args []Expr
+}
+
+func NewCall(func_ Expr, args ...Expr) Call {
+	return Call{
+		Func: func_,
+		Args: args,
+	}
+}
+
+//
+
+type Deref struct {
+	expr
+	Value Expr
+}
+
+func NewDeref(value Expr) Deref {
+	return Deref{
+		Value: value,
+	}
+}
+
+//
+
+type Field struct {
+	expr
+	Value Expr
+	Name  Ident
+}
+
+func NewField(value Expr, name Ident) Field {
+	return Field{
+		Value: value,
+		Name:  name,
+	}
+}
+
+//
+
+type FuncExpr struct {
+	expr
+	Func Func
+}
+
+func NewFuncExpr(func_ Func) FuncExpr {
+	return FuncExpr{
+		Func: func_,
 	}
 }
 
@@ -47,6 +103,21 @@ func NewIdent(name string) Ident {
 
 //
 
+type Index struct {
+	expr
+	Value Expr
+	Index Expr
+}
+
+func NewIndex(value, index Expr) Index {
+	return Index{
+		Value: value,
+		Index: index,
+	}
+}
+
+//
+
 type InfixOp int8
 
 const (
@@ -56,6 +127,7 @@ const (
 	SubOp
 	MulOp
 	DivOp
+	ModOp
 
 	LtOp
 	LteOp
@@ -79,6 +151,8 @@ func (o InfixOp) String() string {
 		return "*"
 	case DivOp:
 		return "/"
+	case ModOp:
+		return "%"
 
 	case LtOp:
 		return "<"
@@ -139,6 +213,7 @@ func Add(args ...Expr) Expr { return NewInfixExprOrSelf(AddOp, args...) }
 func Sub(args ...Expr) Expr { return NewInfixExprOrSelf(SubOp, args...) }
 func Mul(args ...Expr) Expr { return NewInfixExprOrSelf(MulOp, args...) }
 func Div(args ...Expr) Expr { return NewInfixExprOrSelf(DivOp, args...) }
+func Mod(args ...Expr) Expr { return NewInfixExprOrSelf(ModOp, args...) }
 
 func Lt(args ...Expr) Expr  { return NewInfixExprOrSelf(LtOp, args...) }
 func Lte(args ...Expr) Expr { return NewInfixExprOrSelf(LteOp, args...) }
@@ -149,6 +224,47 @@ func Gte(args ...Expr) Expr { return NewInfixExprOrSelf(GteOp, args...) }
 
 func And(args ...Expr) Expr { return NewInfixExprOrSelf(AndOp, args...) }
 func Or(args ...Expr) Expr  { return NewInfixExprOrSelf(OrOp, args...) }
+
+//
+
+type Lit struct {
+	expr
+	String string
+}
+
+func NewLit(s string) Lit {
+	return Lit{
+		String: check.NotZero(s),
+	}
+}
+
+//
+
+type Paren struct {
+	expr
+	Value Expr
+}
+
+func NewParen(value Expr) Paren {
+	return Paren{
+		Value: value,
+	}
+}
+
+//
+
+type TypeAssert struct {
+	expr
+	Value Expr
+	Type  Type
+}
+
+func NewTypeAssert(value Expr, type_ Type) TypeAssert {
+	return TypeAssert{
+		Value: value,
+		Type:  type_,
+	}
+}
 
 //
 
@@ -184,59 +300,3 @@ func NewUnaryExpr(op UnaryOp, arg Expr) UnaryExpr {
 }
 
 func Not(arg Expr) Expr { return NewUnaryExpr(NotOp, arg) }
-
-//
-
-type Addr struct {
-	expr
-	Value Expr
-}
-
-func NewAddr(value Expr) Addr {
-	return Addr{
-		Value: value,
-	}
-}
-
-//
-
-type Deref struct {
-	expr
-	Value Expr
-}
-
-func NewDeref(value Expr) Deref {
-	return Deref{
-		Value: value,
-	}
-}
-
-//
-
-type Index struct {
-	expr
-	Value Expr
-	Index Expr
-}
-
-func NewIndex(value, index Expr) Index {
-	return Index{
-		Value: value,
-		Index: index,
-	}
-}
-
-//
-
-type Call struct {
-	expr
-	Func Expr
-	Args []Expr
-}
-
-func NewCall(func_ Expr, args ...Expr) Call {
-	return Call{
-		Func: func_,
-		Args: args,
-	}
-}

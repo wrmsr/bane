@@ -71,7 +71,7 @@ type fileGenPkgData struct {
 
 func (fg *FileGen) makePkgData() *fileGenPkgData {
 	pd := &fileGenPkgData{
-		Ns:   "bane",
+		Ns:   "def",
 		Spec: fg.ps,
 	}
 
