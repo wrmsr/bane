@@ -9,12 +9,19 @@ import (
 )
 
 func renderFunc(w *iou.IndentWriter, n Func) {
-	if n.Name.Present() {
-		w.WriteString("func ")
-		Render(w, n.Name.Value())
-	} else {
-		w.WriteString("func")
+	w.WriteString("func")
+
+	if n.Receiver.Present() {
+		w.WriteString(" (")
+		Render(w, n.Receiver.Value())
+		w.WriteString(")")
 	}
+
+	if n.Name.Present() {
+		w.WriteString(" ")
+		Render(w, n.Name.Value())
+	}
+
 	w.WriteString("(")
 	for i, p := range n.Params {
 		if i > 0 {
@@ -23,9 +30,11 @@ func renderFunc(w *iou.IndentWriter, n Func) {
 		Render(w, p)
 	}
 	w.WriteString(")")
+
 	if n.Type.Present() {
 		Render(w, n.Type.Value())
 	}
+
 	if n.Body.Present() {
 		w.WriteString(" ")
 		Render(w, n.Body.Value())
@@ -92,13 +101,13 @@ func Render(w *iou.IndentWriter, n Node) {
 	case Struct:
 		w.WriteString("type ")
 		Render(w, n.Name)
-		w.WriteString("struct {")
+		w.WriteString(" struct {\n")
 		w.Indent()
 		for _, f := range n.Fields {
 			Render(w, f)
 		}
 		w.Dedent()
-		w.WriteString(")\n")
+		w.WriteString("}\n")
 
 	case StructField:
 		Render(w, n.Name)

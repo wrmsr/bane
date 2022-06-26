@@ -55,7 +55,7 @@ func TestDefBuilder(t *testing.T) {
 
 			_def_field_default__Foo__baz int
 
-			_def_struct_inits__Foo [1]func(*Foo)
+			_def_struct_inits__Foo__0 func(*Foo)
 		)
 	*/
 
@@ -76,7 +76,7 @@ func TestDefBuilder(t *testing.T) {
 	varsNode := NewVars([]Var{
 		NewVar(NewIdent("_def_init_once"), NewNameType(NewIdent("sync.Once"))),
 		NewVar(NewIdent("_def_field_default__Foo__baz"), NewNameType(NewIdent("int"))),
-		NewVar(NewIdent("_def_struct_inits__Foo"), NewArray(opt.Just(1), newPtrFuncType(NewNameType(NewIdent("Foo"))))),
+		NewVar(NewIdent("_def_struct_init__Foo__0"), newPtrFuncType(NewNameType(NewIdent("Foo")))),
 	})
 	fmt.Println(RenderString(varsNode))
 
@@ -127,7 +127,7 @@ func TestDefBuilder(t *testing.T) {
 								NewNameType(NewIdent("int")))),
 
 						NewAssign(
-							NewIndex(NewIdent("_def_struct_inits__Foo"), NewLit("0")),
+							NewIdent("_def_struct_init__Foo__0"),
 							NewTypeAssert(
 								NewIndex(NewCall(NewField(NewIdent("struct_spec__Foo"), NewIdent("Inits"))), NewLit("0")),
 								newPtrFuncType(NewNameType(NewIdent("Foo"))))),
@@ -146,6 +146,13 @@ func TestDefBuilder(t *testing.T) {
 		}
 	*/
 
+	structNode := NewStruct(
+		NewIdent("Foo"),
+		NewStructField(NewIdent("bar"), NewNameType(NewIdent("int"))),
+		NewStructField(NewIdent("baz"), NewNameType(NewIdent("int"))),
+	)
+	fmt.Println(RenderString(structNode))
+
 	/*
 		func (f *Foo) init() {
 			_def_init()
@@ -155,4 +162,17 @@ func TestDefBuilder(t *testing.T) {
 			_def_struct_inits__Foo[0](f)
 		}
 	*/
+
+	fooInitNode := NewFunc(
+		opt.Just(NewParam(opt.Just(NewIdent("f")), NewPtr(NewNameType(NewIdent("Foo"))))),
+		opt.Just(NewIdent("init")),
+		nil,
+		opt.None[Type](),
+		opt.Just(NewBlock(
+			NewExprStmt(NewCall(NewIdent("_def_init"))),
+			NewAssign(NewField(NewIdent("f"), NewIdent("baz")), NewIdent("_def_field_default__Foo__baz")),
+			NewExprStmt(NewCall(NewIdent("_def_struct_init__Foo__0"), NewIdent("f"))),
+		)),
+	)
+	fmt.Println(RenderString(fooInitNode))
 }

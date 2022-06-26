@@ -113,7 +113,7 @@ type Struct struct {
 	Fields []StructField
 }
 
-func NewStruct(name Ident, fields []StructField) Struct {
+func NewStruct(name Ident, fields ...StructField) Struct {
 	return Struct{
 		Name:   name,
 		Fields: fields,
