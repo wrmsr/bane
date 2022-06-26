@@ -17,6 +17,21 @@ func (s stmt) isStmt() {}
 
 //
 
+type Assign struct {
+	stmt
+	Var   Expr
+	Value Expr
+}
+
+func NewAssign(var_ Expr, value Expr) Assign {
+	return Assign{
+		Var:   var_,
+		Value: value,
+	}
+}
+
+//
+
 type Block struct {
 	stmt
 	Body []Stmt

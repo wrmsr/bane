@@ -133,8 +133,10 @@ func Render(w *iou.IndentWriter, n Node) {
 
 	case Field:
 		Render(w, n.Value)
-		w.WriteString(".")
-		Render(w, n.Name)
+		for _, a := range n.Names {
+			w.WriteString(".")
+			Render(w, a)
+		}
 
 	case FuncExpr:
 		renderFunc(w, n.Func)
@@ -183,6 +185,12 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString(n.Raw)
 
 	// stmt
+
+	case Assign:
+		Render(w, n.Var)
+		w.WriteString(" = ")
+		Render(w, n.Value)
+		w.WriteString("\n")
 
 	case Block:
 		w.WriteString("{\n")

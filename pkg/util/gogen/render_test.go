@@ -59,20 +59,24 @@ func TestDefBuilder(t *testing.T) {
 		)
 	*/
 
-	varsNode := NewVars([]Var{
-		NewVar(NewIdent("_def_init_once"), NewNameType(NewIdent("sync.Once"))),
-		NewVar(NewIdent("_def_field_default__Foo__baz"), NewNameType(NewIdent("int"))),
-		NewVar(NewIdent("_def_struct_inits__Foo"), NewArray(opt.Just(1), NewFuncType(
+	newPtrFuncType := func(elem Type) FuncType {
+		return NewFuncType(
 			NewFunc(
 				opt.None[Param](),
 				opt.None[Ident](),
 				[]Param{
-					NewParam(opt.None[Ident](), NewPtr(NewNameType(NewIdent("Foo")))),
+					NewParam(opt.None[Ident](), NewPtr(elem)),
 				},
 				opt.None[Type](),
 				opt.None[Block](),
 			),
-		))),
+		)
+	}
+
+	varsNode := NewVars([]Var{
+		NewVar(NewIdent("_def_init_once"), NewNameType(NewIdent("sync.Once"))),
+		NewVar(NewIdent("_def_field_default__Foo__baz"), NewNameType(NewIdent("int"))),
+		NewVar(NewIdent("_def_struct_inits__Foo"), NewArray(opt.Just(1), newPtrFuncType(NewNameType(NewIdent("Foo"))))),
 	})
 	fmt.Println(RenderString(varsNode))
 
@@ -83,12 +87,6 @@ func TestDefBuilder(t *testing.T) {
 
 				struct_spec__Foo := spec.Struct("Foo")
 				_ = struct_spec__Foo
-
-				field_spec__Foo__bar := struct_spec__Foo.Field("bar")
-				_ = field_spec__Foo__bar
-
-				field_spec__Foo__baz := struct_spec__Foo.Field("baz")
-				_ = field_spec__Foo__baz
 
 				_def_field_default__Foo__baz = field_spec__Foo__baz.Default().(int)
 
@@ -113,7 +111,26 @@ func TestDefBuilder(t *testing.T) {
 					nil,
 					opt.None[Type](),
 					opt.Just(NewBlock(
-						NewShortVar(NewIdent("spec"), NewField(NewIdent("def"), NewIdent("X_getPackageSpec"))),
+						NewShortVar(
+							NewIdent("spec"),
+							NewCall(NewField(NewIdent("def"), NewIdent("X_getPackageSpec")))),
+
+						NewShortVar(
+							NewIdent("struct_spec__Foo"),
+							NewCall(NewField(NewIdent("spec"), NewIdent("Struct")), NewLit("\"foo\""))),
+						NewAssign(NewIdent("_"), NewIdent("struct_spec__Foo")),
+
+						NewAssign(
+							NewIdent("_def_field_default__Foo__baz"),
+							NewTypeAssert(
+								NewCall(NewField(NewIdent("struct_spec__Foo"), NewIdent("Default"))),
+								NewNameType(NewIdent("int")))),
+
+						NewAssign(
+							NewIndex(NewIdent("_def_struct_inits__Foo"), NewLit("0")),
+							NewTypeAssert(
+								NewIndex(NewCall(NewField(NewIdent("struct_spec__Foo"), NewIdent("Inits"))), NewLit("0")),
+								newPtrFuncType(NewNameType(NewIdent("Foo"))))),
 					)),
 				)),
 			)),

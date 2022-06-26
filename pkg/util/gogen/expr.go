@@ -65,13 +65,13 @@ func NewDeref(value Expr) Deref {
 type Field struct {
 	expr
 	Value Expr
-	Name  Ident
+	Names []Ident
 }
 
-func NewField(value Expr, name Ident) Field {
+func NewField(value Expr, names ...Ident) Field {
 	return Field{
 		Value: value,
-		Name:  name,
+		Names: names,
 	}
 }
 
