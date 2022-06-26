@@ -77,8 +77,8 @@ func TestDefBuilder(t *testing.T) {
 	fmt.Println(RenderString(varsNode))
 
 	/*
-		func _def_def_init() {
-			_def_def_init_once.Do(func() {
+		func _def_init() {
+			_def_init_once.Do(func() {
 				spec := def.X_getPackageSpec()
 
 				struct_spec__Foo := spec.Struct("Foo")
@@ -90,12 +90,36 @@ func TestDefBuilder(t *testing.T) {
 				field_spec__Foo__baz := struct_spec__Foo.Field("baz")
 				_ = field_spec__Foo__baz
 
-				_def_def_field_default__Foo__baz = field_spec__Foo__baz.Default().(int)
+				_def_field_default__Foo__baz = field_spec__Foo__baz.Default().(int)
 
-				_def_def_struct_inits__Foo[0] = struct_spec__Foo.Inits()[0].(func(*Foo))
+				_def_struct_inits__Foo[0] = struct_spec__Foo.Inits()[0].(func(*Foo))
 			})
 		}
 	*/
+
+	//defInitOnceNode := NewFunc
+
+	defInitNode := NewFunc(
+		opt.None[Param](),
+		opt.Just(NewIdent("_def_init")),
+		nil,
+		opt.None[Type](),
+		opt.Just(NewBlock(
+			NewExprStmt(NewCall(
+				NewField(NewIdent("_def_init_once"), NewIdent("Do")),
+				NewFuncExpr(NewFunc(
+					opt.None[Param](),
+					opt.None[Ident](),
+					nil,
+					opt.None[Type](),
+					opt.Just(NewBlock(
+						NewShortVar(NewIdent("spec"), NewField(NewIdent("def"), NewIdent("X_getPackageSpec"))),
+					)),
+				)),
+			)),
+		)),
+	)
+	fmt.Println(RenderString(defInitNode))
 
 	/*
 		type Foo struct {
@@ -107,11 +131,11 @@ func TestDefBuilder(t *testing.T) {
 
 	/*
 		func (f *Foo) init() {
-			_def_def_init()
+			_def_init()
 
-			f.baz = _def_def_field_default__Foo__baz
+			f.baz = _def_field_default__Foo__baz
 
-			_def_def_struct_inits__Foo[0](f)
+			_def_struct_inits__Foo[0](f)
 		}
 	*/
 }

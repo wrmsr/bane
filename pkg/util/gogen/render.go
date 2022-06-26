@@ -225,6 +225,7 @@ func Render(w *iou.IndentWriter, n Node) {
 		Render(w, n.Name)
 		w.WriteString(" := ")
 		Render(w, n.Value)
+		w.WriteString("\n")
 
 	case Var:
 		w.WriteString("var ")
