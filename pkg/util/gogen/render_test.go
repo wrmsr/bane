@@ -48,16 +48,14 @@ func TestDefBuilder(t *testing.T) {
 			return nil
 		}()
 	*/
-
-	/*
-		var (
-			_def_init_once sync.Once
-
-			_def_field_default__Foo__baz int
-
-			_def_struct_inits__Foo__0 func(*Foo)
-		)
-	*/
+	expectsNode := NewVar(NewIdent("_"), opt.None[Type](), opt.Just[Expr](NewCall(NewFuncExpr(NewFunc(
+		opt.None[Param](),
+		opt.None[Ident](),
+		nil,
+		opt.Just[Type](NewNameType(NewIdent("any"))),
+		opt.Just(NewBlock()),
+	)))))
+	fmt.Println(RenderString(expectsNode))
 
 	newPtrFuncType := func(elem Type) FuncType {
 		return NewFuncType(
@@ -74,28 +72,11 @@ func TestDefBuilder(t *testing.T) {
 	}
 
 	varsNode := NewVars([]Var{
-		NewVar(NewIdent("_def_init_once"), NewNameType(NewIdent("sync.Once"))),
-		NewVar(NewIdent("_def_field_default__Foo__baz"), NewNameType(NewIdent("int"))),
-		NewVar(NewIdent("_def_struct_init__Foo__0"), newPtrFuncType(NewNameType(NewIdent("Foo")))),
+		NewVar(NewIdent("_def_init_once"), opt.Just[Type](NewNameType(NewIdent("sync.Once"))), opt.None[Expr]()),
+		NewVar(NewIdent("_def_field_default__Foo__baz"), opt.Just[Type](NewNameType(NewIdent("int"))), opt.None[Expr]()),
+		NewVar(NewIdent("_def_struct_init__Foo__0"), opt.Just[Type](newPtrFuncType(NewNameType(NewIdent("Foo")))), opt.None[Expr]()),
 	})
 	fmt.Println(RenderString(varsNode))
-
-	/*
-		func _def_init() {
-			_def_init_once.Do(func() {
-				spec := def.X_getPackageSpec()
-
-				struct_spec__Foo := spec.Struct("Foo")
-				_ = struct_spec__Foo
-
-				_def_field_default__Foo__baz = field_spec__Foo__baz.Default().(int)
-
-				_def_struct_inits__Foo[0] = struct_spec__Foo.Inits()[0].(func(*Foo))
-			})
-		}
-	*/
-
-	//defInitOnceNode := NewFunc
 
 	defInitNode := NewFunc(
 		opt.None[Param](),
@@ -138,30 +119,12 @@ func TestDefBuilder(t *testing.T) {
 	)
 	fmt.Println(RenderString(defInitNode))
 
-	/*
-		type Foo struct {
-			bar int
-
-			baz int
-		}
-	*/
-
 	structNode := NewStruct(
 		NewIdent("Foo"),
 		NewStructField(NewIdent("bar"), NewNameType(NewIdent("int"))),
 		NewStructField(NewIdent("baz"), NewNameType(NewIdent("int"))),
 	)
 	fmt.Println(RenderString(structNode))
-
-	/*
-		func (f *Foo) init() {
-			_def_init()
-
-			f.baz = _def_field_default__Foo__baz
-
-			_def_struct_inits__Foo[0](f)
-		}
-	*/
 
 	fooInitNode := NewFunc(
 		opt.Just(NewParam(opt.Just(NewIdent("f")), NewPtr(NewNameType(NewIdent("Foo"))))),

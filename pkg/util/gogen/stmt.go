@@ -1,6 +1,9 @@
 package gogen
 
-import "github.com/wrmsr/bane/pkg/util/check"
+import (
+	"github.com/wrmsr/bane/pkg/util/check"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
+)
 
 //
 
@@ -128,14 +131,16 @@ func NewShortVar(name Ident, value Expr) ShortVar {
 
 type Var struct {
 	stmt
-	Name Ident
-	Type Type
+	Name  Ident
+	Type  opt.Optional[Type]
+	Value opt.Optional[Expr]
 }
 
-func NewVar(name Ident, type_ Type) Var {
+func NewVar(name Ident, type_ opt.Optional[Type], value opt.Optional[Expr]) Var {
 	return Var{
-		Name: name,
-		Type: type_,
+		Name:  name,
+		Type:  type_,
+		Value: value,
 	}
 }
 

@@ -32,6 +32,7 @@ func renderFunc(w *iou.IndentWriter, n Func) {
 	w.WriteString(")")
 
 	if n.Type.Present() {
+		w.WriteString(" ")
 		Render(w, n.Type.Value())
 	}
 
@@ -61,8 +62,14 @@ func renderConst(w *iou.IndentWriter, n Const) {
 
 func renderVar(w *iou.IndentWriter, n Var) {
 	Render(w, n.Name)
-	w.WriteString(" ")
-	Render(w, n.Type)
+	if n.Type.Present() {
+		w.WriteString(" ")
+		Render(w, n.Type.Value())
+	}
+	if n.Value.Present() {
+		w.WriteString(" = ")
+		Render(w, n.Value.Value())
+	}
 	w.WriteString("\n")
 }
 
