@@ -3,6 +3,7 @@ package gogen
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
@@ -25,7 +26,10 @@ func renderFunc(w *iou.IndentWriter, n Func) {
 	if n.Type.Present() {
 		Render(w, n.Type.Value())
 	}
-	Render(w, n.Body)
+	if n.Body.Present() {
+		w.WriteString(" ")
+		Render(w, n.Body.Value())
+	}
 }
 
 func renderImport(w *iou.IndentWriter, n Import) {
@@ -79,8 +83,10 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString(")\n\n")
 
 	case Param:
-		Render(w, n.Name)
-		w.WriteString(" ")
+		if n.Name.Present() {
+			Render(w, n.Name.Value())
+			w.WriteString(" ")
+		}
 		Render(w, n.Type)
 
 	case Struct:
@@ -245,6 +251,9 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString("]")
 		Render(w, n.Elem)
 
+	case FuncType:
+		renderFunc(w, n.Func)
+
 	case Map:
 		w.WriteString("map[")
 		Render(w, n.Key)
@@ -267,4 +276,10 @@ func Render(w *iou.IndentWriter, n Node) {
 	default:
 		panic(fmt.Errorf("unhandled node type: %T", n))
 	}
+}
+
+func RenderString(n Node) string {
+	var sb strings.Builder
+	Render(iou.NewIndentWriter(iou.NewDiscardStringWriter(&sb), "\t"), n)
+	return sb.String()
 }

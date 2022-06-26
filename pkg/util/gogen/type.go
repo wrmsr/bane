@@ -32,6 +32,19 @@ func NewArray(len_ opt.Optional[int], elem Type) Array {
 
 //
 
+type FuncType struct {
+	type_
+	Func Func
+}
+
+func NewFuncType(func_ Func) FuncType {
+	return FuncType{
+		Func: func_,
+	}
+}
+
+//
+
 type Map struct {
 	type_
 	Key   Type

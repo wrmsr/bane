@@ -26,10 +26,16 @@ type Func struct {
 	Name     opt.Optional[Ident]
 	Params   []Param
 	Type     opt.Optional[Type]
-	Body     Block
+	Body     opt.Optional[Block]
 }
 
-func NewMethod(receiver opt.Optional[Param], name opt.Optional[Ident], params []Param, type_ opt.Optional[Type], body Block) Func {
+func NewFunc(
+	receiver opt.Optional[Param],
+	name opt.Optional[Ident],
+	params []Param,
+	type_ opt.Optional[Type],
+	body opt.Optional[Block],
+) Func {
 	return Func{
 		Receiver: receiver,
 		Name:     name,
@@ -37,10 +43,6 @@ func NewMethod(receiver opt.Optional[Param], name opt.Optional[Ident], params []
 		Type:     type_,
 		Body:     body,
 	}
-}
-
-func NewFunc(name opt.Optional[Ident], params []Param, type_ opt.Optional[Type], body Block) Func {
-	return NewMethod(opt.None[Param](), name, params, type_, body)
 }
 
 //
@@ -79,11 +81,11 @@ func NewImports(imports []Import) Imports {
 
 type Param struct {
 	node
-	Name Ident
+	Name opt.Optional[Ident]
 	Type Type
 }
 
-func NewParam(name Ident, type_ Type) Param {
+func NewParam(name opt.Optional[Ident], type_ Type) Param {
 	return Param{
 		Name: name,
 		Type: type_,
