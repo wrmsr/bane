@@ -3,12 +3,13 @@ module github.com/wrmsr/bane
 go 1.18
 
 require (
-	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220625170237-e4cec2039bfb
+	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220626175859-9abda183db8e
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/mattn/go-sqlite3 v1.14.13
+	golang.org/x/arch v0.0.0-20220412001346-fc48f9fe4c15
 	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f

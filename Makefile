@@ -25,7 +25,7 @@ clean:
 
 .PHONY: deps
 deps:
-	${GO} get -u ./...
+	${GO} get ./...
 
 .PHONY: dep-update
 dep-update:
