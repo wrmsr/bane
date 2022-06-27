@@ -121,3 +121,32 @@ func (m setMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
 }
 
 //
+
+type mutSetMap[K comparable, V any] struct {
+	setMap[K, V]
+	s MutSet[K]
+}
+
+func MutSetMap[K comparable, V any](s MutSet[K]) MutMap[K, V] {
+	return mutSetMap[K, V]{setMap: setMap[K, V]{s: s}, s: s}
+}
+
+var _ MutMap[int, string] = mutSetMap[int, string]{}
+
+func (s mutSetMap[K, V]) isMutable() {}
+
+func (s mutSetMap[K, V]) Put(k K, v V) {
+	s.s.Add(k)
+}
+
+func (s mutSetMap[K, V]) Delete(k K) {
+	s.s.Remove(k)
+}
+
+func (s mutSetMap[K, V]) Default(k K, v V) bool {
+	if s.s.Contains(k) {
+		return false
+	}
+	s.s.Add(k)
+	return true
+}
