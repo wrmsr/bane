@@ -9,7 +9,7 @@ import (
 
 type Set[T comparable] interface {
 	Len() int
-	Contains(T) bool
+	Contains(v T) bool
 
 	its.Iterable[T]
 	its.Traversable[T]
@@ -19,10 +19,10 @@ type MutSet[T comparable] interface {
 	Set[T]
 	Mutable
 
-	Add(value T)
-	TryAdd(value T) bool
-	Remove(value T)
-	TryRemove(value T) bool
+	Add(v T)
+	TryAdd(v T) bool
+	Remove(v T)
+	TryRemove(v T) bool
 }
 
 //
