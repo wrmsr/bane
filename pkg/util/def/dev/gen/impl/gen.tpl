@@ -2,11 +2,11 @@
 
 {{define "fieldExpects"}}
     "{{.Spec.Name}}": {
-        Ty: def.Type[int]().Ty.(reflect.Type),
+    Ty: def.Type[int]().Ty.(reflect.Type),
 
-        {{if not (kindIs "invalid" .Spec.Default)}}
-            HasDefault: true,
-        {{end}}
+    {{if not (kindIs "invalid" .Spec.Default)}}
+        HasDefault: true,
+    {{end}}
     },
 {{end}}
 
@@ -40,12 +40,12 @@
 
 {{define "structExpects"}}
     "{{.Spec.Name}}": {
-        Fields: map[string]def.X_fieldExpect{
-            {{range $_, $v := .Fields}}
-                {{include "fieldExpects" $v}}
-            {{end}}
-        },
-        NumInits: {{.Spec.Inits | len}},
+    Fields: map[string]def.X_fieldExpect{
+    {{range $_, $v := .Fields}}
+        {{include "fieldExpects" $v}}
+    {{end}}
+    },
+    NumInits: {{.Spec.Inits | len}},
     },
 {{end}}
 
@@ -72,21 +72,21 @@
 
 {{define "structDecls"}}
     type {{.Spec.Name}} struct {
-        {{range $_, $v := .Fields -}}
-            {{include "fieldDecls" $v}}
-        {{- end}}
+    {{range $_, $v := .Fields -}}
+        {{include "fieldDecls" $v}}
+    {{- end}}
     }
 
     func (f *{{.Spec.Name}}) init() {
-        _{{.Pkg.Ns}}_def_init()
+    _{{.Pkg.Ns}}_def_init()
 
-        {{range $_, $v := .Fields -}}
-            {{include "fieldInitMethod" $v}}
-        {{- end}}
+    {{range $_, $v := .Fields -}}
+        {{include "fieldInitMethod" $v}}
+    {{- end}}
 
-        {{range $i := intRange 0 (.Spec.Inits | len) -}}
-            _{{$.Pkg.Ns}}_def_struct_inits__{{$.Spec.Name}}[{{$i}}](f)
-        {{end}}
+    {{range $i := intRange 0 (.Spec.Inits | len) -}}
+        _{{$.Pkg.Ns}}_def_struct_inits__{{$.Spec.Name}}[{{$i}}](f)
+    {{end}}
     }
 {{end}}
 
@@ -95,36 +95,36 @@
 
 {{define "packageExpects"}}
     var _ = func() any {
-        def.X_addPackageDef(def.X_packageExpect{
-            Structs: map[string]def.X_structExpect{
-                {{range $_, $v := .Structs}}
-                    {{include "structExpects" $v}}
-                {{end}}
-            },
-        })
-        return nil
+    def.X_addPackageDef(def.X_packageExpect{
+    Structs: map[string]def.X_structExpect{
+    {{range $_, $v := .Structs}}
+        {{include "structExpects" $v}}
+    {{end}}
+    },
+    })
+    return nil
     }()
 {{end}}
 
 {{define "packageVars"}}
     var (
-        _{{.Ns}}_def_init_once sync.Once
+    _{{.Ns}}_def_init_once sync.Once
 
-        {{range $_, $v := .Structs -}}
-            {{include "structVars" $v}}
-        {{- end}}
+    {{range $_, $v := .Structs -}}
+        {{include "structVars" $v}}
+    {{- end}}
     )
 {{end}}
 
 {{define "packageInit"}}
     func _{{.Ns}}_def_init() {
-        _{{.Ns}}_def_init_once.Do(func() {
-            spec := def.X_getPackageSpec()
+    _{{.Ns}}_def_init_once.Do(func() {
+    spec := def.X_getPackageSpec()
 
-            {{range $_, $v := .Structs -}}
-                {{include "structInit" $v}}
-            {{- end}}
-        })
+    {{range $_, $v := .Structs -}}
+        {{include "structInit" $v}}
+    {{- end}}
+    })
     }
 {{end}}
 

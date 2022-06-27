@@ -48,6 +48,10 @@ func Fatal(msg any, args ...Arg) {
 	global().Fatal(fmt.Sprint(msg), args...)
 }
 
+func IfError(err error, args ...Arg) { global().IfError(err, args...) }
+func IfPanic(err error, args ...Arg) { global().IfError(err, args...) }
+func IfFatal(err error, args ...Arg) { global().IfError(err, args...) }
+
 func OrError(fn func() error, args ...Arg) { global().OrError(fn, args...) }
 func OrPanic(fn func() error, args ...Arg) { global().OrError(fn, args...) }
 func OrFatal(fn func() error, args ...Arg) { global().OrError(fn, args...) }

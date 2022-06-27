@@ -77,6 +77,10 @@ type Logger interface {
 	Panic(msg string, args ...Arg)
 	Fatal(msg string, args ...Arg)
 
+	IfError(err error, args ...Arg)
+	IfPanic(err error, args ...Arg)
+	IfFatal(err error, args ...Arg)
+
 	OrError(fn func() error, args ...Arg)
 	OrPanic(fn func() error, args ...Arg)
 	OrFatal(fn func() error, args ...Arg)
@@ -102,6 +106,24 @@ func (l loggerImpl) Warn(msg string, args ...Arg)  { l.Log(WarnLevel, msg, args.
 func (l loggerImpl) Error(msg string, args ...Arg) { l.Log(ErrorLevel, msg, args...) }
 func (l loggerImpl) Panic(msg string, args ...Arg) { l.Log(PanicLevel, msg, args...) }
 func (l loggerImpl) Fatal(msg string, args ...Arg) { l.Log(FatalLevel, msg, args...) }
+
+func (l loggerImpl) IfError(err error, args ...Arg) {
+	if err != nil {
+		l.Log(ErrorLevel, "error", append(args, Err(err))...)
+	}
+}
+
+func (l loggerImpl) IfPanic(err error, args ...Arg) {
+	if err != nil {
+		l.Log(PanicLevel, "error", append(args, Err(err))...)
+	}
+}
+
+func (l loggerImpl) IfFatal(err error, args ...Arg) {
+	if err != nil {
+		l.Log(FatalLevel, "error", append(args, Err(err))...)
+	}
+}
 
 func (l loggerImpl) OrError(fn func() error, args ...Arg) {
 	if err := fn(); err != nil {
