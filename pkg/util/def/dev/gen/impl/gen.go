@@ -18,7 +18,6 @@ type FileGen struct {
 	ps *def.PackageSpec
 
 	decls     []gg.Decl
-	varDecls  []gg.Var
 	initStmts []gg.Stmt
 }
 
@@ -46,7 +45,19 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 	sName := gg.NewIdent(ss.Name())
 	ssName := gg.NewIdent(fmt.Sprintf("struct_spec__%s", ss.Name()))
 
+	fg.initStmts = append(fg.initStmts,
+		gg.NewBlank(),
+
+		gg.NewShortVar(ssName,
+			gg.NewCall(
+				gg.NewField(gg.NewIdent("spec"), gg.NewIdent("Struct")),
+				gg.NewLit(fmt.Sprintf("\"%s\"", ss.Name())))),
+
+		gg.NewAssign(gg.NewIdent("_"), ssName),
+	)
+
 	var sfs []gg.StructField
+	var vds []gg.Var
 
 	initStmts := []gg.Stmt{
 		gg.NewExprStmt(gg.NewCall(gg.NewIdent("_def_init"))),
@@ -55,30 +66,36 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 	for _, fs := range ss.Fields() {
 		sfs = append(sfs, gg.NewStructField(gg.NewIdent(fs.Name()), gg.NewNameType(gg.NewIdent("int"))))
 
-		fg.initStmts = append(fg.initStmts,
-			gg.NewBlank(),
-			gg.NewShortVar(ssName,
-				gg.NewCall(
-					gg.NewField(gg.NewIdent("spec"), gg.NewIdent("Struct")),
-					gg.NewLit(fmt.Sprintf("\"%s\"", ss.Name())))),
-			gg.NewAssign(gg.NewIdent("_"), ssName),
-		)
-
 		if fs.Default() != nil {
+			fsName := gg.NewIdent(fmt.Sprintf("field_spec__%s__%s", ss.Name(), fs.Name()))
+
+			fg.initStmts = append(fg.initStmts,
+				gg.NewBlank(),
+
+				gg.NewShortVar(fsName,
+					gg.NewCall(
+						gg.NewField(ssName, gg.NewIdent("Field")),
+						gg.NewLit(fmt.Sprintf("\"%s\"", fs.Name())))),
+
+				gg.NewAssign(gg.NewIdent("_"), ssName),
+			)
+
 			dflName := gg.NewIdent(fmt.Sprintf("_def_field_default__%s__%s", ss.Name(), fs.Name()))
 
-			fg.varDecls = append(fg.varDecls,
+			vds = append(vds,
 				gg.NewVar(dflName, opt.Just[gg.Type](gg.NewNameType(gg.NewIdent("int"))), opt.None[gg.Expr]()))
 
 			fg.initStmts = append(fg.initStmts,
 				gg.NewBlank(),
+
 				gg.NewAssign(dflName,
 					gg.NewTypeAssert(
-						gg.NewCall(gg.NewField(ssName, gg.NewIdent("Default"))),
+						gg.NewCall(gg.NewField(fsName, gg.NewIdent("Default"))),
 						gg.NewNameType(gg.NewIdent("int")))))
 
 			initStmts = append(initStmts,
 				gg.NewBlank(),
+
 				gg.NewAssign(gg.NewField(gg.NewIdent("f"), gg.NewIdent(fs.Name())), dflName))
 		}
 	}
@@ -89,10 +106,11 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 		fg.initStmts = append(fg.initStmts, gg.NewBlank())
 		initStmts = append(initStmts, gg.NewBlank())
 	}
+
 	for i, _ := range ss.Inits() {
 		initName := gg.NewIdent(fmt.Sprintf("_def_struct_init__%s__%d", ss.Name(), i))
 
-		fg.varDecls = append(fg.varDecls,
+		vds = append(vds,
 			gg.NewVar(initName,
 				opt.Just[gg.Type](newPtrFuncType(gg.NewNameType(sName))), opt.None[gg.Expr]()))
 
@@ -104,6 +122,11 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 		initStmts = append(initStmts,
 			gg.NewExprStmt(gg.NewCall(initName, gg.NewIdent("f"))))
+	}
+
+	if len(vds) > 0 {
+		fg.decls = append(fg.decls,
+			gg.NewStmtDecl(gg.NewVars(vds)))
 	}
 
 	fg.decls = append(fg.decls,
@@ -137,7 +160,12 @@ func (fg *FileGen) Gen() string {
 			fg.initStmts,
 		)...)))
 
-	fg.decls = append(fg.decls,
+	fg.decls = slices.DeepFlatten[gg.Decl](
+		gg.NewStmtDecl(
+			gg.NewVar(
+				gg.NewIdent("_def_init_once"),
+				opt.Just[gg.Type](gg.NewNameType(gg.NewIdent("sync.Once"))), opt.None[gg.Expr]())),
+
 		gg.NewFunc(
 			opt.None[gg.Param](),
 			opt.Just(gg.NewIdent("_def_init")),
@@ -146,14 +174,13 @@ func (fg *FileGen) Gen() string {
 			opt.Just(gg.NewBlock(
 				gg.NewExprStmt(gg.NewCall(
 					gg.NewField(gg.NewIdent("_def_init_once"), gg.NewIdent("Do")),
-					gg.NewFuncExpr(doInit)))))))
+					gg.NewFuncExpr(doInit)))))),
+
+		fg.decls)
 
 	var sb strings.Builder
 	sw := iou.NewIndentWriter(iou.NewDiscardStringWriter(&sb), "\t")
-	for i, n := range fg.decls {
-		if i > 0 {
-			sw.WriteString("\n")
-		}
+	for _, n := range fg.decls {
 		gg.Render(sw, n)
 	}
 	return sb.String()

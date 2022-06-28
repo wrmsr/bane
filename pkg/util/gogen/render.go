@@ -87,7 +87,6 @@ func Render(w *iou.IndentWriter, n Node) {
 	case Import:
 		w.WriteString("import ")
 		renderImport(w, n)
-		w.WriteString("\n")
 
 	case Imports:
 		w.WriteString("import (\n")
@@ -96,7 +95,7 @@ func Render(w *iou.IndentWriter, n Node) {
 			renderImport(w, i)
 		}
 		w.Dedent()
-		w.WriteString(")\n\n")
+		w.WriteString(")\n")
 
 	case Param:
 		if n.Name.Present() {
@@ -125,7 +124,6 @@ func Render(w *iou.IndentWriter, n Node) {
 
 	case StmtDecl:
 		Render(w, n.Stmt)
-		w.WriteString("\n")
 
 	// expr
 
@@ -232,7 +230,7 @@ func Render(w *iou.IndentWriter, n Node) {
 			renderConst(w, c)
 		}
 		w.Dedent()
-		w.WriteString(")\n\n")
+		w.WriteString(")\n")
 
 	case ExprStmt:
 		Render(w, n.Expr)
@@ -247,7 +245,7 @@ func Render(w *iou.IndentWriter, n Node) {
 			w.WriteString("else ")
 			Render(w, n.Else)
 		}
-		w.WriteString("\n\n")
+		w.WriteString("\n")
 
 	case ShortVar:
 		Render(w, n.Name)
@@ -266,7 +264,7 @@ func Render(w *iou.IndentWriter, n Node) {
 			renderVar(w, v)
 		}
 		w.Dedent()
-		w.WriteString(")\n\n")
+		w.WriteString(")\n")
 
 	// type
 
