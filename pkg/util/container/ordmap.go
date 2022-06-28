@@ -12,12 +12,12 @@ import (
 
 //
 
-type OrdMap[K comparable, V any] interface {
+type OrdMap[K, V any] interface {
 	Map[K, V]
 	Ordered
 }
 
-type MutOrdMap[K comparable, V any] interface {
+type MutOrdMap[K, V any] interface {
 	OrdMap[K, V]
 	MutMap[K, V]
 }

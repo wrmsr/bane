@@ -45,6 +45,7 @@ RUN ( \
         software-properties-common \
         strace \
         tcpdump \
+        telnet \
         tmux \
         unzip \
         vim \

@@ -2,7 +2,7 @@ package container
 
 //
 
-type PerMap[K comparable, V any] interface {
+type PerMap[K, V any] interface {
 	Map[K, V]
 	Persistent
 

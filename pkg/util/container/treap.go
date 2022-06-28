@@ -240,18 +240,18 @@ func (n *TreapNode[T]) join(other *TreapNode[T]) *TreapNode[T] {
 
 //
 
-type treapMapComparer[K comparable, V any] func(kv1, kv2 bt.Kv[K, V]) int
+type treapMapComparer[K, V any] func(kv1, kv2 bt.Kv[K, V]) int
 
 func (c treapMapComparer[K, V]) Compare(kv1, kv2 bt.Kv[K, V]) int {
 	return c(kv1, kv2)
 }
 
-type treapMap[K comparable, V any] struct {
+type treapMap[K, V any] struct {
 	n *TreapNode[bt.Kv[K, V]]
 	c Comparer[bt.Kv[K, V]]
 }
 
-func NewTreapMap[K comparable, V any](cmp Comparer[K]) PerMap[K, V] {
+func NewTreapMap[K, V any](cmp Comparer[K]) PerMap[K, V] {
 	return treapMap[K, V]{
 		c: treapMapComparer[K, V](func(v1, v2 bt.Kv[K, V]) int {
 			return cmp.Compare(v1.K, v2.K)

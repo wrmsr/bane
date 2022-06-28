@@ -7,7 +7,7 @@ import (
 
 //
 
-type Map[K comparable, V any] interface {
+type Map[K, V any] interface {
 	Len() int
 	Contains(k K) bool
 	Get(k K) V
@@ -17,7 +17,7 @@ type Map[K comparable, V any] interface {
 	its.Traversable[bt.Kv[K, V]]
 }
 
-type MutMap[K comparable, V any] interface {
+type MutMap[K, V any] interface {
 	Map[K, V]
 	Mutable
 

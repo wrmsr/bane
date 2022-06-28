@@ -7,7 +7,7 @@ import (
 
 //
 
-type Set[T comparable] interface {
+type Set[T any] interface {
 	Len() int
 	Contains(v T) bool
 
@@ -15,7 +15,7 @@ type Set[T comparable] interface {
 	its.Traversable[T]
 }
 
-type MutSet[T comparable] interface {
+type MutSet[T any] interface {
 	Set[T]
 	Mutable
 

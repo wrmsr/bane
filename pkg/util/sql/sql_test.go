@@ -15,7 +15,7 @@ import (
 )
 
 func TestPgx(t *testing.T) {
-	databaseUrl := "postgres://bane:bane@localhost:32221/postgres"
+	databaseUrl := "postgres://bane:bane@localhost:33222/postgres"
 
 	dbPool := check.Must(pgxpool.Connect(context.Background(), databaseUrl))
 	defer dbPool.Close()
@@ -28,7 +28,7 @@ func TestPgx(t *testing.T) {
 }
 
 func TestMysql(t *testing.T) {
-	db := check.Must(sql.Open("mysql", "bane:bane@tcp(127.0.0.1:32220)/"))
+	db := check.Must(sql.Open("mysql", "bane:bane@tcp(127.0.0.1:33221)/"))
 	defer log.OrError(db.Close)
 
 	var version string
