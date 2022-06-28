@@ -27,24 +27,26 @@ type FieldSpec struct {
 }
 
 func NewFieldSpec(name string, defs []FieldDef) *FieldSpec {
-	var ty any
-	var dfl any
+	fs := &FieldSpec{
+		name: name,
+		defs: defs,
+	}
 
 	for _, d := range defs {
 		for _, o := range d.Opts {
 			switch o := o.(type) {
 
 			case TypeOpt:
-				if ty != nil {
+				if fs.ty != nil {
 					panic(RegistryError{fmt.Errorf("duplicate types: %s", name)})
 				}
-				ty = o.Ty
+				fs.ty = o.Ty
 
 			case DefaultOpt:
-				if dfl != nil {
+				if fs.dfl != nil {
 					panic(RegistryError{fmt.Errorf("duplicate defaults: %s", name)})
 				}
-				dfl = o.Val
+				fs.dfl = o.Val
 
 			default:
 				panic(RegistryError{fmt.Errorf("%T", o)})
@@ -52,20 +54,14 @@ func NewFieldSpec(name string, defs []FieldDef) *FieldSpec {
 		}
 	}
 
-	if ty == nil {
-		if dfl == nil {
+	if fs.ty == nil {
+		if fs.dfl == nil {
 			panic(RegistryError{fmt.Errorf("no type: %s", name)})
 		}
-		ty = reflect.TypeOf(dfl)
+		fs.ty = reflect.TypeOf(fs.dfl)
 	}
 
-	return &FieldSpec{
-		name: name,
-		defs: defs,
-
-		ty:  ty,
-		dfl: dfl,
-	}
+	return fs
 }
 
 func (fs FieldSpec) Name() string {
@@ -82,23 +78,31 @@ type StructSpec struct {
 	name string
 	defs []StructDef
 
-	fields map[string]*FieldSpec
-	inits  []any
+	receiver string
+	fields   map[string]*FieldSpec
+	inits    []any
 }
 
 func NewStructSpec(name string, defs []StructDef) *StructSpec {
+	ss := &StructSpec{
+		name: name,
+		defs: defs,
+	}
+
 	fdm := make(map[string][]FieldDef)
-	var inits []any
 
 	for _, d := range defs {
 		for _, o := range d.Opts {
 			switch o := o.(type) {
 
+			case ReceiverOpt:
+				ss.receiver = o.Name
+
 			case FieldDef:
 				fdm[o.Name] = append(fdm[d.Name], o)
 
 			case InitOpt:
-				inits = append(inits, o.Fn)
+				ss.inits = append(ss.inits, o.Fn)
 
 			default:
 				panic(RegistryError{fmt.Errorf("%T", o)})
@@ -106,22 +110,20 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 		}
 	}
 
-	fields := make(map[string]*FieldSpec, len(fdm))
+	ss.fields = make(map[string]*FieldSpec, len(fdm))
 	for fn, fds := range fdm {
-		fields[fn] = NewFieldSpec(fn, fds)
+		ss.fields[fn] = NewFieldSpec(fn, fds)
 	}
 
-	return &StructSpec{
-		name: name,
-		defs: defs,
-
-		fields: fields,
-		inits:  inits,
-	}
+	return ss
 }
 
 func (ss StructSpec) Name() string {
 	return ss.name
+}
+
+func (ss StructSpec) Receiver() string {
+	return ss.receiver
 }
 
 func (ss StructSpec) Fields() map[string]*FieldSpec {
@@ -149,6 +151,11 @@ type PackageSpec struct {
 }
 
 func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
+	ps := &PackageSpec{
+		name: name,
+		defs: defs,
+	}
+
 	sdm := make(map[string][]StructDef)
 	var ex opt.Optional[X_packageExpect]
 
@@ -167,16 +174,9 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 		}
 	}
 
-	structs := make(map[string]*StructSpec, len(sdm))
+	ps.structs = make(map[string]*StructSpec, len(sdm))
 	for sn, sds := range sdm {
-		structs[sn] = NewStructSpec(sn, sds)
-	}
-
-	ps := &PackageSpec{
-		name: name,
-		defs: defs,
-
-		structs: structs,
+		ps.structs[sn] = NewStructSpec(sn, sds)
 	}
 
 	if ex.Present() {

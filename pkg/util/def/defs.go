@@ -32,6 +32,20 @@ func Struct(name string, opts ...StructOpt) StructDef {
 
 //
 
+type ReceiverOpt struct {
+	Name string
+}
+
+func (o ReceiverOpt) isStructOpt() {}
+
+func Receiver(name string) ReceiverOpt {
+	return ReceiverOpt{
+		Name: name,
+	}
+}
+
+//
+
 type FieldOpt interface {
 	isFieldOpt()
 }

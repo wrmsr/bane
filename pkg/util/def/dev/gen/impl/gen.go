@@ -63,23 +63,28 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 		gg.NewExprStmt(gg.NewCall(gg.NewIdent("_def_init"))),
 	}
 
+	rcvr := ss.Receiver()
+	if rcvr == "" {
+		rcvr = strings.ToLower(string([]rune(strings.TrimLeft(ss.Name(), "_"))[0]))
+	}
+
 	for _, fs := range ss.Fields() {
 		sfs = append(sfs, gg.NewStructField(gg.NewIdent(fs.Name()), gg.NewNameType(gg.NewIdent("int"))))
 
+		fsName := gg.NewIdent(fmt.Sprintf("field_spec__%s__%s", ss.Name(), fs.Name()))
+
+		fg.initStmts = append(fg.initStmts,
+			gg.NewBlank(),
+
+			gg.NewShortVar(fsName,
+				gg.NewCall(
+					gg.NewSelect(ssName, gg.NewIdent("Field")),
+					gg.NewLit(fmt.Sprintf("\"%s\"", fs.Name())))),
+
+			gg.NewAssign(gg.NewIdent("_"), fsName),
+		)
+
 		if fs.Default() != nil {
-			fsName := gg.NewIdent(fmt.Sprintf("field_spec__%s__%s", ss.Name(), fs.Name()))
-
-			fg.initStmts = append(fg.initStmts,
-				gg.NewBlank(),
-
-				gg.NewShortVar(fsName,
-					gg.NewCall(
-						gg.NewSelect(ssName, gg.NewIdent("Field")),
-						gg.NewLit(fmt.Sprintf("\"%s\"", fs.Name())))),
-
-				gg.NewAssign(gg.NewIdent("_"), ssName),
-			)
-
 			dflName := gg.NewIdent(fmt.Sprintf("_def_field_default__%s__%s", ss.Name(), fs.Name()))
 
 			dflVds = append(dflVds,
