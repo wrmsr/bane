@@ -22,9 +22,9 @@ type TypeRef struct {
 
 func typeRef(o any) TypeRef {
 	switch o := o.(type) {
-	case types.Instance:
+	case *types.Basic:
 		fmt.Println(o)
-	case types.TypeAndValue:
+	case *types.Named:
 		fmt.Println(o)
 	default:
 		panic(o)
@@ -83,9 +83,12 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		idx := call.Fun.(*ast.IndexExpr)
 		sel := idx.X.(*ast.SelectorExpr)
 		inst := ti.Instances[sel.Sel]
+		if inst.TypeArgs.Len() != 1 {
+			panic(call)
+		}
 
 		return def.TypeOpt{
-			Ty: typeRef(inst),
+			Ty: typeRef(inst.TypeArgs.At(0)),
 		}
 
 	case "Default":
@@ -96,8 +99,8 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		val := call.Args[0]
 		ty := ti.Types[val]
 		return def.DefaultOpt{
-			Val: call.Args[0],
-			Ty:  typeRef(ty),
+			Val: val,
+			Ty:  typeRef(ty.Type),
 		}
 
 	case "Init":
