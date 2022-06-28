@@ -81,6 +81,7 @@ func Type[T any]() TypeOpt {
 
 type DefaultOpt struct {
 	Val any
+	Ty  any
 }
 
 func (o DefaultOpt) isFieldOpt() {}

@@ -16,6 +16,24 @@ import (
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 )
 
+type TypeRef struct {
+	Underlying any
+}
+
+func typeRef(o any) TypeRef {
+	switch o := o.(type) {
+	case types.Instance:
+		fmt.Println(o)
+	case types.TypeAndValue:
+		fmt.Println(o)
+	default:
+		panic(o)
+	}
+	return TypeRef{
+		Underlying: o,
+	}
+}
+
 func reifyIdentStr(node ast.Node) string {
 	if node, ok := node.(*ast.BasicLit); ok {
 		if node.Kind == token.STRING {
@@ -65,22 +83,21 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		idx := call.Fun.(*ast.IndexExpr)
 		sel := idx.X.(*ast.SelectorExpr)
 		inst := ti.Instances[sel.Sel]
-		fmt.Println(inst)
 
 		return def.TypeOpt{
-			Ty: idx.Index,
+			Ty: typeRef(inst),
 		}
 
 	case "Default":
-		val := call.Args[0]
-		ty := ti.Types[val]
-		fmt.Println(ty)
-
 		if len(call.Args) != 1 {
 			panic(call)
 		}
+
+		val := call.Args[0]
+		ty := ti.Types[val]
 		return def.DefaultOpt{
 			Val: call.Args[0],
+			Ty:  typeRef(ty),
 		}
 
 	case "Init":

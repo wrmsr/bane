@@ -4,8 +4,6 @@ package main
 
 import (
 	"fmt"
-	"go/ast"
-	"go/printer"
 	"os"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -24,8 +22,8 @@ func main() {
 			defs := impl.FindPkgDefCalls(fil, pkg.TypesInfo)
 			rdefs := make([]def.PackageDef, len(defs))
 			for i, d := range defs {
-				_ = ast.Fprint(os.Stdout, pkg.Fset, d, nil)
-				_ = printer.Fprint(os.Stdout, pkg.Fset, d)
+				//_ = ast.Fprint(os.Stdout, pkg.Fset, d, nil)
+				//_ = printer.Fprint(os.Stdout, pkg.Fset, d)
 
 				rd := impl.ReifyDef(d, pkg.TypesInfo)
 				rdefs[i] = rd.(def.PackageDef)
