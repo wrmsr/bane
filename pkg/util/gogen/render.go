@@ -146,13 +146,6 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString("*")
 		Render(w, n.Value)
 
-	case Field:
-		Render(w, n.Value)
-		for _, a := range n.Names {
-			w.WriteString(".")
-			Render(w, a)
-		}
-
 	case FuncExpr:
 		renderFunc(w, n.Func)
 
@@ -182,6 +175,13 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString("(")
 		Render(w, n.Value)
 		w.WriteString(")")
+
+	case Select:
+		Render(w, n.Value)
+		for _, a := range n.Names {
+			w.WriteString(".")
+			Render(w, a)
+		}
 
 	case TypeAssert:
 		Render(w, n.Value)

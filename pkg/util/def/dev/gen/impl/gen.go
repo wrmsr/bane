@@ -50,7 +50,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 		gg.NewShortVar(ssName,
 			gg.NewCall(
-				gg.NewField(gg.NewIdent("spec"), gg.NewIdent("Struct")),
+				gg.NewSelect(gg.NewIdent("spec"), gg.NewIdent("Struct")),
 				gg.NewLit(fmt.Sprintf("\"%s\"", ss.Name())))),
 
 		gg.NewAssign(gg.NewIdent("_"), ssName),
@@ -74,7 +74,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 				gg.NewShortVar(fsName,
 					gg.NewCall(
-						gg.NewField(ssName, gg.NewIdent("Field")),
+						gg.NewSelect(ssName, gg.NewIdent("Field")),
 						gg.NewLit(fmt.Sprintf("\"%s\"", fs.Name())))),
 
 				gg.NewAssign(gg.NewIdent("_"), ssName),
@@ -90,13 +90,13 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 				gg.NewAssign(dflName,
 					gg.NewTypeAssert(
-						gg.NewCall(gg.NewField(fsName, gg.NewIdent("Default"))),
+						gg.NewCall(gg.NewSelect(fsName, gg.NewIdent("Default"))),
 						gg.NewNameType(gg.NewIdent("int")))))
 
 			initStmts = append(initStmts,
 				gg.NewBlank(),
 
-				gg.NewAssign(gg.NewField(gg.NewIdent("f"), gg.NewIdent(fs.Name())), dflName))
+				gg.NewAssign(gg.NewSelect(gg.NewIdent("f"), gg.NewIdent(fs.Name())), dflName))
 		}
 	}
 
@@ -122,7 +122,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 			fg.initStmts = append(fg.initStmts,
 				gg.NewAssign(initName,
 					gg.NewTypeAssert(
-						gg.NewIndex(gg.NewCall(gg.NewField(ssName, gg.NewIdent("Inits"))), gg.NewLit(strconv.Itoa(i))),
+						gg.NewIndex(gg.NewCall(gg.NewSelect(ssName, gg.NewIdent("Inits"))), gg.NewLit(strconv.Itoa(i))),
 						newPtrFuncType(gg.NewNameType(sName)))))
 
 			initStmts = append(initStmts,
@@ -160,7 +160,7 @@ func (fg *FileGen) Gen() string {
 		opt.Just(gg.NewBlock(slices.DeepFlatten[gg.Stmt](
 			gg.NewShortVar(
 				gg.NewIdent("spec"),
-				gg.NewCall(gg.NewField(gg.NewIdent("def"), gg.NewIdent("X_getPackageSpec")))),
+				gg.NewCall(gg.NewSelect(gg.NewIdent("def"), gg.NewIdent("X_getPackageSpec")))),
 			fg.initStmts,
 		)...)))
 
@@ -177,7 +177,7 @@ func (fg *FileGen) Gen() string {
 			opt.None[gg.Type](),
 			opt.Just(gg.NewBlock(
 				gg.NewExprStmt(gg.NewCall(
-					gg.NewField(gg.NewIdent("_def_init_once"), gg.NewIdent("Do")),
+					gg.NewSelect(gg.NewIdent("_def_init_once"), gg.NewIdent("Do")),
 					gg.NewFuncExpr(doInit)))))),
 
 		fg.decls)

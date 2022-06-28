@@ -62,21 +62,6 @@ func NewDeref(value Expr) Deref {
 
 //
 
-type Field struct {
-	expr
-	Value Expr
-	Names []Ident
-}
-
-func NewField(value Expr, names ...Ident) Field {
-	return Field{
-		Value: value,
-		Names: names,
-	}
-}
-
-//
-
 type FuncExpr struct {
 	expr
 	Func Func
@@ -248,6 +233,21 @@ type Paren struct {
 func NewParen(value Expr) Paren {
 	return Paren{
 		Value: value,
+	}
+}
+
+//
+
+type Select struct {
+	expr
+	Value Expr
+	Names []Ident
+}
+
+func NewSelect(value Expr, names ...Ident) Select {
+	return Select{
+		Value: value,
+		Names: names,
 	}
 }
 

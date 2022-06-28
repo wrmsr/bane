@@ -85,7 +85,7 @@ func TestDefBuilder(t *testing.T) {
 		opt.None[Type](),
 		opt.Just(NewBlock(
 			NewExprStmt(NewCall(
-				NewField(NewIdent("_def_init_once"), NewIdent("Do")),
+				NewSelect(NewIdent("_def_init_once"), NewIdent("Do")),
 				NewFuncExpr(NewFunc(
 					opt.None[Param](),
 					opt.None[Ident](),
@@ -94,23 +94,23 @@ func TestDefBuilder(t *testing.T) {
 					opt.Just(NewBlock(
 						NewShortVar(
 							NewIdent("spec"),
-							NewCall(NewField(NewIdent("def"), NewIdent("X_getPackageSpec")))),
+							NewCall(NewSelect(NewIdent("def"), NewIdent("X_getPackageSpec")))),
 
 						NewShortVar(
 							NewIdent("struct_spec__Foo"),
-							NewCall(NewField(NewIdent("spec"), NewIdent("Struct")), NewLit("\"foo\""))),
+							NewCall(NewSelect(NewIdent("spec"), NewIdent("Struct")), NewLit("\"foo\""))),
 						NewAssign(NewIdent("_"), NewIdent("struct_spec__Foo")),
 
 						NewAssign(
 							NewIdent("_def_field_default__Foo__baz"),
 							NewTypeAssert(
-								NewCall(NewField(NewIdent("struct_spec__Foo"), NewIdent("Default"))),
+								NewCall(NewSelect(NewIdent("struct_spec__Foo"), NewIdent("Default"))),
 								NewNameType(NewIdent("int")))),
 
 						NewAssign(
 							NewIdent("_def_struct_init__Foo__0"),
 							NewTypeAssert(
-								NewIndex(NewCall(NewField(NewIdent("struct_spec__Foo"), NewIdent("Inits"))), NewLit("0")),
+								NewIndex(NewCall(NewSelect(NewIdent("struct_spec__Foo"), NewIdent("Inits"))), NewLit("0")),
 								newPtrFuncType(NewNameType(NewIdent("Foo"))))),
 					)),
 				)),
@@ -133,7 +133,7 @@ func TestDefBuilder(t *testing.T) {
 		opt.None[Type](),
 		opt.Just(NewBlock(
 			NewExprStmt(NewCall(NewIdent("_def_init"))),
-			NewAssign(NewField(NewIdent("f"), NewIdent("baz")), NewIdent("_def_field_default__Foo__baz")),
+			NewAssign(NewSelect(NewIdent("f"), NewIdent("baz")), NewIdent("_def_field_default__Foo__baz")),
 			NewExprStmt(NewCall(NewIdent("_def_struct_init__Foo__0"), NewIdent("f"))),
 		)),
 	)

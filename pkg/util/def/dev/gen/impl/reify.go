@@ -63,6 +63,8 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 
 	case "Type":
 		idx := call.Fun.(*ast.IndexExpr)
+		ty := ti.TypeOf(idx)
+		fmt.Println(ty)
 		return def.TypeOpt{
 			Ty: idx.Index,
 		}
