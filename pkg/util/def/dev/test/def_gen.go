@@ -38,7 +38,7 @@ func _def_init() {
 		struct_spec__Foo := spec.Struct("Foo")
 		_ = struct_spec__Foo
 
-		field_spec__Foo__baz := struct_spec__Foo.Field("Foo")
+		field_spec__Foo__baz := struct_spec__Foo.Field("baz")
 		_ = struct_spec__Foo
 
 		_def_field_default__Foo__baz = field_spec__Foo__baz.Default().(int)
@@ -54,7 +54,9 @@ type Foo struct {
 
 var (
 	_def_field_default__Foo__baz int
-	_def_struct_init__Foo__0     func(*Foo)
+)
+var (
+	_def_struct_init__Foo__0 func(*Foo)
 )
 
 func (f *Foo) init() {

@@ -57,7 +57,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 	)
 
 	var sfs []gg.StructField
-	var vds []gg.Var
+	var dflVds []gg.Var
 
 	initStmts := []gg.Stmt{
 		gg.NewExprStmt(gg.NewCall(gg.NewIdent("_def_init"))),
@@ -82,7 +82,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 			dflName := gg.NewIdent(fmt.Sprintf("_def_field_default__%s__%s", ss.Name(), fs.Name()))
 
-			vds = append(vds,
+			dflVds = append(dflVds,
 				gg.NewVar(dflName, opt.Just[gg.Type](gg.NewNameType(gg.NewIdent("int"))), opt.None[gg.Expr]()))
 
 			fg.initStmts = append(fg.initStmts,
@@ -102,31 +102,35 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 	fg.decls = append(fg.decls, gg.NewStruct(sName, sfs...))
 
+	if len(dflVds) > 0 {
+		fg.decls = append(fg.decls,
+			gg.NewStmtDecl(gg.NewVars(dflVds)))
+	}
+
 	if len(ss.Inits()) > 0 {
 		fg.initStmts = append(fg.initStmts, gg.NewBlank())
 		initStmts = append(initStmts, gg.NewBlank())
-	}
 
-	for i, _ := range ss.Inits() {
-		initName := gg.NewIdent(fmt.Sprintf("_def_struct_init__%s__%d", ss.Name(), i))
+		var initVds []gg.Var
+		for i, _ := range ss.Inits() {
+			initName := gg.NewIdent(fmt.Sprintf("_def_struct_init__%s__%d", ss.Name(), i))
 
-		vds = append(vds,
-			gg.NewVar(initName,
-				opt.Just[gg.Type](newPtrFuncType(gg.NewNameType(sName))), opt.None[gg.Expr]()))
+			initVds = append(initVds,
+				gg.NewVar(initName,
+					opt.Just[gg.Type](newPtrFuncType(gg.NewNameType(sName))), opt.None[gg.Expr]()))
 
-		fg.initStmts = append(fg.initStmts,
-			gg.NewAssign(initName,
-				gg.NewTypeAssert(
-					gg.NewIndex(gg.NewCall(gg.NewField(ssName, gg.NewIdent("Inits"))), gg.NewLit(strconv.Itoa(i))),
-					newPtrFuncType(gg.NewNameType(sName)))))
+			fg.initStmts = append(fg.initStmts,
+				gg.NewAssign(initName,
+					gg.NewTypeAssert(
+						gg.NewIndex(gg.NewCall(gg.NewField(ssName, gg.NewIdent("Inits"))), gg.NewLit(strconv.Itoa(i))),
+						newPtrFuncType(gg.NewNameType(sName)))))
 
-		initStmts = append(initStmts,
-			gg.NewExprStmt(gg.NewCall(initName, gg.NewIdent("f"))))
-	}
+			initStmts = append(initStmts,
+				gg.NewExprStmt(gg.NewCall(initName, gg.NewIdent("f"))))
+		}
 
-	if len(vds) > 0 {
 		fg.decls = append(fg.decls,
-			gg.NewStmtDecl(gg.NewVars(vds)))
+			gg.NewStmtDecl(gg.NewVars(initVds)))
 	}
 
 	fg.decls = append(fg.decls,
