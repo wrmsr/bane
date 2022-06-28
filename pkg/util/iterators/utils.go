@@ -25,14 +25,10 @@ func Take[T any](it Iterable[T], n int) []T {
 	return r
 }
 
-//
-
-func Keys[K comparable, V any](it Iterable[bt.Kv[K, V]]) Iterable[K] {
-	return Map(it, func(kv bt.Kv[K, V]) K { return kv.K })
-}
-
-func Values[K comparable, V any](it Iterable[bt.Kv[K, V]]) Iterable[V] {
-	return Map(it, func(kv bt.Kv[K, V]) V { return kv.V })
+func Apply[T any](fn func(v T), it Iterable[T]) {
+	for it := it.Iterate(); it.HasNext(); {
+		fn(it.Next())
+	}
 }
 
 //

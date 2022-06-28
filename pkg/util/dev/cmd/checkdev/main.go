@@ -20,7 +20,7 @@ const devPrefix = "//go:build !nodev"
 func main() {
 	numModified := 0
 	for _, arg := range os.Args[1:] {
-		check.NoErr(filepath.Walk(arg, func(path string, info fs.FileInfo, err error) error {
+		check.Must(filepath.Walk(arg, func(path string, info fs.FileInfo, err error) error {
 			if info.IsDir() || !strings.HasSuffix(info.Name(), ".go") {
 				return nil
 			}
@@ -29,7 +29,7 @@ func main() {
 				strings.HasSuffix(info.Name(), "_dev.go") ||
 				slices.Contains(strings.Split(path, string(filepath.Separator)), "dev")
 
-			src := string(check.Must(ioutil.ReadFile(path)))
+			src := string(check.Must1(ioutil.ReadFile(path)))
 			hasDevPrefix := strings.HasPrefix(src, devPrefix)
 
 			var newSrc string
@@ -48,7 +48,7 @@ func main() {
 			}
 
 			fmt.Println(path)
-			check.NoErr(ioutil.WriteFile(path, []byte(newSrc), info.Mode().Perm()))
+			check.Must(ioutil.WriteFile(path, []byte(newSrc), info.Mode().Perm()))
 
 			numModified++
 			return nil

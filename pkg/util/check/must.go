@@ -1,12 +1,12 @@
 package check
 
-func NoErr(err error) {
+func Must(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
-func Must[T any](v T, err error) T {
+func Must1[T any](v T, err error) T {
 	if err != nil {
 		panic(err)
 	}

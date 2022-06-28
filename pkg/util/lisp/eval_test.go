@@ -13,7 +13,7 @@ func TestEvalSimple(t *testing.T) {
 (+ 1 2)
     `
 
-	prog := NewCompiler().Compile(check.Must(NewParser(strings.NewReader(src)).Parse()))
+	prog := NewCompiler().Compile(check.Must1(NewParser(strings.NewReader(src)).Parse()))
 	fmt.Println(prog)
 	ret := Evaluate(addIntrinsics(NewScope(nil)), prog)
 	fmt.Println(ret)

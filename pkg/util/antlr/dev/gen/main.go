@@ -22,15 +22,15 @@ import (
 )
 
 func main() {
-	check.Condition(check.Must(os.Stat(".cache")).IsDir())
+	check.Condition(check.Must1(os.Stat(".cache")).IsDir())
 
 	antlrVer := os.Args[1]
 	jarName := fmt.Sprintf("antlr-%s-complete.jar", antlrVer)
-	jarPath := filepath.Join(check.Must(os.Getwd()), ".cache", jarName)
-	if !check.Must(osu.Exists(jarPath)) {
+	jarPath := filepath.Join(check.Must1(os.Getwd()), ".cache", jarName)
+	if !check.Must1(osu.Exists(jarPath)) {
 		jarUrl := fmt.Sprintf("https://www.antlr.org/download/%s", jarName)
 		fmt.Println(jarUrl)
-		check.NoErr(httpu.DownloadFile(jarUrl, jarPath))
+		check.Must(httpu.DownloadFile(jarUrl, jarPath))
 	}
 
 	type g4File struct {
@@ -40,7 +40,7 @@ func main() {
 
 	var g4s []g4File
 	for _, arg := range os.Args[2:] {
-		check.NoErr(filepath.Walk(arg, func(path string, info fs.FileInfo, err error) error {
+		check.Must(filepath.Walk(arg, func(path string, info fs.FileInfo, err error) error {
 			if strings.HasSuffix(info.Name(), ".g4") {
 				g4s = append(g4s, g4File{path, info})
 			}
@@ -88,8 +88,8 @@ func main() {
 		dir := dir
 
 		parserDir := filepath.Join(dir, "parser")
-		if check.Must(osu.Exists(parserDir)) {
-			check.NoErr(os.RemoveAll(parserDir))
+		if check.Must1(osu.Exists(parserDir)) {
+			check.Must(os.RemoveAll(parserDir))
 		}
 
 		for _, g4 := range dirG4s {
@@ -114,5 +114,5 @@ func main() {
 			})
 		}
 	}
-	check.NoErr(eg.Wait())
+	check.Must(eg.Wait())
 }

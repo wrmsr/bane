@@ -71,7 +71,7 @@ func (tdl textDistsLoader) loadDists(lines its.Iterator[string]) textDists {
 
 func (tdl textDistsLoader) loadDist(lines its.Iterator[string], name string) *textDist {
 	count := -1
-	members := ctr.NewMutOrdMap[string, int](nil)
+	members := ctr.NewMutOrderedMap[string, int](nil)
 	for lines.HasNext() {
 		line := lines.Next()
 
@@ -84,7 +84,7 @@ func (tdl textDistsLoader) loadDist(lines its.Iterator[string], name string) *te
 		check.Condition(len(parts) == 2)
 
 		value := parts[0]
-		weight := check.Must(strconv.Atoi(parts[1]))
+		weight := check.Must1(strconv.Atoi(parts[1]))
 
 		if strings.ToLower(value) == "count" {
 			count = weight
@@ -111,7 +111,7 @@ func (tdl textDistsLoader) isEnd(name, line string) bool {
 var textDistsEmbed embed.FS
 
 var textDistsLazy = au.NewLazy(func() textDists {
-	buf := string(check.Must(textDistsEmbed.ReadFile("textdists.dss")))
+	buf := string(check.Must1(textDistsEmbed.ReadFile("textdists.dss")))
 	return textDistsLoader{}.LoadDists(buf)
 })
 

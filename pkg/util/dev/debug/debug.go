@@ -26,7 +26,7 @@ func getPsItem(ctx context.Context, pid int) psItem {
 	cmd := exec.CommandContext(ctx, "ps", "-o", "pid=,ppid=,command=", strconv.Itoa(pid))
 	var outb bytes.Buffer
 	cmd.Stdout = &outb
-	check.NoErr(cmd.Run())
+	check.Must(cmd.Run())
 
 	outs := outb.String()
 	s := outs
@@ -39,12 +39,12 @@ func getPsItem(ctx context.Context, pid int) psItem {
 		panic(outs)
 	}
 
-	pid2 := check.Must(strconv.Atoi(strings.TrimSpace(spid)))
+	pid2 := check.Must1(strconv.Atoi(strings.TrimSpace(spid)))
 	if pid2 != pid {
 		panic(fmt.Errorf("pid %d != %d", pid2, pid))
 	}
 
-	ppid := check.Must(strconv.Atoi(strings.TrimSpace(sppid)))
+	ppid := check.Must1(strconv.Atoi(strings.TrimSpace(sppid)))
 
 	var exe string
 	p := 0

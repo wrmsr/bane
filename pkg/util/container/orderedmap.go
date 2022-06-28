@@ -12,25 +12,25 @@ import (
 
 //
 
-type OrdMap[K, V any] interface {
+type OrderedMap[K, V any] interface {
 	Map[K, V]
 	Ordered
 }
 
-type MutOrdMap[K, V any] interface {
-	OrdMap[K, V]
+type MutOrderedMap[K, V any] interface {
+	OrderedMap[K, V]
 	MutMap[K, V]
 }
 
 //
 
-type ordMapImpl[K comparable, V any] struct {
+type orderedMapImpl[K comparable, V any] struct {
 	s []bt.Kv[K, V]
 	m map[K]int
 }
 
-func newOrdMapImpl[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) ordMapImpl[K, V] {
-	m := ordMapImpl[K, V]{
+func newOrderedMapImpl[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) orderedMapImpl[K, V] {
+	m := orderedMapImpl[K, V]{
 		m: make(map[K]int),
 	}
 	if it != nil {
@@ -42,11 +42,11 @@ func newOrdMapImpl[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) ordMapImpl
 	return m
 }
 
-func NewOrdMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) OrdMap[K, V] {
-	return newOrdMapImpl[K, V](it)
+func NewOrderedMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) OrderedMap[K, V] {
+	return newOrderedMapImpl[K, V](it)
 }
 
-func (m ordMapImpl[K, V]) string(tn string) string {
+func (m orderedMapImpl[K, V]) string(tn string) string {
 	var sb strings.Builder
 	sb.WriteString("ordMap")
 	for i, kv := range m.s {
@@ -58,11 +58,11 @@ func (m ordMapImpl[K, V]) string(tn string) string {
 	return sb.String()
 }
 
-func (m ordMapImpl[K, V]) String() string {
+func (m orderedMapImpl[K, V]) String() string {
 	return m.string("ordMap")
 }
 
-func (m ordMapImpl[K, V]) format(tn string, f fmt.State, c rune) {
+func (m orderedMapImpl[K, V]) format(tn string, f fmt.State, c rune) {
 	iou.WriteStringX(f, tn)
 	if f.Flag('#') {
 		iou.WriteStringX(f, "{")
@@ -90,24 +90,24 @@ func (m ordMapImpl[K, V]) format(tn string, f fmt.State, c rune) {
 	}
 }
 
-func (m ordMapImpl[K, V]) Format(f fmt.State, c rune) {
+func (m orderedMapImpl[K, V]) Format(f fmt.State, c rune) {
 	m.format("ordMap", f, c)
 }
 
-var _ OrdMap[int, any] = ordMapImpl[int, any]{}
+var _ OrderedMap[int, any] = orderedMapImpl[int, any]{}
 
-func (m ordMapImpl[K, V]) isOrdered() {}
+func (m orderedMapImpl[K, V]) isOrdered() {}
 
-func (m ordMapImpl[K, V]) Len() int {
+func (m orderedMapImpl[K, V]) Len() int {
 	return len(m.s)
 }
 
-func (m ordMapImpl[K, V]) Contains(k K) bool {
+func (m orderedMapImpl[K, V]) Contains(k K) bool {
 	_, ok := m.m[k]
 	return ok
 }
 
-func (m ordMapImpl[K, V]) Get(k K) V {
+func (m orderedMapImpl[K, V]) Get(k K) V {
 	i, ok := m.m[k]
 	if !ok {
 		return bt.Zero[V]()
@@ -115,7 +115,7 @@ func (m ordMapImpl[K, V]) Get(k K) V {
 	return m.s[i].V
 }
 
-func (m ordMapImpl[K, V]) TryGet(k K) (V, bool) {
+func (m orderedMapImpl[K, V]) TryGet(k K) (V, bool) {
 	i, ok := m.m[k]
 	if !ok {
 		return bt.Zero[V](), false
@@ -123,11 +123,11 @@ func (m ordMapImpl[K, V]) TryGet(k K) (V, bool) {
 	return m.s[i].V, true
 }
 
-func (m ordMapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m orderedMapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
 	return its.OfSlice(m.s).Iterate()
 }
 
-func (m ordMapImpl[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
+func (m orderedMapImpl[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
 	for _, kv := range m.s {
 		if !fn(kv) {
 			return false
@@ -136,7 +136,7 @@ func (m ordMapImpl[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
 	return true
 }
 
-func (m *ordMapImpl[K, V]) put(k K, v V) {
+func (m *orderedMapImpl[K, V]) put(k K, v V) {
 	i, ok := m.m[k]
 	if ok {
 		m.s[i].V = v
@@ -146,7 +146,7 @@ func (m *ordMapImpl[K, V]) put(k K, v V) {
 	m.s = append(m.s, bt.KvOf(k, v))
 }
 
-func (m *ordMapImpl[K, V]) delete(k K) {
+func (m *orderedMapImpl[K, V]) delete(k K) {
 	i, ok := m.m[k]
 	if !ok {
 		return
@@ -154,7 +154,7 @@ func (m *ordMapImpl[K, V]) delete(k K) {
 	m.s = slices.DeleteAt(m.s, i)
 }
 
-func (m *ordMapImpl[K, V]) default_(k K, v V) bool {
+func (m *orderedMapImpl[K, V]) default_(k K, v V) bool {
 	_, ok := m.m[k]
 	if !ok {
 		return false
@@ -166,36 +166,36 @@ func (m *ordMapImpl[K, V]) default_(k K, v V) bool {
 
 //
 
-type mutOrdMapImpl[K comparable, V any] struct {
-	ordMapImpl[K, V]
+type mutOrderedMapImpl[K comparable, V any] struct {
+	orderedMapImpl[K, V]
 }
 
-func NewMutOrdMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) MutOrdMap[K, V] {
-	return &mutOrdMapImpl[K, V]{
-		ordMapImpl: newOrdMapImpl[K, V](it),
+func NewMutOrderedMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) MutOrderedMap[K, V] {
+	return &mutOrderedMapImpl[K, V]{
+		orderedMapImpl: newOrderedMapImpl[K, V](it),
 	}
 }
 
-func (m mutOrdMapImpl[K, V]) String() string {
+func (m mutOrderedMapImpl[K, V]) String() string {
 	return m.string("mutOrdMap")
 }
 
-func (m mutOrdMapImpl[K, V]) Format(f fmt.State, c rune) {
+func (m mutOrderedMapImpl[K, V]) Format(f fmt.State, c rune) {
 	m.format("mutOrdMap", f, c)
 }
 
-var _ MutMap[int, any] = &mutOrdMapImpl[int, any]{}
+var _ MutMap[int, any] = &mutOrderedMapImpl[int, any]{}
 
-func (m *mutOrdMapImpl[K, V]) isMutable() {}
+func (m *mutOrderedMapImpl[K, V]) isMutable() {}
 
-func (m *mutOrdMapImpl[K, V]) Put(k K, v V) {
+func (m *mutOrderedMapImpl[K, V]) Put(k K, v V) {
 	m.put(k, v)
 }
 
-func (m *mutOrdMapImpl[K, V]) Delete(k K) {
+func (m *mutOrderedMapImpl[K, V]) Delete(k K) {
 	m.delete(k)
 }
 
-func (m *mutOrdMapImpl[K, V]) Default(k K, v V) bool {
+func (m *mutOrderedMapImpl[K, V]) Default(k K, v V) bool {
 	return m.default_(k, v)
 }

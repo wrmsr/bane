@@ -13,7 +13,7 @@ import (
 func TestCmd(t *testing.T) {
 	ctx := context.Background()
 
-	inspects := check.Must(CliInspectAll(ctx))
+	inspects := check.Must1(CliInspectAll(ctx))
 
 	fmt.Printf("%+v", inspects)
 }

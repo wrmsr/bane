@@ -92,7 +92,7 @@ func reflectColumn(fld reflect.StructField) Column {
 	if strings.Contains(tag, ",") {
 		var prec string
 		tag, prec, _ = strings.Cut(tag, ",")
-		col.precision = check.Must(strconv.Atoi(prec))
+		col.precision = check.Must1(strconv.Atoi(prec))
 	}
 
 	col.name = tag
@@ -107,7 +107,7 @@ type Entity struct {
 	primaryKey ctr.List[string]
 	indexes    ctr.List[ctr.List[string]]
 
-	columns ctr.OrdMap[string, Column]
+	columns ctr.OrderedMap[string, Column]
 
 	ty reflect.Type
 }
@@ -126,7 +126,7 @@ func reflectEntity(
 			return ctr.NewList(its.OfSlice(s))
 		})),
 
-		columns: ctr.NewOrdMap(its.Map(
+		columns: ctr.NewOrderedMap(its.Map(
 			its.Range(0, ty.NumField(), 1),
 			func(i int) bt.Kv[string, Column] {
 				col := reflectColumn(ty.Field(i))
@@ -160,7 +160,7 @@ func (e Entity) Name() string { return e.name }
 func (e Entity) PrimaryKey() ctr.List[string]        { return e.primaryKey }
 func (e Entity) Indexes() ctr.List[ctr.List[string]] { return e.indexes }
 
-func (e Entity) Columns() ctr.OrdMap[string, Column] { return e.columns }
+func (e Entity) Columns() ctr.OrderedMap[string, Column] { return e.columns }
 
 //
 

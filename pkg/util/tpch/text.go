@@ -26,7 +26,7 @@ type textDist struct {
 
 func newTextDist(
 	name string,
-	weightsByValue ctr.OrdMap[string, int],
+	weightsByValue ctr.OrderedMap[string, int],
 ) *textDist {
 	td := &textDist{
 		name: name,

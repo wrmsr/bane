@@ -12,7 +12,7 @@ import (
 func TestInclude(t *testing.T) {
 	tmpl := WithStd(template.New("?"))
 
-	check.Must(tmpl.Parse(`
+	check.Must1(tmpl.Parse(`
 {{define "foo"}}
 hi im foo
 {{end}}
@@ -21,6 +21,6 @@ hi im foo
 `))
 
 	var sb strings.Builder
-	check.NoErr(tmpl.Execute(&sb, nil))
+	check.Must(tmpl.Execute(&sb, nil))
 	fmt.Println(sb.String())
 }

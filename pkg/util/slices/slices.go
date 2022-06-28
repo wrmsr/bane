@@ -148,6 +148,17 @@ func Filter[T any](fn func(t T) bool, s []T) []T {
 	return r
 }
 
+func Partition[T any](fn func(t T) bool, s []T) (t []T, f []T) {
+	for _, c := range s {
+		if fn(c) {
+			t = append(t, c)
+		} else {
+			f = append(f, c)
+		}
+	}
+	return
+}
+
 func Flatten[T any](s [][]T) []T {
 	var r []T
 	for _, v := range s {
@@ -205,6 +216,17 @@ func Repeat[T any](s []T, n int) []T {
 			r[p] = s[j]
 			p++
 		}
+	}
+	return r
+}
+
+func Interleave[T any](s []T, e T) []T {
+	r := make([]T, 0, (len(s)*2)-1)
+	for i, c := range s {
+		if i > 0 {
+			r = append(r, e)
+		}
+		r = append(r, c)
 	}
 	return r
 }

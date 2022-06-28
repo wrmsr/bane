@@ -27,14 +27,14 @@ func TestGoTool(t *testing.T) {
 	var outb, errb bytes.Buffer
 	cmd.Stdout = &outb
 	cmd.Stderr = &errb
-	check.NoErr(cmd.Run())
+	check.Must(cmd.Run())
 
 	var env map[string]string
-	check.NoErr(json.Unmarshal(outb.Bytes(), &env))
+	check.Must(json.Unmarshal(outb.Bytes(), &env))
 	fmt.Println(env)
 }
 
 func TestArchPkg(t *testing.T) {
-	inst := check.Must(arm64asm.Decode(check.Must(hex.DecodeString("0a011f1a"))))
+	inst := check.Must1(arm64asm.Decode(check.Must1(hex.DecodeString("0a011f1a"))))
 	fmt.Println(inst)
 }

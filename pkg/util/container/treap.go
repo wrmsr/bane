@@ -251,7 +251,7 @@ type treapMap[K, V any] struct {
 	c Comparer[bt.Kv[K, V]]
 }
 
-func NewTreapMap[K, V any](cmp Comparer[K]) PerMap[K, V] {
+func NewTreapMap[K, V any](cmp Comparer[K]) PersistentMap[K, V] {
 	return treapMap[K, V]{
 		c: treapMapComparer[K, V](func(v1, v2 bt.Kv[K, V]) int {
 			return cmp.Compare(v1.K, v2.K)
@@ -259,7 +259,7 @@ func NewTreapMap[K, V any](cmp Comparer[K]) PerMap[K, V] {
 	}
 }
 
-var _ PerMap[int, string] = treapMap[int, string]{}
+var _ PersistentMap[int, string] = treapMap[int, string]{}
 
 func (m treapMap[K, V]) isPersistent() {}
 
@@ -305,7 +305,7 @@ func (m treapMap[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool {
 	})
 }
 
-func (m treapMap[K, V]) With(k K, v V) PerMap[K, V] {
+func (m treapMap[K, V]) With(k K, v V) PersistentMap[K, V] {
 	node := &TreapNode[bt.Kv[K, V]]{
 		bt.KvOf(k, v),
 		int(rndu.FastUint32()),
@@ -316,12 +316,12 @@ func (m treapMap[K, V]) With(k K, v V) PerMap[K, V] {
 	return treapMap[K, V]{n, m.c}
 }
 
-func (m treapMap[K, V]) Without(k K) PerMap[K, V] {
+func (m treapMap[K, V]) Without(k K) PersistentMap[K, V] {
 	n := m.n.Delete(bt.KvOf[K, V](k, bt.Zero[V]()), m.c)
 	return treapMap[K, V]{n, m.c}
 }
 
-func (m treapMap[K, V]) Default(k K, v V) PerMap[K, V] {
+func (m treapMap[K, V]) Default(k K, v V) PersistentMap[K, V] {
 	if _, ok := m.TryGet(k); ok {
 		return m
 	}

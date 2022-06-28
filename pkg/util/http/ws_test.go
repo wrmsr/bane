@@ -70,7 +70,7 @@ func runWsServer() {
 		}
 	})
 
-	check.NoErr(http.ListenAndServe(":8080", nil))
+	check.Must(http.ListenAndServe(":8080", nil))
 }
 
 func TestWebSockets(t *testing.T) {

@@ -42,15 +42,15 @@ func findDirWithFile(cd, fn string) (string, error) {
 }
 
 func ParsePackages(cd string) []*packages.Package {
-	rd := check.Must(findDirWithFile(cd, "go.mod"))
+	rd := check.Must1(findDirWithFile(cd, "go.mod"))
 	if !strings.HasPrefix(cd, rd) {
 		panic(fmt.Errorf("can't find path %s from root %s", cd, rd))
 	}
 	do := cd[len(rd)+1:]
 
 	mf := filepath.Join(rd, "go.mod")
-	mc := check.Must(ioutil.ReadFile(mf))
-	mo := check.Must(modfile.Parse(mf, mc, dontFixRetract))
+	mc := check.Must1(ioutil.ReadFile(mf))
+	mo := check.Must1(modfile.Parse(mf, mc, dontFixRetract))
 	mp := mo.Module.Mod.Path
 
 	cfg := &packages.Config{
@@ -69,5 +69,5 @@ func ParsePackages(cd string) []*packages.Package {
 	}
 
 	pn := fmt.Sprintf("%s/%s", mp, do)
-	return check.Must(packages.Load(cfg, pn))
+	return check.Must1(packages.Load(cfg, pn))
 }

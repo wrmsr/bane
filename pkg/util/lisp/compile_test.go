@@ -12,5 +12,5 @@ func TestCompilerSimple(t *testing.T) {
 	src := `
 1
     `
-	fmt.Println(NewCompiler().Compile(check.Must(NewParser(strings.NewReader(src)).Parse())))
+	fmt.Println(NewCompiler().Compile(check.Must1(NewParser(strings.NewReader(src)).Parse())))
 }

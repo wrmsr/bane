@@ -23,9 +23,9 @@ func GetEnvs(ks []string) map[string]opt.Optional[string] {
 func SetEnvs(m map[string]opt.Optional[string]) {
 	for k, v := range m {
 		if v.Present() {
-			check.NoErr(os.Setenv(k, v.Value()))
+			check.Must(os.Setenv(k, v.Value()))
 		} else {
-			check.NoErr(os.Unsetenv(k))
+			check.Must(os.Unsetenv(k))
 		}
 	}
 }

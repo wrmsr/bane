@@ -10,15 +10,15 @@ import (
 )
 
 func TestParseSimple(t *testing.T) {
-	s := check.Must(ioutil.ReadFile("test/simple.scm"))
+	s := check.Must1(ioutil.ReadFile("test/simple.scm"))
 	p := NewParser(bytes.NewReader(s))
-	root := check.Must(p.Parse())
+	root := check.Must1(p.Parse())
 	fmt.Println(root)
 }
 
 func TestParseMandelbrot(t *testing.T) {
-	s := check.Must(ioutil.ReadFile("test/mandelbrot.scm"))
+	s := check.Must1(ioutil.ReadFile("test/mandelbrot.scm"))
 	p := NewParser(bytes.NewReader(s))
-	root := check.Must(p.Parse())
+	root := check.Must1(p.Parse())
 	fmt.Println(root)
 }

@@ -17,32 +17,32 @@ import (
 func TestPgx(t *testing.T) {
 	databaseUrl := "postgres://bane:bane@localhost:33222/postgres"
 
-	dbPool := check.Must(pgxpool.Connect(context.Background(), databaseUrl))
+	dbPool := check.Must1(pgxpool.Connect(context.Background(), databaseUrl))
 	defer dbPool.Close()
 
-	rows := check.Must(dbPool.Query(context.Background(), "select 1"))
+	rows := check.Must1(dbPool.Query(context.Background(), "select 1"))
 	for rows.Next() {
-		values := check.Must(rows.Values())
+		values := check.Must1(rows.Values())
 		log.Printf("%v\n", values)
 	}
 }
 
 func TestMysql(t *testing.T) {
-	db := check.Must(sql.Open("mysql", "bane:bane@tcp(127.0.0.1:33221)/"))
+	db := check.Must1(sql.Open("mysql", "bane:bane@tcp(127.0.0.1:33221)/"))
 	defer log.OrError(db.Close)
 
 	var version string
-	check.NoErr(db.QueryRow("SELECT VERSION()").Scan(&version))
+	check.Must(db.QueryRow("SELECT VERSION()").Scan(&version))
 
 	fmt.Println(version)
 }
 
 func TestSqlite(t *testing.T) {
-	db := check.Must(sql.Open("sqlite3", "file::memory:?cache=shared"))
+	db := check.Must1(sql.Open("sqlite3", "file::memory:?cache=shared"))
 	defer log.OrError(db.Close)
 
 	var version string
-	check.NoErr(db.QueryRow("SELECT sqlite_version()").Scan(&version))
+	check.Must(db.QueryRow("SELECT sqlite_version()").Scan(&version))
 
 	fmt.Println(version)
 }

@@ -11,7 +11,7 @@ import (
 )
 
 func TestScanAllLines(t *testing.T) {
-	tu.AssertDeepEqual(t, []string{"a", "b", "c"}, check.Must(ScanAllLines(strings.NewReader("a\nb\nc"), true)))
+	tu.AssertDeepEqual(t, []string{"a", "b", "c"}, check.Must1(ScanAllLines(strings.NewReader("a\nb\nc"), true)))
 }
 
 func TestDedent(t *testing.T) {

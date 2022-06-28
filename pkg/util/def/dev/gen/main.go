@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	pkgs := impl.ParsePackages(check.Must(os.Getwd()))
+	pkgs := impl.ParsePackages(check.Must1(os.Getwd()))
 
 	for _, pkg := range pkgs {
 		for _, fil := range pkg.Syntax {
