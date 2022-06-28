@@ -35,6 +35,16 @@ func NewAssign(var_ Expr, value Expr) Assign {
 
 //
 
+type Blank struct {
+	stmt
+}
+
+func NewBlank() Blank {
+	return Blank{}
+}
+
+//
+
 type Block struct {
 	stmt
 	Body []Stmt

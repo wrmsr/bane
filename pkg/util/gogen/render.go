@@ -108,7 +108,8 @@ func Render(w *iou.IndentWriter, n Node) {
 	case Struct:
 		w.WriteString("type ")
 		Render(w, n.Name)
-		w.WriteString(" struct {\n")
+		w.WriteString(" struct {")
+		w.WriteString("\n")
 		w.Indent()
 		for _, f := range n.Fields {
 			Render(w, f)
@@ -206,6 +207,9 @@ func Render(w *iou.IndentWriter, n Node) {
 		Render(w, n.Var)
 		w.WriteString(" = ")
 		Render(w, n.Value)
+		w.WriteString("\n")
+
+	case Blank:
 		w.WriteString("\n")
 
 	case Block:

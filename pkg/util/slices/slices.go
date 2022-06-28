@@ -1,6 +1,7 @@
 package slices
 
 import (
+	"reflect"
 	"sort"
 
 	"golang.org/x/exp/constraints"
@@ -152,6 +153,39 @@ func Flatten[T any](s [][]T) []T {
 	for _, v := range s {
 		r = append(r, v...)
 	}
+	return r
+}
+
+func DeepFlatten[T any](vs ...any) []T {
+	var r []T
+
+	var urfl func(reflect.Value)
+	urfl = func(rv reflect.Value) {
+		if rv.Kind() == reflect.Slice {
+			l := rv.Len()
+			for i := 0; i < l; i++ {
+				urfl(rv.Index(i))
+			}
+			return
+		}
+
+		r = append(r, rv.Interface().(T))
+	}
+
+	for _, v := range vs {
+		if v == nil {
+			continue
+		}
+		switch v := v.(type) {
+		case T:
+			r = append(r, v)
+		case []T:
+			r = append(r, v...)
+		default:
+			urfl(reflect.ValueOf(v))
+		}
+	}
+
 	return r
 }
 
