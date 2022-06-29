@@ -7,99 +7,26 @@ import (
 	"strconv"
 	"strings"
 
-	ctr "github.com/wrmsr/bane/pkg/util/container"
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/gogen"
 	iou "github.com/wrmsr/bane/pkg/util/io"
-	its "github.com/wrmsr/bane/pkg/util/iterators"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
-	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 	"github.com/wrmsr/bane/pkg/util/slices"
-	stru "github.com/wrmsr/bane/pkg/util/strings"
 )
 
 type FileGen struct {
 	ps *def.PackageSpec
-
-	imps map[string]string
+	ti *typeImporter
 
 	decls     []gg.Decl
 	initStmts []gg.Stmt
 }
 
-func NewFileGen(pkg *def.PackageSpec) *FileGen {
+func NewFileGen(ps *def.PackageSpec) *FileGen {
 	return &FileGen{
-		ps: pkg,
+		ps: ps,
+		ti: newTypeImporter(ps),
 	}
-}
-
-func (fg *FileGen) setupImports() {
-	ts := CollectTypeNames(fg.ps)
-
-	pkgSet := ctr.NewMutSet[string](nil)
-	pkgSet.Add(def.X_defPackageName())
-	ts.ForEach(func(pn rtu.ParsedName) bool {
-		if pn.Pkg != "" && pn.Pkg != fg.ps.Name() {
-			pkgSet.Add(pn.Pkg)
-		}
-		return true
-	})
-
-	pkgs := its.Seq[string](pkgSet)
-	slices.Sort(pkgs)
-
-	imps := make(map[string]string, len(pkgs))
-	rimps := make(map[string]string, len(pkgs))
-	for _, pkg := range pkgs {
-		_, pn, _ := stru.LastCut(pkg, "/")
-		for i := 1; ; i++ {
-			s := pn
-			if i > 1 {
-				s += strconv.Itoa(i)
-			}
-			if rimps[s] == "" {
-				rimps[s] = pkg
-				imps[pkg] = s
-				break
-			}
-		}
-	}
-
-	fg.imps = imps
-}
-
-func (fg *FileGen) importedType(ty any) gg.Type {
-	var sb strings.Builder
-	var rec func(tr TypeRef)
-	rec = func(tr TypeRef) {
-		pn := tr.Parse()
-		if pn.Pkg != "" && pn.Pkg != fg.ps.Name() {
-			in, ok := fg.imps[pn.Pkg]
-			if !ok {
-				panic(fmt.Errorf("import not found: %s", pn.Pkg))
-			}
-			if in != "" {
-				sb.WriteString(in)
-				sb.WriteString(".")
-			}
-			sb.WriteString(pn.Obj)
-		} else {
-			sb.WriteString(pn.Obj)
-		}
-
-		if len(tr.Args) > 0 {
-			sb.WriteString("[")
-			for i, a := range tr.Args {
-				if i > 0 {
-					sb.WriteString(", ")
-				}
-				rec(a)
-			}
-			sb.WriteString("]")
-		}
-	}
-	rec(ty.(TypeRef))
-	return gg.NewNameType(gg.NewIdent(sb.String()))
 }
 
 func newPtrFuncType(elem gg.Type) gg.FuncType {
@@ -144,7 +71,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 	}
 
 	for _, fs := range ss.Fields() {
-		sfs = append(sfs, gg.NewStructField(gg.NewIdent(fs.Name()), fg.importedType(fs.Type())))
+		sfs = append(sfs, gg.NewStructField(gg.NewIdent(fs.Name()), fg.ti.importedType(fs.Type())))
 
 		fsName := gg.NewIdent(fmt.Sprintf("field_spec__%s__%s", ss.Name(), fs.Name()))
 
@@ -163,7 +90,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 			dflName := gg.NewIdent(fmt.Sprintf("_def_field_default__%s__%s", ss.Name(), fs.Name()))
 
 			dflVds = append(dflVds,
-				gg.NewVar(dflName, opt.Just[gg.Type](fg.importedType(fs.Type())), opt.None[gg.Expr]()))
+				gg.NewVar(dflName, opt.Just[gg.Type](fg.ti.importedType(fs.Type())), opt.None[gg.Expr]()))
 
 			fg.initStmts = append(fg.initStmts,
 				gg.NewBlank(),
@@ -171,7 +98,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 				gg.NewAssign(dflName,
 					gg.NewTypeAssert(
 						gg.NewCall(gg.NewSelect(fsName, gg.NewIdent("Default"))),
-						fg.importedType(fs.Type()))))
+						fg.ti.importedType(fs.Type()))))
 
 			initStmts = append(initStmts,
 				gg.NewBlank(),
@@ -223,8 +150,6 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 }
 
 func (fg *FileGen) Gen() string {
-	fg.setupImports()
-
 	i := 0
 	for _, ss := range fg.ps.Structs() {
 		if i > 0 {

@@ -3,12 +3,18 @@
 package impl
 
 import (
+	"fmt"
 	"go/types"
+	"strconv"
 	"strings"
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	"github.com/wrmsr/bane/pkg/util/def"
+	gg "github.com/wrmsr/bane/pkg/util/gogen"
+	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
+	"github.com/wrmsr/bane/pkg/util/slices"
+	stru "github.com/wrmsr/bane/pkg/util/strings"
 )
 
 //
@@ -94,4 +100,83 @@ func CollectTypeNames(ps *def.PackageSpec) ctr.MutSet[rtu.ParsedName] {
 	}
 
 	return ret
+}
+
+//
+
+type typeImporter struct {
+	ps   *def.PackageSpec
+	imps map[string]string
+}
+
+func newTypeImporter(ps *def.PackageSpec) *typeImporter {
+	ts := CollectTypeNames(ps)
+
+	pkgSet := ctr.NewMutSet[string](nil)
+	pkgSet.Add(def.X_defPackageName())
+	ts.ForEach(func(pn rtu.ParsedName) bool {
+		if pn.Pkg != "" && pn.Pkg != ps.Name() {
+			pkgSet.Add(pn.Pkg)
+		}
+		return true
+	})
+
+	pkgs := its.Seq[string](pkgSet)
+	slices.Sort(pkgs)
+
+	imps := make(map[string]string, len(pkgs))
+	rimps := make(map[string]string, len(pkgs))
+	for _, pkg := range pkgs {
+		_, pn, _ := stru.LastCut(pkg, "/")
+		for i := 1; ; i++ {
+			s := pn
+			if i > 1 {
+				s += strconv.Itoa(i)
+			}
+			if rimps[s] == "" {
+				rimps[s] = pkg
+				imps[pkg] = s
+				break
+			}
+		}
+	}
+
+	return &typeImporter{
+		ps:   ps,
+		imps: imps,
+	}
+}
+
+func (ti *typeImporter) importedType(ty any) gg.Type {
+	var sb strings.Builder
+	var rec func(tr TypeRef)
+	rec = func(tr TypeRef) {
+		pn := tr.Parse()
+		if pn.Pkg != "" && pn.Pkg != ti.ps.Name() {
+			in, ok := ti.imps[pn.Pkg]
+			if !ok {
+				panic(fmt.Errorf("import not found: %s", pn.Pkg))
+			}
+			if in != "" {
+				sb.WriteString(in)
+				sb.WriteString(".")
+			}
+			sb.WriteString(pn.Obj)
+		} else {
+			sb.WriteString(pn.Obj)
+		}
+
+		if len(tr.Args) > 0 {
+			sb.WriteString("[")
+			for i, a := range tr.Args {
+				if i > 0 {
+					sb.WriteString(", ")
+				}
+				rec(a)
+			}
+			sb.WriteString("]")
+		}
+	}
+	rec(ty.(TypeRef))
+	return gg.NewNameType(gg.NewIdent(sb.String()))
 }
