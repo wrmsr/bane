@@ -3,12 +3,15 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"time"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/def"
@@ -49,8 +52,17 @@ func main() {
 
 	if noWrite {
 		fmt.Println(s)
+
 	} else {
 		fp := filepath.Join(cwd, "def_gen.go")
 		check.Must(ioutil.WriteFile(fp, []byte(s), 0644))
+
+		func() {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
+			defer cancel()
+
+			cmd := exec.CommandContext(ctx, "go", "run", "cmd/gofmt", "-s", "-w", fp)
+			check.Must(cmd.Run())
+		}()
 	}
 }
