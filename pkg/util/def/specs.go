@@ -54,19 +54,22 @@ func NewFieldSpec(name string, defs []FieldDef) *FieldSpec {
 		}
 	}
 
-	if fs.ty == nil {
-		if fs.dfl == nil {
-			panic(RegistryError{fmt.Errorf("no type: %s", name)})
-		}
-		fs.ty = reflect.TypeOf(fs.dfl)
-	}
-
 	return fs
 }
 
 func (fs FieldSpec) Name() string { return fs.name }
 func (fs FieldSpec) Type() any    { return fs.ty }
 func (fs FieldSpec) Default() any { return fs.dfl }
+
+func (fs FieldSpec) RuntimeType() reflect.Type {
+	if fs.ty != nil {
+		return fs.ty.(reflect.Type)
+	}
+	if fs.dfl != nil {
+		return reflect.TypeOf(fs.dfl)
+	}
+	panic("no type or default set")
+}
 
 //
 

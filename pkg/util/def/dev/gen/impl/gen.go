@@ -68,8 +68,8 @@ func (fg *FileGen) setupImports() {
 	fg.imps = imps
 }
 
-func (fg *FileGen) importedType(tn string) {
-
+func (fg *FileGen) importedType(ty any) gg.Type {
+	return gg.NewNameType(gg.NewIdent("int"))
 }
 
 func newPtrFuncType(elem gg.Type) gg.FuncType {
@@ -114,7 +114,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 	}
 
 	for _, fs := range ss.Fields() {
-		sfs = append(sfs, gg.NewStructField(gg.NewIdent(fs.Name()), gg.NewNameType(gg.NewIdent("int"))))
+		sfs = append(sfs, gg.NewStructField(gg.NewIdent(fs.Name()), fg.importedType(fs.Type())))
 
 		fsName := gg.NewIdent(fmt.Sprintf("field_spec__%s__%s", ss.Name(), fs.Name()))
 
@@ -133,7 +133,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 			dflName := gg.NewIdent(fmt.Sprintf("_def_field_default__%s__%s", ss.Name(), fs.Name()))
 
 			dflVds = append(dflVds,
-				gg.NewVar(dflName, opt.Just[gg.Type](gg.NewNameType(gg.NewIdent("int"))), opt.None[gg.Expr]()))
+				gg.NewVar(dflName, opt.Just[gg.Type](fg.importedType(fs.Type())), opt.None[gg.Expr]()))
 
 			fg.initStmts = append(fg.initStmts,
 				gg.NewBlank(),
@@ -141,7 +141,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 				gg.NewAssign(dflName,
 					gg.NewTypeAssert(
 						gg.NewCall(gg.NewSelect(fsName, gg.NewIdent("Default"))),
-						gg.NewNameType(gg.NewIdent("int")))))
+						fg.importedType(fs.Type()))))
 
 			initStmts = append(initStmts,
 				gg.NewBlank(),

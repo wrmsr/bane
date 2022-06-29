@@ -3,6 +3,7 @@
 package impl
 
 import (
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/token"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/def"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 )
 
@@ -55,9 +57,27 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 
 	case "Field":
 		opts := make([]def.FieldOpt, len(call.Args)-1)
+
+		hasTyOpt := false
+		var dflTy opt.Optional[TypeRef]
 		for i, arg := range call.Args[1:] {
-			opts[i] = ReifyDef(arg, ti).(def.FieldOpt)
+			o := ReifyDef(arg, ti).(def.FieldOpt)
+			if _, ok := o.(def.TypeOpt); ok {
+				hasTyOpt = true
+			}
+			if o, ok := o.(def.DefaultOpt); ok {
+				dflTy = opt.Just(o.Ty.(TypeRef))
+			}
+			opts[i] = o
 		}
+
+		if !hasTyOpt {
+			if !dflTy.Present() {
+				panic(errors.New("no type or default for field"))
+			}
+			opts = append(opts, def.TypeOpt{Ty: dflTy.Value()})
+		}
+
 		return def.FieldDef{
 			Name: reifyIdentStr(call.Args[0]),
 			Opts: opts,
