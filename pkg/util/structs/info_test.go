@@ -1,7 +1,6 @@
 package structs
 
 import (
-	"fmt"
 	"testing"
 
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
@@ -23,7 +22,7 @@ type C struct {
 }
 
 func TestTool(t *testing.T) {
-	st := NewStructTool()
+	st := NewStructInfoCache()
 	for _, ty := range []any{
 		rfl.Type[A](),
 		rfl.Type[B](),
@@ -31,20 +30,4 @@ func TestTool(t *testing.T) {
 	} {
 		st.Info(ty)
 	}
-}
-
-func TestToMap(t *testing.T) {
-	c := C{
-		B: B{
-			A: A{
-				X: 100,
-				Y: "two hundred",
-			},
-			Z: 300,
-		},
-		Z: 420,
-	}
-
-	m := NewStructTool().ToMap(c)
-	fmt.Printf("%+v\n", m)
 }

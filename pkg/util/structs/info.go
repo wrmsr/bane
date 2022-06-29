@@ -35,6 +35,15 @@ func (fi FieldInfo) GetValue(v any) (reflect.Value, bool) {
 	return fv, true
 }
 
+func (fi FieldInfo) Struct() *StructInfo { return fi.si }
+
+func (fi FieldInfo) Field() reflect.StructField        { return fi.field }
+func (fi FieldInfo) Name() string                      { return fi.name }
+func (fi FieldInfo) NameBytes() []byte                 { return fi.nameBytes }
+func (fi FieldInfo) EqualFold() func(s, t []byte) bool { return fi.equalFold }
+func (fi FieldInfo) Index() []int                      { return fi.index }
+func (fi FieldInfo) Ty() reflect.Type                  { return fi.ty }
+
 //
 
 type StructInfo struct {
@@ -69,5 +78,32 @@ func newStructInfo(ty reflect.Type) *StructInfo {
 	si.fields = fis
 	si.fieldsByName = bn
 
+	return si
+}
+
+func (si StructInfo) Ty() reflect.Type                    { return si.ty }
+func (si StructInfo) Fields() []*FieldInfo                { return si.fields }
+func (si StructInfo) FieldsByName() map[string]*FieldInfo { return si.fieldsByName }
+
+//
+
+type StructInfoCache struct {
+	structInfos map[reflect.Type]*StructInfo
+}
+
+func NewStructInfoCache() *StructInfoCache {
+	return &StructInfoCache{
+		structInfos: make(map[reflect.Type]*StructInfo),
+	}
+}
+
+func (sic *StructInfoCache) Info(ty any) *StructInfo {
+	rty := rfl.AsType(ty)
+	if si, ok := sic.structInfos[rty]; ok {
+		return si
+	}
+
+	si := newStructInfo(rty)
+	sic.structInfos[rty] = si
 	return si
 }

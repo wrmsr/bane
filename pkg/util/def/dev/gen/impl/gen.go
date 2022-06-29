@@ -117,7 +117,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 		initStmts = append(initStmts, gg.NewBlank())
 
 		var initVds []gg.Var
-		for i, _ := range ss.Inits() {
+		for i := range ss.Inits() {
 			initName := gg.NewIdent(fmt.Sprintf("_def_struct_init__%s__%d", ss.Name(), i))
 
 			initVds = append(initVds,
