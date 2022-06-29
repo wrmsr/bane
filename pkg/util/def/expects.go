@@ -49,7 +49,7 @@ type X_structExpect struct {
 
 func (sx X_structExpect) check(ss *StructSpec) {
 	checkExpectedStrs(
-		maps.Keys(ss.fields),
+		maps.Keys(ss.fieldsByName),
 		maps.Keys(sx.Fields),
 		fmt.Sprintf("%s fields differ", ss.name),
 	)
@@ -70,7 +70,7 @@ type X_packageExpect struct {
 
 func (px X_packageExpect) check(ps *PackageSpec) {
 	checkExpectedStrs(
-		maps.Keys(ps.structs),
+		maps.Keys(ps.structsByName),
 		maps.Keys(px.Structs),
 		fmt.Sprintf("%s structs differ", ps.name),
 	)

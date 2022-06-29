@@ -77,8 +77,10 @@ type StructSpec struct {
 	name string
 	defs []StructDef
 
+	fields       []*FieldSpec
+	fieldsByName map[string]*FieldSpec
+
 	receiver string
-	fields   map[string]*FieldSpec
 	inits    []any
 }
 
@@ -88,6 +90,7 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 		defs: defs,
 	}
 
+	var fns []string
 	fdm := make(map[string][]FieldDef)
 
 	for _, d := range defs {
@@ -98,6 +101,9 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 				ss.receiver = o.Name
 
 			case FieldDef:
+				if _, ok := fdm[o.Name]; !ok {
+					fns = append(fns, o.Name)
+				}
 				fdm[o.Name] = append(fdm[d.Name], o)
 
 			case InitOpt:
@@ -109,21 +115,23 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 		}
 	}
 
-	ss.fields = make(map[string]*FieldSpec, len(fdm))
-	for fn, fds := range fdm {
-		ss.fields[fn] = NewFieldSpec(fn, fds)
+	ss.fieldsByName = make(map[string]*FieldSpec, len(fdm))
+	for _, fn := range fns {
+		fs := NewFieldSpec(fn, fdm[fn])
+		ss.fields = append(ss.fields, fs)
+		ss.fieldsByName[fn] = fs
 	}
 
 	return ss
 }
 
-func (ss StructSpec) Name() string                  { return ss.name }
-func (ss StructSpec) Receiver() string              { return ss.receiver }
-func (ss StructSpec) Fields() map[string]*FieldSpec { return ss.fields }
-func (ss StructSpec) Inits() []any                  { return ss.inits }
+func (ss StructSpec) Name() string         { return ss.name }
+func (ss StructSpec) Fields() []*FieldSpec { return ss.fields }
+func (ss StructSpec) Receiver() string     { return ss.receiver }
+func (ss StructSpec) Inits() []any         { return ss.inits }
 
 func (ss StructSpec) Field(name string) *FieldSpec {
-	if ss, ok := ss.fields[name]; ok {
+	if ss, ok := ss.fieldsByName[name]; ok {
 		return ss
 	}
 	panic(SpecError{fmt.Errorf("field not found :%s", name)})
@@ -135,7 +143,8 @@ type PackageSpec struct {
 	name string
 	defs []PackageDef
 
-	structs map[string]*StructSpec
+	structs       []*StructSpec
+	structsByName map[string]*StructSpec
 }
 
 func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
@@ -144,6 +153,7 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 		defs: defs,
 	}
 
+	var sns []string
 	sdm := make(map[string][]StructDef)
 	var ex opt.Optional[X_packageExpect]
 
@@ -151,6 +161,9 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 		switch d := d.(type) {
 
 		case StructDef:
+			if _, ok := sdm[d.Name]; !ok {
+				sns = append(sns, d.Name)
+			}
 			sdm[d.Name] = append(sdm[d.Name], d)
 
 		case X_packageExpect:
@@ -162,9 +175,11 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 		}
 	}
 
-	ps.structs = make(map[string]*StructSpec, len(sdm))
-	for sn, sds := range sdm {
-		ps.structs[sn] = NewStructSpec(sn, sds)
+	ps.structsByName = make(map[string]*StructSpec, len(sdm))
+	for _, sn := range sns {
+		ss := NewStructSpec(sn, sdm[sn])
+		ps.structs = append(ps.structs, ss)
+		ps.structsByName[sn] = ss
 	}
 
 	if ex.Present() {
@@ -174,11 +189,11 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 	return ps
 }
 
-func (ps PackageSpec) Name() string                    { return ps.name }
-func (ps PackageSpec) Structs() map[string]*StructSpec { return ps.structs }
+func (ps PackageSpec) Name() string           { return ps.name }
+func (ps PackageSpec) Structs() []*StructSpec { return ps.structs }
 
 func (ps PackageSpec) Struct(name string) *StructSpec {
-	if ss, ok := ps.structs[name]; ok {
+	if ss, ok := ps.structsByName[name]; ok {
 		return ss
 	}
 	panic(SpecError{fmt.Errorf("struct not found :%s", name)})

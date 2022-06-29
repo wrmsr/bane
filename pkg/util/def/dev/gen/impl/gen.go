@@ -7,6 +7,9 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/mod/modfile"
+	"golang.org/x/tools/go/packages"
+
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/gogen"
 	iou "github.com/wrmsr/bane/pkg/util/io"
@@ -16,17 +19,27 @@ import (
 )
 
 type FileGen struct {
-	ps *def.PackageSpec
+	mod *modfile.File
+	pkg *packages.Package
+	ps  *def.PackageSpec
+
 	ti *typeImporter
 
 	decls     []gg.Decl
 	initStmts []gg.Stmt
 }
 
-func NewFileGen(ps *def.PackageSpec) *FileGen {
+func NewFileGen(
+	mod *modfile.File,
+	pkg *packages.Package,
+	ps *def.PackageSpec,
+) *FileGen {
 	return &FileGen{
-		ps: ps,
-		ti: newTypeImporter(ps, []string{"sync"}),
+		mod: mod,
+		pkg: pkg,
+		ps:  ps,
+
+		ti: newTypeImporter(ps, mod.Module.Mod.Path, []string{"sync"}),
 	}
 }
 

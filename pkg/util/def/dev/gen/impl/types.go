@@ -106,10 +106,11 @@ func CollectTypeNames(ps *def.PackageSpec) maps.Set[rtu.ParsedName] {
 
 type typeImporter struct {
 	ps   *def.PackageSpec
+	mod  string
 	imps map[string]string
 }
 
-func newTypeImporter(ps *def.PackageSpec, deps []string) *typeImporter {
+func newTypeImporter(ps *def.PackageSpec, mod string, deps []string) *typeImporter {
 	ts := CollectTypeNames(ps)
 
 	pkgSet := maps.MakeSet[string]()
@@ -150,6 +151,7 @@ func newTypeImporter(ps *def.PackageSpec, deps []string) *typeImporter {
 
 	return &typeImporter{
 		ps:   ps,
+		mod:  mod,
 		imps: imps,
 	}
 }
@@ -164,7 +166,16 @@ func (ti *typeImporter) imports() []gg.Import {
 			imps = append(imps, gg.NewImport(k))
 		}
 	}
-	return imps
+
+	sysImps, restImps := slices.Partition(func(i gg.Import) bool {
+		return !strings.Contains(i.Spec, "/")
+	}, imps)
+	depImps, prjImps := slices.Partition(func(i gg.Import) bool {
+		return !strings.HasPrefix(i.Spec, ti.mod)
+	}, restImps)
+
+	impSecs := slices.Filter(func(s []gg.Import) bool { return len(s) > 0 }, [][]gg.Import{sysImps, depImps, prjImps})
+	return slices.DeepFlatten[gg.Import](slices.Interleave(impSecs, []gg.Import{gg.NewImport("")}))
 }
 
 func (ti *typeImporter) importedType(ty any) gg.Type {

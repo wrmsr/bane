@@ -41,7 +41,12 @@ func findDirWithFile(cd, fn string) (string, error) {
 	}
 }
 
-func ParsePackages(cd string) []*packages.Package {
+type ParsedPackages struct {
+	Mod  *modfile.File
+	Pkgs []*packages.Package
+}
+
+func ParsePackages(cd string) ParsedPackages {
 	rd := check.Must1(findDirWithFile(cd, "go.mod"))
 	if !strings.HasPrefix(cd, rd) {
 		panic(fmt.Errorf("can't find path %s from root %s", cd, rd))
@@ -69,5 +74,8 @@ func ParsePackages(cd string) []*packages.Package {
 	}
 
 	pn := fmt.Sprintf("%s/%s", mp, do)
-	return check.Must1(packages.Load(cfg, pn))
+	return ParsedPackages{
+		Mod:  mo,
+		Pkgs: check.Must1(packages.Load(cfg, pn)),
+	}
 }

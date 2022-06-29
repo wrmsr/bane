@@ -1,7 +1,6 @@
 package gogen
 
 import (
-	"github.com/wrmsr/bane/pkg/util/check"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 )
 
@@ -55,7 +54,7 @@ type Import struct {
 
 func NewImportAs(spec string, alias opt.Optional[Ident]) Import {
 	return Import{
-		Spec:  check.NotZero(spec),
+		Spec:  spec,
 		Alias: alias,
 	}
 }

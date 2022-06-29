@@ -30,7 +30,8 @@ func main() {
 	}
 
 	cwd := check.Must1(os.Getwd())
-	pkg := check.Single(impl.ParsePackages(cwd))
+	pps := impl.ParsePackages(cwd)
+	pkg := check.Single(pps.Pkgs)
 
 	pkgDefs := make([]def.PackageDef, 0)
 	for _, fil := range pkg.Syntax {
@@ -48,7 +49,7 @@ func main() {
 	}
 
 	ps := def.NewPackageSpec(pkg.ID, pkgDefs)
-	s := impl.NewFileGen(ps).Gen()
+	s := impl.NewFileGen(pps.Mod, pkg, ps).Gen()
 
 	if noWrite {
 		fmt.Println(s)

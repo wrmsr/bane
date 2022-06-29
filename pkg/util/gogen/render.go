@@ -43,6 +43,10 @@ func renderFunc(w *iou.IndentWriter, n Func) {
 }
 
 func renderImport(w *iou.IndentWriter, n Import) {
+	if n.Spec == "" {
+		w.WriteString("\n")
+		return
+	}
 	if n.Alias.Present() {
 		Render(w, n.Alias.Value())
 		w.WriteString(" ")
