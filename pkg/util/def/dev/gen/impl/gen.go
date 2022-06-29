@@ -25,7 +25,7 @@ type FileGen struct {
 func NewFileGen(ps *def.PackageSpec) *FileGen {
 	return &FileGen{
 		ps: ps,
-		ti: newTypeImporter(ps),
+		ti: newTypeImporter(ps, []string{"sync"}),
 	}
 }
 

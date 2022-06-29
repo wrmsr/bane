@@ -118,6 +118,12 @@ func Map[T, R any](fn func(t T) R, s []T) []R {
 	return r
 }
 
+func Apply[T any](fn func(t T), s []T) {
+	for _, e := range s {
+		fn(e)
+	}
+}
+
 func IndexMap[T, R any](fn func(i int, t T) R, s []T) []R {
 	r := make([]R, len(s))
 	for i, v := range s {

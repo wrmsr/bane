@@ -8,10 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	ctr "github.com/wrmsr/bane/pkg/util/container"
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/gogen"
-	its "github.com/wrmsr/bane/pkg/util/iterators"
+	"github.com/wrmsr/bane/pkg/util/maps"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -71,8 +70,8 @@ func typeRef(o any) (tr TypeRef) {
 
 //
 
-func CollectTypeNames(ps *def.PackageSpec) ctr.MutSet[rtu.ParsedName] {
-	ret := ctr.NewMutSet[rtu.ParsedName](nil)
+func CollectTypeNames(ps *def.PackageSpec) maps.Set[rtu.ParsedName] {
+	ret := maps.MakeSet[rtu.ParsedName]()
 
 	var doType func(ty TypeRef)
 	doType = func(tr TypeRef) {
@@ -110,24 +109,26 @@ type typeImporter struct {
 	imps map[string]string
 }
 
-func newTypeImporter(ps *def.PackageSpec) *typeImporter {
+func newTypeImporter(ps *def.PackageSpec, deps []string) *typeImporter {
 	ts := CollectTypeNames(ps)
 
-	pkgSet := ctr.NewMutSet[string](nil)
+	pkgSet := maps.MakeSet[string]()
 	pkgSet.Add(def.X_defPackageName())
-	ts.ForEach(func(pn rtu.ParsedName) bool {
+	for _, d := range deps {
+		pkgSet.Add(d)
+	}
+	for pn, _ := range ts {
 		if pn.Pkg != "" && pn.Pkg != ps.Name() {
 			pkgSet.Add(pn.Pkg)
 		}
-		return true
-	})
+	}
 
-	pkgs := its.Seq[string](pkgSet)
+	pkgs := pkgSet.Slice()
 	slices.Sort(pkgs)
 
 	imps := make(map[string]string, len(pkgs))
 	rimps := make(map[string]string, len(pkgs))
-	for _, pkg := range pkgs {
+	addImp := func(pkg string) {
 		_, pn, _ := stru.LastCut(pkg, "/")
 		for i := 1; ; i++ {
 			s := pn
@@ -141,6 +142,11 @@ func newTypeImporter(ps *def.PackageSpec) *typeImporter {
 			}
 		}
 	}
+
+	depSet := maps.MakeSetOf(deps)
+	depPkgs, nonDepPkgs := slices.Partition(depSet.Contains, pkgs)
+	slices.Apply(addImp, depPkgs)
+	slices.Apply(addImp, nonDepPkgs)
 
 	return &typeImporter{
 		ps:   ps,
