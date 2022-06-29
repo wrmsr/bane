@@ -12,6 +12,7 @@ import (
 	iou "github.com/wrmsr/bane/pkg/util/io"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	stru "github.com/wrmsr/bane/pkg/util/strings"
 )
 
 type FileGen struct {
@@ -65,7 +66,6 @@ func (fg *FileGen) genExpect() {
 			return nil
 		}()
 	*/
-
 }
 
 func (fg *FileGen) genStruct(ss *def.StructSpec) {
@@ -218,6 +218,9 @@ func (fg *FileGen) Gen() string {
 	if len(imps) > 0 {
 		fg.decls = slices.DeepFlatten[gg.Decl](gg.NewImports(imps...), fg.decls)
 	}
+
+	_, pn, _ := stru.LastCut(fg.ps.Name(), "/")
+	fg.decls = slices.DeepFlatten[gg.Decl](gg.NewPackage(gg.NewIdent(pn)), fg.decls)
 
 	var sb strings.Builder
 	sw := iou.NewIndentWriter(iou.NewDiscardStringWriter(&sb), "\t")

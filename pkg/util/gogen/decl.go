@@ -79,6 +79,19 @@ func NewImports(imports ...Import) Imports {
 
 //
 
+type Package struct {
+	decl
+	Name Ident
+}
+
+func NewPackage(name Ident) Package {
+	return Package{
+		Name: name,
+	}
+}
+
+//
+
 type Param struct {
 	node
 	Name opt.Optional[Ident]

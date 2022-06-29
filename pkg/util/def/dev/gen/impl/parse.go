@@ -58,7 +58,7 @@ func ParsePackages(cd string) []*packages.Package {
 		ParseFile: func(fset *token.FileSet, filename string, src []byte) (*ast.File, error) {
 			const mode = parser.AllErrors | parser.ParseComments
 			for _, suf := range []string{
-				"_gen.go", "_xgen.go",
+				"_gen.go",
 			} {
 				if strings.HasSuffix(filepath.Base(filename), suf) {
 					src = []byte{}

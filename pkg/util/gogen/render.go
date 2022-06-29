@@ -97,6 +97,10 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.Dedent()
 		w.WriteString(")\n")
 
+	case Package:
+		w.WriteString("package ")
+		Render(w, n.Name)
+
 	case Param:
 		if n.Name.Present() {
 			Render(w, n.Name.Value())

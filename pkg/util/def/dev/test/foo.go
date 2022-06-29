@@ -1,6 +1,8 @@
 //go:build !nodev
 
-package main
+//go:generate go run github.com/wrmsr/bane/pkg/util/def/dev/gen
+
+package test
 
 import (
 	"fmt"
@@ -8,8 +10,6 @@ import (
 	"github.com/wrmsr/bane/pkg/util/def"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 )
-
-//go:generate go run github.com/wrmsr/bane/pkg/util/def/dev/gen
 
 type Thing struct {
 	x int
@@ -32,14 +32,4 @@ var _ = def.Struct("Foo",
 
 func foof(s string, a ...any) {
 	fmt.Printf(s, a...)
-}
-
-//
-
-func main() {
-	foof("hi %s\n", "there")
-
-	var f Foo
-	f.init()
-	fmt.Printf("%+v\n", f)
 }

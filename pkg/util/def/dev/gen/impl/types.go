@@ -117,7 +117,7 @@ func newTypeImporter(ps *def.PackageSpec, deps []string) *typeImporter {
 	for _, d := range deps {
 		pkgSet.Add(d)
 	}
-	for pn, _ := range ts {
+	for pn := range ts {
 		if pn.Pkg != "" && pn.Pkg != ps.Name() {
 			pkgSet.Add(pn.Pkg)
 		}
