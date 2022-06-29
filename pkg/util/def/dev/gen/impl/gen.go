@@ -196,7 +196,10 @@ func (fg *FileGen) Gen() string {
 
 	var sb strings.Builder
 	sw := iou.NewIndentWriter(iou.NewDiscardStringWriter(&sb), "\t")
-	for _, n := range fg.decls {
+	for i, n := range fg.decls {
+		if i > 0 {
+			sw.WriteString("\n")
+		}
 		gg.Render(sw, n)
 	}
 	return sb.String()
