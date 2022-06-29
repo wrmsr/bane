@@ -1,27 +1,5 @@
 //go:build !nodev
 
-/*
-var _ = func() any {
-	def.X_addPackageDef(def.X_packageExpect{
-		Structs: map[string]def.X_structExpect{
-			"Foo": {
-				Fields: map[string]def.X_fieldExpect{
-					"bar": {
-						Ty: def.Type[int]().Ty.(reflect.Type),
-					},
-					"baz": {
-						Ty:         def.Type[int]().Ty.(reflect.Type),
-						HasDefault: true,
-					},
-				},
-				NumInits: 1,
-			},
-		},
-	})
-	return nil
-}()
-
-*/
 package main
 
 import (
