@@ -64,13 +64,9 @@ func NewFieldSpec(name string, defs []FieldDef) *FieldSpec {
 	return fs
 }
 
-func (fs FieldSpec) Name() string {
-	return fs.name
-}
-
-func (fs FieldSpec) Default() any {
-	return fs.dfl
-}
+func (fs FieldSpec) Name() string { return fs.name }
+func (fs FieldSpec) Type() any    { return fs.ty }
+func (fs FieldSpec) Default() any { return fs.dfl }
 
 //
 
@@ -118,27 +114,16 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 	return ss
 }
 
-func (ss StructSpec) Name() string {
-	return ss.name
-}
-
-func (ss StructSpec) Receiver() string {
-	return ss.receiver
-}
-
-func (ss StructSpec) Fields() map[string]*FieldSpec {
-	return ss.fields
-}
+func (ss StructSpec) Name() string                  { return ss.name }
+func (ss StructSpec) Receiver() string              { return ss.receiver }
+func (ss StructSpec) Fields() map[string]*FieldSpec { return ss.fields }
+func (ss StructSpec) Inits() []any                  { return ss.inits }
 
 func (ss StructSpec) Field(name string) *FieldSpec {
 	if ss, ok := ss.fields[name]; ok {
 		return ss
 	}
 	panic(SpecError{fmt.Errorf("field not found :%s", name)})
-}
-
-func (ss StructSpec) Inits() []any {
-	return ss.inits
 }
 
 //
@@ -186,13 +171,8 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 	return ps
 }
 
-func (ps PackageSpec) Name() string {
-	return ps.name
-}
-
-func (ps PackageSpec) Structs() map[string]*StructSpec {
-	return ps.structs
-}
+func (ps PackageSpec) Name() string                    { return ps.name }
+func (ps PackageSpec) Structs() map[string]*StructSpec { return ps.structs }
 
 func (ps PackageSpec) Struct(name string) *StructSpec {
 	if ss, ok := ps.structs[name]; ok {

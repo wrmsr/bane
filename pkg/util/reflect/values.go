@@ -11,11 +11,15 @@ type Value interface {
 	isValue()
 }
 
-type value struct {
+type BaseValue struct {
 	v reflect.Value
 }
 
-func (v value) isValue() {}
+func (v BaseValue) isValue() {}
+
+func (v BaseValue) Reflect() reflect.Value {
+	return v.v
+}
 
 //
 
@@ -23,52 +27,52 @@ type Scalar interface {
 	isScalar()
 }
 
-type scalar struct {
-	value
+type BaseScalar struct {
+	BaseValue
 }
 
-func (v scalar) isScalar() {}
+func (v BaseScalar) isScalar() {}
 
 //
 
 type Bool struct {
-	scalar
+	BaseScalar
 }
 
 //
 
 type Int struct {
-	scalar
+	BaseScalar
 }
 
 //
 
 type Uint struct {
-	scalar
+	BaseScalar
 }
 
 //
 
 type Uintptr struct {
-	scalar
+	BaseScalar
 }
 
 //
 
 type Float struct {
-	scalar
+	BaseScalar
 }
 
 //
 
 type Complex struct {
-	scalar
+	BaseScalar
 }
 
 //
 
 type String struct {
-	scalar
+	BaseScalar
 }
 
 //
@@ -77,11 +81,11 @@ type Container interface {
 	isContainer()
 }
 
-type container struct {
-	value
+type BaseContainer struct {
+	BaseValue
 }
 
-func (v container) isContainer() {}
+func (v BaseContainer) isContainer() {}
 
 //
 
@@ -89,64 +93,64 @@ type Sequence interface {
 	isSequence()
 }
 
-type sequence struct {
-	container
+type BaseSequence struct {
+	BaseContainer
 }
 
-func (v sequence) isSequence() {}
+func (v BaseSequence) isSequence() {}
 
 //
 
 type Array struct {
-	sequence
+	BaseSequence
 }
 
 //
 
 type Slice struct {
-	sequence
+	BaseSequence
 }
 
 //
 
 type Map struct {
-	container
+	BaseContainer
 }
 
 //
 
 type Chan struct {
-	value
+	BaseValue
 }
 
 //
 
 type Func struct {
-	value
+	BaseValue
 }
 
 //
 
 type Interface struct {
-	value
+	BaseValue
 }
 
 //
 
 type Pointer struct {
-	value
+	BaseValue
 }
 
 //
 
 type Struct struct {
-	value
+	BaseValue
 }
 
 //
 
 type UnsafePointer struct {
-	value
+	BaseValue
 }
 
 //
@@ -154,51 +158,51 @@ type UnsafePointer struct {
 func MakeValue(v reflect.Value) Value {
 	switch v.Kind() {
 	case reflect.Bool:
-		return Bool{scalar{value{v: v}}}
+		return Bool{BaseScalar{BaseValue{v: v}}}
 	case
 		reflect.Int,
 		reflect.Int8,
 		reflect.Int16,
 		reflect.Int32,
 		reflect.Int64:
-		return Int{scalar{value{v: v}}}
+		return Int{BaseScalar{BaseValue{v: v}}}
 	case
 		reflect.Uint,
 		reflect.Uint8,
 		reflect.Uint16,
 		reflect.Uint32,
 		reflect.Uint64:
-		return Uint{scalar{value{v: v}}}
+		return Uint{BaseScalar{BaseValue{v: v}}}
 	case reflect.Uintptr:
-		return Uintptr{scalar{value{v: v}}}
+		return Uintptr{BaseScalar{BaseValue{v: v}}}
 	case
 		reflect.Float32,
 		reflect.Float64:
-		return Float{scalar{value{v: v}}}
+		return Float{BaseScalar{BaseValue{v: v}}}
 	case
 		reflect.Complex64,
 		reflect.Complex128:
-		return Complex{scalar{value{v: v}}}
+		return Complex{BaseScalar{BaseValue{v: v}}}
 	case reflect.Array:
-		return Array{sequence{container{value{v: v}}}}
+		return Array{BaseSequence{BaseContainer{BaseValue{v: v}}}}
 	case reflect.Chan:
-		return Chan{value{v: v}}
+		return Chan{BaseValue{v: v}}
 	case reflect.Func:
-		return Func{value{v: v}}
+		return Func{BaseValue{v: v}}
 	case reflect.Interface:
-		return Interface{value{v: v}}
+		return Interface{BaseValue{v: v}}
 	case reflect.Map:
-		return Map{container{value{v: v}}}
+		return Map{BaseContainer{BaseValue{v: v}}}
 	case reflect.Pointer:
-		return Pointer{value{v: v}}
+		return Pointer{BaseValue{v: v}}
 	case reflect.Slice:
-		return Slice{sequence{container{value{v: v}}}}
+		return Slice{BaseSequence{BaseContainer{BaseValue{v: v}}}}
 	case reflect.String:
-		return String{scalar{value{v: v}}}
+		return String{BaseScalar{BaseValue{v: v}}}
 	case reflect.Struct:
-		return Struct{value{v: v}}
+		return Struct{BaseValue{v: v}}
 	case reflect.UnsafePointer:
-		return UnsafePointer{value{v: v}}
+		return UnsafePointer{BaseValue{v: v}}
 	}
 	panic(fmt.Errorf("unhandled value: %v", v))
 }

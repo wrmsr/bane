@@ -19,19 +19,20 @@ func main() {
 			//_ = ast.Fprint(os.Stdout, pkg.Fset, fil, nil)
 			//_ = printer.Fprint(os.Stdout, pkg.Fset, fil)
 
-			defs := impl.FindPkgDefCalls(fil, pkg.TypesInfo)
-			rdefs := make([]def.PackageDef, len(defs))
-			for i, d := range defs {
+			astDefs := impl.FindPkgDefCalls(fil, pkg.TypesInfo)
+			pkgDefs := make([]def.PackageDef, len(astDefs))
+			for i, d := range astDefs {
 				//_ = ast.Fprint(os.Stdout, pkg.Fset, d, nil)
 				//_ = printer.Fprint(os.Stdout, pkg.Fset, d)
 
 				rd := impl.ReifyDef(d, pkg.TypesInfo)
-				rdefs[i] = rd.(def.PackageDef)
+				pkgDefs[i] = rd.(def.PackageDef)
 			}
 
-			pspec := def.NewPackageSpec("?", rdefs)
+			ps := def.NewPackageSpec("?", pkgDefs)
+			fmt.Println(impl.AnalyzeTypes(ps))
 
-			s := impl.NewFileGen(pspec).Gen()
+			s := impl.NewFileGen(ps).Gen()
 			fmt.Println(s)
 		}
 	}

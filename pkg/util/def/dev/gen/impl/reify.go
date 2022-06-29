@@ -17,20 +17,25 @@ import (
 )
 
 type TypeRef struct {
-	Underlying any
+	Type types.Type
+}
+
+func (tr TypeRef) String() string {
+	return tr.Type.String()
 }
 
 func typeRef(o any) TypeRef {
+	var t types.Type
 	switch o := o.(type) {
 	case *types.Basic:
-		fmt.Println(o)
+		t = o
 	case *types.Named:
-		fmt.Println(o)
+		t = o
 	default:
 		panic(o)
 	}
 	return TypeRef{
-		Underlying: o,
+		Type: t,
 	}
 }
 
