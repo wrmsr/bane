@@ -4,7 +4,6 @@ import (
 	"reflect"
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
-	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	stu "github.com/wrmsr/bane/pkg/util/structs"
 )
@@ -21,25 +20,32 @@ func (o BaseMarshalOpt) isMarshalOpt() {}
 
 //
 
-type MarshalStructContext struct {
-	Struct reflect.Value
-	Field  *stu.FieldInfo
-	Map    map[string]any
-	Opts   ctr.TypeMap[MarshalOpt]
+type MarshalContext struct {
+	Opts ctr.TypeMap[MarshalOpt]
 }
 
-type StructMarshaller interface {
-	ExplodeStruct(ctx MarshalStructContext)
+type Marshaller interface {
+	Marshal(ctx MarshalContext, v reflect.Value)
 }
 
 //
 
 type Marshalling struct {
 	sic *stu.StructInfoCache
+
+	mm map[reflect.Type]Marshaller
 }
 
-func (m *Marshalling) Explode(v any, o ...MarshalOpt) map[string]any {
-	opts := ctr.NewTypeMap[MarshalOpt](its.Of(o...))
+func NewMarshalling() *Marshalling {
+	return &Marshalling{
+		sic: stu.NewStructInfoCache(),
+
+		mm: make(map[reflect.Type]Marshaller),
+	}
+}
+
+func (m *Marshalling) Marshal(v any, o ...MarshalOpt) any {
+	//opts := ctr.NewTypeMap[MarshalOpt](its.Of(o...))
 
 	rv, ok := rfl.UnwrapPointerValue(rfl.AsValue(v))
 	if !ok {
@@ -59,16 +65,6 @@ func (m *Marshalling) Explode(v any, o ...MarshalOpt) map[string]any {
 			continue
 		}
 		fv := frv.Interface()
-
-		if fv, ok := fv.(StructMarshaller); ok {
-			fv.ExplodeStruct(MarshalStructContext{
-				Struct: rv,
-				Field:  fi,
-				Map:    r,
-				Opts:   opts,
-			})
-			continue
-		}
 
 		if frv.Kind() == reflect.Struct {
 

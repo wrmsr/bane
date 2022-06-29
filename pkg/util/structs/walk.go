@@ -114,10 +114,6 @@ func walkFields(t reflect.Type) walkedFields {
 					// Ignore unexported non-embedded fields.
 					continue
 				}
-				tag := sf.Tag.Get("json")
-				if tag == "-" {
-					continue
-				}
 				index := make([]int, len(f.index)+1)
 				copy(index, f.index)
 				index[len(f.index)] = i
@@ -160,8 +156,7 @@ func walkFields(t reflect.Type) walkedFields {
 
 	sort.Slice(fields, func(i, j int) bool {
 		x := fields
-		// sort field by name, breaking ties with depth, then breaking ties with "name came from json tag", then
-		//  breaking ties with index sequence.
+		// sort field by name, breaking ties with depth, then breaking ties with index sequence.
 		if x[i].name != x[j].name {
 			return x[i].name < x[j].name
 		}

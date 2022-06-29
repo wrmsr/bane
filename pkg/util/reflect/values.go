@@ -143,6 +143,11 @@ type Pointer struct {
 
 //
 
+type Field struct {
+	s *Struct
+	f reflect.StructField
+}
+
 type Struct struct {
 	BaseValue
 }

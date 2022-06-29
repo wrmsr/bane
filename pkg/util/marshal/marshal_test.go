@@ -3,8 +3,6 @@ package marshal
 import (
 	"fmt"
 	"testing"
-
-	stu "github.com/wrmsr/bane/pkg/util/structs"
 )
 
 type A struct {
@@ -34,7 +32,7 @@ func TestMarshal(t *testing.T) {
 		Z: 420,
 	}
 
-	em := &Marshalling{stu.NewStructInfoCache()}
-	m := em.Explode(c)
+	em := NewMarshalling()
+	m := em.Marshal(c)
 	fmt.Printf("%+v\n", m)
 }
