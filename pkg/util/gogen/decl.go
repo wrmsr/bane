@@ -48,7 +48,7 @@ func NewFunc(
 //
 
 type Import struct {
-	node
+	decl
 	Spec  string
 	Alias opt.Optional[Ident]
 }
@@ -67,11 +67,11 @@ func NewImport(spec string) Import {
 //
 
 type Imports struct {
-	node
+	decl
 	Imports []Import
 }
 
-func NewImports(imports []Import) Imports {
+func NewImports(imports ...Import) Imports {
 	return Imports{
 		Imports: imports,
 	}

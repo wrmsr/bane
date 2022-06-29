@@ -12,6 +12,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/gogen"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
@@ -145,6 +146,19 @@ func newTypeImporter(ps *def.PackageSpec) *typeImporter {
 		ps:   ps,
 		imps: imps,
 	}
+}
+
+func (ti *typeImporter) imports() []gg.Import {
+	var imps []gg.Import
+	for k, v := range ti.imps {
+		_, n, _ := stru.LastCut(k, "/")
+		if n != v {
+			imps = append(imps, gg.NewImportAs(k, opt.Just[gg.Ident](gg.NewIdent(v))))
+		} else {
+			imps = append(imps, gg.NewImport(k))
+		}
+	}
+	return imps
 }
 
 func (ti *typeImporter) importedType(ty any) gg.Type {

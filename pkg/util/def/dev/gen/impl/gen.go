@@ -189,6 +189,11 @@ func (fg *FileGen) Gen() string {
 
 		fg.decls)
 
+	imps := fg.ti.imports()
+	if len(imps) > 0 {
+		fg.decls = slices.DeepFlatten[gg.Decl](gg.NewImports(imps...), fg.decls)
+	}
+
 	var sb strings.Builder
 	sw := iou.NewIndentWriter(iou.NewDiscardStringWriter(&sb), "\t")
 	for _, n := range fg.decls {
