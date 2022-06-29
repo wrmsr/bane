@@ -29,7 +29,7 @@ func main() {
 				pkgDefs[i] = rd.(def.PackageDef)
 			}
 
-			ps := def.NewPackageSpec("?", pkgDefs)
+			ps := def.NewPackageSpec(pkg.ID, pkgDefs)
 			fmt.Println(impl.CollectTypeNames(ps))
 
 			s := impl.NewFileGen(ps).Gen()

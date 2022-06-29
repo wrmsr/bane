@@ -39,7 +39,7 @@ func (fg *FileGen) setupImports() {
 	pkgSet := ctr.NewMutSet[string](nil)
 	pkgSet.Add(def.X_defPackageName())
 	ts.ForEach(func(pn rtu.ParsedName) bool {
-		if pn.Pkg != "" {
+		if pn.Pkg != "" && pn.Pkg != fg.ps.Name() {
 			pkgSet.Add(pn.Pkg)
 		}
 		return true
@@ -73,7 +73,7 @@ func (fg *FileGen) importedType(ty any) gg.Type {
 	var rec func(tr TypeRef)
 	rec = func(tr TypeRef) {
 		pn := tr.Parse()
-		if pn.Pkg != "" {
+		if pn.Pkg != "" && pn.Pkg != fg.ps.Name() {
 			in, ok := fg.imps[pn.Pkg]
 			if !ok {
 				panic(fmt.Errorf("import not found: %s", pn.Pkg))
