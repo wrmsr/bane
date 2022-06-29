@@ -1,4 +1,4 @@
-package explode
+package marshal
 
 import (
 	"reflect"
@@ -11,44 +11,44 @@ import (
 
 //
 
-type ExplodeOpt interface {
-	isExplodeOpt()
+type MarshalOpt interface {
+	isMarshalOpt()
 }
 
-type BaseExplodeOpt struct{}
+type BaseMarshalOpt struct{}
 
-func (o BaseExplodeOpt) isExplodeOpt() {}
+func (o BaseMarshalOpt) isMarshalOpt() {}
 
 //
 
-type ExplodeStructContext struct {
+type MarshalStructContext struct {
 	Struct reflect.Value
 	Field  *stu.FieldInfo
 	Map    map[string]any
-	Opts   ctr.TypeMap[ExplodeOpt]
+	Opts   ctr.TypeMap[MarshalOpt]
 }
 
-type StructExploder interface {
-	ExplodeStruct(ctx ExplodeStructContext)
+type StructMarshaller interface {
+	ExplodeStruct(ctx MarshalStructContext)
 }
 
 //
 
-type ExplosionManager struct {
+type Marshalling struct {
 	sic *stu.StructInfoCache
 }
 
-func (em *ExplosionManager) Explode(v any, o ...ExplodeOpt) map[string]any {
-	opts := ctr.NewTypeMap[ExplodeOpt](its.Of(o...))
+func (m *Marshalling) Explode(v any, o ...MarshalOpt) map[string]any {
+	opts := ctr.NewTypeMap[MarshalOpt](its.Of(o...))
 
 	rv, ok := rfl.UnwrapPointerValue(rfl.AsValue(v))
 	if !ok {
 		return nil
 	}
 
-	si := em.sic.Info(rv.Type())
+	si := m.sic.Info(rv.Type())
 
-	m := make(map[string]any)
+	r := make(map[string]any)
 	for _, fi := range si.Fields() {
 		if fi.Name() == "" {
 			continue
@@ -60,11 +60,11 @@ func (em *ExplosionManager) Explode(v any, o ...ExplodeOpt) map[string]any {
 		}
 		fv := frv.Interface()
 
-		if fv, ok := fv.(StructExploder); ok {
-			fv.ExplodeStruct(ExplodeStructContext{
+		if fv, ok := fv.(StructMarshaller); ok {
+			fv.ExplodeStruct(MarshalStructContext{
 				Struct: rv,
 				Field:  fi,
-				Map:    m,
+				Map:    r,
 				Opts:   opts,
 			})
 			continue
@@ -74,8 +74,8 @@ func (em *ExplosionManager) Explode(v any, o ...ExplodeOpt) map[string]any {
 
 		}
 
-		m[fi.Name()] = fv
+		r[fi.Name()] = fv
 	}
 
-	return m
+	return r
 }

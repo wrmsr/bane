@@ -1,4 +1,4 @@
-package explode
+package marshal
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ type C struct {
 	Z int32
 }
 
-func TestExplode(t *testing.T) {
+func TestMarshal(t *testing.T) {
 	c := C{
 		B: B{
 			A: A{
@@ -34,7 +34,7 @@ func TestExplode(t *testing.T) {
 		Z: 420,
 	}
 
-	em := &ExplosionManager{stu.NewStructInfoCache()}
+	em := &Marshalling{stu.NewStructInfoCache()}
 	m := em.Explode(c)
 	fmt.Printf("%+v\n", m)
 }
