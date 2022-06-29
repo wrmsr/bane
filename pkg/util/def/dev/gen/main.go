@@ -30,7 +30,7 @@ func main() {
 			}
 
 			ps := def.NewPackageSpec("?", pkgDefs)
-			fmt.Println(impl.AnalyzeTypes(ps))
+			fmt.Println(impl.CollectTypeNames(ps))
 
 			s := impl.NewFileGen(ps).Gen()
 			fmt.Println(s)

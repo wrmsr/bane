@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/gogen"
@@ -15,6 +16,7 @@ import (
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	stru "github.com/wrmsr/bane/pkg/util/strings"
 )
 
 type FileGen struct {
@@ -33,18 +35,40 @@ func NewFileGen(pkg *def.PackageSpec) *FileGen {
 }
 
 func (fg *FileGen) setupImports() {
-	ts := AnalyzeTypes(fg.ps)
+	ts := CollectTypeNames(fg.ps)
 
 	pkgSet := ctr.NewMutSet[string](nil)
 	pkgSet.Add(def.X_defPackageName())
 	ts.ForEach(func(pn rtu.ParsedName) bool {
-		pkgSet.Add(pn.Pkg)
+		pkgSet.Add(check.NotZero(pn.Pkg))
 		return true
 	})
 
 	pkgs := its.Seq[string](pkgSet)
 	slices.Sort(pkgs)
-	fmt.Println(pkgs)
+
+	imps := make(map[string]string, len(pkgs))
+	rimps := make(map[string]string, len(pkgs))
+	for _, pkg := range pkgs {
+		_, pn, _ := stru.LastCut(pkg, "/")
+		for i := 1; ; i++ {
+			s := pn
+			if i > 1 {
+				s += strconv.Itoa(i)
+			}
+			if rimps[s] == "" {
+				rimps[s] = pkg
+				imps[pkg] = s
+				break
+			}
+		}
+	}
+
+	fg.imps = imps
+}
+
+func (fg *FileGen) importedType(tn string) {
+
 }
 
 func newPtrFuncType(elem gg.Type) gg.FuncType {

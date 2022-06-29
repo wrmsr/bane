@@ -16,28 +16,7 @@ import (
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 )
 
-type TypeRef struct {
-	Type types.Type
-}
-
-func (tr TypeRef) String() string {
-	return tr.Type.String()
-}
-
-func typeRef(o any) TypeRef {
-	var t types.Type
-	switch o := o.(type) {
-	case *types.Basic:
-		t = o
-	case *types.Named:
-		t = o
-	default:
-		panic(o)
-	}
-	return TypeRef{
-		Type: t,
-	}
-}
+//
 
 func reifyIdentStr(node ast.Node) string {
 	if node, ok := node.(*ast.BasicLit); ok {
