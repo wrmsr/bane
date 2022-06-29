@@ -69,7 +69,37 @@ func (fg *FileGen) setupImports() {
 }
 
 func (fg *FileGen) importedType(ty any) gg.Type {
-	return gg.NewNameType(gg.NewIdent("int"))
+	var sb strings.Builder
+	var rec func(tr TypeRef)
+	rec = func(tr TypeRef) {
+		pn := tr.Parse()
+		if pn.Pkg != "" {
+			in, ok := fg.imps[pn.Pkg]
+			if !ok {
+				panic(fmt.Errorf("import not found: %s", pn.Pkg))
+			}
+			if in != "" {
+				sb.WriteString(in)
+				sb.WriteString(".")
+			}
+			sb.WriteString(pn.Obj)
+		} else {
+			sb.WriteString(pn.Obj)
+		}
+
+		if len(tr.Args) > 0 {
+			sb.WriteString("[")
+			for i, a := range tr.Args {
+				if i > 0 {
+					sb.WriteString(", ")
+				}
+				rec(a)
+			}
+			sb.WriteString("]")
+		}
+	}
+	rec(ty.(TypeRef))
+	return gg.NewNameType(gg.NewIdent(sb.String()))
 }
 
 func newPtrFuncType(elem gg.Type) gg.FuncType {
