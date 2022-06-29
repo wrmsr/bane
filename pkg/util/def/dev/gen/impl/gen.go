@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/wrmsr/bane/pkg/util/check"
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/gogen"
@@ -40,7 +39,9 @@ func (fg *FileGen) setupImports() {
 	pkgSet := ctr.NewMutSet[string](nil)
 	pkgSet.Add(def.X_defPackageName())
 	ts.ForEach(func(pn rtu.ParsedName) bool {
-		pkgSet.Add(check.NotZero(pn.Pkg))
+		if pn.Pkg != "" {
+			pkgSet.Add(pn.Pkg)
+		}
 		return true
 	})
 
