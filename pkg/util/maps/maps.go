@@ -19,3 +19,19 @@ func Values[K comparable, V any](m map[K]V) []V {
 	}
 	return s
 }
+
+func Copy[K comparable, V any](m map[K]V) map[K]V {
+	r := make(map[K]V, len(m))
+	for k, v := range m {
+		r[k] = v
+	}
+	return r
+}
+
+func Invert[K, V comparable](m map[K]V) map[V]K {
+	r := make(map[V]K, len(m))
+	for k, v := range m {
+		r[v] = k
+	}
+	return r
+}
