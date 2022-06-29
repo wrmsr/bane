@@ -35,3 +35,8 @@ func GetStackTrace(n, ofs int) []StackFrame {
 	}
 	return sfs
 }
+
+func GetCaller(ofs int) ParsedName {
+	sf := GetStackTrace(1, ofs+1)[0]
+	return ParseName(sf.Name)
+}

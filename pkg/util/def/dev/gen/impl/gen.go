@@ -7,15 +7,20 @@ import (
 	"strconv"
 	"strings"
 
+	ctr "github.com/wrmsr/bane/pkg/util/container"
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/gogen"
 	iou "github.com/wrmsr/bane/pkg/util/io"
+	its "github.com/wrmsr/bane/pkg/util/iterators"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
+	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 type FileGen struct {
 	ps *def.PackageSpec
+
+	imps map[string]string
 
 	decls     []gg.Decl
 	initStmts []gg.Stmt
@@ -25,6 +30,21 @@ func NewFileGen(pkg *def.PackageSpec) *FileGen {
 	return &FileGen{
 		ps: pkg,
 	}
+}
+
+func (fg *FileGen) setupImports() {
+	ts := AnalyzeTypes(fg.ps)
+
+	pkgSet := ctr.NewMutSet[string](nil)
+	pkgSet.Add(def.X_defPackageName())
+	ts.ForEach(func(pn rtu.ParsedName) bool {
+		pkgSet.Add(pn.Pkg)
+		return true
+	})
+
+	pkgs := its.Seq[string](pkgSet)
+	slices.Sort(pkgs)
+	fmt.Println(pkgs)
 }
 
 func newPtrFuncType(elem gg.Type) gg.FuncType {
@@ -148,6 +168,8 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 }
 
 func (fg *FileGen) Gen() string {
+	fg.setupImports()
+
 	i := 0
 	for _, ss := range fg.ps.Structs() {
 		if i > 0 {

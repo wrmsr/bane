@@ -9,7 +9,7 @@ import (
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 )
 
-func AnalyzeTypes(ps *def.PackageSpec) ctr.Set[rtu.ParsedName] {
+func AnalyzeTypes(ps *def.PackageSpec) ctr.MutSet[rtu.ParsedName] {
 	ret := ctr.NewMutSet[rtu.ParsedName](nil)
 
 	doString := func(s string) {

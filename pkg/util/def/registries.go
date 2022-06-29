@@ -21,15 +21,14 @@ var (
 
 //
 
-func _getCallingPackage() string {
-	sf := rtu.GetStackTrace(1, 3)[0]
-	return rtu.ParseName(sf.Name).Pkg
+var _thisPackage = func() string { return rtu.GetCaller(0).Pkg }()
+
+func X_defPackageName() string {
+	return _thisPackage
 }
 
-var _thisPackage = func() string { return _getCallingPackage() }()
-
 func getCallingPackage() string {
-	pkg := _getCallingPackage()
+	pkg := rtu.GetCaller(2).Pkg
 	if pkg == _thisPackage {
 		panic(RegistryError{errors.New("must not call from this package")})
 	}
