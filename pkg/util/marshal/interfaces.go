@@ -1,0 +1,123 @@
+package marshal
+
+import (
+	"reflect"
+
+	ctr "github.com/wrmsr/bane/pkg/util/container"
+)
+
+///
+
+type MarshalOpt interface {
+	isMarshalOpt()
+}
+
+type BaseMarshalOpt struct{}
+
+func (o BaseMarshalOpt) isMarshalOpt() {}
+
+//
+
+type MarshalContext struct {
+	Opts ctr.TypeMap[MarshalOpt]
+}
+
+type Marshaller interface {
+	Marshal(ctx MarshalContext, rv reflect.Value) Value
+}
+
+//
+
+type FuncMarshaller struct {
+	fn func(ctx MarshalContext, rv reflect.Value) Value
+}
+
+func NewFuncMarshaller(fn func(ctx MarshalContext, rv reflect.Value) Value) FuncMarshaller {
+	return FuncMarshaller{fn: fn}
+}
+
+var _ Marshaller = FuncMarshaller{}
+
+func (m FuncMarshaller) Marshal(ctx MarshalContext, rv reflect.Value) Value {
+	return m.fn(ctx, rv)
+}
+
+//
+
+type MarshallerResolver interface {
+	ResolveMarshaller(ty reflect.Type) Marshaller
+}
+
+//
+
+type FuncMarshallerResolver struct {
+	fn func(ty reflect.Type) Marshaller
+}
+
+func NewFuncMarshallerResolver(fn func(ty reflect.Type) Marshaller) FuncMarshallerResolver {
+	return FuncMarshallerResolver{fn: fn}
+}
+
+var _ MarshallerResolver = FuncMarshallerResolver{}
+
+func (mr FuncMarshallerResolver) ResolveMarshaller(ty reflect.Type) Marshaller {
+	return mr.fn(ty)
+}
+
+///
+
+type UnmarshalOpt interface {
+	isUnmarshalOpt()
+}
+
+type BaseUnmarshalOpt struct{}
+
+func (o BaseUnmarshalOpt) isUnmarshalOpt() {}
+
+//
+
+type UnmarshalContext struct {
+	Opts ctr.TypeMap[UnmarshalOpt]
+}
+
+type Unmarshaller interface {
+	Unmarshal(ctx MarshalContext, mv Value) reflect.Value
+}
+
+//
+
+type FuncUnmarshaller struct {
+	fn func(ctx MarshalContext, mv Value) reflect.Value
+}
+
+func NewFuncUnmarshaller(fn func(ctx MarshalContext, mv Value) reflect.Value) FuncUnmarshaller {
+	return FuncUnmarshaller{fn: fn}
+}
+
+var _ Unmarshaller = FuncUnmarshaller{}
+
+func (u FuncUnmarshaller) Unmarshal(ctx MarshalContext, mv Value) reflect.Value {
+	return u.fn(ctx, mv)
+}
+
+//
+
+type UnmarshallerResolver interface {
+	ResolveUnmarshaller(ty reflect.Type) Unmarshaller
+}
+
+//
+
+type FuncUnmarshallerResolver struct {
+	fn func(ty reflect.Type) Unmarshaller
+}
+
+func NewFuncUnmarshallerResolver(fn func(ty reflect.Type) Unmarshaller) FuncUnmarshallerResolver {
+	return FuncUnmarshallerResolver{fn: fn}
+}
+
+var _ UnmarshallerResolver = FuncUnmarshallerResolver{}
+
+func (ur FuncUnmarshallerResolver) ResolveUnmarshaller(ty reflect.Type) Unmarshaller {
+	return ur.fn(ty)
+}

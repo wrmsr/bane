@@ -4,29 +4,10 @@ import (
 	"reflect"
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
+	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	stu "github.com/wrmsr/bane/pkg/util/structs"
 )
-
-//
-
-type MarshalOpt interface {
-	isMarshalOpt()
-}
-
-type BaseMarshalOpt struct{}
-
-func (o BaseMarshalOpt) isMarshalOpt() {}
-
-//
-
-type MarshalContext struct {
-	Opts ctr.TypeMap[MarshalOpt]
-}
-
-type Marshaller interface {
-	Marshal(ctx MarshalContext, v reflect.Value)
-}
 
 //
 
@@ -44,8 +25,12 @@ func NewMarshalling() *Marshalling {
 	}
 }
 
+func (m *Marshalling) ResolveMarshaller(ty reflect.Type) Marshaller {
+
+}
+
 func (m *Marshalling) Marshal(v any, o ...MarshalOpt) map[string]any { // Value {
-	//opts := ctr.NewTypeMap[MarshalOpt](its.Of(o...))
+	opts := ctr.NewTypeMap[MarshalOpt](its.Of(o...))
 
 	rv, ok := rfl.UnwrapPointerValue(rfl.AsValue(v))
 	if !ok {
