@@ -8,6 +8,14 @@ import (
 
 ///
 
+type UnhandledTypeError struct{}
+
+func (e UnhandledTypeError) Error() string {
+	return "unhandled type"
+}
+
+///
+
 type MarshalOpt interface {
 	isMarshalOpt()
 }
