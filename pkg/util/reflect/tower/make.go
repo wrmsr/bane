@@ -88,7 +88,7 @@ func MakeValue(v reflect.Value) Value {
 		reflect.Int16,
 		reflect.Int32,
 		reflect.Int64:
-		return Int{BaseScalar{BaseValue{v: v}}}
+		return Signed{BaseScalar{BaseValue{v: v}}}
 
 	case
 		reflect.Uint,
@@ -97,7 +97,7 @@ func MakeValue(v reflect.Value) Value {
 		reflect.Uint32,
 		reflect.Uint64,
 		reflect.Uintptr:
-		return Uint{BaseScalar{BaseValue{v: v}}}
+		return Unsigned{BaseScalar{BaseValue{v: v}}}
 
 	case
 		reflect.Float32,
