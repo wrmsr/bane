@@ -1,35 +1,47 @@
 package json
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
+//
+
 type RawObject []bt.Kv[string, json.RawMessage]
 
-func readDelim(dec *json.Decoder) (json.Delim, error) {
-	token, err := dec.Token()
-	if err != nil {
-		return 0, err
+func (o RawObject) MarshalJSON() ([]byte, error) {
+	if o == nil {
+		return _nullBytes, nil
 	}
-	if delim, ok := token.(json.Delim); ok {
-		return delim, nil
+
+	buf := bytes.NewBuffer(nil)
+	buf.WriteRune('{')
+	enc := json.NewEncoder(buf)
+	for i, kv := range o {
+		if i > 0 {
+			buf.WriteRune(',')
+		}
+		if err := enc.Encode(kv.K); err != nil {
+			return nil, err
+		}
+		buf.WriteRune(':')
+		buf.Write(kv.V)
 	}
-	return 0, errors.New("expected delim")
+	buf.WriteRune('}')
+	return buf.Bytes(), nil
 }
 
-func endDelim(d json.Delim) json.Delim {
-	switch d {
-	case '{':
-		return '}'
-	case '[':
-		return ']'
-	}
-	panic(errors.New("unreachable"))
+func (o *RawObject) UnmarshalJSON(b []byte) (err error) {
+	*o, err = DecodeRawObject(json.NewDecoder(bytes.NewReader(b)))
+	return
 }
+
+//
 
 func DecodeRawObject(dec *json.Decoder) (r RawObject, err error) {
 	token, err := dec.Token()
@@ -111,4 +123,71 @@ func DecodeRawObject(dec *json.Decoder) (r RawObject, err error) {
 	default:
 		return nil, fmt.Errorf("unexpected delim: %v", delim)
 	}
+}
+
+//
+
+func MakeRawObject[K, V any](kvs []bt.Kv[K, V]) (RawObject, error) {
+	if kvs == nil {
+		return nil, nil
+	}
+
+	o := make(RawObject, len(kvs))
+	for i, kv := range kvs {
+		kb, err := json.Marshal(kv.K)
+		if err != nil {
+			return nil, err
+		}
+
+		var k string
+		switch kb[0] {
+		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+			k = string(kb)
+		case '"':
+			if err := json.Unmarshal(kb, &k); err != nil {
+				return nil, err
+			}
+		default:
+			return nil, fmt.Errorf("unhandled key bytes: %v", kb)
+		}
+
+		v, err := json.Marshal(kv.V)
+		if err != nil {
+			return nil, err
+		}
+
+		o[i] = bt.KvOf[string, json.RawMessage](k, v)
+	}
+
+	return o, nil
+}
+
+func UnmarshalRawObject[K, V any](o RawObject) ([]bt.Kv[K, V], error) {
+	if o == nil {
+		return nil, nil
+	}
+
+	isNum := rfl.IsNumericType(rfl.TypeOf[K]())
+
+	r := make([]bt.Kv[K, V], len(o))
+	for i, kv := range o {
+		ks := kv.K
+		if !isNum {
+			ks = "\"" + kv.K + "\""
+		}
+
+		var k K
+		if err := json.Unmarshal([]byte(ks), &k); err != nil {
+			return nil, err
+		}
+
+		var v V
+		if err := json.Unmarshal(kv.V, &v); err != nil {
+			return nil, err
+		}
+
+		r[i] = bt.KvOf(k, v)
+	}
+
+	return r, nil
 }
