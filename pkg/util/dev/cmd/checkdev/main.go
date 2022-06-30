@@ -3,6 +3,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/fs"
 	"io/ioutil"
@@ -18,8 +19,15 @@ import (
 const devPrefix = "//go:build !nodev"
 
 func main() {
+	flags := flag.NewFlagSet("checkdev", flag.ExitOnError)
+
+	var noFail bool
+	flags.BoolVar(&noFail, "q", false, "do not return failure")
+
+	check.Must(flags.Parse(os.Args[1:]))
+
 	numModified := 0
-	for _, arg := range os.Args[1:] {
+	for _, arg := range flags.Args() {
 		check.Must(filepath.Walk(arg, func(path string, info fs.FileInfo, err error) error {
 			if info.IsDir() || !strings.HasSuffix(info.Name(), ".go") {
 				return nil
@@ -55,8 +63,10 @@ func main() {
 		}))
 	}
 
-	if numModified > 0 {
-		os.Exit(1)
+	if !noFail {
+		if numModified > 0 {
+			os.Exit(1)
+		}
+		os.Exit(0)
 	}
-	os.Exit(0)
 }

@@ -51,6 +51,7 @@ gen-antlr:
 .PHONY: gen-go
 gen-go:
 	${GO} generate ./...
+	${GO} run "${MOD}/pkg/util/dev/cmd/checkdev" -q ${SRC}
 
 
 ### check

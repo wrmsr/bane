@@ -19,13 +19,13 @@ import (
 )
 
 func main() {
-	fs := flag.NewFlagSet("gen", flag.ExitOnError)
+	flags := flag.NewFlagSet("gen", flag.ExitOnError)
 
 	var noWrite bool
-	fs.BoolVar(&noWrite, "p", false, "do not write file, just print")
+	flags.BoolVar(&noWrite, "p", false, "do not write file, just print")
 
-	check.Must(fs.Parse(os.Args[1:]))
-	if fs.NArg() > 0 {
+	check.Must(flags.Parse(os.Args[1:]))
+	if flags.NArg() > 0 {
 		panic(errors.New("unexpected args"))
 	}
 
