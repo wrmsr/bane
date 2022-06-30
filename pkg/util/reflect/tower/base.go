@@ -17,7 +17,11 @@ Scalar
     Int32
     Int64
   Float
+   Float32
+   Float64
   Complex
+   Complex64
+   Complex128
  String
 Container
  Sequence
