@@ -1,25 +1,45 @@
 package tower
 
-//
+///
 
 type FloatType interface {
-	ScalarType
+	NumericType
+	isFloatType()
 }
 
 type floatType struct {
-	scalarType
+	numericType
 }
 
-type Float32Type struct{ FloatType }
-type Float64Type struct{ FloatType }
-
-var (
-	_float32Type = Float32Type{FloatType{scalarType{type_{ty: typeOf[float32]()}}}}
-	_float64Type = Float64Type{FloatType{scalarType{type_{ty: typeOf[float64]()}}}}
-)
+func (t floatType) isFloatType() {}
 
 //
 
-type Float struct {
-	scalar
+type Float32Type struct{ floatType }
+type Float64Type struct{ floatType }
+
+var (
+	_float32Type = Float32Type{floatType{numericType{scalarType{type_{ty: typeOf[float32]()}}}}}
+	_float64Type = Float64Type{floatType{numericType{scalarType{type_{ty: typeOf[float64]()}}}}}
+)
+
+///
+
+type Float interface {
+	Numeric
+	isFloat()
 }
+
+type float struct {
+	numeric
+}
+
+func (v float) isFloat() {}
+
+//
+
+type Float32 struct{ float }
+type Float64 struct{ float }
+
+func (v Float32) Type() Type { return _float32Type }
+func (v Float64) Type() Type { return _float64Type }

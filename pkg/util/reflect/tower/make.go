@@ -98,10 +98,10 @@ func MakeValue(v reflect.Value) Value {
 		reflect.Uintptr:
 		return Unsigned{scalar{value{v: v}}}
 
-	case
-		reflect.Float32,
-		reflect.Float64:
-		return Float{scalar{value{v: v}}}
+	case reflect.Float32:
+		return Float32{float{numeric{scalar{value{v: v}}}}}
+	case reflect.Float64:
+		return Float64{float{numeric{scalar{value{v: v}}}}}
 
 	case
 		reflect.Complex64,
