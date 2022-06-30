@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	ctr "github.com/wrmsr/bane/pkg/util/container"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 )
 
@@ -21,19 +22,24 @@ func (e SpecError) Unwrap() error { return e.err }
 type FieldSpec struct {
 	name string
 	defs []FieldDef
+	opts []FieldOpt
 
-	ty  any
-	dfl any
+	ty   any
+	dfl  any
+	meta ctr.MutTypeMap[any]
 }
 
 func NewFieldSpec(name string, defs []FieldDef) *FieldSpec {
 	fs := &FieldSpec{
 		name: name,
 		defs: defs,
+		meta: ctr.NewMutTypeMap[any](nil),
 	}
 
 	for _, d := range defs {
 		for _, o := range d.Opts {
+			fs.opts = append(fs.opts, o)
+
 			switch o := o.(type) {
 
 			case TypeOpt:
@@ -48,6 +54,9 @@ func NewFieldSpec(name string, defs []FieldDef) *FieldSpec {
 				}
 				fs.dfl = o.Val
 
+			case MetaOpt:
+				fs.meta.Put(o.Value)
+
 			default:
 				panic(RegistryError{fmt.Errorf("%T", o)})
 			}
@@ -57,9 +66,12 @@ func NewFieldSpec(name string, defs []FieldDef) *FieldSpec {
 	return fs
 }
 
-func (fs FieldSpec) Name() string { return fs.name }
-func (fs FieldSpec) Type() any    { return fs.ty }
-func (fs FieldSpec) Default() any { return fs.dfl }
+func (fs FieldSpec) Name() string           { return fs.name }
+func (fs FieldSpec) Defs() []FieldDef       { return fs.defs }
+func (fs FieldSpec) Opts() []FieldOpt       { return fs.opts }
+func (fs FieldSpec) Type() any              { return fs.ty }
+func (fs FieldSpec) Default() any           { return fs.dfl }
+func (fs FieldSpec) Meta() ctr.TypeMap[any] { return fs.meta }
 
 func (fs FieldSpec) RuntimeType() reflect.Type {
 	if fs.ty != nil {
@@ -76,18 +88,22 @@ func (fs FieldSpec) RuntimeType() reflect.Type {
 type StructSpec struct {
 	name string
 	defs []StructDef
+	opts []StructOpt
 
 	fields       []*FieldSpec
 	fieldsByName map[string]*FieldSpec
 
 	receiver string
 	inits    []any
+	meta     ctr.MutTypeMap[any]
 }
 
 func NewStructSpec(name string, defs []StructDef) *StructSpec {
 	ss := &StructSpec{
 		name: name,
 		defs: defs,
+
+		meta: ctr.NewMutTypeMap[any](nil),
 	}
 
 	var fns []string
@@ -95,6 +111,8 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 
 	for _, d := range defs {
 		for _, o := range d.Opts {
+			ss.opts = append(ss.opts, o)
+
 			switch o := o.(type) {
 
 			case ReceiverOpt:
@@ -108,6 +126,9 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 
 			case InitOpt:
 				ss.inits = append(ss.inits, o.Fn)
+
+			case MetaOpt:
+				ss.meta.Put(o.Value)
 
 			default:
 				panic(RegistryError{fmt.Errorf("%T", o)})
@@ -125,10 +146,13 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 	return ss
 }
 
-func (ss StructSpec) Name() string         { return ss.name }
-func (ss StructSpec) Fields() []*FieldSpec { return ss.fields }
-func (ss StructSpec) Receiver() string     { return ss.receiver }
-func (ss StructSpec) Inits() []any         { return ss.inits }
+func (ss StructSpec) Name() string           { return ss.name }
+func (ss StructSpec) Defs() []StructDef      { return ss.defs }
+func (ss StructSpec) Opts() []StructOpt      { return ss.opts }
+func (ss StructSpec) Fields() []*FieldSpec   { return ss.fields }
+func (ss StructSpec) Receiver() string       { return ss.receiver }
+func (ss StructSpec) Inits() []any           { return ss.inits }
+func (ss StructSpec) Meta() ctr.TypeMap[any] { return ss.meta }
 
 func (ss StructSpec) Field(name string) *FieldSpec {
 	if ss, ok := ss.fieldsByName[name]; ok {

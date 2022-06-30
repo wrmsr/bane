@@ -44,7 +44,7 @@ func NewMarshalling() *Marshalling {
 	}
 }
 
-func (m *Marshalling) Marshal(v any, o ...MarshalOpt) any {
+func (m *Marshalling) Marshal(v any, o ...MarshalOpt) map[string]any { // Value {
 	//opts := ctr.NewTypeMap[MarshalOpt](its.Of(o...))
 
 	rv, ok := rfl.UnwrapPointerValue(rfl.AsValue(v))

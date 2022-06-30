@@ -10,7 +10,7 @@ import (
 
 //
 
-func GetQuantile(sortedData []float64, q float64) float64 {
+func Quantile(sortedData []float64, q float64) float64 {
 	check.Condition(0.0 <= q && q <= 1.0)
 	data, n := sortedData, len(sortedData)
 	idx := q / 1.0 * (float64(n) - 1)
@@ -29,9 +29,12 @@ type Stats struct {
 	dfl float64
 	_eq func(l, r float64) bool
 
+	min  opt.Optional[float64]
+	max  opt.Optional[float64]
+	sum  opt.Optional[float64]
+	mean opt.Optional[float64]
+
 	sorted opt.Optional[[]float64]
-	sum    opt.Optional[float64]
-	mean   opt.Optional[float64]
 }
 
 func NewStats(data []float64) Stats {
@@ -60,9 +63,15 @@ func (s Stats) Eq(l, r float64) bool {
 
 func (s Stats) Len() int { return len(s.data) }
 
-func (s *Stats) Sorted() []float64 {
-	return opt.SetIfAbsent(&s.sorted, func() []float64 {
-		return slices.Sort(slices.Copy(s.data))
+func (s *Stats) Min() float64 {
+	return opt.SetIfAbsent(&s.min, func() float64 {
+		return slices.Min(s.data)
+	})
+}
+
+func (s *Stats) Max() float64 {
+	return opt.SetIfAbsent(&s.min, func() float64 {
+		return slices.Max(s.data)
 	})
 }
 
@@ -76,4 +85,14 @@ func (s *Stats) Mean() float64 {
 	return opt.SetIfAbsent(&s.mean, func() float64 {
 		return s.Sum() / float64(len(s.data))
 	})
+}
+
+func (s *Stats) Sorted() []float64 {
+	return opt.SetIfAbsent(&s.sorted, func() []float64 {
+		return slices.Sort(slices.Copy(s.data))
+	})
+}
+
+func (s *Stats) Quantile(q float64) float64 {
+	return Quantile(s.Sorted(), q)
 }

@@ -7,6 +7,9 @@ SRC=\
 	pkg \
 
 BREW_DEPS=\
+	graphviz \
+	socat \
+	sqlite3 \
 
 
 ### clean
@@ -19,6 +22,13 @@ clean:
 
 	ds=$$(find ${SRC} -name parser -type d) && \
 	for d in "$$ds" ; do rm -rf "$$d" ; done
+
+
+### sys
+
+.PHONY: brew
+brew:
+	brew install ${BREW_DEPS}
 
 
 ### deps
@@ -103,7 +113,6 @@ DOCKER_COMPOSE=docker-compose -f docker/docker-compose.yml
 .PHONY: docker-stop
 docker-stop:
 	${DOCKER_COMPOSE} stop
-
 
 .PHONY: docker-reup
 docker-reup: docker-stop

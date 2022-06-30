@@ -237,10 +237,36 @@ func Interleave[T any](s []T, e T) []T {
 	return r
 }
 
-func Sum[T bt.Number](s []T) T {
+func Sum[T bt.Numeric](s []T) T {
 	var r T
 	for _, c := range s {
 		r += c
+	}
+	return r
+}
+
+func Min[T constraints.Ordered](s []T) T {
+	if len(s) < 1 {
+		panic("empty")
+	}
+	r := s[0]
+	for _, c := range s[1:] {
+		if c < r {
+			r = c
+		}
+	}
+	return r
+}
+
+func Max[T constraints.Ordered](s []T) T {
+	if len(s) < 1 {
+		panic("empty")
+	}
+	r := s[0]
+	for _, c := range s[1:] {
+		if c > r {
+			r = c
+		}
 	}
 	return r
 }

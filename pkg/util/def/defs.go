@@ -101,3 +101,18 @@ func (o InitOpt) isStructOpt() {}
 func Init(fn any) InitOpt {
 	return InitOpt{Fn: fn}
 }
+
+//
+
+type MetaOpt struct {
+	Value any
+}
+
+func (o MetaOpt) isStructOpt() {}
+func (o MetaOpt) isFieldOpt()  {}
+
+func Meta(value any) MetaOpt {
+	return MetaOpt{
+		Value: value,
+	}
+}

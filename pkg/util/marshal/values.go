@@ -9,12 +9,27 @@ import (
 //
 
 type Value interface {
+	Interface() any
+
 	isValue()
 }
 
 type value struct{}
 
 func (v value) isValue() {}
+
+var (
+	_ Value = Int{}
+	_ Value = Float{}
+	_ Value = Number{}
+	_ Value = Bool{}
+	_ Value = Null{}
+	_ Value = Bytes{}
+	_ Value = String{}
+	_ Value = Any{}
+	_ Value = Object{}
+	_ Value = Array{}
+)
 
 //
 
@@ -48,11 +63,23 @@ type Int struct {
 	u bool
 }
 
+func (v Int) Interface() any {
+	if v.u {
+		return uint64(v.v)
+	} else {
+		return v.v
+	}
+}
+
 //
 
 type Float struct {
 	numeric
 	v float64
+}
+
+func (v Float) Interface() any {
+	return v.v
 }
 
 //
@@ -62,6 +89,10 @@ type Number struct {
 	v big.Rat
 }
 
+func (v Number) Interface() any {
+	return v.v
+}
+
 //
 
 type Bool struct {
@@ -69,10 +100,25 @@ type Bool struct {
 	v bool
 }
 
+var (
+	_trueValue  = Bool{v: true}
+	_falseValue = Bool{v: false}
+)
+
+func (v Bool) Interface() any {
+	return v.v
+}
+
 //
 
 type Null struct {
 	simple
+}
+
+var _nullValue = Null{}
+
+func (v Null) Interface() any {
+	return nil
 }
 
 //
@@ -82,6 +128,10 @@ type Bytes struct {
 	v []byte
 }
 
+func (v Bytes) Interface() any {
+	return v.v
+}
+
 //
 
 type String struct {
@@ -89,11 +139,19 @@ type String struct {
 	v string
 }
 
+func (v String) Interface() any {
+	return v.v
+}
+
 //
 
 type Any struct {
 	simple
 	v any
+}
+
+func (v Any) Interface() any {
+	return v.v
 }
 
 //
@@ -115,9 +173,17 @@ type Object struct {
 	kvs []bt.Kv[Value, Value]
 }
 
+func (v Object) Interface() any {
+	return v.kvs // FIXME: ?
+}
+
 //
 
 type Array struct {
 	container
-	a []Value
+	v []Value
+}
+
+func (v Array) Interface() any {
+	return v
 }

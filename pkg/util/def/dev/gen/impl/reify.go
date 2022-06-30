@@ -84,6 +84,10 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		}
 
 	case "Type":
+		if len(call.Args) != 0 {
+			panic(call)
+		}
+
 		idx := call.Fun.(*ast.IndexExpr)
 		sel := idx.X.(*ast.SelectorExpr)
 		inst := ti.Instances[sel.Sel]
@@ -111,10 +115,19 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		if len(call.Args) != 1 {
 			panic(call)
 		}
+
 		return def.InitOpt{
 			Fn: call.Args[0],
 		}
 
+	case "Meta":
+		if len(call.Args) != 1 {
+			panic(call)
+		}
+
+		return def.MetaOpt{
+			Value: call.Args[0],
+		}
 	}
 
 	panic(fmt.Errorf("unhandled type: %T", node))

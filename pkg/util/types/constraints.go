@@ -2,6 +2,6 @@ package types
 
 import "golang.org/x/exp/constraints"
 
-type Number interface {
+type Numeric interface {
 	constraints.Integer | constraints.Float | constraints.Complex
 }
