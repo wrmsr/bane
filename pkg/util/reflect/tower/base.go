@@ -1,3 +1,36 @@
+/*
+Scalar
+ Bool
+ Numeric
+  Integral
+   Unsigned
+    Uint
+    Uint8
+    Uint16
+    Uint32
+    Uint64
+    Uintptr
+   Signed
+    Int
+    Int8
+    Int16
+    Int32
+    Int64
+  Float
+  Complex
+ String
+Container
+ Sequence
+  Array
+  Slice
+ Map
+Chan
+Func
+Interface
+Pointer
+Struct
+UnsafePointer
+*/
 package tower
 
 import "reflect"

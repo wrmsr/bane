@@ -3,6 +3,7 @@ package tower
 //
 
 type SequenceType interface {
+	ContainerType
 	isSequenceType()
 }
 
@@ -15,6 +16,7 @@ func (t sequenceType) isSequenceType() {}
 //
 
 type Sequence interface {
+	Container
 	isSequence()
 }
 

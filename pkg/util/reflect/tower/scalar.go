@@ -3,6 +3,7 @@ package tower
 //
 
 type ScalarType interface {
+	Type
 	isScalarType()
 }
 
@@ -15,6 +16,7 @@ func (t scalarType) isScalarType() {}
 //
 
 type Scalar interface {
+	Value
 	isScalar()
 }
 

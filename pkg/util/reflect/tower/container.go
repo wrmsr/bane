@@ -3,6 +3,7 @@ package tower
 //
 
 type ContainerType interface {
+	Type
 	isContainerType()
 }
 
@@ -15,6 +16,7 @@ func (t containerType) isContainerType() {}
 //
 
 type Container interface {
+	Value
 	isContainer()
 }
 

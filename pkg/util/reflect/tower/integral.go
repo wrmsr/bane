@@ -3,6 +3,7 @@ package tower
 //
 
 type IntegralType interface {
+	NumericType
 	isIntegralType()
 }
 
@@ -15,6 +16,7 @@ func (t integralType) isIntegralType() {}
 //
 
 type Integral interface {
+	Numeric
 	isIntegral()
 }
 

@@ -2,7 +2,11 @@ package tower
 
 //
 
-type FloatType struct {
+type FloatType interface {
+	ScalarType
+}
+
+type floatType struct {
 	scalarType
 }
 

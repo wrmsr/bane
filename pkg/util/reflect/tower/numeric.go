@@ -3,6 +3,7 @@ package tower
 //
 
 type NumericType interface {
+	ScalarType
 	isNumericType()
 }
 
@@ -15,6 +16,7 @@ func (t numericType) isNumericType() {}
 //
 
 type Numeric interface {
+	Scalar
 	isNumeric()
 }
 

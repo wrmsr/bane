@@ -32,7 +32,6 @@ func MakeType(ty reflect.Type) Type {
 		return _uint32Type
 	case reflect.Uint64:
 		return _uint64Type
-
 	case reflect.Uintptr:
 		return _uintptrType
 
@@ -69,8 +68,8 @@ func MakeType(ty reflect.Type) Type {
 		return StructType{type_{ty: ty}}
 	case reflect.UnsafePointer:
 		return UnsafePointerType{type_{ty: ty}}
-	}
 
+	}
 	panic(fmt.Errorf("unhandled type: %v", ty))
 }
 
@@ -132,7 +131,7 @@ func MakeValue(v reflect.Value) Value {
 		return Struct{value{v: v}}
 	case reflect.UnsafePointer:
 		return UnsafePointer{value{v: v}}
-	}
 
+	}
 	panic(fmt.Errorf("unhandled value: %v", v))
 }
