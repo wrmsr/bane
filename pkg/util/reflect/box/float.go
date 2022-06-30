@@ -1,4 +1,4 @@
-package tower
+package box
 
 ///
 
@@ -19,8 +19,8 @@ type Float32Type struct{ floatType }
 type Float64Type struct{ floatType }
 
 var (
-	_float32Type = Float32Type{floatType{numericType{scalarType{type_{ty: typeOf[float32]()}}}}}
-	_float64Type = Float64Type{floatType{numericType{scalarType{type_{ty: typeOf[float64]()}}}}}
+	_float32Type = Float32Type{floatType{numericType{scalarType{type_{t: typeOf[float32]()}}}}}
+	_float64Type = Float64Type{floatType{numericType{scalarType{type_{t: typeOf[float64]()}}}}}
 )
 
 ///

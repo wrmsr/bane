@@ -1,12 +1,12 @@
-package tower
+package box
 
 import (
 	"fmt"
 	"reflect"
 )
 
-func MakeType(ty reflect.Type) Type {
-	switch ty.Kind() {
+func BoxType(t reflect.Type) Type {
+	switch t.Kind() {
 
 	case reflect.Bool:
 		return _boolType
@@ -49,64 +49,71 @@ func MakeType(ty reflect.Type) Type {
 		return _stringType
 
 	case reflect.Array:
-		return ArrayType{sequenceType{containerType{type_{ty: ty}}}}
+		return ArrayType{sequenceType{containerType{type_{t: t}}}}
 	case reflect.Slice:
-		return SliceType{sequenceType{containerType{type_{ty: ty}}}}
+		return SliceType{sequenceType{containerType{type_{t: t}}}}
 
 	case reflect.Map:
-		return MapType{containerType{type_{ty: ty}}}
+		return MapType{containerType{type_{t: t}}}
 
 	case reflect.Chan:
-		return ChanType{type_{ty: ty}}
+		return ChanType{type_{t: t}}
 	case reflect.Func:
-		return FuncType{type_{ty: ty}}
+		return FuncType{type_{t: t}}
 	case reflect.Interface:
-		return InterfaceType{type_{ty: ty}}
+		return InterfaceType{type_{t: t}}
 	case reflect.Pointer:
-		return PointerType{type_{ty: ty}}
+		return PointerType{type_{t: t}}
 	case reflect.Struct:
-		return StructType{type_{ty: ty}}
+		return StructType{type_{t: t}}
 	case reflect.UnsafePointer:
-		return UnsafePointerType{type_{ty: ty}}
+		return UnsafePointerType{type_{t: t}}
 
 	}
-	panic(fmt.Errorf("unhandled type: %v", ty))
+	panic(fmt.Errorf("unhandled type: %v", t))
 }
 
 //
 
-func MakeValue(v reflect.Value) Value {
+func Box(v reflect.Value) Value {
 	switch v.Kind() {
 
 	case reflect.Bool:
 		return Bool{scalar{value{v: v}}}
 
-	case
-		reflect.Int,
-		reflect.Int8,
-		reflect.Int16,
-		reflect.Int32,
-		reflect.Int64:
-		return Signed{scalar{value{v: v}}}
+	case reflect.Int:
+		return Int{signed{integral{numeric{scalar{value{v: v}}}}}}
+	case reflect.Int8:
+		return Int8{signed{integral{numeric{scalar{value{v: v}}}}}}
+	case reflect.Int16:
+		return Int16{signed{integral{numeric{scalar{value{v: v}}}}}}
+	case reflect.Int32:
+		return Int32{signed{integral{numeric{scalar{value{v: v}}}}}}
+	case reflect.Int64:
+		return Int64{signed{integral{numeric{scalar{value{v: v}}}}}}
 
-	case
-		reflect.Uint,
-		reflect.Uint8,
-		reflect.Uint16,
-		reflect.Uint32,
-		reflect.Uint64,
-		reflect.Uintptr:
-		return Unsigned{scalar{value{v: v}}}
+	case reflect.Uint:
+		return Uint{unsigned{integral{numeric{scalar{value{v: v}}}}}}
+	case reflect.Uint8:
+		return Uint8{unsigned{integral{numeric{scalar{value{v: v}}}}}}
+	case reflect.Uint16:
+		return Uint16{unsigned{integral{numeric{scalar{value{v: v}}}}}}
+	case reflect.Uint32:
+		return Uint32{unsigned{integral{numeric{scalar{value{v: v}}}}}}
+	case reflect.Uint64:
+		return Uint64{unsigned{integral{numeric{scalar{value{v: v}}}}}}
+	case reflect.Uintptr:
+		return Uintptr{unsigned{integral{numeric{scalar{value{v: v}}}}}}
 
 	case reflect.Float32:
 		return Float32{float{numeric{scalar{value{v: v}}}}}
 	case reflect.Float64:
 		return Float64{float{numeric{scalar{value{v: v}}}}}
 
-	case
-		reflect.Complex64,
-		reflect.Complex128:
-		return Complex{scalar{value{v: v}}}
+	case reflect.Complex64:
+		return Complex64{complex{numeric{scalar{value{v: v}}}}}
+	case reflect.Complex128:
+		return Complex128{complex{numeric{scalar{value{v: v}}}}}
 
 	case reflect.String:
 		return String{scalar{value{v: v}}}

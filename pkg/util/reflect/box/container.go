@@ -1,4 +1,4 @@
-package tower
+package box
 
 //
 
@@ -25,3 +25,5 @@ type container struct {
 }
 
 func (v container) isContainer() {}
+
+func (v container) Type() Type { return BoxType(v.v.Type()) }

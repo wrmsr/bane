@@ -1,4 +1,4 @@
-package tower
+package box
 
 //
 
@@ -11,3 +11,5 @@ type UnsafePointerType struct {
 type UnsafePointer struct {
 	value
 }
+
+func (v UnsafePointer) Type() Type { return BoxType(v.v.Type()) }

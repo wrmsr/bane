@@ -1,4 +1,4 @@
-package tower
+package box
 
 //
 
@@ -11,3 +11,5 @@ type PointerType struct {
 type Pointer struct {
 	value
 }
+
+func (v Pointer) Type() Type { return BoxType(v.v.Type()) }

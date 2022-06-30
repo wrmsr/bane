@@ -1,4 +1,4 @@
-package tower
+package box
 
 import "reflect"
 
@@ -27,3 +27,5 @@ type StructType struct {
 type Struct struct {
 	value
 }
+
+func (v Struct) Type() Type { return BoxType(v.v.Type()) }

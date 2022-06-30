@@ -35,29 +35,31 @@ Pointer
 Struct
 UnsafePointer
 */
-package tower
+package box
 
 import "reflect"
 
 //
 
 type Type interface {
+	Reflect() reflect.Type
 	isType()
 }
 
 type type_ struct {
-	ty reflect.Type
+	t reflect.Type
 }
 
 func (t type_) isType() {}
 
 func (t type_) Reflect() reflect.Type {
-	return t.ty
+	return t.t
 }
 
 //
 
 type Value interface {
+	Reflect() reflect.Value
 	isValue()
 
 	Type() Type
