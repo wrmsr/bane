@@ -28,7 +28,7 @@ func AsType(v any) reflect.Type {
 	panic(fmt.Errorf("cannot make type from %T %v", v, v))
 }
 
-func Type[T any]() reflect.Type {
+func TypeOf[T any]() reflect.Type {
 	var z T
 	return reflect.TypeOf(z)
 }

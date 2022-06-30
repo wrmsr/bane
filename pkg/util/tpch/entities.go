@@ -74,15 +74,15 @@ func reflectColumn(fld reflect.StructField) Column {
 	}
 
 	switch fld.Type {
-	case rfl.Type[int64]():
+	case rfl.TypeOf[int64]():
 		col.ty = IntegerType
-	case rfl.Type[Identifier]():
+	case rfl.TypeOf[Identifier]():
 		col.ty = IdentifierType
-	case rfl.Type[time.Time]():
+	case rfl.TypeOf[time.Time]():
 		col.ty = DateType
-	case rfl.Type[float64]():
+	case rfl.TypeOf[float64]():
 		col.ty = DoubleType
-	case rfl.Type[string]():
+	case rfl.TypeOf[string]():
 		col.ty = VarcharType
 	default:
 		panic(fmt.Errorf("unhandled entity field type: %v", fld.Type))
@@ -196,7 +196,7 @@ func getEntities() *EntitySet {
 //
 
 var _ = _registerEntity(reflectEntity(
-	rfl.Type[Region](),
+	rfl.TypeOf[Region](),
 	"region",
 	[]string{"r_regionkey"},
 	nil,
@@ -211,7 +211,7 @@ type Region struct {
 //
 
 var _ = _registerEntity(reflectEntity(
-	rfl.Type[Nation](),
+	rfl.TypeOf[Nation](),
 	"nation",
 	[]string{"n_nationkey"},
 	[][]string{{"n_regionkey"}},
@@ -227,7 +227,7 @@ type Nation struct {
 //
 
 var _ = _registerEntity(reflectEntity(
-	rfl.Type[Part](),
+	rfl.TypeOf[Part](),
 	"part",
 	[]string{"p_partkey"},
 	nil,
@@ -248,7 +248,7 @@ type Part struct {
 //
 
 var _ = _registerEntity(reflectEntity(
-	rfl.Type[Supplier](),
+	rfl.TypeOf[Supplier](),
 	"supplier",
 	[]string{"s_suppkey"},
 	[][]string{{"s_nationkey"}},
@@ -267,7 +267,7 @@ type Supplier struct {
 //
 
 var _ = _registerEntity(reflectEntity(
-	rfl.Type[PartSupplier](),
+	rfl.TypeOf[PartSupplier](),
 	"part_supplier",
 	[]string{"ps_suppkey", "ps_partkey"},
 	nil,
@@ -284,7 +284,7 @@ type PartSupplier struct {
 //
 
 var _ = _registerEntity(reflectEntity(
-	rfl.Type[Customer](),
+	rfl.TypeOf[Customer](),
 	"customer",
 	[]string{"c_custkey"},
 	[][]string{{"c_nationkey"}},
@@ -304,7 +304,7 @@ type Customer struct {
 //
 
 var _ = _registerEntity(reflectEntity(
-	rfl.Type[Order](),
+	rfl.TypeOf[Order](),
 	"order",
 	[]string{"o_orderkey"},
 	[][]string{{"o_custkey"}},
@@ -325,7 +325,7 @@ type Order struct {
 //
 
 var _ = _registerEntity(reflectEntity(
-	rfl.Type[LineItem](),
+	rfl.TypeOf[LineItem](),
 	"line_item",
 	[]string{"l_orderkey", "l_linenumber"},
 	[][]string{{"l_partkey"}, {"l_suppkey"}},

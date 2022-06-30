@@ -24,9 +24,9 @@ type C struct {
 func TestTool(t *testing.T) {
 	st := NewStructInfoCache()
 	for _, ty := range []any{
-		rfl.Type[A](),
-		rfl.Type[B](),
-		rfl.Type[C](),
+		rfl.TypeOf[A](),
+		rfl.TypeOf[B](),
+		rfl.TypeOf[C](),
 	} {
 		st.Info(ty)
 	}
