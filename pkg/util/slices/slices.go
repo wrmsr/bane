@@ -236,3 +236,11 @@ func Interleave[T any](s []T, e T) []T {
 	}
 	return r
 }
+
+func Sum[T bt.Number](s []T) T {
+	var r T
+	for _, c := range s {
+		r += c
+	}
+	return r
+}

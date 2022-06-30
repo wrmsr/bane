@@ -85,3 +85,14 @@ func (o Optional[T]) ForEach(fn func(v T) bool) bool {
 	}
 	return true
 }
+
+//
+
+func SetIfAbsent[T any](o *Optional[T], fn func() T) T {
+	if o.Present() {
+		return o.Value()
+	}
+	r := fn()
+	*o = Just(r)
+	return r
+}
