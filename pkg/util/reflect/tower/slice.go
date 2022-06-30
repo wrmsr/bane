@@ -3,11 +3,11 @@ package tower
 //
 
 type SliceType struct {
-	BaseSequenceType
+	sequenceType
 }
 
 //
 
 type Slice struct {
-	BaseSequence
+	sequence
 }

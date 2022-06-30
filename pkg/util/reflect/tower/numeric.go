@@ -6,11 +6,11 @@ type NumericType interface {
 	isNumericType()
 }
 
-type BaseNumericType struct {
-	BaseScalarType
+type numericType struct {
+	scalarType
 }
 
-func (t BaseNumericType) isNumericType() {}
+func (t numericType) isNumericType() {}
 
 //
 
@@ -18,8 +18,8 @@ type Numeric interface {
 	isNumeric()
 }
 
-type BaseNumeric struct {
-	BaseScalar
+type numeric struct {
+	scalar
 }
 
-func (t BaseNumeric) isNumeric() {}
+func (t numeric) isNumeric() {}

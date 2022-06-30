@@ -3,11 +3,11 @@ package tower
 //
 
 type ChanType struct {
-	BaseType
+	type_
 }
 
 //
 
 type Chan struct {
-	BaseValue
+	value
 }

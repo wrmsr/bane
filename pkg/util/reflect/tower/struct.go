@@ -19,11 +19,11 @@ type Field struct {
 //
 
 type StructType struct {
-	BaseType
+	type_
 }
 
 //
 
 type Struct struct {
-	BaseValue
+	value
 }

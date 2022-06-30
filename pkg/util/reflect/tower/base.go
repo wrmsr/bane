@@ -8,13 +8,13 @@ type Type interface {
 	isType()
 }
 
-type BaseType struct {
+type type_ struct {
 	ty reflect.Type
 }
 
-func (t BaseType) isType() {}
+func (t type_) isType() {}
 
-func (t BaseType) Reflect() reflect.Type {
+func (t type_) Reflect() reflect.Type {
 	return t.ty
 }
 
@@ -26,13 +26,13 @@ type Value interface {
 	Type() Type
 }
 
-type BaseValue struct {
+type value struct {
 	v reflect.Value
 }
 
-func (v BaseValue) isValue() {}
+func (v value) isValue() {}
 
-func (v BaseValue) Reflect() reflect.Value {
+func (v value) Reflect() reflect.Value {
 	return v.v
 }
 

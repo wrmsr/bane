@@ -3,13 +3,13 @@ package tower
 //
 
 type StringType struct {
-	BaseScalarType
+	scalarType
 }
 
-var _stringType = StringType{BaseScalarType{BaseType{ty: typeOf[string]()}}}
+var _stringType = StringType{scalarType{type_{ty: typeOf[string]()}}}
 
 //
 
 type String struct {
-	BaseScalar
+	scalar
 }

@@ -3,11 +3,11 @@ package tower
 //
 
 type MapType struct {
-	BaseContainerType
+	containerType
 }
 
 //
 
 type Map struct {
-	BaseContainer
+	container
 }

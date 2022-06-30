@@ -3,11 +3,11 @@ package tower
 //
 
 type InterfaceType struct {
-	BaseType
+	type_
 }
 
 //
 
 type Interface struct {
-	BaseValue
+	value
 }

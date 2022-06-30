@@ -6,11 +6,11 @@ type ScalarType interface {
 	isScalarType()
 }
 
-type BaseScalarType struct {
-	BaseType
+type scalarType struct {
+	type_
 }
 
-func (t BaseScalarType) isScalarType() {}
+func (t scalarType) isScalarType() {}
 
 //
 
@@ -18,8 +18,8 @@ type Scalar interface {
 	isScalar()
 }
 
-type BaseScalar struct {
-	BaseValue
+type scalar struct {
+	value
 }
 
-func (v BaseScalar) isScalar() {}
+func (v scalar) isScalar() {}

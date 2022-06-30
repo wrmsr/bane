@@ -3,11 +3,11 @@ package tower
 //
 
 type PointerType struct {
-	BaseType
+	type_
 }
 
 //
 
 type Pointer struct {
-	BaseValue
+	value
 }

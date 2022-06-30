@@ -6,11 +6,11 @@ type IntegralType interface {
 	isIntegralType()
 }
 
-type BaseIntegralType struct {
-	BaseNumericType
+type integralType struct {
+	numericType
 }
 
-func (t BaseIntegralType) isIntegralType() {}
+func (t integralType) isIntegralType() {}
 
 //
 
@@ -18,8 +18,8 @@ type Integral interface {
 	isIntegral()
 }
 
-type BaseIntegral struct {
-	BaseNumeric
+type integral struct {
+	numeric
 }
 
-func (t BaseIntegral) isIntegral() {}
+func (t integral) isIntegral() {}

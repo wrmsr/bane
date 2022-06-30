@@ -6,11 +6,11 @@ type ContainerType interface {
 	isContainerType()
 }
 
-type BaseContainerType struct {
-	BaseType
+type containerType struct {
+	type_
 }
 
-func (t BaseContainerType) isContainerType() {}
+func (t containerType) isContainerType() {}
 
 //
 
@@ -18,8 +18,8 @@ type Container interface {
 	isContainer()
 }
 
-type BaseContainer struct {
-	BaseValue
+type container struct {
+	value
 }
 
-func (v BaseContainer) isContainer() {}
+func (v container) isContainer() {}

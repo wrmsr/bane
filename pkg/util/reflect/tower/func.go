@@ -3,11 +3,11 @@ package tower
 //
 
 type FuncType struct {
-	BaseType
+	type_
 }
 
 //
 
 type Func struct {
-	BaseValue
+	value
 }

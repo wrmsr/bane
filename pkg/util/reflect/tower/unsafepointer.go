@@ -3,11 +3,11 @@ package tower
 //
 
 type UnsafePointerType struct {
-	BaseType
+	type_
 }
 
 //
 
 type UnsafePointer struct {
-	BaseValue
+	value
 }

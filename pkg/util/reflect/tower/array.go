@@ -3,11 +3,11 @@ package tower
 //
 
 type ArrayType struct {
-	BaseSequenceType
+	sequenceType
 }
 
 //
 
 type Array struct {
-	BaseSequence
+	sequence
 }

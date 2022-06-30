@@ -50,25 +50,25 @@ func MakeType(ty reflect.Type) Type {
 		return _stringType
 
 	case reflect.Array:
-		return ArrayType{BaseSequenceType{BaseContainerType{BaseType{ty: ty}}}}
+		return ArrayType{sequenceType{containerType{type_{ty: ty}}}}
 	case reflect.Slice:
-		return SliceType{BaseSequenceType{BaseContainerType{BaseType{ty: ty}}}}
+		return SliceType{sequenceType{containerType{type_{ty: ty}}}}
 
 	case reflect.Map:
-		return MapType{BaseContainerType{BaseType{ty: ty}}}
+		return MapType{containerType{type_{ty: ty}}}
 
 	case reflect.Chan:
-		return ChanType{BaseType{ty: ty}}
+		return ChanType{type_{ty: ty}}
 	case reflect.Func:
-		return FuncType{BaseType{ty: ty}}
+		return FuncType{type_{ty: ty}}
 	case reflect.Interface:
-		return InterfaceType{BaseType{ty: ty}}
+		return InterfaceType{type_{ty: ty}}
 	case reflect.Pointer:
-		return PointerType{BaseType{ty: ty}}
+		return PointerType{type_{ty: ty}}
 	case reflect.Struct:
-		return StructType{BaseType{ty: ty}}
+		return StructType{type_{ty: ty}}
 	case reflect.UnsafePointer:
-		return UnsafePointerType{BaseType{ty: ty}}
+		return UnsafePointerType{type_{ty: ty}}
 	}
 
 	panic(fmt.Errorf("unhandled type: %v", ty))
@@ -80,7 +80,7 @@ func MakeValue(v reflect.Value) Value {
 	switch v.Kind() {
 
 	case reflect.Bool:
-		return Bool{BaseScalar{BaseValue{v: v}}}
+		return Bool{scalar{value{v: v}}}
 
 	case
 		reflect.Int,
@@ -88,7 +88,7 @@ func MakeValue(v reflect.Value) Value {
 		reflect.Int16,
 		reflect.Int32,
 		reflect.Int64:
-		return Signed{BaseScalar{BaseValue{v: v}}}
+		return Signed{scalar{value{v: v}}}
 
 	case
 		reflect.Uint,
@@ -97,41 +97,41 @@ func MakeValue(v reflect.Value) Value {
 		reflect.Uint32,
 		reflect.Uint64,
 		reflect.Uintptr:
-		return Unsigned{BaseScalar{BaseValue{v: v}}}
+		return Unsigned{scalar{value{v: v}}}
 
 	case
 		reflect.Float32,
 		reflect.Float64:
-		return Float{BaseScalar{BaseValue{v: v}}}
+		return Float{scalar{value{v: v}}}
 
 	case
 		reflect.Complex64,
 		reflect.Complex128:
-		return Complex{BaseScalar{BaseValue{v: v}}}
+		return Complex{scalar{value{v: v}}}
 
 	case reflect.String:
-		return String{BaseScalar{BaseValue{v: v}}}
+		return String{scalar{value{v: v}}}
 
 	case reflect.Array:
-		return Array{BaseSequence{BaseContainer{BaseValue{v: v}}}}
+		return Array{sequence{container{value{v: v}}}}
 	case reflect.Slice:
-		return Slice{BaseSequence{BaseContainer{BaseValue{v: v}}}}
+		return Slice{sequence{container{value{v: v}}}}
 
 	case reflect.Map:
-		return Map{BaseContainer{BaseValue{v: v}}}
+		return Map{container{value{v: v}}}
 
 	case reflect.Chan:
-		return Chan{BaseValue{v: v}}
+		return Chan{value{v: v}}
 	case reflect.Func:
-		return Func{BaseValue{v: v}}
+		return Func{value{v: v}}
 	case reflect.Interface:
-		return Interface{BaseValue{v: v}}
+		return Interface{value{v: v}}
 	case reflect.Pointer:
-		return Pointer{BaseValue{v: v}}
+		return Pointer{value{v: v}}
 	case reflect.Struct:
-		return Struct{BaseValue{v: v}}
+		return Struct{value{v: v}}
 	case reflect.UnsafePointer:
-		return UnsafePointer{BaseValue{v: v}}
+		return UnsafePointer{value{v: v}}
 	}
 
 	panic(fmt.Errorf("unhandled value: %v", v))

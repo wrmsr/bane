@@ -3,15 +3,15 @@ package tower
 //
 
 type BoolType struct {
-	BaseScalarType
+	scalarType
 }
 
-var _boolType = BoolType{BaseScalarType{BaseType{ty: typeOf[bool]()}}}
+var _boolType = BoolType{scalarType{type_{ty: typeOf[bool]()}}}
 
 //
 
 type Bool struct {
-	BaseScalar
+	scalar
 }
 
 func (v Bool) Type() Type { return _boolType }

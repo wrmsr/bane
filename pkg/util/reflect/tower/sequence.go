@@ -6,11 +6,11 @@ type SequenceType interface {
 	isSequenceType()
 }
 
-type BaseSequenceType struct {
-	BaseContainerType
+type sequenceType struct {
+	containerType
 }
 
-func (t BaseSequenceType) isSequenceType() {}
+func (t sequenceType) isSequenceType() {}
 
 //
 
@@ -18,8 +18,8 @@ type Sequence interface {
 	isSequence()
 }
 
-type BaseSequence struct {
-	BaseContainer
+type sequence struct {
+	container
 }
 
-func (v BaseSequence) isSequence() {}
+func (v sequence) isSequence() {}
