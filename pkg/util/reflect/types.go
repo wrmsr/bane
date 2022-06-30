@@ -228,7 +228,7 @@ func MakeType(ty reflect.Type) Type {
 		return _complex128Type
 
 	case reflect.String:
-		return String{BaseScalar{BaseType{ty: ty}}}
+		return _stringType
 
 	case reflect.Array:
 		return Array{BaseSequence{BaseContainer{BaseType{ty: ty}}}}
