@@ -15,175 +15,175 @@ type BaseType struct {
 	ty reflect.Type
 }
 
-func (v BaseType) isType() {}
+func (t BaseType) isType() {}
 
-func (v BaseType) Reflect() reflect.Type {
-	return v.ty
+func (t BaseType) Reflect() reflect.Type {
+	return t.ty
 }
 
 //
 
-type Scalar interface {
-	isScalar()
+type ScalarType interface {
+	isScalarType()
 }
 
-type BaseScalar struct {
+type BaseScalarType struct {
 	BaseType
 }
 
-func (v BaseScalar) isScalar() {}
+func (t BaseScalarType) isScalarType() {}
 
 //
 
-type Bool struct {
-	BaseScalar
+type BoolType struct {
+	BaseScalarType
 }
 
 //
 
-type Int struct {
-	BaseScalar
+type IntType struct {
+	BaseScalarType
 }
 
 //
 
-type Uint struct {
-	BaseScalar
+type UintType struct {
+	BaseScalarType
 }
 
 //
 
-type Uintptr struct {
-	BaseScalar
+type UintptrType struct {
+	BaseScalarType
 }
 
 //
 
-type Float struct {
-	BaseScalar
+type FloatType struct {
+	BaseScalarType
 }
 
 //
 
-type Complex struct {
-	BaseScalar
+type ComplexType struct {
+	BaseScalarType
 }
 
 //
 
-type String struct {
-	BaseScalar
+type StringType struct {
+	BaseScalarType
 }
 
 //
 
-type Container interface {
-	isContainer()
+type ContainerType interface {
+	isContainerType()
 }
 
-type BaseContainer struct {
+type BaseContainerType struct {
 	BaseType
 }
 
-func (v BaseContainer) isContainer() {}
+func (t BaseContainerType) isContainerType() {}
 
 //
 
-type Sequence interface {
-	isSequence()
+type SequenceType interface {
+	isSequenceType()
 }
 
-type BaseSequence struct {
-	BaseContainer
+type BaseSequenceType struct {
+	BaseContainerType
 }
 
-func (v BaseSequence) isSequence() {}
+func (t BaseSequenceType) isSequenceType() {}
 
 //
 
-type Array struct {
-	BaseSequence
-}
-
-//
-
-type Slice struct {
-	BaseSequence
+type ArrayType struct {
+	BaseSequenceType
 }
 
 //
 
-type Map struct {
-	BaseContainer
+type SliceType struct {
+	BaseSequenceType
 }
 
 //
 
-type Chan struct {
-	BaseType
+type MapType struct {
+	BaseContainerType
 }
 
 //
 
-type Func struct {
+type ChanType struct {
 	BaseType
 }
 
 //
 
-type Interface struct {
+type FuncType struct {
 	BaseType
 }
 
 //
 
-type Pointer struct {
+type InterfaceType struct {
 	BaseType
 }
 
 //
 
-type Field struct {
-	s *Struct
+type PointerType struct {
+	BaseType
+}
+
+//
+
+type FieldType struct {
+	s *StructType
 	f reflect.StructField
 }
 
-type Struct struct {
+type StructType struct {
 	BaseType
 }
 
 //
 
-type UnsafePointer struct {
+type UnsafePointerType struct {
 	BaseType
 }
 
 //
 
 var (
-	_boolType = Bool{BaseScalar{BaseType{ty: TypeOf[bool]()}}}
+	_boolType = BoolType{BaseScalarType{BaseType{ty: TypeOf[bool]()}}}
 
-	_intType   = Int{BaseScalar{BaseType{ty: TypeOf[int]()}}}
-	_int8Type  = Int{BaseScalar{BaseType{ty: TypeOf[int8]()}}}
-	_int16Type = Int{BaseScalar{BaseType{ty: TypeOf[int16]()}}}
-	_int32Type = Int{BaseScalar{BaseType{ty: TypeOf[int32]()}}}
-	_int64Type = Int{BaseScalar{BaseType{ty: TypeOf[int64]()}}}
+	_intType   = IntType{BaseScalarType{BaseType{ty: TypeOf[int]()}}}
+	_int8Type  = IntType{BaseScalarType{BaseType{ty: TypeOf[int8]()}}}
+	_int16Type = IntType{BaseScalarType{BaseType{ty: TypeOf[int16]()}}}
+	_int32Type = IntType{BaseScalarType{BaseType{ty: TypeOf[int32]()}}}
+	_int64Type = IntType{BaseScalarType{BaseType{ty: TypeOf[int64]()}}}
 
-	_uintType   = Uint{BaseScalar{BaseType{ty: TypeOf[uint]()}}}
-	_uint8Type  = Uint{BaseScalar{BaseType{ty: TypeOf[uint8]()}}}
-	_uint16Type = Uint{BaseScalar{BaseType{ty: TypeOf[uint16]()}}}
-	_uint32Type = Uint{BaseScalar{BaseType{ty: TypeOf[uint32]()}}}
-	_uint64Type = Uint{BaseScalar{BaseType{ty: TypeOf[uint64]()}}}
+	_uintType   = UintType{BaseScalarType{BaseType{ty: TypeOf[uint]()}}}
+	_uint8Type  = UintType{BaseScalarType{BaseType{ty: TypeOf[uint8]()}}}
+	_uint16Type = UintType{BaseScalarType{BaseType{ty: TypeOf[uint16]()}}}
+	_uint32Type = UintType{BaseScalarType{BaseType{ty: TypeOf[uint32]()}}}
+	_uint64Type = UintType{BaseScalarType{BaseType{ty: TypeOf[uint64]()}}}
 
-	_uintptrType = Uintptr{BaseScalar{BaseType{ty: TypeOf[uintptr]()}}}
+	_uintptrType = UintptrType{BaseScalarType{BaseType{ty: TypeOf[uintptr]()}}}
 
-	_float32Type = Float{BaseScalar{BaseType{ty: TypeOf[float32]()}}}
-	_float64Type = Float{BaseScalar{BaseType{ty: TypeOf[float64]()}}}
+	_float32Type = FloatType{BaseScalarType{BaseType{ty: TypeOf[float32]()}}}
+	_float64Type = FloatType{BaseScalarType{BaseType{ty: TypeOf[float64]()}}}
 
-	_complex64Type  = Complex{BaseScalar{BaseType{ty: TypeOf[complex64]()}}}
-	_complex128Type = Complex{BaseScalar{BaseType{ty: TypeOf[complex128]()}}}
+	_complex64Type  = ComplexType{BaseScalarType{BaseType{ty: TypeOf[complex64]()}}}
+	_complex128Type = ComplexType{BaseScalarType{BaseType{ty: TypeOf[complex128]()}}}
 
-	_stringType = String{BaseScalar{BaseType{ty: TypeOf[string]()}}}
+	_stringType = StringType{BaseScalarType{BaseType{ty: TypeOf[string]()}}}
 )
 
 func MakeType(ty reflect.Type) Type {
@@ -231,25 +231,25 @@ func MakeType(ty reflect.Type) Type {
 		return _stringType
 
 	case reflect.Array:
-		return Array{BaseSequence{BaseContainer{BaseType{ty: ty}}}}
+		return ArrayType{BaseSequenceType{BaseContainerType{BaseType{ty: ty}}}}
 	case reflect.Slice:
-		return Slice{BaseSequence{BaseContainer{BaseType{ty: ty}}}}
+		return SliceType{BaseSequenceType{BaseContainerType{BaseType{ty: ty}}}}
 
 	case reflect.Map:
-		return Map{BaseContainer{BaseType{ty: ty}}}
+		return MapType{BaseContainerType{BaseType{ty: ty}}}
 
 	case reflect.Chan:
-		return Chan{BaseType{ty: ty}}
+		return ChanType{BaseType{ty: ty}}
 	case reflect.Func:
-		return Func{BaseType{ty: ty}}
+		return FuncType{BaseType{ty: ty}}
 	case reflect.Interface:
-		return Interface{BaseType{ty: ty}}
+		return InterfaceType{BaseType{ty: ty}}
 	case reflect.Pointer:
-		return Pointer{BaseType{ty: ty}}
+		return PointerType{BaseType{ty: ty}}
 	case reflect.Struct:
-		return Struct{BaseType{ty: ty}}
+		return StructType{BaseType{ty: ty}}
 	case reflect.UnsafePointer:
-		return UnsafePointer{BaseType{ty: ty}}
+		return UnsafePointerType{BaseType{ty: ty}}
 	}
 
 	panic(fmt.Errorf("unhandled type: %v", ty))
