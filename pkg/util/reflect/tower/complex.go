@@ -3,16 +3,16 @@ package tower
 //
 
 type ComplexType struct {
-	BaseScalarType
+	BaseNumericType
 }
 
 var (
-	_complex64Type  = ComplexType{BaseScalarType{BaseType{ty: typeOf[complex64]()}}}
-	_complex128Type = ComplexType{BaseScalarType{BaseType{ty: typeOf[complex128]()}}}
+	_complex64Type  = ComplexType{BaseNumericType{BaseScalarType{BaseType{ty: typeOf[complex64]()}}}}
+	_complex128Type = ComplexType{BaseNumericType{BaseScalarType{BaseType{ty: typeOf[complex128]()}}}}
 )
 
 //
 
 type Complex struct {
-	BaseScalar
+	BaseNumeric
 }
