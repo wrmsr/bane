@@ -32,7 +32,7 @@ func TestMarshal(t *testing.T) {
 		Z: 420,
 	}
 
-	em := NewMarshalling()
+	em := NewManager()
 	m := em.Marshal(c)
 	fmt.Printf("%+v\n", m)
 }

@@ -8,14 +8,18 @@ import (
 //
 
 var (
-	_nullBytes  = []byte("null")
-	_trueBytes  = []byte("true")
-	_falseBytes = []byte("false")
+	_nullBytes      = []byte("null")
+	_trueBytes      = []byte("true")
+	_falseBytes     = []byte("false")
+	_quoteBytes     = []byte("\"")
+	_backslashBytes = []byte("\\")
 )
 
-func NullBytes() []byte  { return _nullBytes }
-func TrueBytes() []byte  { return _trueBytes }
-func FalseBytes() []byte { return _falseBytes }
+func NullBytes() []byte      { return _nullBytes }
+func TrueBytes() []byte      { return _trueBytes }
+func FalseBytes() []byte     { return _falseBytes }
+func QuoteBytes() []byte     { return _quoteBytes }
+func BackslashBytes() []byte { return _backslashBytes }
 
 func IsNullBytes(b []byte) bool {
 	return len(b) == 4 && b[0] == 'n' && b[1] == 'u' && b[2] == 'l' && b[3] == 'l'
@@ -27,6 +31,22 @@ func IsTrueBytes(b []byte) bool {
 
 func IsFalseBytes(b []byte) bool {
 	return len(b) == 5 && b[0] == 'f' && b[1] == 'a' && b[2] == 'l' && b[3] == 's' && b[4] == 'e'
+}
+
+func IsQuoteBytes(b []byte) bool {
+	return len(b) == 1 && b[0] == '"'
+}
+
+func IsBackslashBytes(b []byte) bool {
+	return len(b) == 1 && b[0] == '\\'
+}
+
+func BoolBytes(v bool) []byte {
+	if v {
+		return _trueBytes
+	} else {
+		return _falseBytes
+	}
 }
 
 //

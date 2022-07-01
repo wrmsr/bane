@@ -19,11 +19,6 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSE
 WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-// Package json implements encoding and decoding of JSON as defined in RFC 7159. The mapping between JSON and Go values
-// is described in the documentation for the Marshal and Unmarshal functions.
-//
-// See "JSON and Go" for an introduction to this package: https://golang.org/doc/articles/json_and_go.html
 package structs
 
 import (
@@ -71,8 +66,6 @@ func (x walkedFieldsByIndex) Less(i, j int) bool {
 
 //
 
-// walkFields returns a list of fields that JSON should recognize for the given type. The algorithm is breadth-first
-// search over the set of structs to include - the top struct and then any reachable anonymous structs.
 func walkFields(t reflect.Type) walkedFields {
 	// Anonymous fields to explore at the current level and the next.
 	var current []walkedField

@@ -21,6 +21,7 @@ var (
 	_complex128Type = TypeOf[complex128]()
 	_stringType     = TypeOf[string]()
 	_anyType        = TypeOf[any]()
+	_bytesType      = TypeOf[[]byte]()
 )
 
 func Bool() reflect.Type       { return _boolType }
@@ -41,3 +42,4 @@ func Complex64() reflect.Type  { return _complex64Type }
 func Complex128() reflect.Type { return _complex128Type }
 func String() reflect.Type     { return _stringType }
 func Any() reflect.Type        { return _anyType }
+func Bytes() reflect.Type      { return _bytesType }

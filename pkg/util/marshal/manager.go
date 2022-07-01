@@ -11,25 +11,25 @@ import (
 
 //
 
-type Marshalling struct {
+type Manager struct {
 	sic *stu.StructInfoCache
 
 	mm map[reflect.Type]Marshaller
 }
 
-func NewMarshalling() *Marshalling {
-	return &Marshalling{
+func NewManager() *Manager {
+	return &Manager{
 		sic: stu.NewStructInfoCache(),
 
 		mm: make(map[reflect.Type]Marshaller),
 	}
 }
 
-func (m *Marshalling) ResolveMarshaller(ty reflect.Type) Marshaller {
+func (m *Manager) ResolveMarshaller(ty reflect.Type) Marshaller {
 
 }
 
-func (m *Marshalling) Marshal(v any, o ...MarshalOpt) map[string]any { // Value {
+func (m *Manager) Marshal(v any, o ...MarshalOpt) map[string]any { // Value {
 	opts := ctr.NewTypeMap[MarshalOpt](its.Of(o...))
 
 	rv, ok := rfl.UnwrapPointerValue(rfl.AsValue(v))
