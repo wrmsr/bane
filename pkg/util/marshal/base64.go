@@ -9,11 +9,11 @@ import (
 
 //
 
-type Base64Marshaller struct{}
+type Base64Marshaler struct{}
 
-var _ Marshaller = Base64Marshaller{}
+var _ Marshaler = Base64Marshaler{}
 
-func (m Base64Marshaller) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m Base64Marshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
 	if rv.Type() != rfl.Bytes() {
 		return nil, _unhandledType
 	}
@@ -27,11 +27,11 @@ func (m Base64Marshaller) Marshal(ctx MarshalContext, rv reflect.Value) (Value, 
 
 //
 
-type Base64Unmarshaller struct{}
+type Base64Unmarshaler struct{}
 
-var _ Unmarshaller = Base64Unmarshaller{}
+var _ Unmarshaler = Base64Unmarshaler{}
 
-func (u Base64Unmarshaller) Unmarshal(ctx MarshalContext, mv Value) (reflect.Value, error) {
+func (u Base64Unmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
 	switch mv := mv.(type) {
 
 	case Null:

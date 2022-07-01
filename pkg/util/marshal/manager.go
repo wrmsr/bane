@@ -12,18 +12,18 @@ import (
 type Manager struct {
 	sic *stu.StructInfoCache
 
-	mm map[reflect.Type]Marshaller
+	mm map[reflect.Type]Marshaler
 }
 
 func NewManager() *Manager {
 	return &Manager{
 		sic: stu.NewStructInfoCache(),
 
-		mm: make(map[reflect.Type]Marshaller),
+		mm: make(map[reflect.Type]Marshaler),
 	}
 }
 
-//func (m *Manager) ResolveMarshaller(ty reflect.Type) Marshaller {
+//func (m *Manager) ResolveMarshaler(ty reflect.Type) Marshaler {
 //
 //}
 

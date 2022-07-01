@@ -34,45 +34,45 @@ type MarshalContext struct {
 	Opts ctr.TypeMap[MarshalOpt]
 }
 
-type Marshaller interface {
+type Marshaler interface {
 	Marshal(ctx MarshalContext, rv reflect.Value) (Value, error)
 }
 
 //
 
-type FuncMarshaller struct {
+type FuncMarshaler struct {
 	fn func(ctx MarshalContext, rv reflect.Value) (Value, error)
 }
 
-func NewFuncMarshaller(fn func(ctx MarshalContext, rv reflect.Value) (Value, error)) FuncMarshaller {
-	return FuncMarshaller{fn: fn}
+func NewFuncMarshaler(fn func(ctx MarshalContext, rv reflect.Value) (Value, error)) FuncMarshaler {
+	return FuncMarshaler{fn: fn}
 }
 
-var _ Marshaller = FuncMarshaller{}
+var _ Marshaler = FuncMarshaler{}
 
-func (m FuncMarshaller) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m FuncMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
 	return m.fn(ctx, rv)
 }
 
 //
 
-type MarshallerResolver interface {
-	ResolveMarshaller(ty reflect.Type) (Marshaller, error)
+type MarshalerResolver interface {
+	ResolveMarshaler(ty reflect.Type) (Marshaler, error)
 }
 
 //
 
-type FuncMarshallerResolver struct {
-	fn func(ty reflect.Type) (Marshaller, error)
+type FuncMarshalerResolver struct {
+	fn func(ty reflect.Type) (Marshaler, error)
 }
 
-func NewFuncMarshallerResolver(fn func(ty reflect.Type) (Marshaller, error)) FuncMarshallerResolver {
-	return FuncMarshallerResolver{fn: fn}
+func NewFuncMarshalerResolver(fn func(ty reflect.Type) (Marshaler, error)) FuncMarshalerResolver {
+	return FuncMarshalerResolver{fn: fn}
 }
 
-var _ MarshallerResolver = FuncMarshallerResolver{}
+var _ MarshalerResolver = FuncMarshalerResolver{}
 
-func (mr FuncMarshallerResolver) ResolveMarshaller(ty reflect.Type) (Marshaller, error) {
+func (mr FuncMarshalerResolver) ResolveMarshaler(ty reflect.Type) (Marshaler, error) {
 	return mr.fn(ty)
 }
 
@@ -92,44 +92,44 @@ type UnmarshalContext struct {
 	Opts ctr.TypeMap[UnmarshalOpt]
 }
 
-type Unmarshaller interface {
-	Unmarshal(ctx MarshalContext, mv Value) (reflect.Value, error)
+type Unmarshaler interface {
+	Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error)
 }
 
 //
 
-type FuncUnmarshaller struct {
-	fn func(ctx MarshalContext, mv Value) (reflect.Value, error)
+type FuncUnmarshaler struct {
+	fn func(ctx UnmarshalContext, mv Value) (reflect.Value, error)
 }
 
-func NewFuncUnmarshaller(fn func(ctx MarshalContext, mv Value) (reflect.Value, error)) FuncUnmarshaller {
-	return FuncUnmarshaller{fn: fn}
+func NewFuncUnmarshaler(fn func(ctx UnmarshalContext, mv Value) (reflect.Value, error)) FuncUnmarshaler {
+	return FuncUnmarshaler{fn: fn}
 }
 
-var _ Unmarshaller = FuncUnmarshaller{}
+var _ Unmarshaler = FuncUnmarshaler{}
 
-func (u FuncUnmarshaller) Unmarshal(ctx MarshalContext, mv Value) (reflect.Value, error) {
+func (u FuncUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
 	return u.fn(ctx, mv)
 }
 
 //
 
-type UnmarshallerResolver interface {
-	ResolveUnmarshaller(ty reflect.Type) (Unmarshaller, error)
+type UnmarshalerResolver interface {
+	ResolveUnmarshaler(ty reflect.Type) (Unmarshaler, error)
 }
 
 //
 
-type FuncUnmarshallerResolver struct {
-	fn func(ty reflect.Type) (Unmarshaller, error)
+type FuncUnmarshalerResolver struct {
+	fn func(ty reflect.Type) (Unmarshaler, error)
 }
 
-func NewFuncUnmarshallerResolver(fn func(ty reflect.Type) (Unmarshaller, error)) FuncUnmarshallerResolver {
-	return FuncUnmarshallerResolver{fn: fn}
+func NewFuncUnmarshalerResolver(fn func(ty reflect.Type) (Unmarshaler, error)) FuncUnmarshalerResolver {
+	return FuncUnmarshalerResolver{fn: fn}
 }
 
-var _ UnmarshallerResolver = FuncUnmarshallerResolver{}
+var _ UnmarshalerResolver = FuncUnmarshalerResolver{}
 
-func (ur FuncUnmarshallerResolver) ResolveUnmarshaller(ty reflect.Type) (Unmarshaller, error) {
+func (ur FuncUnmarshalerResolver) ResolveUnmarshaler(ty reflect.Type) (Unmarshaler, error) {
 	return ur.fn(ty)
 }
