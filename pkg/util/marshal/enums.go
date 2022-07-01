@@ -11,17 +11,17 @@ import (
 
 //
 
-type EnumMarshaler struct {
-	m map[any]Value
+type EnumMarshaler[T comparable] struct {
+	m map[T]Value
 }
 
-func NewEnumMarshaler(m map[any]string) EnumMarshaler {
-	return EnumMarshaler{m: maps.MapValues(MakeString, m)}
+func NewEnumMarshaler[T comparable](m map[T]string) EnumMarshaler[T] {
+	return EnumMarshaler[T]{m: maps.MapValues(MakeString, m)}
 }
 
-var _ Marshaler = EnumMarshaler{}
+var _ Marshaler = EnumMarshaler[int]{}
 
-func (m EnumMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m EnumMarshaler[T]) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
 	iv := rv.Interface()
 	mv, ok := m.m[iv]
 	if !ok {

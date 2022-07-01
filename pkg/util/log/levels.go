@@ -15,6 +15,8 @@ const (
 	ErrorLevel
 	PanicLevel
 	FatalLevel
+
+	maxLevel
 )
 
 func (l Level) String() string {
@@ -51,6 +53,14 @@ func ParseLevel(s string) (Level, error) {
 		return FatalLevel, nil
 	}
 	return InfoLevel, fmt.Errorf("unknown level: %s", s)
+}
+
+func LevelNames() map[Level]string {
+	m := make(map[Level]string, maxLevel)
+	for l := DebugLevel; l < maxLevel; l++ {
+		m[l] = l.String()
+	}
+	return m
 }
 
 func (l Level) MarshalText() ([]byte, error) {
