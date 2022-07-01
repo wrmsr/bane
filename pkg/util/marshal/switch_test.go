@@ -8,15 +8,15 @@ import (
 	"github.com/wrmsr/bane/pkg/util/check"
 )
 
-func TestSwitchingMarshaler(t *testing.T) {
-	m := NewSwitchingMarshaler(
+func TestSwitchMarshaler(t *testing.T) {
+	m := NewSwitchMarshaler(
 		PredicatedMarshaler(TrueMarshalPredicate, PrimitiveMarshaler{}),
 	)
 
 	mv := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(420)))
 	fmt.Println(mv)
 
-	u := NewSwitchingUnmarshaler(
+	u := NewSwitchUnmarshaler(
 		PredicatedUnmarshaler(TrueUnmarshalPredicate, PrimitiveUnmarshaler{}),
 	)
 

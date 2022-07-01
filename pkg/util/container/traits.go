@@ -1,17 +1,23 @@
 package container
 
-import its "github.com/wrmsr/bane/pkg/util/iterators"
+import (
+	its "github.com/wrmsr/bane/pkg/util/iterators"
+)
 
 type Mutable interface {
 	isMutable()
 }
 
-type Ordered interface {
+type Ordered[T any] interface {
 	isOrdered()
+
+	its.Iterable[T]
 }
 
-type Persistent interface {
+type Persistent[T any] interface {
 	isPersistent()
+
+	its.Iterable[T]
 }
 
 type Sorted[A, I any] interface {

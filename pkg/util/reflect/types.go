@@ -1,6 +1,9 @@
 package reflect
 
-import "reflect"
+import (
+	"reflect"
+	"time"
+)
 
 var (
 	_boolType       = TypeOf[bool]()
@@ -22,6 +25,8 @@ var (
 	_stringType     = TypeOf[string]()
 	_anyType        = TypeOf[any]()
 	_bytesType      = TypeOf[[]byte]()
+	_timeType       = TypeOf[time.Time]()
+	_durationType   = TypeOf[time.Duration]()
 )
 
 func Bool() reflect.Type       { return _boolType }
@@ -43,3 +48,5 @@ func Complex128() reflect.Type { return _complex128Type }
 func String() reflect.Type     { return _stringType }
 func Any() reflect.Type        { return _anyType }
 func Bytes() reflect.Type      { return _bytesType }
+func Time() reflect.Type       { return _timeType }
+func Duration() reflect.Type   { return _durationType }

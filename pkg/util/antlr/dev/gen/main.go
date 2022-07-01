@@ -63,7 +63,7 @@ func main() {
 		var needsBuild bool
 		for _, g4 := range dirG4s {
 			nr := []rune(g4.info.Name())
-			itPath := string(nr[:check.MustOk(slices.FindLast(nr, '.'))]) + ".interp"
+			itPath := string(nr[:check.Ok1(slices.FindLast(nr, '.'))]) + ".interp"
 			itStat, err := os.Stat(filepath.Join(dir, "parser", itPath))
 			if err != nil {
 				if errors.Is(err, os.ErrNotExist) {

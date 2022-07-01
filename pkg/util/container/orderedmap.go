@@ -14,7 +14,7 @@ import (
 
 type OrderedMap[K, V any] interface {
 	Map[K, V]
-	Ordered
+	Ordered[bt.Kv[K, V]]
 }
 
 type MutOrderedMap[K, V any] interface {

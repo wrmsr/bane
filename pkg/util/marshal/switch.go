@@ -19,17 +19,17 @@ func PredicatedMarshaler(fn MarshalPredicate, m Marshaler) bt.Pair[MarshalPredic
 	return bt.PairOf(fn, m)
 }
 
-type SwitchingMarshaler struct {
+type SwitchMarshaler struct {
 	s []bt.Pair[MarshalPredicate, Marshaler]
 }
 
-func NewSwitchingMarshaler(s ...bt.Pair[MarshalPredicate, Marshaler]) SwitchingMarshaler {
-	return SwitchingMarshaler{s: s}
+func NewSwitchMarshaler(s ...bt.Pair[MarshalPredicate, Marshaler]) SwitchMarshaler {
+	return SwitchMarshaler{s: s}
 }
 
-var _ Marshaler = SwitchingMarshaler{}
+var _ Marshaler = SwitchMarshaler{}
 
-func (m SwitchingMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m SwitchMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
 	for _, e := range m.s {
 		if e.L(ctx, rv) {
 			return e.R.Marshal(ctx, rv)
@@ -50,17 +50,17 @@ func PredicatedUnmarshaler(fn UnmarshalPredicate, u Unmarshaler) bt.Pair[Unmarsh
 	return bt.PairOf(fn, u)
 }
 
-type SwitchingUnmarshaler struct {
+type SwitchUnmarshaler struct {
 	s []bt.Pair[UnmarshalPredicate, Unmarshaler]
 }
 
-func NewSwitchingUnmarshaler(s ...bt.Pair[UnmarshalPredicate, Unmarshaler]) SwitchingUnmarshaler {
-	return SwitchingUnmarshaler{s: s}
+func NewSwitchUnmarshaler(s ...bt.Pair[UnmarshalPredicate, Unmarshaler]) SwitchUnmarshaler {
+	return SwitchUnmarshaler{s: s}
 }
 
-var _ Unmarshaler = SwitchingUnmarshaler{}
+var _ Unmarshaler = SwitchUnmarshaler{}
 
-func (m SwitchingUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (m SwitchUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
 	for _, e := range m.s {
 		if e.L(ctx, mv) {
 			return e.R.Unmarshal(ctx, mv)

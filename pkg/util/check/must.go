@@ -20,14 +20,20 @@ func Must2[T, U any](v T, v2 U, err error) (T, U) {
 	return v, v2
 }
 
-func MustOk[T any](v T, ok bool) T {
+func Ok(ok bool) {
+	if !ok {
+		panic("must succeed")
+	}
+}
+
+func Ok1[T any](v T, ok bool) T {
 	if !ok {
 		panic("must succeed")
 	}
 	return v
 }
 
-func MustOk2[T, U any](v T, v2 U, ok bool) (T, U) {
+func Ok2[T, U any](v T, v2 U, ok bool) (T, U) {
 	if !ok {
 		panic("must succeed")
 	}
