@@ -20,6 +20,22 @@ func Values[K comparable, V any](m map[K]V) []V {
 	return s
 }
 
+func MapKeys[KF, KT comparable, V any](fn func(k KF) KT, m map[KF]V) map[KT]V {
+	r := make(map[KT]V, len(m))
+	for kf, v := range m {
+		r[fn(kf)] = v
+	}
+	return r
+}
+
+func MapValues[K comparable, VF, VT any](fn func(v VF) VT, m map[K]VF) map[K]VT {
+	r := make(map[K]VT, len(m))
+	for k, v := range m {
+		r[k] = fn(v)
+	}
+	return r
+}
+
 func Copy[K comparable, V any](m map[K]V) map[K]V {
 	r := make(map[K]V, len(m))
 	for k, v := range m {

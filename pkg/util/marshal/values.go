@@ -3,6 +3,7 @@ package marshal
 import (
 	"fmt"
 	"math/big"
+	"reflect"
 	"strconv"
 
 	iou "github.com/wrmsr/bane/pkg/util/io"
@@ -272,3 +273,137 @@ func (v Bytes) String() string  { return iou.InvokeToString(v.WriteString) }
 func (v Array) String() string  { return iou.InvokeToString(v.WriteString) }
 func (v Object) String() string { return iou.InvokeToString(v.WriteString) }
 func (v Any) String() string    { return iou.InvokeToString(v.WriteString) }
+
+//
+
+func MakeString(s string) Value {
+	return String{v: s}
+}
+
+func MakeSimpleValue(o any) (Value, bool) {
+	if o == nil {
+		return _nullValue, true
+	}
+
+	switch v := o.(type) {
+
+	case bool:
+		return Bool{v: v}, true
+
+	case int:
+		return Int{v: int64(v)}, true
+	case int8:
+		return Int{v: int64(v)}, true
+	case int16:
+		return Int{v: int64(v)}, true
+	case int32:
+		return Int{v: int64(v)}, true
+	case int64:
+		return Int{v: v}, true
+
+	case uint:
+		return Int{v: int64(v), u: true}, true
+	case uint8:
+		return Int{v: int64(v), u: true}, true
+	case uint16:
+		return Int{v: int64(v), u: true}, true
+	case uint32:
+		return Int{v: int64(v), u: true}, true
+	case uint64:
+		return Int{v: int64(v), u: true}, true
+	case uintptr:
+		return Int{v: int64(v), u: true}, true
+
+	case float32:
+		return Float{v: float64(v)}, true
+	case float64:
+		return Float{v: v}, true
+
+	case string:
+		return String{v: v}, true
+
+	}
+
+	return nil, false
+}
+
+func MakeValueReflected(rv reflect.Value) (Value, bool) {
+	switch rv.Kind() {
+	case
+		reflect.Bool,
+
+		reflect.Int,
+		reflect.Int8,
+		reflect.Int16,
+		reflect.Int32,
+		reflect.Int64,
+
+		reflect.Uint,
+		reflect.Uint8,
+		reflect.Uint16,
+		reflect.Uint32,
+		reflect.Uint64,
+		reflect.Uintptr,
+
+		reflect.Float32,
+		reflect.Float64,
+
+		reflect.String:
+		return MakeSimpleValue(rv.Interface())
+
+	case
+		reflect.Array,
+		reflect.Slice:
+		if rv.Kind() == reflect.Slice && rv.IsNil() {
+			return _nullValue, true
+		}
+		l := rv.Len()
+		s := make([]Value, 0, l)
+		for i := 0; i < l; i++ {
+			er := rv.Index(i)
+			em, ok := MakeValueReflected(er)
+			if !ok {
+				return nil, false
+			}
+			s[i] = em
+		}
+		return Array{v: s}, true
+
+	case reflect.Map:
+		if rv.IsNil() {
+			return _nullValue, true
+		}
+		s := make([]bt.Kv[Value, Value], rv.Len())
+		for i, mr := 0, rv.MapRange(); mr.Next(); i++ {
+			kr := mr.Key()
+			km, ok := MakeValueReflected(kr)
+			if !ok {
+				return nil, false
+			}
+			vr := mr.Value()
+			vm, ok := MakeValueReflected(vr)
+			if !ok {
+				return nil, false
+			}
+			s[i] = bt.KvOf(km, vm)
+		}
+
+	case reflect.Pointer:
+		if rv.IsNil() {
+			return _nullValue, true
+		}
+		return MakeValueReflected(rv.Elem())
+
+	case reflect.Interface:
+		panic("nyi")
+
+	case reflect.Struct:
+		panic("nyi")
+
+	}
+	return nil, false
+}
+
+func MakeValue(v any) (Value, bool) {
+	return MakeValueReflected(reflect.ValueOf(v))
+}
