@@ -19,16 +19,16 @@ type value struct{}
 func (v value) isValue() {}
 
 var (
+	_ Value = Null{}
+	_ Value = Bool{}
 	_ Value = Int{}
 	_ Value = Float{}
 	_ Value = Number{}
-	_ Value = Bool{}
-	_ Value = Null{}
-	_ Value = Bytes{}
 	_ Value = String{}
-	_ Value = Any{}
-	_ Value = Object{}
+	_ Value = Bytes{}
 	_ Value = Array{}
+	_ Value = Object{}
+	_ Value = Any{}
 )
 
 //
@@ -42,6 +42,34 @@ type simple struct {
 }
 
 func (v simple) isSimple() {}
+
+//
+
+type Null struct {
+	simple
+}
+
+var _nullValue = Null{}
+
+func (v Null) Interface() any {
+	return nil
+}
+
+//
+
+type Bool struct {
+	simple
+	v bool
+}
+
+var (
+	_trueValue  = Bool{v: true}
+	_falseValue = Bool{v: false}
+)
+
+func (v Bool) Interface() any {
+	return v.v
+}
 
 //
 
@@ -95,45 +123,6 @@ func (v Number) Interface() any {
 
 //
 
-type Bool struct {
-	simple
-	v bool
-}
-
-var (
-	_trueValue  = Bool{v: true}
-	_falseValue = Bool{v: false}
-)
-
-func (v Bool) Interface() any {
-	return v.v
-}
-
-//
-
-type Null struct {
-	simple
-}
-
-var _nullValue = Null{}
-
-func (v Null) Interface() any {
-	return nil
-}
-
-//
-
-type Bytes struct {
-	simple
-	v []byte
-}
-
-func (v Bytes) Interface() any {
-	return v.v
-}
-
-//
-
 type String struct {
 	simple
 	v string
@@ -145,12 +134,12 @@ func (v String) Interface() any {
 
 //
 
-type Any struct {
+type Bytes struct {
 	simple
-	v any
+	v []byte
 }
 
-func (v Any) Interface() any {
+func (v Bytes) Interface() any {
 	return v.v
 }
 
@@ -168,6 +157,17 @@ func (v container) isContainer() {}
 
 //
 
+type Array struct {
+	container
+	v []Value
+}
+
+func (v Array) Interface() any {
+	return v
+}
+
+//
+
 type Object struct {
 	container
 	kvs []bt.Kv[Value, Value]
@@ -179,11 +179,11 @@ func (v Object) Interface() any {
 
 //
 
-type Array struct {
-	container
-	v []Value
+type Any struct {
+	simple
+	v any
 }
 
-func (v Array) Interface() any {
-	return v
+func (v Any) Interface() any {
+	return v.v
 }

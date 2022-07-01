@@ -1,63 +1,70 @@
 package marshal
 
 import (
-	"encoding/json"
+	"bytes"
 	"io"
+	"strconv"
 
+	iou "github.com/wrmsr/bane/pkg/util/io"
 	ju "github.com/wrmsr/bane/pkg/util/json"
 )
 
 func JsonEncode(w io.Writer, v Value) error {
 	switch v := v.(type) {
 
-	case Array:
-		panic("nyi")
+	case Null:
+		return iou.WriteErr(w, ju.NullBytes())
 
 	case Bool:
-		_, err := w.Write(ju.BoolBytes(v.v))
-		return err
+		return iou.WriteErr(w, ju.BoolBytes(v.v))
+
+	case Int:
+		if v.u {
+			return iou.WriteErr(w, []byte(strconv.FormatUint(uint64(v.v), 10)))
+		} else {
+			return iou.WriteErr(w, []byte(strconv.FormatInt(v.v, 10)))
+		}
+
+	case Float:
+		return ju.EncodeFloat64(w, v.v)
+
+	case Number:
+		panic("nyi")
+
+	case String:
+		return ju.EncodeString(w, v.v, false)
 
 	case Bytes:
 		return _unhandledType
 
-	case Float:
+	case Array:
+		return _unhandledType
+
+	case Object:
+		return _unhandledType
+
+	case Any:
+		return _unhandledType
 
 	}
-
+	panic("unreachable")
 }
 
-func (v Array) MarshalJSON() ([]byte, error) {
-	panic("nyi")
+func JsonMarshal(v Value) ([]byte, error) {
+	b := bytes.NewBuffer(nil)
+	if err := JsonEncode(b, v); err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
 }
 
-func (v Bool) MarshalJSON() ([]byte, error) {
-	return ju.BoolBytes(v.v), nil
-}
-
-func (v Bytes) MarshalJSON() ([]byte, error) {
-	return nil, _unhandledType
-}
-
-func (v Float) MarshalJSON() ([]byte, error) {
-	panic("nyi")
-}
-
-func (v Int) MarshalJSON() ([]byte, error) {
-	panic("nyi")
-}
-
-func (v Null) MarshalJSON() ([]byte, error) {
-	return ju.NullBytes(), nil
-}
-
-func (v Number) MarshalJSON() ([]byte, error) {
-	return []byte(v.v.String()), nil
-}
-
-func (v Object) MarshalJSON() ([]byte, error) {
-	panic("nyi")
-}
-
-func (v String) MarshalJSON() ([]byte, error) {
-	return json.Marshal(v.v)
-}
+func (v Null) MarshalJSON() ([]byte, error)   { return JsonMarshal(v) }
+func (v Bool) MarshalJSON() ([]byte, error)   { return JsonMarshal(v) }
+func (v Int) MarshalJSON() ([]byte, error)    { return JsonMarshal(v) }
+func (v Float) MarshalJSON() ([]byte, error)  { return JsonMarshal(v) }
+func (v Number) MarshalJSON() ([]byte, error) { return JsonMarshal(v) }
+func (v String) MarshalJSON() ([]byte, error) { return JsonMarshal(v) }
+func (v Bytes) MarshalJSON() ([]byte, error)  { return JsonMarshal(v) }
+func (v Array) MarshalJSON() ([]byte, error)  { return JsonMarshal(v) }
+func (v Object) MarshalJSON() ([]byte, error) { return JsonMarshal(v) }
+func (v Any) MarshalJSON() ([]byte, error)    { return JsonMarshal(v) }

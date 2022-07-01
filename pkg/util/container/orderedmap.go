@@ -53,7 +53,7 @@ func (m orderedMapImpl[K, V]) string(tn string) string {
 		if i > 0 {
 			sb.WriteRune(' ')
 		}
-		iou.FprintfX(&sb, "%v:%v", kv.K, kv.V)
+		iou.FprintfDiscard(&sb, "%v:%v", kv.K, kv.V)
 	}
 	return sb.String()
 }
@@ -63,30 +63,30 @@ func (m orderedMapImpl[K, V]) String() string {
 }
 
 func (m orderedMapImpl[K, V]) format(tn string, f fmt.State, c rune) {
-	iou.WriteStringX(f, tn)
+	iou.WriteStringDiscard(f, tn)
 	if f.Flag('#') {
-		iou.WriteStringX(f, "{")
+		iou.WriteStringDiscard(f, "{")
 	} else {
-		iou.WriteStringX(f, "[")
+		iou.WriteStringDiscard(f, "[")
 	}
 	for i, kv := range m.s {
 		if i > 0 {
 			if f.Flag('#') {
-				iou.WriteStringX(f, ", ")
+				iou.WriteStringDiscard(f, ", ")
 			} else {
-				iou.WriteStringX(f, " ")
+				iou.WriteStringDiscard(f, " ")
 			}
 		}
 		if f.Flag('#') {
-			iou.FprintfX(f, "%#v:%#v", kv.K, kv.V)
+			iou.FprintfDiscard(f, "%#v:%#v", kv.K, kv.V)
 		} else {
-			iou.FprintfX(f, "%v:%v", kv.K, kv.V)
+			iou.FprintfDiscard(f, "%v:%v", kv.K, kv.V)
 		}
 	}
 	if f.Flag('#') {
-		iou.WriteStringX(f, "}")
+		iou.WriteStringDiscard(f, "}")
 	} else {
-		iou.WriteStringX(f, "]")
+		iou.WriteStringDiscard(f, "]")
 	}
 }
 
