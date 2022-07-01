@@ -1,67 +1,12 @@
 package cache
 
 import (
-	"sync"
 	"time"
+
+	ctr "github.com/wrmsr/bane/pkg/util/container"
+	its "github.com/wrmsr/bane/pkg/util/iterators"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
-
-//
-
-type Weight = float32
-
-//
-
-type Eviction interface {
-	evict(c *Cache)
-}
-
-type LRU struct{}
-
-func (e LRU) evict(c *Cache) { c.kill(c.root.lru.next) }
-
-type LRI struct{}
-
-func (e LRI) evict(c *Cache) { c.kill(c.root.ins.next) }
-
-type LFU struct{}
-
-func (e LFU) evict(c *Cache) { c.kill(c.root.lfu.prev) }
-
-//
-
-type Config struct {
-	MaxSize int
-
-	Weigher   func(v any) Weight
-	MaxWeight Weight
-
-	ExpireAfterAccess time.Duration
-	ExpireAfterWrite  time.Duration
-
-	OnAdd        func(k, v any)
-	OnRemove     func(k, v any)
-	OnOverweight func()
-
-	Clock func() time.Time
-
-	Lock sync.Locker
-
-	Eviction Eviction
-
-	TrackFrequency bool
-}
-
-const DefaultMaxSize = 256
-
-func DefaultConfig() Config {
-	return Config{
-		MaxSize: DefaultMaxSize,
-
-		Clock: time.Now,
-
-		Eviction: LRU{},
-	}
-}
 
 //
 
@@ -75,7 +20,7 @@ type Stats struct {
 	Misses int
 
 	MaxSizeEver   int
-	MaxWeightEver float64
+	MaxWeightEver Weight
 }
 
 type list struct {
@@ -108,8 +53,8 @@ type link struct {
 	value  any
 	weight Weight
 
-	writtenMilli  int64
-	accessedMilli int64
+	written  int64
+	accessed int64
 
 	hits     int
 	unlinked bool
@@ -195,7 +140,7 @@ func (c *Cache) kill(l *link) {
 }
 
 func (c *Cache) now() int64 {
-	c.cfg.Clock().UnixMilli()
+	return c.cfg.Clock().UnixMilli()
 }
 
 func (c *Cache) reap() {
@@ -206,7 +151,7 @@ func (c *Cache) reap() {
 		deadline := now - c.eawMillis
 		for c.root.ins.next != c.root {
 			l := c.root.ins.next
-			if l.writtenMilli > deadline {
+			if l.written > deadline {
 				break
 			}
 			c.kill(l)
@@ -220,7 +165,7 @@ func (c *Cache) reap() {
 		deadline := now - c.eaaMillis
 		for c.root.lru.next != c.root {
 			l := c.root.lru.next
-			if l.accessedMilli > deadline {
+			if l.accessed > deadline {
 				break
 			}
 			c.kill(l)
@@ -248,7 +193,7 @@ func (c *Cache) getLink(k any) *link {
 	return l
 }
 
-func (c *Cache) Get(k any) (any, bool) {
+func (c *Cache) TryGet(k any) (any, bool) {
 	if c.cfg.Lock != nil {
 		c.cfg.Lock.Lock()
 		defer c.cfg.Lock.Unlock()
@@ -289,10 +234,15 @@ func (c *Cache) Get(k any) (any, bool) {
 		}
 	}
 
-	l.accessedMilli = c.now()
+	l.accessed = c.now()
 	l.hits++
 	c.stats.Hits++
 	return l.value, true
+}
+
+func (c *Cache) Get(k any) any {
+	v, _ := c.TryGet(k)
+	return v
 }
 
 func (c *Cache) full() bool {
@@ -324,101 +274,145 @@ func (c *Cache) Clear() {
 	}
 }
 
-/*
-def __setitem__(self, key: K, value: V) -> None:
-   weight = c._weigher(value)
+func (c *Cache) Put(k, v any) bool {
+	var weight Weight
+	if c.cfg.Weigher != nil {
+		weight = c.cfg.Weigher(v)
+	}
 
-   with c._lock():
-	   c._reap()
+	if c.cfg.Lock != nil {
+		c.cfg.Lock.Lock()
+		defer c.cfg.Lock.Unlock()
+	}
+	c.reap()
 
-	   if c._max_weight is not None and weight > c._max_weight:
-		   if c._raise_overweight:
-			   raise OverweightException
-		   else:
-			   return
+	if c.cfg.Weigher != nil && c.cfg.MaxWeight > 0 && weight > c.cfg.MaxWeight {
+		if c.cfg.OnOverweight != nil {
+			c.cfg.OnOverweight(k, v)
+		}
+		return false
+	}
 
-	   try:
-		   existing_link, existing_value = c._get_link(key)
-	   except KeyError:
-		   pass
-	   else:
-		   c._unlink(existing_link)
+	if l := c.getLink(k); l != nil {
+		c.unlink(l)
+	}
 
-	   while c._full:
-		   c._eviction(self)
+	for c.full() {
+		c.cfg.Eviction.evict(c)
+	}
 
-	   link = CacheImpl.Link()
-	   c._seq += 1
-	   link.seq = c._seq
-	   link.key = weakref.ref(key, functools.partial(CacheImpl._weak_die, c._weak_dead_ref, link)) if c._weak_keys else key  # noqa
-	   link.value = weakref.ref(value, functools.partial(CacheImpl._weak_die, c._weak_dead_ref, link)) if c._weak_values else value  # noqa
-	   link.weight = weight
-	   link.written = link.accessed = c._clock()
-	   link.hits = 0
-	   link.unlinked = False
+	c.stats.Seq++
+	now := c.now()
 
-	   ins_last = c._root.ins_prev
-	   ins_last.ins_next = c._root.ins_prev = link
-	   link.ins_prev = ins_last
-	   link.ins_next = c._root
+	l := &link{
+		seq: c.stats.Seq,
 
-	   lru_last = c._root.lru_prev
-	   lru_last.lru_next = c._root.lru_prev = link
-	   link.lru_prev = lru_last
-	   link.lru_next = c._root
+		key:   k,
+		value: v,
 
-	   if c._track_frequency:
-		   lfu_last = c._root.lfu_prev
-		   lfu_last.lfu_next = c._root.lfu_prev = link
-		   link.lfu_prev = lfu_last
-		   link.lfu_next = c._root
+		written:  now,
+		accessed: now,
 
-	   c._weight += weight
-	   c._size += 1
-	   c._max_size_ever = max(c._size, c._max_size_ever)
-	   c._max_weight_ever = max(c._weight, c._max_weight_ever)
+		weight: weight,
+	}
 
-	   cache_key = id(key) if c._identity_keys else key
-	   c.m[cache_key] = link
+	insLast := c.root.ins.prev
+	insLast.ins.next = l
+	c.root.ins.prev = l
+	l.ins.prev = insLast
+	l.ins.next = c.root
 
-def __delitem__(self, key: K) -> None:
-   with c._lock():
-	   c._reap()
+	lruLast := c.root.lru.prev
+	lruLast.lru.next = l
+	c.root.lru.prev = l
+	l.lru.prev = lruLast
+	l.lru.next = c.root
 
-	   link, value = c._get_link(key)
+	if c.cfg.TrackFrequency {
+		lfuLast := c.root.lfu.prev
+		lfuLast.lfu.next = l
+		c.root.lfu.prev = l
+		l.lfu.prev = lfuLast
+		l.lfu.next = c.root
+	}
 
-	   cache_key = id(key) if c._identity_keys else key
-	   del c.m[cache_key]
+	c.stats.Size++
+	c.stats.Weight += weight
 
-	   c._unlink(link)
+	if c.stats.Size > c.stats.MaxSizeEver {
+		c.stats.MaxSizeEver = c.stats.Size
+	}
+	if c.stats.Weight > c.stats.MaxWeightEver {
+		c.stats.MaxWeightEver = c.stats.Weight
+	}
 
-def __len__(self) -> int:
-   with c._lock():
-	   c._reap()
+	c.m[k] = l
 
-	   return c._size
+	return true
+}
 
-def __contains__(self, key: K) -> bool:
-   with c._lock():
-	   c._reap()
+func (c *Cache) Delete(k any) bool {
+	if c.cfg.Lock != nil {
+		c.cfg.Lock.Lock()
+		defer c.cfg.Lock.Unlock()
+	}
+	c.reap()
 
-	   try:
-		   c._get_link(key)
-	   except KeyError:
-		   return False
-	   else:
-		   return True
+	l := c.getLink(k)
+	if l == nil {
+		return false
+	}
 
-def __iter__(self) -> ta.Iterator[K]:
-   with c._lock():
-	   c._reap()
+	delete(c.m, k)
+	c.unlink(l)
 
-	   link = c._root.ins_prev
-	   while link is not c._root:
-		   yield link.key
-		   next = link.ins_prev
-		   if next is link:
-			   raise ValueError
-		   link = next
+	return true
+}
 
-*/
+func (c *Cache) Len() int {
+	if c.cfg.Lock != nil {
+		c.cfg.Lock.Lock()
+		defer c.cfg.Lock.Unlock()
+	}
+	c.reap()
+
+	return c.stats.Size
+}
+
+func (c *Cache) Contains(k any) bool {
+	if c.cfg.Lock != nil {
+		c.cfg.Lock.Lock()
+		defer c.cfg.Lock.Unlock()
+	}
+	c.reap()
+
+	return c.getLink(k) != nil
+}
+
+func (c *Cache) ForEach(fn func(bt.Kv[any, any]) bool) bool {
+	if c.cfg.Lock != nil {
+		c.cfg.Lock.Lock()
+		defer c.cfg.Lock.Unlock()
+	}
+	c.reap()
+
+	for l := c.root.ins.prev; l != c.root; {
+		if !fn(bt.KvOf(l.key, l.value)) {
+			return false
+		}
+		n := l.ins.prev
+		if l == n {
+			panic("cycle")
+		}
+		l = n
+	}
+	return true
+}
+
+//
+
+var _ ctr.Map[any, any] = &Cache{}
+
+func (c *Cache) Iterate() its.Iterator[bt.Kv[any, any]] {
+	return its.OfSlice(its.SeqForEach[bt.Kv[any, any]](c)).Iterate()
+}

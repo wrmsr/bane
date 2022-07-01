@@ -22,6 +22,15 @@ func ForAll[T any](tv Traversable[T], fn func(v T)) {
 	})
 }
 
+func SeqForEach[T any](t Traversable[T]) []T {
+	var s []T
+	t.ForEach(func(v T) bool {
+		s = append(s, v)
+		return true
+	})
+	return s
+}
+
 //
 
 type traversableIterable[T any] struct {
