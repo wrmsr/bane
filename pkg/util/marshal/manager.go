@@ -3,8 +3,6 @@ package marshal
 import (
 	"reflect"
 
-	ctr "github.com/wrmsr/bane/pkg/util/container"
-	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	stu "github.com/wrmsr/bane/pkg/util/structs"
 )
@@ -25,12 +23,12 @@ func NewManager() *Manager {
 	}
 }
 
-func (m *Manager) ResolveMarshaller(ty reflect.Type) Marshaller {
-
-}
+//func (m *Manager) ResolveMarshaller(ty reflect.Type) Marshaller {
+//
+//}
 
 func (m *Manager) Marshal(v any, o ...MarshalOpt) map[string]any { // Value {
-	opts := ctr.NewTypeMap[MarshalOpt](its.Of(o...))
+	//opts := ctr.NewTypeMap[MarshalOpt](its.Of(o...))
 
 	rv, ok := rfl.UnwrapPointerValue(rfl.AsValue(v))
 	if !ok {

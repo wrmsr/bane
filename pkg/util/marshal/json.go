@@ -11,6 +11,7 @@ import (
 
 	iou "github.com/wrmsr/bane/pkg/util/io"
 	ju "github.com/wrmsr/bane/pkg/util/json"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func JsonEncode(w io.Writer, v Value) error {
@@ -162,10 +163,34 @@ func JsonUnmarshal(b []byte) (Value, error) {
 		return String{v: s}, nil
 
 	case '[':
-		panic("nyi")
+		var s []json.RawMessage
+		if err := json.Unmarshal(b, &s); err != nil {
+			return nil, err
+		}
+		r := make([]Value, len(s))
+		for i, e := range s {
+			v, err := JsonUnmarshal(e)
+			if err != nil {
+				return nil, err
+			}
+			r[i] = v
+		}
+		return Array{v: r}, nil
 
 	case '{':
-		panic("nyi")
+		o, err := ju.DecodeRawObject(json.NewDecoder(bytes.NewReader(b)))
+		if err != nil {
+			return nil, err
+		}
+		s := make([]bt.Kv[Value, Value], len(o))
+		for i, kv := range o {
+			v, err := JsonUnmarshal(kv.V)
+			if err != nil {
+				return nil, err
+			}
+			s[i] = bt.KvOf[Value, Value](String{v: kv.K}, v)
+		}
+		return Object{v: s}, nil
 
 	}
 	return nil, errors.New("unexpected input")
