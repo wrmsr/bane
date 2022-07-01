@@ -143,10 +143,10 @@ func JsonUnmarshal(b []byte) (Value, error) {
 		if err := json.Unmarshal(b, &n); err != nil {
 			return nil, err
 		}
-		if i, err := n.Int64(); err != nil {
+		if i, err := n.Int64(); err == nil {
 			return Int{v: i}, nil
 		}
-		if f, err := n.Float64(); err != nil {
+		if f, err := n.Float64(); err == nil {
 			return Float{v: f}, nil
 		}
 		var r big.Rat
