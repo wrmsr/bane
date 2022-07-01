@@ -2,7 +2,11 @@ package marshal
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
+	"math/big"
 	"strconv"
 
 	iou "github.com/wrmsr/bane/pkg/util/io"
@@ -29,7 +33,7 @@ func JsonEncode(w io.Writer, v Value) error {
 		return ju.EncodeFloat64(w, v.v)
 
 	case Number:
-		panic("nyi")
+		return iou.WriteErr(w, []byte(v.v.String()))
 
 	case String:
 		return ju.EncodeString(w, v.v, false)
@@ -57,7 +61,33 @@ func JsonEncode(w io.Writer, v Value) error {
 		return nil
 
 	case Object:
-		return _unhandledType
+		if _, err := w.Write([]byte{'{'}); err != nil {
+			return err
+		}
+		for i, kv := range v.v {
+			if i > 0 {
+				if _, err := w.Write([]byte{','}); err != nil {
+					return err
+				}
+			}
+			if ks, ok := kv.K.(String); ok {
+				if err := JsonEncode(w, ks); err != nil {
+					return err
+				}
+			} else {
+				return _unhandledType
+			}
+			if _, err := w.Write([]byte{':', ' '}); err != nil {
+				return err
+			}
+			if err := JsonEncode(w, kv.V); err != nil {
+				return err
+			}
+		}
+		if _, err := w.Write([]byte{'}'}); err != nil {
+			return err
+		}
+		return nil
 
 	case Any:
 		return _unhandledType
@@ -84,3 +114,59 @@ func (v Bytes) MarshalJSON() ([]byte, error)  { return JsonMarshal(v) }
 func (v Array) MarshalJSON() ([]byte, error)  { return JsonMarshal(v) }
 func (v Object) MarshalJSON() ([]byte, error) { return JsonMarshal(v) }
 func (v Any) MarshalJSON() ([]byte, error)    { return JsonMarshal(v) }
+
+//
+
+func JsonUnmarshal(b []byte) (Value, error) {
+	switch b[0] {
+
+	case 'n':
+		if !ju.IsNullBytes(b) {
+			return nil, errors.New("expected null")
+		}
+		return _nullValue, nil
+
+	case 't':
+		if !ju.IsTrueBytes(b) {
+			return nil, errors.New("expected true")
+		}
+		return _trueValue, nil
+	case 'f':
+		if !ju.IsFalseBytes(b) {
+			return nil, errors.New("expected false")
+		}
+		return _falseValue, nil
+
+	case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+		var n json.Number
+		if err := json.Unmarshal(b, &n); err != nil {
+			return nil, err
+		}
+		if i, err := n.Int64(); err != nil {
+			return Int{v: i}, nil
+		}
+		if f, err := n.Float64(); err != nil {
+			return Float{v: f}, nil
+		}
+		var r big.Rat
+		if _, ok := r.SetString(n.String()); ok {
+			return Number{v: r}, nil
+		}
+		return nil, fmt.Errorf("invalid number: %s", n.String())
+
+	case '"':
+		var s string
+		if err := json.Unmarshal(b, &s); err != nil {
+			return nil, err
+		}
+		return String{v: s}, nil
+
+	case '[':
+		panic("nyi")
+
+	case '{':
+		panic("nyi")
+
+	}
+	return nil, errors.New("unexpected input")
+}
