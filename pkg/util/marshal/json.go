@@ -38,7 +38,23 @@ func JsonEncode(w io.Writer, v Value) error {
 		return _unhandledType
 
 	case Array:
-		return _unhandledType
+		if _, err := w.Write([]byte{'['}); err != nil {
+			return err
+		}
+		for i, e := range v.v {
+			if i > 0 {
+				if _, err := w.Write([]byte{','}); err != nil {
+					return err
+				}
+			}
+			if err := JsonEncode(w, e); err != nil {
+				return err
+			}
+		}
+		if _, err := w.Write([]byte{']'}); err != nil {
+			return err
+		}
+		return nil
 
 	case Object:
 		return _unhandledType

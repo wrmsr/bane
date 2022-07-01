@@ -1,8 +1,11 @@
 package marshal
 
 import (
+	"fmt"
 	"math/big"
+	"strconv"
 
+	iou "github.com/wrmsr/bane/pkg/util/io"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -10,6 +13,7 @@ import (
 
 type Value interface {
 	Interface() any
+	ToString(w iou.DiscardStringWriter)
 
 	isValue()
 }
@@ -170,11 +174,11 @@ func (v Array) Interface() any {
 
 type Object struct {
 	container
-	kvs []bt.Kv[Value, Value]
+	v []bt.Kv[Value, Value]
 }
 
 func (v Object) Interface() any {
-	return v.kvs // FIXME: ?
+	return v.v // FIXME: ?
 }
 
 //
@@ -186,4 +190,72 @@ type Any struct {
 
 func (v Any) Interface() any {
 	return v.v
+}
+
+//
+
+func (v Null) ToString(w iou.DiscardStringWriter) {
+	w.WriteString("null")
+}
+
+func (v Bool) ToString(w iou.DiscardStringWriter) {
+	if v.v {
+		w.WriteString("true")
+	} else {
+		w.WriteString("false")
+	}
+}
+
+func (v Int) ToString(w iou.DiscardStringWriter) {
+	if v.u {
+		w.WriteString(strconv.FormatUint(uint64(v.v), 10))
+	} else {
+		w.WriteString(strconv.FormatInt(v.v, 10))
+	}
+}
+
+func (v Float) ToString(w iou.DiscardStringWriter) {
+	w.WriteString(strconv.FormatFloat(v.v, 'g', -1, 64))
+}
+
+func (v Number) ToString(w iou.DiscardStringWriter) {
+	w.WriteString(v.v.String())
+}
+
+func (v String) ToString(w iou.DiscardStringWriter) {
+	w.WriteString("\"")
+	w.WriteString(v.v)
+	w.WriteString("\"")
+}
+
+func (v Bytes) ToString(w iou.DiscardStringWriter) {
+	w.WriteString(fmt.Sprintf("%v", v.v))
+}
+
+func (v Array) ToString(w iou.DiscardStringWriter) {
+	w.WriteString("[")
+	for i, e := range v.v {
+		if i > 0 {
+			w.WriteString(", ")
+		}
+		e.ToString(w)
+	}
+	w.WriteString("]")
+}
+
+func (v Object) ToString(w iou.DiscardStringWriter) {
+	w.WriteString("{")
+	for i, kv := range v.v {
+		if i > 0 {
+			w.WriteString(", ")
+		}
+		kv.K.ToString(w)
+		w.WriteString(": ")
+		kv.V.ToString(w)
+	}
+	w.WriteString("}")
+}
+
+func (v Any) ToString(w iou.DiscardStringWriter) {
+	w.WriteString(fmt.Sprintf("%v", v.v))
 }
