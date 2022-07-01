@@ -78,7 +78,7 @@ func JsonEncode(w io.Writer, v Value) error {
 			} else {
 				return _unhandledType
 			}
-			if _, err := w.Write([]byte{':', ' '}); err != nil {
+			if _, err := w.Write([]byte{':'}); err != nil {
 				return err
 			}
 			if err := JsonEncode(w, kv.V); err != nil {
