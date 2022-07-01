@@ -23,7 +23,11 @@ var _ Marshaler = EnumMarshaler[int]{}
 
 func (m EnumMarshaler[T]) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
 	iv := rv.Interface()
-	mv, ok := m.m[iv]
+	it, ok := iv.(T)
+	if !ok {
+		return nil, _unhandledType
+	}
+	mv, ok := m.m[it]
 	if !ok {
 		return nil, errors.New("unknown enum value")
 	}
