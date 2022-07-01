@@ -3,6 +3,9 @@ package marshal
 import (
 	"fmt"
 	"testing"
+
+	"github.com/wrmsr/bane/pkg/util/check"
+	ju "github.com/wrmsr/bane/pkg/util/json"
 )
 
 type A struct {
@@ -20,19 +23,20 @@ type C struct {
 	Z int32
 }
 
-func TestMarshal(t *testing.T) {
-	c := C{
-		B: B{
-			A: A{
-				X: 100,
-				Y: "two hundred",
-			},
-			Z: 300,
+var testC = C{
+	B: B{
+		A: A{
+			X: 100,
+			Y: "two hundred",
 		},
-		Z: 420,
-	}
+		Z: 300,
+	},
+	Z: 420,
+}
 
+func TestMarshal(t *testing.T) {
 	em := NewManager()
-	m := em.Marshal(c)
+	m := em.Marshal(testC)
 	fmt.Printf("%+v\n", m)
+	fmt.Println(check.Must1(ju.MarshalString(m)))
 }

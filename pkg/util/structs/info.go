@@ -85,6 +85,10 @@ func (si StructInfo) Ty() reflect.Type                    { return si.ty }
 func (si StructInfo) Fields() []*FieldInfo                { return si.fields }
 func (si StructInfo) FieldsByName() map[string]*FieldInfo { return si.fieldsByName }
 
+func (si StructInfo) Field(name string) *FieldInfo {
+	return si.fieldsByName[name]
+}
+
 //
 
 type StructInfoCache struct {
