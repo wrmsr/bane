@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
@@ -46,7 +47,8 @@ type SliceUnmarshaler struct {
 }
 
 func NewSliceUnmarshaler(ty reflect.Type, elem Unmarshaler) SliceUnmarshaler {
-	return SliceUnmarshaler{ty: ty, elem: elem, nv: reflect.New(ty).Elem()}
+	check.Equal(ty.Kind(), reflect.Slice)
+	return SliceUnmarshaler{ty: ty, elem: elem, nv: rfl.ZeroFor(ty)}
 }
 
 var _ Unmarshaler = SliceUnmarshaler{}
@@ -90,6 +92,7 @@ type ArrayUnmarshaler struct {
 }
 
 func NewArrayUnmarshaler(ty reflect.Type, elem Unmarshaler) ArrayUnmarshaler {
+	check.Equal(ty.Kind(), reflect.Array)
 	return ArrayUnmarshaler{ty: ty, elem: elem, l: ty.Len()}
 }
 

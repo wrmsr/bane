@@ -33,6 +33,18 @@ func TypeOf[T any]() reflect.Type {
 	return reflect.TypeOf(z)
 }
 
+func As[T any](rv reflect.Value) T {
+	return rv.Interface().(T)
+}
+
+func ZeroFor(ty reflect.Type) reflect.Value {
+	return reflect.New(ty).Elem()
+}
+
+func ZeroOf[T any]() reflect.Value {
+	return reflect.New(TypeOf[T]()).Elem()
+}
+
 //
 
 func UnwrapPointerValue(v reflect.Value) (reflect.Value, bool) {
