@@ -1,6 +1,21 @@
 package marshal
 
-import "reflect"
+import (
+	"reflect"
+
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
+)
+
+//
+
+type Primitive interface {
+	isPrimitive()
+}
+
+func (v Bool) isPrimitive()   {}
+func (v Int) isPrimitive()    {}
+func (v Float) isPrimitive()  {}
+func (v String) isPrimitive() {}
 
 //
 
@@ -40,7 +55,7 @@ func (p PrimitiveMarshaller) Marshal(ctx MarshalContext, rv reflect.Value) (Valu
 		return String{v: rv.String()}, nil
 
 	}
-	return nil, UnhandledTypeError{}
+	return nil, _unhandledType
 }
 
 //
@@ -50,5 +65,28 @@ type PrimitiveUnmarshaller struct{}
 var _ Unmarshaller = PrimitiveUnmarshaller{}
 
 func (p PrimitiveUnmarshaller) Unmarshal(ctx MarshalContext, mv Value) (reflect.Value, error) {
-	panic("implement me")
+	switch mv := mv.(type) {
+
+	case Bool:
+		if mv.v {
+			return rfl.True(), nil
+		} else {
+			return rfl.False(), nil
+		}
+
+	case Int:
+		if mv.u {
+			return reflect.ValueOf(uint64(mv.v)), nil
+		} else {
+			return reflect.ValueOf(mv.v), nil
+		}
+
+	case Float:
+		return reflect.ValueOf(mv.v), nil
+
+	case String:
+		return reflect.ValueOf(mv.v), nil
+
+	}
+	return rfl.Invalid(), _unhandledType
 }

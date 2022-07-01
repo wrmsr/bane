@@ -7,10 +7,26 @@ import (
 
 //
 
-var _nullBytes = []byte("null")
+var (
+	_nullBytes  = []byte("null")
+	_trueBytes  = []byte("true")
+	_falseBytes = []byte("false")
+)
 
-func NullBytes() []byte {
-	return _nullBytes
+func NullBytes() []byte  { return _nullBytes }
+func TrueBytes() []byte  { return _trueBytes }
+func FalseBytes() []byte { return _falseBytes }
+
+func IsNullBytes(b []byte) bool {
+	return len(b) == 4 && b[0] == 'n' && b[1] == 'u' && b[2] == 'l' && b[3] == 'l'
+}
+
+func IsTrueBytes(b []byte) bool {
+	return len(b) == 4 && b[0] == 't' && b[1] == 'r' && b[2] == 'u' && b[3] == 'e'
+}
+
+func IsFalseBytes(b []byte) bool {
+	return len(b) == 5 && b[0] == 'f' && b[1] == 'a' && b[2] == 'l' && b[3] == 's' && b[4] == 'e'
 }
 
 //

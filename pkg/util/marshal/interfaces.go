@@ -14,6 +14,10 @@ func (e UnhandledTypeError) Error() string {
 	return "unhandled type"
 }
 
+var _unhandledType = UnhandledTypeError{}
+
+func UnhandledType() UnhandledTypeError { return _unhandledType }
+
 ///
 
 type MarshalOpt interface {
