@@ -13,10 +13,19 @@ import (
 func TestSlice(t *testing.T) {
 	s := []int{1, 10, 100}
 
-	mv := check.Must1(NewIndexMarshaler(PrimitiveMarshaler{}).Marshal(MarshalContext{}, reflect.ValueOf(s)))
+	mv := check.Must1(
+		NewIndexMarshaler(
+			PrimitiveMarshaler{},
+		).Marshal(MarshalContext{}, reflect.ValueOf(s)))
 	fmt.Println(mv)
 
-	s2 := check.Must1(NewSliceUnmarshaler(rfl.TypeOf[[]int](), NewConvertUnmarshaler(rfl.TypeOf[int](), PrimitiveUnmarshaler{})).Unmarshal(UnmarshalContext{}, mv)).Interface()
+	s2 := check.Must1(
+		NewSliceUnmarshaler(
+			rfl.TypeOf[[]int](),
+			NewConvertUnmarshaler(
+				rfl.TypeOf[int](),
+				PrimitiveUnmarshaler{}),
+		).Unmarshal(UnmarshalContext{}, mv)).Interface()
 	fmt.Println(s2)
 
 	tu.AssertDeepEqual(t, s, s2)
