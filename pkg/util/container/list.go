@@ -39,6 +39,9 @@ func newListImpl[T any](it its.Iterable[T]) listImpl[T] {
 }
 
 func NewList[T any](it its.Iterable[T]) List[T] {
+	if it, ok := it.(List[T]); ok {
+		return it
+	}
 	return newListImpl(it)
 }
 

@@ -44,3 +44,17 @@ func Difference[T comparable](ss ...Set[T]) Set[T] {
 	}
 	return r
 }
+
+func SetPop[T comparable](s MutSet[T]) (T, bool) {
+	if s.Len() < 1 {
+		var z T
+		return z, false
+	}
+	var r T
+	s.ForEach(func(v T) bool {
+		r = v
+		return false
+	})
+	s.Remove(r)
+	return r, true
+}

@@ -21,3 +21,9 @@ func MapValues[K, VF, VT any](it Iterable[bt.Kv[K, VF]], fn func(v VF) VT) Itera
 		return bt.KvOf(kv.K, fn(kv.V))
 	})
 }
+
+func MakeKvs[K comparable, V any](it Iterable[V], fn func(v V) K) Iterable[bt.Kv[K, V]] {
+	return Map(it, func(v V) bt.Kv[K, V] {
+		return bt.KvOf(fn(v), v)
+	})
+}

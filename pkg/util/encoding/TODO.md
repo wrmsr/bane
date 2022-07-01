@@ -1,3 +1,5 @@
 - marshal interop
 - yaml rewrite
 - cbor
+- csv
+- jsoniter

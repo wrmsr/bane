@@ -44,6 +44,9 @@ func newSetImpl[T comparable](it its.Iterable[T]) setImpl[T] {
 }
 
 func NewSet[T comparable](it its.Iterable[T]) Set[T] {
+	if it, ok := it.(Set[T]); ok {
+		return it
+	}
 	return newSetImpl(it)
 }
 

@@ -46,6 +46,9 @@ func newMapImpl[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) mapImpl[K, V]
 }
 
 func NewMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) Map[K, V] {
+	if it, ok := it.(Map[K, V]); ok {
+		return it
+	}
 	return newMapImpl[K, V](it)
 }
 
