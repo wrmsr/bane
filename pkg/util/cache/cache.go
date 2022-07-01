@@ -118,8 +118,13 @@ type link struct {
 type Cache struct {
 	cfg Config
 
+	m map[any]*link
+
 	root  *link
 	stats Stats
+
+	eaaMillis int64
+	eawMillis int64
 }
 
 func NewCache(cfg Config) *Cache {
@@ -140,7 +145,12 @@ func NewCache(cfg Config) *Cache {
 	return &Cache{
 		cfg: cfg,
 
+		m: make(map[any]*link),
+
 		root: root,
+
+		eaaMillis: int64(cfg.ExpireAfterAccess / time.Millisecond),
+		eawMillis: int64(cfg.ExpireAfterWrite / time.Millisecond),
 	}
 }
 
@@ -153,9 +163,9 @@ func (c *Cache) unlink(l *link) {
 	}
 
 	unlink(l, &l.ins, &l.ins.next.ins, &l.ins.prev.ins)
-	unlink(l, &l.lru, &l.ins.next.lru, &l.ins.prev.lru)
+	unlink(l, &l.lru, &l.lru.next.lru, &l.lru.prev.lru)
 	if c.cfg.TrackFrequency {
-		unlink(l, &l.lfu, &l.ins.next.lfu, &l.ins.prev.lfu)
+		unlink(l, &l.lfu, &l.lfu.next.lfu, &l.lfu.prev.lfu)
 	}
 
 	if c.cfg.OnRemove != nil {
@@ -172,255 +182,243 @@ func (c *Cache) unlink(l *link) {
 }
 
 func (c *Cache) kill(l *link) {
+	if l == c.root {
+		panic("can't kill root")
+	}
 
+	cacheLink := c.m[l.key]
+	if cacheLink == l {
+		delete(c.m, l.key)
+	}
+
+	c.unlink(l)
+}
+
+func (c *Cache) now() int64 {
+	c.cfg.Clock().UnixMilli()
+}
+
+func (c *Cache) reap() {
+	var now int64
+
+	if c.eawMillis > 0 {
+		now = c.now()
+		deadline := now - c.eawMillis
+		for c.root.ins.next != c.root {
+			l := c.root.ins.next
+			if l.writtenMilli > deadline {
+				break
+			}
+			c.kill(l)
+		}
+	}
+
+	if c.eaaMillis > 0 {
+		if now == 0 {
+			now = c.now()
+		}
+		deadline := now - c.eaaMillis
+		for c.root.lru.next != c.root {
+			l := c.root.lru.next
+			if l.accessedMilli > deadline {
+				break
+			}
+			c.kill(l)
+		}
+	}
+}
+
+func (c *Cache) Reap() {
+	if c.cfg.Lock != nil {
+		c.cfg.Lock.Lock()
+		defer c.cfg.Lock.Unlock()
+	}
+
+	c.reap()
+}
+
+func (c *Cache) getLink(k any) *link {
+	l := c.m[k]
+	if l == nil {
+		return nil
+	}
+	if l.unlinked {
+		panic("unlinked")
+	}
+	return l
+}
+
+func (c *Cache) Get(k any) (any, bool) {
+	if c.cfg.Lock != nil {
+		c.cfg.Lock.Lock()
+		defer c.cfg.Lock.Unlock()
+	}
+
+	c.reap()
+
+	l := c.getLink(k)
+	if l == nil {
+		c.stats.Misses++
+		return nil, false
+	}
+
+	if l.lru.next != c.root {
+		unlink(l, &l.lru, &l.lru.next.lru, &l.lru.prev.lru)
+
+		lruLast := c.root.lru.prev
+		lruLast.lru.next = l
+		c.root.lru.prev = l
+		l.lru.prev = lruLast
+		l.lru.next = c.root
+	}
+
+	if c.cfg.TrackFrequency {
+		lfuPos := l.lfu.prev
+		for lfuPos != c.root && lfuPos.hits <= l.hits {
+			lfuPos = lfuPos.lfu.prev
+		}
+
+		if l.lfu.prev != lfuPos {
+			unlink(l, &l.lfu, &l.lfu.next.lfu, &l.lfu.prev.lfu)
+
+			lfuLast := lfuPos.lfu.prev
+			lfuLast.lfu.next = l
+			lfuPos.lfu.prev = l
+			l.lfu.prev = lfuLast
+			l.lfu.next = lfuPos
+		}
+	}
+
+	l.accessedMilli = c.now()
+	l.hits++
+	c.stats.Hits++
+	return l.value, true
+}
+
+func (c *Cache) full() bool {
+	if c.cfg.MaxSize > 0 && c.stats.Size >= c.cfg.MaxSize {
+		return true
+	}
+	if c.cfg.Weigher != nil && c.stats.Weight >= c.cfg.MaxWeight {
+		return true
+	}
+	return false
+}
+
+func (c *Cache) Clear() {
+	if c.cfg.Lock != nil {
+		c.cfg.Lock.Lock()
+		defer c.cfg.Lock.Unlock()
+	}
+
+	c.m = make(map[any]*link)
+	for {
+		l := c.root.ins.prev
+		if l == c.root {
+			break
+		}
+		if l.unlinked {
+			panic("already unlinked")
+		}
+		c.unlink(l)
+	}
 }
 
 /*
-   def _kill(self, link: Link) -> None:
-       if link is self._root:
-           raise RuntimeError
+def __setitem__(self, key: K, value: V) -> None:
+   weight = c._weigher(value)
 
-       key = link.key
-       if self._weak_keys:
-           if key is not None:
-               key = key()
-           if key is None:
-               key = SKIP
+   with c._lock():
+	   c._reap()
 
-       if key is not SKIP:
-           cache_key = id(key) if self._identity_keys else key
-           cache_link = self._cache.get(cache_key)
-           if cache_link is link:
-               del self._cache[cache_key]
+	   if c._max_weight is not None and weight > c._max_weight:
+		   if c._raise_overweight:
+			   raise OverweightException
+		   else:
+			   return
 
-       self._unlink(link)
+	   try:
+		   existing_link, existing_value = c._get_link(key)
+	   except KeyError:
+		   pass
+	   else:
+		   c._unlink(existing_link)
 
-   def _reap(self) -> None:
-       if self._weak_dead is not None:
-           while True:
-               try:
-                   link = self._weak_dead.popleft()
-               except IndexError:
-                   break
-               self._kill(link)
+	   while c._full:
+		   c._eviction(self)
 
-       clock = None
+	   link = CacheImpl.Link()
+	   c._seq += 1
+	   link.seq = c._seq
+	   link.key = weakref.ref(key, functools.partial(CacheImpl._weak_die, c._weak_dead_ref, link)) if c._weak_keys else key  # noqa
+	   link.value = weakref.ref(value, functools.partial(CacheImpl._weak_die, c._weak_dead_ref, link)) if c._weak_values else value  # noqa
+	   link.weight = weight
+	   link.written = link.accessed = c._clock()
+	   link.hits = 0
+	   link.unlinked = False
 
-       if self._expire_after_write is not None:
-           clock = self._clock()
-           deadline = clock - self._expire_after_write
+	   ins_last = c._root.ins_prev
+	   ins_last.ins_next = c._root.ins_prev = link
+	   link.ins_prev = ins_last
+	   link.ins_next = c._root
 
-           while self._root.ins_next is not self._root:
-               link = self._root.ins_next
-               if link.written > deadline:
-                   break
-               self._kill(link)
+	   lru_last = c._root.lru_prev
+	   lru_last.lru_next = c._root.lru_prev = link
+	   link.lru_prev = lru_last
+	   link.lru_next = c._root
 
-       if self._expire_after_access is not None:
-           if clock is None:
-               clock = self._clock()
-           deadline = clock - self._expire_after_access
+	   if c._track_frequency:
+		   lfu_last = c._root.lfu_prev
+		   lfu_last.lfu_next = c._root.lfu_prev = link
+		   link.lfu_prev = lfu_last
+		   link.lfu_next = c._root
 
-           while self._root.lru_next is not self._root:
-               link = self._root.lru_next
-               if link.accessed > deadline:
-                   break
-               self._kill(link)
+	   c._weight += weight
+	   c._size += 1
+	   c._max_size_ever = max(c._size, c._max_size_ever)
+	   c._max_weight_ever = max(c._weight, c._max_weight_ever)
 
-   def reap(self) -> None:
-       with self._lock():
-           self._reap()
+	   cache_key = id(key) if c._identity_keys else key
+	   c.m[cache_key] = link
 
-   def _get_link(self, key: K) -> ta.Tuple[Link, V]:
-       cache_key = id(key) if self._identity_keys else key
+def __delitem__(self, key: K) -> None:
+   with c._lock():
+	   c._reap()
 
-       link = self._cache[cache_key]
-       if link.unlinked:
-           raise Exception
+	   link, value = c._get_link(key)
 
-       def fail():
-           try:
-               del self._cache[cache_key]
-           except KeyError:
-               pass
-           self._unlink(link)
-           raise KeyError(key)
+	   cache_key = id(key) if c._identity_keys else key
+	   del c.m[cache_key]
 
-       if self._identity_keys:
-           link_key = link.key
-           if self._weak_keys:
-               link_key = link_key()
-               if link_key is None:
-                   fail()
-           if key is not link_key:
-               fail()
+	   c._unlink(link)
 
-       value = link.value
-       if self._weak_values:
-           if value is not None:
-               value = value()
-           if value is None:
-               fail()
+def __len__(self) -> int:
+   with c._lock():
+	   c._reap()
 
-       return link, value
+	   return c._size
 
-   def __getitem__(self, key: K) -> V:
-       with self._lock():
-           self._reap()
+def __contains__(self, key: K) -> bool:
+   with c._lock():
+	   c._reap()
 
-           try:
-               link, value = self._get_link(key)
-           except KeyError:
-               self._misses += 1
-               raise KeyError(key)
+	   try:
+		   c._get_link(key)
+	   except KeyError:
+		   return False
+	   else:
+		   return True
 
-           if link.lru_next is not self._root:
-               link.lru_prev.lru_next = link.lru_next
-               link.lru_next.lru_prev = link.lru_prev
+def __iter__(self) -> ta.Iterator[K]:
+   with c._lock():
+	   c._reap()
 
-               lru_last = self._root.lru_prev
-               lru_last.lru_next = self._root.lru_prev = link
-               link.lru_prev = lru_last
-               link.lru_next = self._root
-
-           if self._track_frequency:
-               lfu_pos = link.lfu_prev
-               while lfu_pos is not self._root and lfu_pos.hits <= link.hits:
-                   lfu_pos = lfu_pos.lfu_prev
-
-               if link.lfu_prev is not lfu_pos:
-                   link.lfu_prev.lfu_next = link.lfu_next
-                   link.lfu_next.lfu_prev = link.lfu_prev
-
-                   lfu_last = lfu_pos.lfu_prev
-                   lfu_last.lfu_next = lfu_pos.lfu_prev = link
-                   link.lfu_prev = lfu_last
-                   link.lfu_next = lfu_pos
-
-           link.accessed = self._clock()
-           link.hits += 1
-           self._hits += 1
-           return value
-
-   @staticmethod
-   def _weak_die(dead_ref: weakref.ref, link: Link, key_ref: weakref.ref) -> None:
-       dead = dead_ref()
-       if dead is not None:
-           dead.append(link)
-
-   @property
-   def _full(self) -> bool:
-       if self._max_size is not None and self._size >= self._max_size:
-           return True
-       if self._max_weight is not None and self._weight >= self._max_weight:
-           return True
-       return False
-
-   def clear(self) -> None:
-       with self._lock():
-           self._cache.clear()
-           while True:
-               link = self._root.ins_prev
-               if link is self._root:
-                   break
-               if link.unlinked:
-                   raise TypeError
-               self._unlink(link)
-
-   def __setitem__(self, key: K, value: V) -> None:
-       weight = self._weigher(value)
-
-       with self._lock():
-           self._reap()
-
-           if self._max_weight is not None and weight > self._max_weight:
-               if self._raise_overweight:
-                   raise OverweightException
-               else:
-                   return
-
-           try:
-               existing_link, existing_value = self._get_link(key)
-           except KeyError:
-               pass
-           else:
-               self._unlink(existing_link)
-
-           while self._full:
-               self._eviction(self)
-
-           link = CacheImpl.Link()
-           self._seq += 1
-           link.seq = self._seq
-           link.key = weakref.ref(key, functools.partial(CacheImpl._weak_die, self._weak_dead_ref, link)) if self._weak_keys else key  # noqa
-           link.value = weakref.ref(value, functools.partial(CacheImpl._weak_die, self._weak_dead_ref, link)) if self._weak_values else value  # noqa
-           link.weight = weight
-           link.written = link.accessed = self._clock()
-           link.hits = 0
-           link.unlinked = False
-
-           ins_last = self._root.ins_prev
-           ins_last.ins_next = self._root.ins_prev = link
-           link.ins_prev = ins_last
-           link.ins_next = self._root
-
-           lru_last = self._root.lru_prev
-           lru_last.lru_next = self._root.lru_prev = link
-           link.lru_prev = lru_last
-           link.lru_next = self._root
-
-           if self._track_frequency:
-               lfu_last = self._root.lfu_prev
-               lfu_last.lfu_next = self._root.lfu_prev = link
-               link.lfu_prev = lfu_last
-               link.lfu_next = self._root
-
-           self._weight += weight
-           self._size += 1
-           self._max_size_ever = max(self._size, self._max_size_ever)
-           self._max_weight_ever = max(self._weight, self._max_weight_ever)
-
-           cache_key = id(key) if self._identity_keys else key
-           self._cache[cache_key] = link
-
-   def __delitem__(self, key: K) -> None:
-       with self._lock():
-           self._reap()
-
-           link, value = self._get_link(key)
-
-           cache_key = id(key) if self._identity_keys else key
-           del self._cache[cache_key]
-
-           self._unlink(link)
-
-   def __len__(self) -> int:
-       with self._lock():
-           self._reap()
-
-           return self._size
-
-   def __contains__(self, key: K) -> bool:
-       with self._lock():
-           self._reap()
-
-           try:
-               self._get_link(key)
-           except KeyError:
-               return False
-           else:
-               return True
-
-   def __iter__(self) -> ta.Iterator[K]:
-       with self._lock():
-           self._reap()
-
-           link = self._root.ins_prev
-           while link is not self._root:
-               yield link.key
-               next = link.ins_prev
-               if next is link:
-                   raise ValueError
-               link = next
+	   link = c._root.ins_prev
+	   while link is not c._root:
+		   yield link.key
+		   next = link.ins_prev
+		   if next is link:
+			   raise ValueError
+		   link = next
 
 */
