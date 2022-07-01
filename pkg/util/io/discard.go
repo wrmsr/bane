@@ -3,6 +3,7 @@ package io
 import (
 	"fmt"
 	"io"
+	"strings"
 )
 
 //
@@ -61,4 +62,12 @@ func (w discardStringWriter) WriteString(s string) {
 
 func NewDiscardStringWriter(w StringWriter) DiscardStringWriter {
 	return discardStringWriter{w}
+}
+
+//
+
+func InvokeToString(fn func(writer DiscardStringWriter)) string {
+	var sb strings.Builder
+	fn(NewDiscardStringWriter(&sb))
+	return sb.String()
 }

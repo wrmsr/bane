@@ -13,7 +13,9 @@ import (
 
 type Value interface {
 	Interface() any
-	ToString(w iou.DiscardStringWriter)
+
+	WriteString(w iou.DiscardStringWriter)
+	String() string
 
 	isValue()
 }
@@ -194,11 +196,11 @@ func (v Any) Interface() any {
 
 //
 
-func (v Null) ToString(w iou.DiscardStringWriter) {
+func (v Null) WriteString(w iou.DiscardStringWriter) {
 	w.WriteString("null")
 }
 
-func (v Bool) ToString(w iou.DiscardStringWriter) {
+func (v Bool) WriteString(w iou.DiscardStringWriter) {
 	if v.v {
 		w.WriteString("true")
 	} else {
@@ -206,7 +208,7 @@ func (v Bool) ToString(w iou.DiscardStringWriter) {
 	}
 }
 
-func (v Int) ToString(w iou.DiscardStringWriter) {
+func (v Int) WriteString(w iou.DiscardStringWriter) {
 	if v.u {
 		w.WriteString(strconv.FormatUint(uint64(v.v), 10))
 	} else {
@@ -214,48 +216,59 @@ func (v Int) ToString(w iou.DiscardStringWriter) {
 	}
 }
 
-func (v Float) ToString(w iou.DiscardStringWriter) {
+func (v Float) WriteString(w iou.DiscardStringWriter) {
 	w.WriteString(strconv.FormatFloat(v.v, 'g', -1, 64))
 }
 
-func (v Number) ToString(w iou.DiscardStringWriter) {
+func (v Number) WriteString(w iou.DiscardStringWriter) {
 	w.WriteString(v.v.String())
 }
 
-func (v String) ToString(w iou.DiscardStringWriter) {
+func (v String) WriteString(w iou.DiscardStringWriter) {
 	w.WriteString("\"")
 	w.WriteString(v.v)
 	w.WriteString("\"")
 }
 
-func (v Bytes) ToString(w iou.DiscardStringWriter) {
+func (v Bytes) WriteString(w iou.DiscardStringWriter) {
 	w.WriteString(fmt.Sprintf("%v", v.v))
 }
 
-func (v Array) ToString(w iou.DiscardStringWriter) {
+func (v Array) WriteString(w iou.DiscardStringWriter) {
 	w.WriteString("[")
 	for i, e := range v.v {
 		if i > 0 {
 			w.WriteString(", ")
 		}
-		e.ToString(w)
+		e.WriteString(w)
 	}
 	w.WriteString("]")
 }
 
-func (v Object) ToString(w iou.DiscardStringWriter) {
+func (v Object) WriteString(w iou.DiscardStringWriter) {
 	w.WriteString("{")
 	for i, kv := range v.v {
 		if i > 0 {
 			w.WriteString(", ")
 		}
-		kv.K.ToString(w)
+		kv.K.WriteString(w)
 		w.WriteString(": ")
-		kv.V.ToString(w)
+		kv.V.WriteString(w)
 	}
 	w.WriteString("}")
 }
 
-func (v Any) ToString(w iou.DiscardStringWriter) {
+func (v Any) WriteString(w iou.DiscardStringWriter) {
 	w.WriteString(fmt.Sprintf("%v", v.v))
 }
+
+func (v Null) String() string   { return iou.InvokeToString(v.WriteString) }
+func (v Bool) String() string   { return iou.InvokeToString(v.WriteString) }
+func (v Int) String() string    { return iou.InvokeToString(v.WriteString) }
+func (v Float) String() string  { return iou.InvokeToString(v.WriteString) }
+func (v Number) String() string { return iou.InvokeToString(v.WriteString) }
+func (v String) String() string { return iou.InvokeToString(v.WriteString) }
+func (v Bytes) String() string  { return iou.InvokeToString(v.WriteString) }
+func (v Array) String() string  { return iou.InvokeToString(v.WriteString) }
+func (v Object) String() string { return iou.InvokeToString(v.WriteString) }
+func (v Any) String() string    { return iou.InvokeToString(v.WriteString) }
