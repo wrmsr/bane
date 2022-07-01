@@ -12,20 +12,20 @@ type Weight = float32
 //
 
 type Eviction interface {
-	evict(c *Cache)
+	target(c *cache) *link
 }
 
 type LRU struct{}
 
-func (e LRU) evict(c *Cache) { c.kill(c.root.lru.next) }
+func (e LRU) target(c *cache) *link { return c.root.lru.next }
 
 type LRI struct{}
 
-func (e LRI) evict(c *Cache) { c.kill(c.root.ins.next) }
+func (e LRI) target(c *cache) *link { return c.root.ins.next }
 
 type LFU struct{}
 
-func (e LFU) evict(c *Cache) { c.kill(c.root.lfu.prev) }
+func (e LFU) target(c *cache) *link { return c.root.lfu.prev }
 
 //
 

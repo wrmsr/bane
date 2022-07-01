@@ -60,19 +60,24 @@ type link struct {
 	unlinked bool
 }
 
-type Cache struct {
+type cache struct {
+	root *link
+}
+
+type Cache[K comparable] struct {
 	cfg Config
 
-	m map[any]*link
+	cache
 
-	root  *link
+	m map[K]*link
+
 	stats Stats
 
 	eaaMillis int64
 	eawMillis int64
 }
 
-func NewCache(cfg Config) *Cache {
+func NewCache[K comparable](cfg Config) *Cache[K] {
 	if _, ok := cfg.Eviction.(LFU); ok {
 		cfg.TrackFrequency = true
 	}
@@ -87,19 +92,21 @@ func NewCache(cfg Config) *Cache {
 		root.lfu.set(root, root)
 	}
 
-	return &Cache{
+	return &Cache[K]{
 		cfg: cfg,
 
-		m: make(map[any]*link),
+		cache: cache{
+			root: root,
+		},
 
-		root: root,
+		m: make(map[K]*link),
 
 		eaaMillis: int64(cfg.ExpireAfterAccess / time.Millisecond),
 		eawMillis: int64(cfg.ExpireAfterWrite / time.Millisecond),
 	}
 }
 
-func (c *Cache) unlink(l *link) {
+func (c *Cache[K]) unlink(l *link) {
 	if l == c.root {
 		panic("can't unlink root")
 	}
@@ -126,24 +133,24 @@ func (c *Cache) unlink(l *link) {
 	l.unlinked = true
 }
 
-func (c *Cache) kill(l *link) {
+func (c *Cache[K]) kill(l *link) {
 	if l == c.root {
 		panic("can't kill root")
 	}
 
-	cacheLink := c.m[l.key]
+	cacheLink := c.m[l.key.(K)]
 	if cacheLink == l {
-		delete(c.m, l.key)
+		delete(c.m, l.key.(K))
 	}
 
 	c.unlink(l)
 }
 
-func (c *Cache) now() int64 {
+func (c *Cache[K]) now() int64 {
 	return c.cfg.Clock().UnixMilli()
 }
 
-func (c *Cache) reap() {
+func (c *Cache[K]) reap() {
 	var now int64
 
 	if c.eawMillis > 0 {
@@ -173,7 +180,7 @@ func (c *Cache) reap() {
 	}
 }
 
-func (c *Cache) Reap() {
+func (c *Cache[K]) Reap() {
 	if c.cfg.Lock != nil {
 		c.cfg.Lock.Lock()
 		defer c.cfg.Lock.Unlock()
@@ -182,7 +189,7 @@ func (c *Cache) Reap() {
 	c.reap()
 }
 
-func (c *Cache) getLink(k any) *link {
+func (c *Cache[K]) getLink(k K) *link {
 	l := c.m[k]
 	if l == nil {
 		return nil
@@ -193,7 +200,7 @@ func (c *Cache) getLink(k any) *link {
 	return l
 }
 
-func (c *Cache) TryGet(k any) (any, bool) {
+func (c *Cache[K]) TryGet(k K) (any, bool) {
 	if c.cfg.Lock != nil {
 		c.cfg.Lock.Lock()
 		defer c.cfg.Lock.Unlock()
@@ -240,12 +247,12 @@ func (c *Cache) TryGet(k any) (any, bool) {
 	return l.value, true
 }
 
-func (c *Cache) Get(k any) any {
+func (c *Cache[K]) Get(k K) any {
 	v, _ := c.TryGet(k)
 	return v
 }
 
-func (c *Cache) full() bool {
+func (c *Cache[K]) full() bool {
 	if c.cfg.MaxSize > 0 && c.stats.Size >= c.cfg.MaxSize {
 		return true
 	}
@@ -255,13 +262,13 @@ func (c *Cache) full() bool {
 	return false
 }
 
-func (c *Cache) Clear() {
+func (c *Cache[K]) Clear() {
 	if c.cfg.Lock != nil {
 		c.cfg.Lock.Lock()
 		defer c.cfg.Lock.Unlock()
 	}
 
-	c.m = make(map[any]*link)
+	c.m = make(map[K]*link)
 	for {
 		l := c.root.ins.prev
 		if l == c.root {
@@ -274,7 +281,7 @@ func (c *Cache) Clear() {
 	}
 }
 
-func (c *Cache) Put(k, v any) bool {
+func (c *Cache[K]) Put(k K, v any) bool {
 	var weight Weight
 	if c.cfg.Weigher != nil {
 		weight = c.cfg.Weigher(v)
@@ -298,7 +305,11 @@ func (c *Cache) Put(k, v any) bool {
 	}
 
 	for c.full() {
-		c.cfg.Eviction.evict(c)
+		t := c.cfg.Eviction.target(&c.cache)
+		if t == c.root {
+			panic("can't evict root")
+		}
+		c.kill(t)
 	}
 
 	c.stats.Seq++
@@ -351,7 +362,7 @@ func (c *Cache) Put(k, v any) bool {
 	return true
 }
 
-func (c *Cache) Delete(k any) bool {
+func (c *Cache[K]) Delete(k K) bool {
 	if c.cfg.Lock != nil {
 		c.cfg.Lock.Lock()
 		defer c.cfg.Lock.Unlock()
@@ -369,7 +380,7 @@ func (c *Cache) Delete(k any) bool {
 	return true
 }
 
-func (c *Cache) Len() int {
+func (c *Cache[K]) Len() int {
 	if c.cfg.Lock != nil {
 		c.cfg.Lock.Lock()
 		defer c.cfg.Lock.Unlock()
@@ -379,7 +390,7 @@ func (c *Cache) Len() int {
 	return c.stats.Size
 }
 
-func (c *Cache) Contains(k any) bool {
+func (c *Cache[K]) Contains(k K) bool {
 	if c.cfg.Lock != nil {
 		c.cfg.Lock.Lock()
 		defer c.cfg.Lock.Unlock()
@@ -389,7 +400,7 @@ func (c *Cache) Contains(k any) bool {
 	return c.getLink(k) != nil
 }
 
-func (c *Cache) ForEach(fn func(bt.Kv[any, any]) bool) bool {
+func (c *Cache[K]) ForEach(fn func(bt.Kv[K, any]) bool) bool {
 	if c.cfg.Lock != nil {
 		c.cfg.Lock.Lock()
 		defer c.cfg.Lock.Unlock()
@@ -397,7 +408,7 @@ func (c *Cache) ForEach(fn func(bt.Kv[any, any]) bool) bool {
 	c.reap()
 
 	for l := c.root.ins.prev; l != c.root; {
-		if !fn(bt.KvOf(l.key, l.value)) {
+		if !fn(bt.KvOf(l.key.(K), l.value)) {
 			return false
 		}
 		n := l.ins.prev
@@ -411,8 +422,8 @@ func (c *Cache) ForEach(fn func(bt.Kv[any, any]) bool) bool {
 
 //
 
-var _ ctr.Map[any, any] = &Cache{}
+var _ ctr.Map[int, any] = &Cache[int]{}
 
-func (c *Cache) Iterate() its.Iterator[bt.Kv[any, any]] {
-	return its.OfSlice(its.SeqForEach[bt.Kv[any, any]](c)).Iterate()
+func (c *Cache[K]) Iterate() its.Iterator[bt.Kv[K, any]] {
+	return its.OfSlice(its.SeqForEach[bt.Kv[K, any]](c)).Iterate()
 }

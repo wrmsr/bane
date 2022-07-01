@@ -7,7 +7,7 @@ import (
 )
 
 func TestCache(t *testing.T) {
-	c := NewCache(DefaultConfig())
+	c := NewCache[int](DefaultConfig())
 	c.Put(100, 200)
-	tu.AssertEqual(t, c.Get(100), 200)
+	tu.AssertDeepEqual(t, c.Get(100), 200)
 }
