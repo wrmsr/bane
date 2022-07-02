@@ -21,6 +21,9 @@ package container
 import (
 	"math/rand"
 	"testing"
+
+	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type myInt int
@@ -264,4 +267,22 @@ func TestRbIter(t *testing.T) {
 	if peek.Item != myInt(0) {
 		t.Errorf("got bad peek right from min %d", peek.Item)
 	}
+}
+
+//
+
+func TestRbTreeMap(t *testing.T) {
+	m := NewMutRbTreeMap[int, string](bt.IntCmp[int](), nil)
+	m.Put(10, "ten")
+	m.Put(20, "twenty")
+	m.Put(30, "thirty")
+	tu.AssertEqual(t, m.Contains(10), true)
+	tu.AssertEqual(t, m.Get(10), "ten")
+	tu.AssertEqual(t, m.Contains(11), false)
+
+	m.Put(11, "eleven")
+	tu.AssertEqual(t, m.Contains(11), true)
+
+	m.Delete(20)
+	tu.AssertEqual(t, m.Contains(20), false)
 }

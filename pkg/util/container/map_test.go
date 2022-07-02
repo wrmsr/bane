@@ -17,4 +17,7 @@ func TestMap(t *testing.T) {
 
 	m.Put(11, "eleven")
 	tu.AssertEqual(t, m.Contains(11), true)
+
+	m.Delete(20)
+	tu.AssertEqual(t, m.Contains(20), false)
 }
