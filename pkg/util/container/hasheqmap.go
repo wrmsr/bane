@@ -2,6 +2,7 @@ package container
 
 import (
 	"fmt"
+	"sync"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -9,30 +10,37 @@ import (
 
 //
 
-type hashEqMapNode[K, V any] struct {
-	bt.Kv[K, V]
+type hashEqMapNode struct {
+	k, v any
+
 	h uintptr
 
-	next, prev *hashEqMapNode[K, V]
+	next, prev *hashEqMapNode
 }
 
-func (n *hashEqMapNode[K, V]) String() string {
-	return fmt.Sprintf("%16p{%16p %16p %x %v %v}", n, n.next, n.prev, n.h, n.K, n.V)
+func (n *hashEqMapNode) String() string {
+	return fmt.Sprintf("%16p{%16p %16p %16x} %v", n, n.next, n.prev, n.h, n.k)
+}
+
+var hashEqMapNodePool = sync.Pool{
+	New: func() any {
+		return &hashEqMapNode{}
+	},
 }
 
 type hashEqMapImpl[K, V any] struct {
 	he bt.HashEqImpl[K]
 
-	head, tail *hashEqMapNode[K, V]
+	head, tail *hashEqMapNode
 
-	m map[uintptr]*hashEqMapNode[K, V]
+	m map[uintptr]*hashEqMapNode
 	l int
 }
 
 func newHashEqMapImpl[K comparable, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) hashEqMapImpl[K, V] {
 	m := hashEqMapImpl[K, V]{
 		he: he,
-		m:  make(map[uintptr]*hashEqMapNode[K, V]),
+		m:  make(map[uintptr]*hashEqMapNode),
 	}
 	if it != nil {
 		for it := it.Iterate(); it.HasNext(); {
@@ -64,9 +72,9 @@ func (m hashEqMapImpl[K, V]) Get(k K) V {
 	return v
 }
 
-func (m hashEqMapImpl[K, V]) getNode(k K, h uintptr) *hashEqMapNode[K, V] {
+func (m hashEqMapImpl[K, V]) getNode(k K, h uintptr) *hashEqMapNode {
 	for cur := m.m[h]; cur != nil && cur.h == h; cur = cur.prev {
-		if m.he.Eq(k, cur.K) {
+		if m.he.Eq(k, cur.k.(K)) {
 			return cur
 		}
 	}
@@ -75,14 +83,14 @@ func (m hashEqMapImpl[K, V]) getNode(k K, h uintptr) *hashEqMapNode[K, V] {
 
 func (m hashEqMapImpl[K, V]) TryGet(k K) (V, bool) {
 	if n := m.getNode(k, m.he.Hash(k)); n != nil {
-		return n.V, true
+		return n.v.(V), true
 	}
 	var z V
 	return z, false
 }
 
 type hashEqMapIterator[K, V any] struct {
-	n *hashEqMapNode[K, V]
+	n *hashEqMapNode
 }
 
 var _ its.Iterator[bt.Kv[int, string]] = &hashEqMapIterator[int, string]{}
@@ -96,7 +104,7 @@ func (i *hashEqMapIterator[K, V]) HasNext() bool {
 }
 
 func (i *hashEqMapIterator[K, V]) Next() bt.Kv[K, V] {
-	kv := i.n.Kv
+	kv := bt.KvOf(i.n.k.(K), i.n.v.(V))
 	i.n = i.n.next
 	return kv
 }
@@ -107,7 +115,7 @@ func (m hashEqMapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
 
 func (m hashEqMapImpl[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 	for cur := m.head; cur != nil; cur = cur.next {
-		if !fn(cur.Kv) {
+		if !fn(bt.KvOf(cur.k.(K), cur.v.(V))) {
 			return false
 		}
 	}
@@ -117,14 +125,14 @@ func (m hashEqMapImpl[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 func (m *hashEqMapImpl[K, V]) put(k K, v V) {
 	h := m.he.Hash(k)
 	if n := m.getNode(k, h); n != nil {
-		n.V = v
+		n.v = v
 		return
 	}
 
-	n := &hashEqMapNode[K, V]{
-		Kv: bt.KvOf(k, v),
-		h:  h,
-	}
+	n := hashEqMapNodePool.Get().(*hashEqMapNode)
+	n.k = k
+	n.v = v
+	n.h = h
 
 	p := m.m[h]
 
@@ -161,7 +169,7 @@ func (m *hashEqMapImpl[K, V]) put(k K, v V) {
 
 func (m *hashEqMapImpl[K, V]) verify() {
 	i := 0
-	var prev *hashEqMapNode[K, V]
+	var prev *hashEqMapNode
 	for cur := m.head; cur != nil; prev, cur = cur, cur.next {
 		if cur.prev != prev {
 			panic(cur)
@@ -213,17 +221,17 @@ func (m *hashEqMapImpl[K, V]) delete(k K) {
 	}
 
 	m.l--
+
+	*n = hashEqMapNode{}
+	hashEqMapNodePool.Put(n)
 }
 
 func (m *hashEqMapImpl[K, V]) default_(k K, v V) bool {
-	//_, ok := m.m[k]
-	//if !ok {
-	//	return false
-	//}
-	//m.m[k] = len(m.s)
-	//m.s = append(m.s, bt.KvOf(k, v))
-	//return true
-	panic("nyi")
+	if _, ok := m.TryGet(k); ok {
+		return false
+	}
+	m.put(k, v)
+	return true
 }
 
 //
