@@ -119,6 +119,12 @@ type trackingPoolNode struct {
 	v any
 }
 
+func (n *trackingPoolNode) get() {
+}
+
+func (n *trackingPoolNode) put() {
+}
+
 type TrackingPool[T any] struct {
 	o Pool[T]
 	k func(T) uintptr
@@ -154,7 +160,9 @@ func (p *TrackingPool[T]) put(v T, isNew bool) *trackingPoolNode {
 		if isNew {
 			panic("key collision")
 		}
+
 		p.n.Put(e)
+		e.put()
 		return e
 	}
 
@@ -164,13 +172,16 @@ func (p *TrackingPool[T]) put(v T, isNew bool) *trackingPoolNode {
 	}
 
 	p.m[k] = r
+	r.put()
 	return r
 }
 
 var _ Pool[int] = &TrackingPool[int]{}
 
 func (p *TrackingPool[T]) Get() T {
-	return p.n.Get().(*trackingPoolNode).v.(T)
+	n := p.n.Get().(*trackingPoolNode)
+	n.get()
+	return n.v.(T)
 }
 
 func (p *TrackingPool[T]) Put(v T) {

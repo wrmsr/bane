@@ -25,14 +25,14 @@ import (
 
 type myInt int
 
-func (l myInt) Less(r RbItem) bool {
-	return l < r.(myInt)
+func myIntLess(l, r any) bool {
+	return l.(myInt) < r.(myInt)
 }
 
 func TestRbRandom(t *testing.T) {
 	const bound = 50
 	rng := rand.New(rand.NewSource(0))
-	var r RbTree
+	r := RbTree{less: myIntLess}
 	defer r.Clear()
 	for i := 0; i < 10000; i++ {
 		r.Insert(myInt(rng.Intn(bound)))
@@ -63,7 +63,7 @@ func TestRbRandom(t *testing.T) {
 }
 
 func TestRbFind(t *testing.T) {
-	var r RbTree
+	r := RbTree{less: myIntLess}
 	defer r.Clear()
 	for i := 0; i < 20; i++ {
 		r.Insert(myInt(i))
@@ -86,7 +86,7 @@ func TestRbFind(t *testing.T) {
 }
 
 func TestRbFindWith(t *testing.T) {
-	var r RbTree
+	r := RbTree{less: myIntLess}
 	defer r.Clear()
 	for i := 0; i < 20; i++ {
 		r.Insert(myInt(i))
@@ -109,7 +109,7 @@ func TestRbFindWith(t *testing.T) {
 }
 
 func TestRbFindOrInsert(t *testing.T) {
-	var r RbTree
+	r := RbTree{less: myIntLess}
 	defer r.Clear()
 	for i := 0; i < 20; i++ {
 		for j := 0; j < 10; j++ {
@@ -132,13 +132,13 @@ func TestRbFindOrInsert(t *testing.T) {
 }
 
 func TestRbFindWithOrInsertWith(t *testing.T) {
-	var r RbTree
+	r := RbTree{less: myIntLess}
 	defer r.Clear()
 	for i := 0; i < 20; i++ {
 		for j := 0; j < 10; j++ {
 			node := r.FindWithOrInsertWith(
 				func(n *RbNode) int { return i - int(n.Item.(myInt)) },
-				func() RbItem { return myInt(i) },
+				func() any { return myInt(i) },
 			)
 			if got := int(node.Item.(myInt)); got != i {
 				t.Errorf("got insert %d, exp %d", got, i)
@@ -159,8 +159,8 @@ func TestRbFindWithOrInsertWith(t *testing.T) {
 
 type intPtr int
 
-func (l *intPtr) Less(r RbItem) bool {
-	return *l < *r.(*intPtr)
+func intPtrLess(l, r any) bool {
+	return *(l.(*intPtr)) < *(r.(*intPtr))
 }
 
 func newIntPtr(v int) *intPtr {
@@ -169,7 +169,7 @@ func newIntPtr(v int) *intPtr {
 }
 
 func TestRbFix(t *testing.T) {
-	var r RbTree
+	r := RbTree{less: intPtrLess}
 	defer r.Clear()
 	r.Insert(newIntPtr(1))
 	r.Insert(newIntPtr(2))
@@ -195,7 +195,7 @@ func TestRbFix(t *testing.T) {
 }
 
 func TestRbIter(t *testing.T) {
-	var r RbTree
+	r := RbTree{less: myIntLess}
 	defer r.Clear()
 	r.Insert(myInt(0))
 	r.Insert(myInt(1))

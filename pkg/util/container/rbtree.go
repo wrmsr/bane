@@ -28,7 +28,9 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //     https://en.wikipedia.org/wiki/Red%E2%80%93black_tree
 package container
 
-import syncu "github.com/wrmsr/bane/pkg/util/sync"
+import (
+	syncu "github.com/wrmsr/bane/pkg/util/sync"
+)
 
 //
 
@@ -38,16 +40,14 @@ const red, black rbColor = true, false
 
 // The red-black tree does support duplicate items, but one is not guaranteed which duplicate is found when looking to
 // remove one of many duplicates. Essentially, there is no stable ordering to duplicate items.
-type RbItem interface {
-	Less(other RbItem) bool
-}
+type Less func(l, r any) bool
 
 type RbNode struct {
 	left   *RbNode
 	right  *RbNode
 	parent *RbNode
 	color  rbColor
-	Item   RbItem
+	Item   any
 }
 
 func (n *RbNode) sibling() *RbNode {
@@ -99,6 +99,7 @@ var rbNodePool = syncu.NewDrainPool[*RbNode](func() *RbNode {
 type RbTree struct {
 	root *RbNode
 	size int
+	less Less
 }
 
 // liftRightSideOf is rotateLeft. Graphically speaking, this takes the node on the right and lifts it above ourselves.
@@ -159,7 +160,7 @@ func (t *RbTree) Fix(n *RbNode) *RbNode {
 }
 
 // Insert inserts an item into the tree, returning the new node.
-func (t *RbTree) Insert(i RbItem) *RbNode {
+func (t *RbTree) Insert(i any) *RbNode {
 	r := rbNodePool.Get()
 	r.Item = i
 	t.Reinsert(r)
@@ -184,7 +185,7 @@ func (t *RbTree) Reinsert(n *RbNode) {
 	on := t.root
 	var set **RbNode
 	for {
-		if n.Item.Less(on.Item) {
+		if t.less(n.Item, on.Item) {
 			if on.left == nil {
 				set = &on.left
 				break
@@ -383,14 +384,14 @@ case1:
 }
 
 // Find finds a node in the tree equal to the needle, if any.
-func (t *RbTree) Find(needle RbItem) *RbNode {
+func (t *RbTree) Find(needle any) *RbNode {
 	on := t.root
 	var lastLarger *RbNode
 	for on != nil {
 		// If the needle is less than our node, then we have not found the min and should go left. We cannot clear
 		// lastLarger since it is still a candidate for equality. If the needle is not less than, it could be equal to
 		// our node. We recurse right, saving what could be equal.
-		if needle.Less(on.Item) {
+		if t.less(needle, on.Item) {
 			on = on.left
 		} else {
 			lastLarger = on
@@ -400,7 +401,7 @@ func (t *RbTree) Find(needle RbItem) *RbNode {
 
 	// If we found a node that did not compare less than our needle, if our needle is not less than the candidate, then
 	// the needle and candidate are equal.
-	if lastLarger != nil && !lastLarger.Item.Less(needle) {
+	if lastLarger != nil && !t.less(lastLarger.Item, needle) {
 		return lastLarger
 	}
 	return nil
@@ -408,7 +409,7 @@ func (t *RbTree) Find(needle RbItem) *RbNode {
 
 // FindOrInsert finds a node equal to the needle, if any. If the node does not exist, this inserts a new node into the
 // tree with new and returns that node.
-func (t *RbTree) FindOrInsert(needle RbItem) *RbNode {
+func (t *RbTree) FindOrInsert(needle any) *RbNode {
 	found := t.Find(needle)
 	if found == nil {
 		return t.Insert(needle)
@@ -437,7 +438,7 @@ func (t *RbTree) FindWith(cmp func(*RbNode) int) *RbNode {
 
 // FindWithOrInsertWith calls cmp to find a node in the tree following the semantics described in FindWith. If the cmp
 // function never returns zero, this inserts a new node into the tree with new and returns that node.
-func (t *RbTree) FindWithOrInsertWith(find func(*RbNode) int, insert func() RbItem) *RbNode {
+func (t *RbTree) FindWithOrInsertWith(find func(*RbNode) int, insert func() any) *RbNode {
 	found := t.FindWith(find)
 	if found == nil {
 		return t.Insert(insert())
@@ -513,7 +514,7 @@ func (i RbIter) Node() *RbNode { return i.on }
 
 // Item returns the item in the node the iterator is currently on. This wil/ panic if the iterator is not on a node.
 // This is shorthand for i.Node().Item.
-func (i RbIter) Item() RbItem { return i.Node().Item }
+func (i RbIter) Item() any { return i.Node().Item }
 
 // PeekLeft peeks at the next left node the iterator can move onto without moving the iterator. This will panic if not
 // on a node. For maximal efficiency, to move left after a left peek, use Reset with the peeked node.
@@ -563,6 +564,31 @@ func (i *RbIter) Right() *RbNode {
 //
 
 //type RbTreeMap[K, V any] struct {
+//	t RbTree
 //}
 //
-//var _ Map[int, string] =
+//var _ Map[int, string] = &RbTreeMap[int, string]{}
+//
+//func (m *RbTreeMap[K, V]) Len() int {
+//	return m.t.Len()
+//}
+//
+//func (m *RbTreeMap[K, V]) Contains(k K) bool {
+//	panic("implement me")
+//}
+//
+//func (m *RbTreeMap[K, V]) Get(k K) V {
+//	panic("implement me")
+//}
+//
+//func (m *RbTreeMap[K, V]) TryGet(k K) (V, bool) {
+//	panic("implement me")
+//}
+//
+//func (m *RbTreeMap[K, V]) Iterate() its.Iterator[T] {
+//	panic("implement me")
+//}
+//
+//func (m *RbTreeMap[K, V]) ForEach(fn func(v T) bool) bool {
+//	panic("implement me")
+//}
