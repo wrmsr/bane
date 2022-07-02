@@ -66,6 +66,24 @@ func (o Optional[T]) OrZero() T {
 
 //
 
+type Interface interface {
+	Present() bool
+	Interface() any
+	Replace(any) Interface
+}
+
+var _ Interface = Optional[int]{}
+
+func (o Optional[T]) Interface() any {
+	return o.v
+}
+
+func (o Optional[T]) Replace(v any) Interface {
+	return Just(v.(T))
+}
+
+//
+
 var _ its.Iterable[any] = Optional[any]{}
 
 func (o Optional[T]) Iterate() its.Iterator[T] {
