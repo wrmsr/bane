@@ -18,4 +18,4 @@ type Comparer[T any] interface {
 
 //
 
-type CmpImpl[T any] func(o T) Cmp
+type CmpImpl[T any] func(l, r T) Cmp

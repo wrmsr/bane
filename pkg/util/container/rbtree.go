@@ -558,27 +558,60 @@ func (i *RbIter) Right() *RbNode {
 
 //
 
-type RbTreeMap[K, V any] struct {
+type rbTreeMapImpl[K, V any] struct {
 	t RbTree
 }
 
-var _ Map[int, string] = &RbTreeMap[int, string]{}
+func newRbTreeMapImpl[K, V any](cmp bt.CmpImpl[K], it its.Iterable[bt.Kv[K, V]]) rbTreeMapImpl[K, V] {
+	m := rbTreeMapImpl[K, V]{
+		t: RbTree{
+			Less: func(l, r any) bool {
+				var lk K
+				if lkv, ok := l.(bt.Kv[K, V]); ok {
+					lk = lkv.K
+				} else {
+					lk = l.(K)
+				}
+				var rk K
+				if rkv, ok := r.(bt.Kv[K, V]); ok {
+					rk = rkv.K
+				} else {
+					rk = r.(K)
+				}
+				return cmp(lk, rk) == bt.CmpLess
+			},
+		},
+	}
+	if it != nil {
+		for it := it.Iterate(); it.HasNext(); {
+			kv := it.Next()
+			m.put(kv.K, kv.V)
+		}
+	}
+	return m
+}
 
-func (m *RbTreeMap[K, V]) Len() int {
+func NewRbTreeMap[K, V any](cmp bt.CmpImpl[K], it its.Iterable[bt.Kv[K, V]]) Map[K, V] {
+	return newRbTreeMapImpl[K, V](cmp, it)
+}
+
+var _ Map[int, string] = rbTreeMapImpl[int, string]{}
+
+func (m rbTreeMapImpl[K, V]) Len() int {
 	return m.t.Len()
 }
 
-func (m *RbTreeMap[K, V]) Contains(k K) bool {
+func (m rbTreeMapImpl[K, V]) Contains(k K) bool {
 	_, ok := m.TryGet(k)
 	return ok
 }
 
-func (m *RbTreeMap[K, V]) Get(k K) V {
+func (m rbTreeMapImpl[K, V]) Get(k K) V {
 	v, _ := m.TryGet(k)
 	return v
 }
 
-func (m *RbTreeMap[K, V]) TryGet(k K) (V, bool) {
+func (m rbTreeMapImpl[K, V]) TryGet(k K) (V, bool) {
 	if n := m.t.Find(k); n != nil {
 		return n.Item.(bt.Kv[K, V]).V, true
 	}
@@ -606,11 +639,11 @@ func (i *rbTreeMapIterator[K, V]) Next() bt.Kv[K, V] {
 	return kv
 }
 
-func (m *RbTreeMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m rbTreeMapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
 	return &rbTreeMapIterator[K, V]{i: RbIterAt(m.t.Min())}
 }
 
-func (m *RbTreeMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
+func (m rbTreeMapImpl[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 	for it := RbIterAt(m.t.Min()); it.Ok(); it.Right() {
 		if !fn(it.Item().(bt.Kv[K, V])) {
 			return false
@@ -618,4 +651,52 @@ func (m *RbTreeMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 		}
 	}
 	return true
+}
+
+func (m *rbTreeMapImpl[K, V]) put(k K, v V) {
+	m.t.Insert(bt.KvOf(k, v))
+}
+
+func (m *rbTreeMapImpl[K, V]) delete(k K) {
+	if found := m.t.Find(k); found != nil {
+		m.t.Delete(found)
+	}
+}
+
+func (m *rbTreeMapImpl[K, V]) default_(k K, v V) bool {
+	if m.Contains(k) {
+		return false
+	}
+	m.put(k, v)
+	return true
+}
+
+func (m *rbTreeMapImpl[K, V]) clear() {
+	m.t.Clear()
+}
+
+//
+
+type mutRbTreeMapImpl[K, V any] struct {
+	rbTreeMapImpl[K, V]
+}
+
+func NewMutRbTreeMap[K, V any](cmp bt.CmpImpl[K], it its.Iterable[bt.Kv[K, V]]) MutMap[K, V] {
+	return &mutRbTreeMapImpl[K, V]{newRbTreeMapImpl[K, V](cmp, it)}
+}
+
+var _ MutMap[int, string] = &mutRbTreeMapImpl[int, string]{}
+
+func (m *mutRbTreeMapImpl[K, V]) isMutable() {}
+
+func (m *mutRbTreeMapImpl[K, V]) Put(k K, v V) {
+	m.put(k, v)
+}
+
+func (m *mutRbTreeMapImpl[K, V]) Delete(k K) {
+	m.delete(k)
+}
+
+func (m *mutRbTreeMapImpl[K, V]) Default(k K, v V) bool {
+	return m.default_(k, v)
 }
