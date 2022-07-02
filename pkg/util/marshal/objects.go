@@ -15,7 +15,7 @@ import (
 
 type ObjectFieldGetter = func(ctx MarshalContext, rv reflect.Value) (opt.Optional[reflect.Value], error)
 
-func NewObjectFieldGetter(fi *stu.FieldInfo) ObjectFieldGetter {
+func NewStructFieldGetter(fi *stu.FieldInfo) ObjectFieldGetter {
 	return func(ctx MarshalContext, rv reflect.Value) (opt.Optional[reflect.Value], error) {
 		fv, ok := fi.GetValue(rv)
 		if !ok {
@@ -71,11 +71,18 @@ func (m ObjectMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, e
 
 //
 
+type ObjectFactory = func(ctx UnmarshalContext) reflect.Value
 type ObjectFieldSetter = func(ctx UnmarshalContext, ov, fv reflect.Value) error
 
-func NewObjectFieldSetter(fi *stu.FieldInfo) ObjectFieldSetter {
+func NewStructFactory(si *stu.StructInfo) ObjectFactory {
+	return func(ctx UnmarshalContext) reflect.Value {
+		return reflect.New(si.Ty()).Elem()
+	}
+}
+
+func NewStructFieldSetter(fi *stu.FieldInfo) ObjectFieldSetter {
 	return func(ctx UnmarshalContext, ov, fv reflect.Value) error {
-		if !fi.SetValue(ov, fv) {
+		if !fi.SetValue(ov.Addr().Interface(), fv.Interface()) {
 			return errors.New("can't set struct value")
 		}
 		return nil
@@ -97,13 +104,13 @@ func NewObjectUnmarshalerField(
 }
 
 type ObjectUnmarshaler struct {
-	fac  func() reflect.Value
+	fac  ObjectFactory
 	flds []ObjectUnmarshalerField
 
 	m map[string]*ObjectUnmarshalerField
 }
 
-func NewObjectUnmarshaler(fac func() reflect.Value, flds ...ObjectUnmarshalerField) ObjectUnmarshaler {
+func NewObjectUnmarshaler(fac ObjectFactory, flds ...ObjectUnmarshalerField) ObjectUnmarshaler {
 	m := make(map[string]*ObjectUnmarshalerField, len(flds))
 	for i, f := range flds {
 		if _, ok := m[f.Name]; ok {
@@ -122,7 +129,7 @@ func (u ObjectUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Va
 	switch mv := mv.(type) {
 
 	case Object:
-		ov := u.fac()
+		ov := u.fac(ctx)
 		for _, kv := range mv.v {
 			k, ok := kv.K.(String)
 			if !ok {
