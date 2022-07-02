@@ -96,3 +96,22 @@ func SetIfAbsent[T any](o *Optional[T], fn func() T) T {
 	*o = Just(r)
 	return r
 }
+
+//
+
+func HashEq[T any](he bt.HashEqImpl[T]) bt.HashEqImpl[Optional[T]] {
+	return bt.HashEqOf[Optional[T]](
+		func(v Optional[T]) uintptr {
+			if v.Present() {
+				return he.Hash(v.Value())
+			}
+			return uintptr(0)
+		},
+		func(l, r Optional[T]) bool {
+			if l.Present() && !r.Present() {
+				return he.Eq(l.Value(), r.Value())
+			}
+			return !(l.Present() || !r.Present())
+		},
+	)
+}

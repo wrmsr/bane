@@ -7,11 +7,11 @@ import (
 
 //
 
-type mapSet[K comparable, V any] struct {
+type mapSet[K, V any] struct {
 	m Map[K, V]
 }
 
-func MapSet[K comparable, V any](m Map[K, V]) Set[K] {
+func MapSet[K, V any](m Map[K, V]) Set[K] {
 	return mapSet[K, V]{m: m}
 }
 
@@ -37,25 +37,25 @@ func (s mapSet[K, V]) ForEach(fn func(k K) bool) bool {
 
 //
 
-type mutMapSet[K comparable, V any] struct {
+type mutMapSet[K, V any] struct {
 	mapSet[K, V]
 	m MutMap[K, V]
 }
 
-func MutMapSet[K comparable, V any](m MutMap[K, V]) MutSet[K] {
-	return mutMapSet[K, V]{mapSet: mapSet[K, V]{m: m}, m: m}
+func MutMapSet[K, V any](m MutMap[K, V]) MutSet[K] {
+	return &mutMapSet[K, V]{mapSet: mapSet[K, V]{m: m}, m: m}
 }
 
-var _ MutSet[int] = mutMapSet[int, any]{}
+var _ MutSet[int] = &mutMapSet[int, any]{}
 
-func (s mutMapSet[K, V]) isMutable() {}
+func (s *mutMapSet[K, V]) isMutable() {}
 
-func (s mutMapSet[K, V]) Add(k K) {
+func (s *mutMapSet[K, V]) Add(k K) {
 	var z V
 	s.m.Put(k, z)
 }
 
-func (s mutMapSet[K, V]) TryAdd(k K) bool {
+func (s *mutMapSet[K, V]) TryAdd(k K) bool {
 	if s.m.Contains(k) {
 		return false
 	}
@@ -64,11 +64,11 @@ func (s mutMapSet[K, V]) TryAdd(k K) bool {
 	return true
 }
 
-func (s mutMapSet[K, V]) Remove(k K) {
+func (s *mutMapSet[K, V]) Remove(k K) {
 	s.m.Delete(k)
 }
 
-func (s mutMapSet[K, V]) TryRemove(k K) bool {
+func (s *mutMapSet[K, V]) TryRemove(k K) bool {
 	if s.m.Contains(k) {
 		return false
 	}
@@ -78,11 +78,11 @@ func (s mutMapSet[K, V]) TryRemove(k K) bool {
 
 //
 
-type setMap[K comparable, V any] struct {
+type setMap[K, V any] struct {
 	s Set[K]
 }
 
-func SetMap[K comparable, V any](s Set[K]) Map[K, V] {
+func SetMap[K, V any](s Set[K]) Map[K, V] {
 	return setMap[K, V]{s: s}
 }
 
@@ -122,28 +122,28 @@ func (m setMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
 
 //
 
-type mutSetMap[K comparable, V any] struct {
+type mutSetMap[K, V any] struct {
 	setMap[K, V]
 	s MutSet[K]
 }
 
-func MutSetMap[K comparable, V any](s MutSet[K]) MutMap[K, V] {
-	return mutSetMap[K, V]{setMap: setMap[K, V]{s: s}, s: s}
+func MutSetMap[K, V any](s MutSet[K]) MutMap[K, V] {
+	return &mutSetMap[K, V]{setMap: setMap[K, V]{s: s}, s: s}
 }
 
-var _ MutMap[int, string] = mutSetMap[int, string]{}
+var _ MutMap[int, string] = &mutSetMap[int, string]{}
 
-func (s mutSetMap[K, V]) isMutable() {}
+func (s *mutSetMap[K, V]) isMutable() {}
 
-func (s mutSetMap[K, V]) Put(k K, v V) {
+func (s *mutSetMap[K, V]) Put(k K, v V) {
 	s.s.Add(k)
 }
 
-func (s mutSetMap[K, V]) Delete(k K) {
+func (s *mutSetMap[K, V]) Delete(k K) {
 	s.s.Remove(k)
 }
 
-func (s mutSetMap[K, V]) Default(k K, v V) bool {
+func (s *mutSetMap[K, V]) Default(k K, v V) bool {
 	if s.s.Contains(k) {
 		return false
 	}

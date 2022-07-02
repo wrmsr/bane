@@ -7,31 +7,33 @@ import (
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
 
-type NodeError[T comparable] struct{ Node T }
+type NodeError[T any] struct{ Node T }
 
 func (e NodeError[T]) Error() string { return fmt.Sprintf("duplicate node: %v", e.Node) }
 
 //
 
-type DuplicateNodeError[T comparable] struct{ NodeError[T] }
+type DuplicateNodeError[T any] struct{ NodeError[T] }
 
 func (e DuplicateNodeError[T]) Error() string { return fmt.Sprintf("duplicate node: %v", e.Node) }
 
 //
 
-type UnknownNodeError[T comparable] struct{ NodeError[T] }
+type UnknownNodeError[T any] struct{ NodeError[T] }
 
 func (e UnknownNodeError[T]) Error() string { return fmt.Sprintf("unknown node: %v", e.Node) }
 
 //
 
-type Tree[T comparable] struct {
+type Tree[T any] struct {
 	root T
 	walk func(T) its.Iterable[T]
+	he   bt.HashEqImpl[T]
 
 	nodes   ctr.List[T]
 	nodeSet ctr.Set[T]
@@ -45,21 +47,22 @@ type Tree[T comparable] struct {
 	nodeSetsByType opt.Optional[map[reflect.Type]ctr.Set[T]]
 }
 
-func NewTree[T comparable](root T, walk func(T) its.Iterable[T]) (*Tree[T], error) {
+func NewTree[T any](root T, walk func(T) its.Iterable[T], he bt.HashEqImpl[T]) (*Tree[T], error) {
 	t := &Tree[T]{
 		root: root,
 		walk: walk,
+		he:   he,
 	}
 
 	nodes := ctr.NewMutList[T](nil)
-	nodeSet := ctr.NewMutSet[T](nil)
+	nodeSet := ctr.NewMutHashEqSet[T](he, nil)
 
-	parentsByNode := ctr.NewMutMap[opt.Optional[T], opt.Optional[T]](nil)
-	childrenByNode := ctr.NewMutMap[opt.Optional[T], ctr.List[T]](nil)
-	childSetsByNode := ctr.NewMutMap[opt.Optional[T], ctr.Set[T]](nil)
+	parentsByNode := ctr.NewMutHashEqMap[opt.Optional[T], opt.Optional[T]](opt.HashEq(he), nil)
+	childrenByNode := ctr.NewMutHashEqMap[opt.Optional[T], ctr.List[T]](opt.HashEq(he), nil)
+	childSetsByNode := ctr.NewMutHashEqMap[opt.Optional[T], ctr.Set[T]](opt.HashEq(he), nil)
 
 	childrenByNode.Put(opt.None[T](), ctr.NewListOf(root))
-	childSetsByNode.Put(opt.None[T](), ctr.NewSetOf(root))
+	childSetsByNode.Put(opt.None[T](), ctr.NewHashEqSet(he, its.Of(root)))
 
 	var rec func(T, opt.Optional[T]) error
 	rec = func(cur T, parent opt.Optional[T]) error {
@@ -70,7 +73,7 @@ func NewTree[T comparable](root T, walk func(T) its.Iterable[T]) (*Tree[T], erro
 		nodes.Append(cur)
 		nodeSet.Add(cur)
 		if !parent.Present() {
-			if cur != root {
+			if !he.Eq(cur, root) {
 				return NodeError[T]{cur}
 			}
 		} else if !nodeSet.Contains(parent.Value()) {
@@ -81,7 +84,7 @@ func NewTree[T comparable](root T, walk func(T) its.Iterable[T]) (*Tree[T], erro
 
 		children := ctr.NewList(walk(cur))
 		childrenByNode.Put(opt.Just(cur), children)
-		childSetsByNode.Put(opt.Just(cur), ctr.NewSet[T](children))
+		childSetsByNode.Put(opt.Just(cur), ctr.NewHashEqSet[T](he, children))
 
 		var err error
 		children.ForEach(func(child T) bool {
@@ -116,17 +119,17 @@ func (t Tree[T]) ChildSetsByNode() ctr.Map[opt.Optional[T], ctr.Set[T]]    { ret
 
 func (t *Tree[T]) DepthsByNode() ctr.Map[T, int] {
 	return opt.SetIfAbsent(&t.depthsByNode, func() ctr.Map[T, int] {
-		m := make(map[T]int, t.nodes.Len())
+		m := ctr.NewMutHashEqMap[T, int](t.he, nil)
 		var rec func(T, int)
 		rec = func(n T, d int) {
-			m[n] = d
+			m.Put(n, d)
 			t.childSetsByNode.Get(opt.Just(n)).ForEach(func(c T) bool {
 				rec(c, d+1)
 				return true
 			})
 		}
 		rec(t.root, 0)
-		return ctr.WrapMap(m)
+		return m
 	})
 }
 
@@ -139,7 +142,7 @@ func (t *Tree[T]) NodeSetsByType() map[reflect.Type]ctr.Set[T] {
 			if s, ok := m[ty]; ok {
 				s.Add(n)
 			} else {
-				s := ctr.NewMutSetOf(n)
+				s := ctr.NewMutHashEqSet(t.he, its.Of(n))
 				m[ty] = s
 				r[ty] = s
 			}

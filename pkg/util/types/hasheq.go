@@ -5,6 +5,8 @@ TODO:
 */
 package types
 
+import "golang.org/x/exp/constraints"
+
 //
 
 type Hasher interface {
@@ -32,4 +34,11 @@ type HashEqImpl[T any] struct {
 
 func HashEqOf[T any](hash HashImpl[T], eq EqImpl[T]) HashEqImpl[T] {
 	return HashEqImpl[T]{Hash: hash, Eq: eq}
+}
+
+func IntHashEq[T constraints.Integer]() HashEqImpl[T] {
+	return HashEqImpl[T]{
+		Hash: func(i T) uintptr { return uintptr(i) },
+		Eq:   func(l, r T) bool { return l == r },
+	}
 }

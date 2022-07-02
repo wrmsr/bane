@@ -1,6 +1,7 @@
 package iterators
 
 import (
+	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -13,6 +14,7 @@ type mapIterator[F, T any] struct {
 }
 
 func Map[F, T any](it Iterable[F], fn func(f F) T) Iterable[T] {
+	check.NotNil(it)
 	return Factory(func() Iterator[T] {
 		return &mapIterator[F, T]{it: it.Iterate(), fn: fn}
 	}, it)
@@ -44,6 +46,7 @@ type filterIterator[T any] struct {
 }
 
 func Filter[T any](it Iterable[T], fn func(v T) bool) Iterable[T] {
+	check.NotNil(it)
 	return Factory(func() Iterator[T] {
 		return &filterIterator[T]{it: it.Iterate(), fn: fn}
 	}, it)

@@ -37,7 +37,7 @@ type hashEqMapImpl[K, V any] struct {
 	l int
 }
 
-func newHashEqMapImpl[K comparable, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) hashEqMapImpl[K, V] {
+func newHashEqMapImpl[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) hashEqMapImpl[K, V] {
 	m := hashEqMapImpl[K, V]{
 		he: he,
 		m:  make(map[uintptr]*hashEqMapNode),
@@ -52,7 +52,7 @@ func newHashEqMapImpl[K comparable, V any](he bt.HashEqImpl[K], it its.Iterable[
 	return m
 }
 
-func NewHashEqMap[K comparable, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) Map[K, V] {
+func NewHashEqMap[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) Map[K, V] {
 	return newHashEqMapImpl[K, V](he, it)
 }
 
@@ -238,4 +238,42 @@ func (m *hashEqMapImpl[K, V]) default_(k K, v V) bool {
 
 type mutHashEqMapImpl[K, V any] struct {
 	hashEqMapImpl[K, V]
+}
+
+func NewMutHashEqMap[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) MutMap[K, V] {
+	return &mutHashEqMapImpl[K, V]{newHashEqMapImpl[K, V](he, it)}
+}
+
+var _ MutMap[int, string] = &mutHashEqMapImpl[int, string]{}
+
+func (m *mutHashEqMapImpl[K, V]) isMutable() {}
+
+func (m *mutHashEqMapImpl[K, V]) Put(k K, v V) {
+	m.put(k, v)
+}
+
+func (m *mutHashEqMapImpl[K, V]) Delete(k K) {
+	m.delete(k)
+}
+
+func (m *mutHashEqMapImpl[K, V]) Default(k K, v V) bool {
+	return m.default_(k, v)
+}
+
+//
+
+func NewHashEqSet[K any](he bt.HashEqImpl[K], it its.Iterable[K]) Set[K] {
+	var kvs its.Iterable[bt.Kv[K, struct{}]]
+	if it != nil {
+		kvs = its.StubKvs(it)
+	}
+	return MapSet(NewHashEqMap[K, struct{}](he, kvs))
+}
+
+func NewMutHashEqSet[K any](he bt.HashEqImpl[K], it its.Iterable[K]) MutSet[K] {
+	var kvs its.Iterable[bt.Kv[K, struct{}]]
+	if it != nil {
+		kvs = its.StubKvs(it)
+	}
+	return MutMapSet(NewMutHashEqMap[K, struct{}](he, kvs))
 }

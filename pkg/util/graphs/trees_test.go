@@ -6,6 +6,7 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
 type Calc interface {
@@ -37,6 +38,6 @@ func TestTrees(t *testing.T) {
 		panic("unreachable")
 	}
 
-	tree := check.Must1(NewTree[Calc](root, walk))
+	tree := check.Must1(NewTree[Calc](root, walk, rfl.AddrHashEq[Calc]()))
 	fmt.Println(tree)
 }
