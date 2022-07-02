@@ -184,12 +184,35 @@ func (m *hashEqMapImpl[K, V]) print() {
 }
 
 func (m *hashEqMapImpl[K, V]) delete(k K) {
-	//i, ok := m.m[k]
-	//if !ok {
-	//	return
-	//}
-	//m.s = slices.DeleteAt(m.s, i)
-	panic("nyi")
+	h := m.he.Hash(k)
+	n := m.getNode(k, h)
+	if n == nil {
+		return
+	}
+
+	if n.next != nil {
+		n.next.prev = n.prev
+	}
+	if n.prev != nil {
+		n.prev.next = n.next
+	}
+
+	if m.head == n {
+		m.head = n.next
+	}
+	if m.tail == n {
+		m.tail = n.prev
+	}
+
+	if mn := m.m[h]; mn == n {
+		if n.prev != nil {
+			m.m[h] = n.prev
+		} else {
+			delete(m.m, h)
+		}
+	}
+
+	m.l--
 }
 
 func (m *hashEqMapImpl[K, V]) default_(k K, v V) bool {

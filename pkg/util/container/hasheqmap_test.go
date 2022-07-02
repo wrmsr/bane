@@ -1,7 +1,6 @@
 package container
 
 import (
-	"fmt"
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
@@ -28,9 +27,11 @@ func TestHashEqMap(t *testing.T) {
 
 	m.verify()
 
-	for cur := m.head; cur != nil; cur = cur.next {
-		fmt.Println(cur)
-	}
-
 	tu.AssertEqual(t, m.Get(12), 21)
+
+	for _, k := range []int{12, 13, 14} {
+		m.delete(k)
+		m.print()
+		m.verify()
+	}
 }
