@@ -29,7 +29,9 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 package container
 
 import (
+	its "github.com/wrmsr/bane/pkg/util/iterators"
 	syncu "github.com/wrmsr/bane/pkg/util/sync"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -97,9 +99,10 @@ var rbNodePool = syncu.NewDrainPool[*RbNode](func() *RbNode {
 //
 
 type RbTree struct {
+	Less Less
+
 	root *RbNode
 	size int
-	less Less
 }
 
 // liftRightSideOf is rotateLeft. Graphically speaking, this takes the node on the right and lifts it above ourselves.
@@ -185,7 +188,7 @@ func (t *RbTree) Reinsert(n *RbNode) {
 	on := t.root
 	var set **RbNode
 	for {
-		if t.less(n.Item, on.Item) {
+		if t.Less(n.Item, on.Item) {
 			if on.left == nil {
 				set = &on.left
 				break
@@ -391,7 +394,7 @@ func (t *RbTree) Find(needle any) *RbNode {
 		// If the needle is less than our node, then we have not found the min and should go left. We cannot clear
 		// lastLarger since it is still a candidate for equality. If the needle is not less than, it could be equal to
 		// our node. We recurse right, saving what could be equal.
-		if t.less(needle, on.Item) {
+		if t.Less(needle, on.Item) {
 			on = on.left
 		} else {
 			lastLarger = on
@@ -401,7 +404,7 @@ func (t *RbTree) Find(needle any) *RbNode {
 
 	// If we found a node that did not compare less than our needle, if our needle is not less than the candidate, then
 	// the needle and candidate are equal.
-	if lastLarger != nil && !t.less(lastLarger.Item, needle) {
+	if lastLarger != nil && !t.Less(lastLarger.Item, needle) {
 		return lastLarger
 	}
 	return nil
@@ -446,7 +449,6 @@ func (t *RbTree) FindWithOrInsertWith(find func(*RbNode) int, insert func() any)
 	return found
 }
 
-// Len returns the current size of the tree.
 func (t *RbTree) Len() int { return t.size }
 
 // Into returns a fake node that to both the Left or the Right will be the given node. This can be used in combination
@@ -457,7 +459,6 @@ func RbInto(n *RbNode) *RbNode {
 	return r
 }
 
-// Min returns the minimum node in the tree, or nil if empty.
 func (t *RbTree) Min() *RbNode {
 	if t.root == nil {
 		return nil
@@ -465,7 +466,6 @@ func (t *RbTree) Min() *RbNode {
 	return t.root.min()
 }
 
-// Max returns the maximum node in the tree, or nil if empty.
 func (t *RbTree) Max() *RbNode {
 	if t.root == nil {
 		return nil
@@ -506,14 +506,10 @@ type RbIter struct {
 	on *RbNode
 }
 
-// Ok returns whether the iterator is on a node.
 func (i RbIter) Ok() bool { return i.on != nil }
 
-// Node returns the node the iterator is currently on, if any.
 func (i RbIter) Node() *RbNode { return i.on }
 
-// Item returns the item in the node the iterator is currently on. This wil/ panic if the iterator is not on a node.
-// This is shorthand for i.Node().Item.
 func (i RbIter) Item() any { return i.Node().Item }
 
 // PeekLeft peeks at the next left node the iterator can move onto without moving the iterator. This will panic if not
@@ -524,7 +520,6 @@ func (i RbIter) PeekLeft() *RbNode { return (&RbIter{i.on}).Left() }
 // on a node. For maximal efficiency, to move right after a right peek, use Reset with the peeked node.
 func (i RbIter) PeekRight() *RbNode { return (&RbIter{i.on}).Right() }
 
-// Reset resets the iterator to be on the given node.
 func (i *RbIter) Reset(on *RbNode) { i.on = on }
 
 func (i *RbIter) Left() *RbNode {
@@ -563,32 +558,64 @@ func (i *RbIter) Right() *RbNode {
 
 //
 
-//type RbTreeMap[K, V any] struct {
-//	t RbTree
-//}
-//
-//var _ Map[int, string] = &RbTreeMap[int, string]{}
-//
-//func (m *RbTreeMap[K, V]) Len() int {
-//	return m.t.Len()
-//}
-//
-//func (m *RbTreeMap[K, V]) Contains(k K) bool {
-//	panic("implement me")
-//}
-//
-//func (m *RbTreeMap[K, V]) Get(k K) V {
-//	panic("implement me")
-//}
-//
-//func (m *RbTreeMap[K, V]) TryGet(k K) (V, bool) {
-//	panic("implement me")
-//}
-//
-//func (m *RbTreeMap[K, V]) Iterate() its.Iterator[T] {
-//	panic("implement me")
-//}
-//
-//func (m *RbTreeMap[K, V]) ForEach(fn func(v T) bool) bool {
-//	panic("implement me")
-//}
+type RbTreeMap[K, V any] struct {
+	t RbTree
+}
+
+var _ Map[int, string] = &RbTreeMap[int, string]{}
+
+func (m *RbTreeMap[K, V]) Len() int {
+	return m.t.Len()
+}
+
+func (m *RbTreeMap[K, V]) Contains(k K) bool {
+	_, ok := m.TryGet(k)
+	return ok
+}
+
+func (m *RbTreeMap[K, V]) Get(k K) V {
+	v, _ := m.TryGet(k)
+	return v
+}
+
+func (m *RbTreeMap[K, V]) TryGet(k K) (V, bool) {
+	if n := m.t.Find(k); n != nil {
+		return n.Item.(bt.Kv[K, V]).V, true
+	}
+	var z V
+	return z, false
+}
+
+type rbTreeMapIterator[K, V any] struct {
+	i RbIter
+}
+
+var _ its.Iterator[bt.Kv[int, string]] = &rbTreeMapIterator[int, string]{}
+
+func (i *rbTreeMapIterator[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+	return i
+}
+
+func (i *rbTreeMapIterator[K, V]) HasNext() bool {
+	return i.i.Ok()
+}
+
+func (i *rbTreeMapIterator[K, V]) Next() bt.Kv[K, V] {
+	kv := i.i.Item().(bt.Kv[K, V])
+	i.i.Right()
+	return kv
+}
+
+func (m *RbTreeMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+	return &rbTreeMapIterator[K, V]{i: RbIterAt(m.t.Min())}
+}
+
+func (m *RbTreeMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
+	for it := RbIterAt(m.t.Min()); it.Ok(); it.Right() {
+		if !fn(it.Item().(bt.Kv[K, V])) {
+			return false
+
+		}
+	}
+	return true
+}
