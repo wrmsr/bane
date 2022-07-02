@@ -13,11 +13,14 @@ type Calc interface {
 	isCalc()
 }
 
-type Num struct{}
+type Num struct{ N int }
 type Add struct{ L, R Calc }
 
 func (c *Num) isCalc() {}
 func (c *Add) isCalc() {}
+
+func (c *Num) String() string { return fmt.Sprintf("Num@%p{%d}", c, c.N) }
+func (c *Add) String() string { return fmt.Sprintf("Add@%p{%s, %s}", c, c.L, c.R) }
 
 func TestTrees(t *testing.T) {
 	root := &Add{
@@ -37,6 +40,8 @@ func TestTrees(t *testing.T) {
 		}
 		panic("unreachable")
 	}
+
+	fmt.Println(root.String())
 
 	tree := check.Must1(NewTree[Calc](root, walk, rfl.AddrHashEq[Calc]()))
 	fmt.Println(tree)

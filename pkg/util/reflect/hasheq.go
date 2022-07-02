@@ -30,7 +30,9 @@ func AddrHashEq[T any]() bt.HashEqImpl[T] {
 			return rv.Pointer()
 		},
 		Eq: func(l, r T) bool {
-			return reflect.ValueOf(l).Pointer() == reflect.ValueOf(r).Pointer()
+			lv, rv := reflect.ValueOf(l), reflect.ValueOf(r)
+			lp, rp := lv.Pointer(), rv.Pointer()
+			return lp == rp
 		},
 	}
 }
