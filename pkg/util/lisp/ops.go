@@ -10,6 +10,8 @@ const (
 	OpInvalid Op = iota
 	OpLdConst
 	OpLdVar
+	OpIfFalse
+	OpGoto
 	OpApply
 	OpReturn
 )
@@ -20,6 +22,10 @@ func (o Op) String() string {
 		return "ldconst"
 	case OpLdVar:
 		return "ldvar"
+	case OpIfFalse:
+		return "iffalse"
+	case OpGoto:
+		return "goto"
 	case OpApply:
 		return "apply"
 	case OpReturn:

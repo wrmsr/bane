@@ -10,7 +10,7 @@ import (
 
 func TestEvalSimple(t *testing.T) {
 	src := `
-(+ 1 2)
+(if (> (+ 1 2) 3) 4 3)
     `
 
 	prog := NewCompiler().Compile(check.Must1(NewParser(strings.NewReader(src)).Parse()))

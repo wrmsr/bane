@@ -11,6 +11,14 @@ type Program struct {
 	insns []Instr
 }
 
+func (p *Program) pc() int {
+	return len(p.insns)
+}
+
+func (p *Program) pin(i int) {
+	p.insns[i].arg = Int(p.pc())
+}
+
 func (p *Program) add(ins Instr) {
 	p.insns = append(p.insns, ins)
 }
@@ -85,6 +93,40 @@ func (co Compiler) compileArgs(p *Program, v *Cons, n int) int {
 	return na
 }
 
+func (co Compiler) compileCondition(p *Program, v *Cons) {
+	var ok bool
+	var al *Cons
+	var pp *Cons
+
+	if pp, ok = v.Cdr.(*Cons); !ok {
+		panic(fmt.Errorf("malformed if construct: %s", v))
+	}
+	if al, ok = AsCons(pp.Cdr); !ok {
+		panic(fmt.Errorf("malformed if construct: %s", v))
+	}
+	if al != nil && al.Cdr != nil {
+		panic(fmt.Errorf("malformed if construct: %s", v))
+	}
+
+	co.compileValue(p, v.Car)
+	i := p.pc()
+	p.add(mkIns(OpIfFalse, nil))
+
+	co.compileValue(p, pp.Car)
+	j := p.pc()
+	p.add(mkIns(OpGoto, nil))
+	p.pin(i)
+
+	if al == nil {
+		p.add(mkIns(OpLdConst, nil))
+		p.pin(j)
+		return
+	}
+
+	co.compileValue(p, al.Car)
+	p.pin(j)
+}
+
 func (co *Compiler) compileList(p *Program, v *Cons) {
 	if v == nil {
 		p.add(mkIns(OpLdConst, nil))
@@ -106,6 +148,8 @@ func (co *Compiler) compileList(p *Program, v *Cons) {
 	switch at {
 	case "begin":
 		co.compileBlock(p, vv)
+	case "if":
+		co.compileCondition(p, vv)
 	default:
 		na := co.compileArgs(p, v, -1)
 		p.add(mkIns(OpApply, AsValue(na)))
