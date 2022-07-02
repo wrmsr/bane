@@ -30,3 +30,29 @@ func MapValues[K comparable, VF, VT any](fn func(v VF) VT, m Map[K, VF]) Map[K, 
 	})
 	return r
 }
+
+func NewListMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) Map[K, List[V]] {
+	m := NewMutMap[K, MutList[V]](nil)
+	for it := it.Iterate(); it.HasNext(); {
+		kv := it.Next()
+		if l, ok := m.TryGet(kv.K); ok {
+			l.Append(kv.V)
+		} else {
+			m.Put(kv.K, NewMutListOf(kv.V))
+		}
+	}
+	return m.(Map[K, List[V]])
+}
+
+func NewSetMap[K, V comparable](it its.Iterable[bt.Kv[K, V]]) Map[K, Set[V]] {
+	m := NewMutMap[K, MutSet[V]](nil)
+	for it := it.Iterate(); it.HasNext(); {
+		kv := it.Next()
+		if s, ok := m.TryGet(kv.K); ok {
+			s.Add(kv.V)
+		} else {
+			m.Put(kv.K, NewMutSetOf(kv.V))
+		}
+	}
+	return m.(Map[K, Set[V]])
+}

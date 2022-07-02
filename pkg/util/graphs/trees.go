@@ -2,6 +2,7 @@ package graphs
 
 import (
 	"fmt"
+	"reflect"
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
@@ -38,6 +39,10 @@ type Tree[T comparable] struct {
 	parentsByNode   ctr.Map[opt.Optional[T], opt.Optional[T]]
 	childrenByNode  ctr.Map[opt.Optional[T], ctr.List[T]]
 	childSetsByNode ctr.Map[opt.Optional[T], ctr.Set[T]]
+
+	depthsByNode opt.Optional[ctr.Map[T, int]]
+
+	nodeSetsByType opt.Optional[map[reflect.Type]ctr.Set[T]]
 }
 
 func NewTree[T comparable](root T, walk func(T) its.Iterable[T]) (*Tree[T], error) {
@@ -56,7 +61,7 @@ func NewTree[T comparable](root T, walk func(T) its.Iterable[T]) (*Tree[T], erro
 	childrenByNode.Put(opt.None[T](), ctr.NewListOf(root))
 	childSetsByNode.Put(opt.None[T](), ctr.NewSetOf(root))
 
-	var rec func(cur T, parent opt.Optional[T]) error
+	var rec func(T, opt.Optional[T]) error
 	rec = func(cur T, parent opt.Optional[T]) error {
 		if nodeSet.Contains(cur) {
 			return DuplicateNodeError[T]{NodeError[T]{cur}}
@@ -108,3 +113,38 @@ func (t Tree[T]) NodeSet() ctr.Set[T] { return t.nodeSet }
 func (t Tree[T]) ParentsByNode() ctr.Map[opt.Optional[T], opt.Optional[T]] { return t.parentsByNode }
 func (t Tree[T]) ChildrenByNode() ctr.Map[opt.Optional[T], ctr.List[T]]    { return t.childrenByNode }
 func (t Tree[T]) ChildSetsByNode() ctr.Map[opt.Optional[T], ctr.Set[T]]    { return t.childSetsByNode }
+
+func (t *Tree[T]) DepthsByNode() ctr.Map[T, int] {
+	return opt.SetIfAbsent(&t.depthsByNode, func() ctr.Map[T, int] {
+		m := make(map[T]int, t.nodes.Len())
+		var rec func(T, int)
+		rec = func(n T, d int) {
+			m[n] = d
+			t.childSetsByNode.Get(opt.Just(n)).ForEach(func(c T) bool {
+				rec(c, d+1)
+				return true
+			})
+		}
+		rec(t.root, 0)
+		return ctr.WrapMap(m)
+	})
+}
+
+func (t *Tree[T]) NodeSetsByType() map[reflect.Type]ctr.Set[T] {
+	return opt.SetIfAbsent(&t.nodeSetsByType, func() map[reflect.Type]ctr.Set[T] {
+		m := make(map[reflect.Type]ctr.MutSet[T])
+		r := make(map[reflect.Type]ctr.Set[T])
+		t.nodes.ForEach(func(n T) bool {
+			ty := reflect.TypeOf(n)
+			if s, ok := m[ty]; ok {
+				s.Add(n)
+			} else {
+				s := ctr.NewMutSetOf(n)
+				m[ty] = s
+				r[ty] = s
+			}
+			return true
+		})
+		return r
+	})
+}
