@@ -1,6 +1,7 @@
 package marshal
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -74,7 +75,10 @@ type ObjectFieldSetter = func(ctx UnmarshalContext, ov, fv reflect.Value) error
 
 func NewObjectFieldSetter(fi *stu.FieldInfo) ObjectFieldSetter {
 	return func(ctx UnmarshalContext, ov, fv reflect.Value) error {
-		panic("nyi")
+		if !fi.SetValue(ov, fv) {
+			return errors.New("can't set struct value")
+		}
+		return nil
 	}
 }
 
