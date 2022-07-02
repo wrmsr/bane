@@ -43,6 +43,37 @@ func stackRemove(st *[]Value, nb int) (v []Value) {
 	return
 }
 
+func stackPop(st *[]Value) (v Value) {
+	i := len(*st) - 1
+	if i < 0 {
+		panic("stack underflow")
+	}
+
+	v, *st = (*st)[i], (*st)[:i]
+	return
+}
+
+func isTrue(v Value) bool {
+	switch vv := v.(type) {
+	case nil:
+		return false
+	case Int:
+		return vv != 0
+	case Bool:
+		return bool(vv)
+	case Char:
+		return vv != 0
+	case Float:
+		return vv != 0.0
+	case String:
+		return vv != ""
+	case Complex:
+		return vv != 0
+	default:
+		return true
+	}
+}
+
 func Evaluate(s *Scope, p Program) Value {
 	pc := 0
 	st := make([]Value, 0, 16)
@@ -60,6 +91,20 @@ func Evaluate(s *Scope, p Program) Value {
 				panic(fmt.Sprintf("undefined reference: %s", ins.arg))
 			}
 			st = append(st, vv)
+
+		/* branch if the stack top is #f */
+		case OpIfFalse:
+			if !isTrue(stackPop(&st)) {
+				if pc = int(ins.arg.(Int)); pc < 0 || pc >= len(p.insns) {
+					panic(fmt.Sprintf("branch out of scope: %s", ins.arg))
+				}
+			}
+
+		/* unconditional jump */
+		case OpGoto:
+			if pc = int(ins.arg.(Int)); pc < 0 || pc >= len(p.insns) {
+				panic(fmt.Sprintf("branch out of scope: %s", ins.arg))
+			}
 
 		case OpApply:
 			nb := int(ins.arg.(Int))
