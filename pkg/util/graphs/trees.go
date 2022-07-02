@@ -151,3 +151,33 @@ func (t *Tree[T]) NodeSetsByType() map[reflect.Type]ctr.Set[T] {
 		return r
 	})
 }
+
+/*
+   def iter_ancestors(self, node: NodeT) -> NodeGenerator[NodeT]:
+       cur = node
+       while True:
+           cur = self.parents_by_node.get(cur)
+           if cur is None:
+               break
+           yield cur
+
+   def get_lineage(self, node: NodeT) -> col.IndexedSeq[NodeT]:
+       return self._idx_seq_fac(reversed([node, *self.iter_ancestors(node)]))
+
+   def get_first_parent_of_type(self, node: NodeT, ty: ta.Type[T]) -> ta.Optional[NodeT]:
+       for cur in self.iter_ancestors(node):
+           if isinstance(cur, ty):
+               return cur
+       return None
+
+   @properties.cached  # noqa
+   @property
+   def depths_by_node(self) -> ta.Mapping[NodeT, int]:
+       def rec(n, d):
+           dct[n] = d
+           for c in self._children_by_node[n]:
+               rec(c, d + 1)
+       dct: ta.MutableMapping[NodeT, int] = self._dict_fac()
+       rec(self._root, 0)
+       return dct
+*/

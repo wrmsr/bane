@@ -1,2 +1,1 @@
 - case insensitive
-- delimited

@@ -8,3 +8,4 @@
 - chroot
 - setuid, setgid
 - fd redir
+- nice
