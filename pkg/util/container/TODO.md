@@ -1,1 +1,10 @@
 - index
+- concmap
+- table (indexes)
+- btree
+- indexableset
+- multimap
+- hamt
+- pervec
+- intervals
+- blooms

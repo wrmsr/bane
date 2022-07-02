@@ -56,7 +56,7 @@ func TopoSort[T comparable](data ctr.Map[T, ctr.Set[T]]) (ctr.List[ctr.Set[T]], 
 	return ctr.NewListOf(ret...), nil
 }
 
-func Histo[T comparable](it its.Iterable[T]) ctr.Map[T, int] {
+func Histogram[T comparable](it its.Iterable[T]) ctr.Map[T, int] {
 	m := ctr.NewMutMap[T, int](nil)
 	for it := it.Iterate(); it.HasNext(); {
 		k := it.Next()
