@@ -234,6 +234,17 @@ func (m *hashEqMapImpl[K, V]) default_(k K, v V) bool {
 	return true
 }
 
+func (m *hashEqMapImpl[K, V]) clear() {
+	for cur := m.head; cur != nil; cur = cur.next {
+		*cur = hashEqMapNode{}
+		hashEqMapNodePool.Put(cur)
+	}
+	m.head = nil
+	m.tail = nil
+	m.m = nil
+	m.l = 0
+}
+
 //
 
 type mutHashEqMapImpl[K, V any] struct {

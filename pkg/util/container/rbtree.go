@@ -28,26 +28,18 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //     https://en.wikipedia.org/wiki/Red%E2%80%93black_tree
 package container
 
+//
+
 type rbColor bool
 
 const red, black rbColor = true, false
 
-// Item is the interface required for implenting to use a tree.
-//
 // The red-black tree does support duplicate items, but one is not guaranteed which duplicate is found when looking to
 // remove one of many duplicates. Essentially, there is no stable ordering to duplicate items.
 type RbItem interface {
-	// Less returns whether an item is less than another item.
 	Less(other RbItem) bool
 }
 
-// Tree is a red-black tree.
-type RbTree struct {
-	root *RbNode
-	size int
-}
-
-// Node is an element in a tree containing a user provided item.
 type RbNode struct {
 	left   *RbNode
 	right  *RbNode
@@ -56,10 +48,55 @@ type RbNode struct {
 	Item   RbItem
 }
 
-// liftRightSideOf is rotateLeft.
+func (n *RbNode) sibling() *RbNode {
+	if n.parent == nil {
+		return nil
+	}
+	if n == n.parent.left {
+		return n.parent.right
+	}
+	return n.parent.left
+}
+
+func (n *RbNode) uncle() *RbNode {
+	p := n.parent
+	if p.parent == nil {
+		return nil
+	}
+	return p.sibling()
+}
+
+func (n *RbNode) grandparent() *RbNode {
+	return n.parent.parent
+}
+
+func (n *RbNode) isBlack() bool {
+	return n == nil || n.color == black
+}
+
+func (n *RbNode) min() *RbNode {
+	for n.left != nil {
+		n = n.left
+	}
+	return n
+}
+
+func (n *RbNode) max() *RbNode {
+	for n.right != nil {
+		n = n.right
+	}
+	return n
+}
+
 //
-// Graphically speaking, this takes the node on the right and lifts it above ourselves. IMO trying to visualize a
-// "rotation" is confusing.
+
+type RbTree struct {
+	root *RbNode
+	size int
+}
+
+// liftRightSideOf is rotateLeft. Graphically speaking, this takes the node on the right and lifts it above ourselves.
+// IMO trying to visualize a "rotation" is confusing.
 func (t *RbTree) liftRightSideOf(n *RbNode) {
 	r := n.right
 	t.relinkParenting(n, r)
@@ -89,9 +126,8 @@ func (t *RbTree) liftLeftSideOf(n *RbNode) {
 	l.right = n
 }
 
-// relinkParenting is called to fix a former child c of node n's parent relationship to the parent of n.
-//
-// After this, the n node can be considered to have no parent.
+// relinkParenting is called to fix a former child c of node n's parent relationship to the parent of n. After this, the
+// n node can be considered to have no parent.
 func (t *RbTree) relinkParenting(n, c *RbNode) {
 	p := n.parent
 	if c != nil {
@@ -108,36 +144,8 @@ func (t *RbTree) relinkParenting(n, c *RbNode) {
 	}
 }
 
-func (n *RbNode) sibling() *RbNode {
-	if n.parent == nil {
-		return nil
-	}
-	if n == n.parent.left {
-		return n.parent.right
-	}
-	return n.parent.left
-}
-
-func (n *RbNode) uncle() *RbNode {
-	p := n.parent
-	if p.parent == nil {
-		return nil
-	}
-	return p.sibling()
-}
-
-func (n *RbNode) grandparent() *RbNode {
-	return n.parent.parent
-}
-
-func (n *RbNode) isBlack() bool {
-	return n == nil || n.color == black
-}
-
 // Fix removes a node from the tree and reinserts it. This can be used to "fix" a node after the item has been updated,
-// removing some minor garbage. This returns the updated node.
-//
-// This is shorthand for t.Reinsert(t.Delete(n)).
+// removing some minor garbage. This returns the updated node. This is shorthand for t.Reinsert(t.Delete(n)).
 func (t *RbTree) Fix(n *RbNode) *RbNode {
 	r := t.Delete(n)
 	t.Reinsert(r)
@@ -151,10 +159,9 @@ func (t *RbTree) Insert(i RbItem) *RbNode {
 	return r
 }
 
-// Reinsert inserts a node into the tree.
-//
-// This function is provided to aid in garbage reduction / ease of use when deleting, updating, and reinserting items
-// into a tree. The only value required in the node is the item. All other fields are set inside this function.
+// Reinsert inserts a node into the tree. This function is provided to aid in garbage reduction / ease of use when
+// deleting, updating, and reinserting items into a tree. The only value required in the node is the item. All other
+// fields are set inside this function.
 func (t *RbTree) Reinsert(n *RbNode) {
 	*n = RbNode{
 		color: red,
@@ -201,9 +208,8 @@ repair:
 		return
 	}
 
-	// Case 3: if we have an uncle and it is red, then we flip our parent's, uncle's, and grandparent's color.
-	//
-	// This stops the red-red from parent to us, but may introduce a red-red from grandparent to its parent, so we set
+	// Case 3: if we have an uncle and it is red, then we flip our parent's, uncle's, and grandparent's color. This
+	// stops the red-red from parent to us, but may introduce a red-red from grandparent to its parent, so we set
 	// ourselves to the grandparent and go back to the repair beginning.
 	if uncle := n.uncle(); uncle != nil && uncle.color == red {
 		n.parent.color = black
@@ -227,9 +233,8 @@ repair:
 	}
 
 	// Care 4 step 2: we are on the outside, and we and our parent are red. If we are on the left, our grandparent lifts
-	// its left and then swaps its and our parent's colors.
-	//
-	// This fixes the red-red situation while preserving the number of blacks from root to leaf property.
+	// its left and then swaps its and our parent's colors. This fixes the red-red situation while preserving the number
+	// of blacks from root to leaf property.
 	p = n.parent
 	g = p.parent
 
@@ -292,12 +297,10 @@ case1:
 		return
 	}
 
-	// Note that if we are here, we must have a sibling.
-	//
-	// The first time through, from the deleted node, the deleted node was black and the child was black. This being two
-	// blacks meant that the original node's parent required two blacks on the other side.
-	//
-	// The second time through, through case 3, the sibling was repainted red... so it must still exist.
+	// Note that if we are here, we must have a sibling. The first time through, from the deleted node, the deleted node
+	// was black and the child was black. This being two blacks meant that the original node's parent required two
+	// blacks on the other side. The second time through, through case 3, the sibling was repainted red... so it must
+	// still exist.
 
 	// Case 2: if the child's sibling is red, we recolor the parent and sibling and lift the sibling, ensuring we have a
 	// black sibling.
@@ -353,10 +356,8 @@ case1:
 	// At this point, we know we have a black sibling and, if we are on the left, it has a red child on its right.
 
 	// Case 6: we lift the sibling above the parent, swap the sibling's and parent's color, and change the sibling's
-	// right's color from red to black.
-	//
-	// This brings in a black above our node to replace the one we deleted, while preserves the number of blacks on the
-	// other side of the path.
+	// right's color from red to black. This brings in a black above our node to replace the one we deleted, while
+	// preserves the number of blacks on the other side of the path.
 	s.color = n.parent.color
 	n.parent.color = black
 	if n == n.parent.left {
@@ -374,9 +375,8 @@ func (t *RbTree) Find(needle RbItem) *RbNode {
 	var lastLarger *RbNode
 	for on != nil {
 		// If the needle is less than our node, then we have not found the min and should go left. We cannot clear
-		// lastLarger since it is still a candidate for equality.
-		//
-		// If the needle is not less than, it could be equal to our node. We recurse right, saving what could be equal.
+		// lastLarger since it is still a candidate for equality. If the needle is not less than, it could be equal to
+		// our node. We recurse right, saving what could be equal.
 		if needle.Less(on.Item) {
 			on = on.left
 		} else {
@@ -404,11 +404,8 @@ func (t *RbTree) FindOrInsert(needle RbItem) *RbNode {
 }
 
 // FindWith calls cmp to find a node in the tree. To continue searching left, cmp must return negative. To continue
-// searching right, cmp must return positive. To stop at the node containing the current item to cmp, return zero.
-//
-// If cmp never returns zero, this returns nil.
-//
-// This can be used to find an arbitrary node meeting a condition.
+// searching right, cmp must return positive. To stop at the node containing the current item to cmp, return zero. If
+// cmp never returns zero, this returns nil. This can be used to find an arbitrary node meeting a condition.
 func (t *RbTree) FindWith(cmp func(*RbNode) int) *RbNode {
 	on := t.root
 	for on != nil {
@@ -453,13 +450,6 @@ func (t *RbTree) Min() *RbNode {
 	return t.root.min()
 }
 
-func (n *RbNode) min() *RbNode {
-	for n.left != nil {
-		n = n.left
-	}
-	return n
-}
-
 // Max returns the maximum node in the tree, or nil if empty.
 func (t *RbTree) Max() *RbNode {
 	if t.root == nil {
@@ -468,23 +458,16 @@ func (t *RbTree) Max() *RbNode {
 	return t.root.max()
 }
 
-func (n *RbNode) max() *RbNode {
-	for n.right != nil {
-		n = n.right
-	}
-	return n
-}
-
-// IterAt returns an iterator for a tree starting on the given node.
 //
-// Note that modifications to the tree during iteration may invalidate the iterator and the iterator may need resetting.
+
+// IterAt returns an iterator for a tree starting on the given node. Note that modifications to the tree during
+// iteration may invalidate the iterator and the iterator may need resetting.
 func RbIterAt(on *RbNode) RbIter {
 	return RbIter{on}
 }
 
-// Iter iterates over a tree. This returns nodes in the tree to support easy node deletion.
-//
-// Note that if you modify the tree during iteration, you need to reset the iterator or stop iterating.
+// Iter iterates over a tree. This returns nodes in the tree to support easy node deletion. Note that if you modify the
+// tree during iteration, you need to reset the iterator or stop iterating.
 type RbIter struct {
 	on *RbNode
 }
@@ -496,27 +479,20 @@ func (i RbIter) Ok() bool { return i.on != nil }
 func (i RbIter) Node() *RbNode { return i.on }
 
 // Item returns the item in the node the iterator is currently on. This wil/ panic if the iterator is not on a node.
-//
 // This is shorthand for i.Node().Item.
 func (i RbIter) Item() RbItem { return i.Node().Item }
 
 // PeekLeft peeks at the next left node the iterator can move onto without moving the iterator. This will panic if not
-// on a node.
-//
-// For maximal efficiency, to move left after a left peek, use Reset with the peeked node.
+// on a node. For maximal efficiency, to move left after a left peek, use Reset with the peeked node.
 func (i RbIter) PeekLeft() *RbNode { return (&RbIter{i.on}).Left() }
 
 // PeekRight peeks at the next right node the iterator can move onto without moving the iterator. This will panic if not
-// on a node.
-//
-// For maximal efficiency, to move right after a right peek, use Reset with the peeked node.
+// on a node. For maximal efficiency, to move right after a right peek, use Reset with the peeked node.
 func (i RbIter) PeekRight() *RbNode { return (&RbIter{i.on}).Right() }
 
 // Reset resets the iterator to be on the given node.
 func (i *RbIter) Reset(on *RbNode) { i.on = on }
 
-// Left moves the iterator to the left (more towards the min) and returns the resulting node it lands on, or nil if this
-// moves past the left side of the tree. This will panic if not on a node.
 func (i *RbIter) Left() *RbNode {
 	if i.on.left != nil {
 		i.on = i.on.left
@@ -534,8 +510,6 @@ func (i *RbIter) Left() *RbNode {
 	return i.on
 }
 
-// Right moves the iterator to the right (more towards the max) and returns the resulting node it lands on, or nil if
-// this moves past the right side of the tree. This will panic if not on a node.
 func (i *RbIter) Right() *RbNode {
 	if i.on.right != nil {
 		i.on = i.on.right
