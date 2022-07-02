@@ -45,6 +45,10 @@ func ZeroOf[T any]() reflect.Value {
 	return reflect.New(TypeOf[T]()).Elem()
 }
 
+func PointerOf(v any) uintptr {
+	return reflect.ValueOf(v).Pointer()
+}
+
 //
 
 func UnwrapPointerValue(v reflect.Value) (reflect.Value, bool) {

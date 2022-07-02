@@ -28,6 +28,8 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //     https://en.wikipedia.org/wiki/Red%E2%80%93black_tree
 package container
 
+import syncu "github.com/wrmsr/bane/pkg/util/sync"
+
 //
 
 type rbColor bool
@@ -88,6 +90,10 @@ func (n *RbNode) max() *RbNode {
 	return n
 }
 
+var rbNodePool = syncu.NewDrainPool[*RbNode](func() *RbNode {
+	return &RbNode{}
+})
+
 //
 
 type RbTree struct {
@@ -147,14 +153,15 @@ func (t *RbTree) relinkParenting(n, c *RbNode) {
 // Fix removes a node from the tree and reinserts it. This can be used to "fix" a node after the item has been updated,
 // removing some minor garbage. This returns the updated node. This is shorthand for t.Reinsert(t.Delete(n)).
 func (t *RbTree) Fix(n *RbNode) *RbNode {
-	r := t.Delete(n)
+	r := t.delete(n)
 	t.Reinsert(r)
 	return r
 }
 
 // Insert inserts an item into the tree, returning the new node.
 func (t *RbTree) Insert(i RbItem) *RbNode {
-	r := &RbNode{Item: i}
+	r := rbNodePool.Get()
+	r.Item = i
 	t.Reinsert(r)
 	return r
 }
@@ -247,10 +254,16 @@ repair:
 	g.color = red
 }
 
+func (t *RbTree) Delete(n *RbNode) {
+	n = t.delete(n)
+	*n = RbNode{}
+	rbNodePool.Put(n)
+}
+
 // Delete removes a node from the tree, returning the resulting node that was removed. Note that you cannot reuse the
 // "deleted" node for anything; you must use the returned node. The node for deletion may actually remain in the tree
 // with a different item.
-func (t *RbTree) Delete(n *RbNode) *RbNode {
+func (t *RbTree) delete(n *RbNode) *RbNode {
 	t.size--
 
 	// We only want to delete nodes with at most one child. If this has two, we find the max node on the left, set this
@@ -424,10 +437,7 @@ func (t *RbTree) FindWith(cmp func(*RbNode) int) *RbNode {
 
 // FindWithOrInsertWith calls cmp to find a node in the tree following the semantics described in FindWith. If the cmp
 // function never returns zero, this inserts a new node into the tree with new and returns that node.
-func (t *RbTree) FindWithOrInsertWith(
-	find func(*RbNode) int,
-	insert func() RbItem,
-) *RbNode {
+func (t *RbTree) FindWithOrInsertWith(find func(*RbNode) int, insert func() RbItem) *RbNode {
 	found := t.FindWith(find)
 	if found == nil {
 		return t.Insert(insert())
@@ -440,7 +450,11 @@ func (t *RbTree) Len() int { return t.size }
 
 // Into returns a fake node that to both the Left or the Right will be the given node. This can be used in combination
 // with iterating to reset iteration to the given node.
-func RbInto(n *RbNode) *RbNode { return &RbNode{parent: n} }
+func RbInto(n *RbNode) *RbNode {
+	r := rbNodePool.Get()
+	r.parent = n
+	return r
+}
 
 // Min returns the minimum node in the tree, or nil if empty.
 func (t *RbTree) Min() *RbNode {
@@ -456,6 +470,25 @@ func (t *RbTree) Max() *RbNode {
 		return nil
 	}
 	return t.root.max()
+}
+
+func (t *RbTree) Clear() {
+	var rec func(*RbNode)
+	rec = func(n *RbNode) {
+		if n.left != nil {
+			rec(n.left)
+		}
+		if n.right != nil {
+			rec(n.right)
+		}
+		*n = RbNode{}
+		rbNodePool.Put(n)
+	}
+	if t.root != nil {
+		rec(t.root)
+	}
+	t.root = nil
+	t.size = 0
 }
 
 //
@@ -526,3 +559,10 @@ func (i *RbIter) Right() *RbNode {
 	}
 	return i.on
 }
+
+//
+
+//type RbTreeMap[K, V any] struct {
+//}
+//
+//var _ Map[int, string] =

@@ -1,18 +1,13 @@
 package reflect
 
 import (
-	"reflect"
-
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func PtrHashEq[T any]() bt.HashEqImpl[*T] {
 	return bt.HashEqImpl[*T]{
 		Hash: func(p *T) uintptr {
-			if p == nil {
-				return 0
-			}
-			return reflect.ValueOf(p).Pointer()
+			return PointerOf(p)
 		},
 		Eq: func(l, r *T) bool {
 			return l == r
@@ -22,17 +17,11 @@ func PtrHashEq[T any]() bt.HashEqImpl[*T] {
 
 func AddrHashEq[T any]() bt.HashEqImpl[T] {
 	return bt.HashEqImpl[T]{
-		Hash: func(p T) uintptr {
-			rv := reflect.ValueOf(p)
-			if rv.IsNil() {
-				return 0
-			}
-			return rv.Pointer()
+		Hash: func(v T) uintptr {
+			return PointerOf(v)
 		},
 		Eq: func(l, r T) bool {
-			lv, rv := reflect.ValueOf(l), reflect.ValueOf(r)
-			lp, rp := lv.Pointer(), rv.Pointer()
-			return lp == rp
+			return PointerOf(l) == PointerOf(r)
 		},
 	}
 }

@@ -2,9 +2,9 @@ package container
 
 import (
 	"fmt"
-	"sync"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	syncu "github.com/wrmsr/bane/pkg/util/sync"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -22,11 +22,11 @@ func (n *hashEqMapNode) String() string {
 	return fmt.Sprintf("%16p{%16p %16p %16x} %v", n, n.next, n.prev, n.h, n.k)
 }
 
-var hashEqMapNodePool = sync.Pool{
-	New: func() any {
-		return &hashEqMapNode{}
-	},
-}
+var hashEqMapNodePool = syncu.NewDrainPool[*hashEqMapNode](func() *hashEqMapNode {
+	return &hashEqMapNode{}
+})
+
+//
 
 type hashEqMapImpl[K, V any] struct {
 	he bt.HashEqImpl[K]
@@ -129,7 +129,7 @@ func (m *hashEqMapImpl[K, V]) put(k K, v V) {
 		return
 	}
 
-	n := hashEqMapNodePool.Get().(*hashEqMapNode)
+	n := hashEqMapNodePool.Get()
 	n.k = k
 	n.v = v
 	n.h = h
