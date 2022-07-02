@@ -1,9 +1,9 @@
 package container
 
 import (
-	"fmt"
 	"testing"
 
+	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -23,5 +23,6 @@ func TestHashEqMap(t *testing.T) {
 		16, 25,
 		20, 30,
 	)))
-	fmt.Println(m)
+	m.verify()
+	tu.AssertEqual(t, m.Get(12), 21)
 }

@@ -58,7 +58,7 @@ func (m hashEqMapImpl[K, V]) Get(k K) V {
 }
 
 func (m hashEqMapImpl[K, V]) getNode(k K, h uintptr) *hashEqMapNode[K, V] {
-	for cur := m.m[h]; cur != nil && cur.h == h; cur = cur.next {
+	for cur := m.m[h]; cur != nil && cur.h == h; cur = cur.prev {
 		if m.he.Eq(k, cur.K) {
 			return cur
 		}
@@ -119,30 +119,54 @@ func (m *hashEqMapImpl[K, V]) put(k K, v V) {
 		h:  h,
 	}
 
-	if p, ok := m.m[h]; ok {
+	p := m.m[h]
+
+	if p != nil {
+		n.next = p
+		n.prev = p.prev
+
 		if p.prev != nil {
 			p.prev.next = n
 		}
-		n.prev = p.prev
 		p.prev = n
-		if m.head == p {
-			m.head = n
+
+		if m.tail == nil {
+			m.tail = n
 		}
 
 	} else {
-		m.m[h] = n
+		n.prev = m.tail
+
 		if m.tail != nil {
 			m.tail.next = n
-			n.prev = m.tail
 		}
 		m.tail = n
-		if m.head == nil {
-			m.head = n
-		}
 
+		m.m[h] = n
+	}
+
+	if m.head == p {
+		m.head = n
 	}
 
 	m.l++
+}
+
+func (m *hashEqMapImpl[K, V]) verify() {
+	i := 0
+	var prev *hashEqMapNode[K, V]
+	for cur := m.head; cur != nil; prev, cur = cur, cur.next {
+		if cur.prev != prev {
+			panic(cur)
+		}
+		i++
+	}
+	if prev != m.tail {
+		panic(prev)
+	}
+	if i != m.l {
+		panic(m.l)
+	}
 }
 
 func (m *hashEqMapImpl[K, V]) delete(k K) {
