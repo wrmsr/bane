@@ -35,6 +35,24 @@ func (fi FieldInfo) GetValue(v any) (reflect.Value, bool) {
 	return fv, true
 }
 
+func (fi FieldInfo) SetValue(s, v any) bool {
+	subv := reflect.ValueOf(s)
+	for _, i := range fi.index {
+		if subv.Kind() == reflect.Pointer {
+			if subv.IsNil() {
+				if !subv.CanSet() {
+					return false
+				}
+				subv.Set(reflect.New(subv.Type().Elem()))
+			}
+			subv = subv.Elem()
+		}
+		subv = subv.Field(i)
+	}
+	subv.Set(reflect.ValueOf(v))
+	return true
+}
+
 func (fi FieldInfo) Struct() *StructInfo { return fi.si }
 
 func (fi FieldInfo) Field() reflect.StructField        { return fi.field }

@@ -3,6 +3,7 @@ package structs
 import (
 	"testing"
 
+	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
@@ -30,4 +31,8 @@ func TestTool(t *testing.T) {
 	} {
 		st.Info(ty)
 	}
+
+	c := C{}
+	st.Info((*C)(nil)).Field("Z").SetValue(&c, int32(420))
+	tu.AssertEqual(t, c.Z, int32(420))
 }
