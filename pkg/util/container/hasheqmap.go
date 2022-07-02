@@ -1,6 +1,8 @@
 package container
 
 import (
+	"fmt"
+
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -12,6 +14,10 @@ type hashEqMapNode[K, V any] struct {
 	h uintptr
 
 	next, prev *hashEqMapNode[K, V]
+}
+
+func (n *hashEqMapNode[K, V]) String() string {
+	return fmt.Sprintf("%16p{%16p %16p %x %v %v}", n, n.next, n.prev, n.h, n.K, n.V)
 }
 
 type hashEqMapImpl[K, V any] struct {
@@ -32,6 +38,7 @@ func newHashEqMapImpl[K comparable, V any](he bt.HashEqImpl[K], it its.Iterable[
 		for it := it.Iterate(); it.HasNext(); {
 			c := it.Next()
 			m.put(c.K, c.V)
+			m.print()
 		}
 	}
 	return m
@@ -167,6 +174,13 @@ func (m *hashEqMapImpl[K, V]) verify() {
 	if i != m.l {
 		panic(m.l)
 	}
+}
+
+func (m *hashEqMapImpl[K, V]) print() {
+	for cur := m.head; cur != nil; cur = cur.next {
+		fmt.Println(cur)
+	}
+	fmt.Println()
 }
 
 func (m *hashEqMapImpl[K, V]) delete(k K) {

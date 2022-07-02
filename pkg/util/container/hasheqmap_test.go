@@ -1,6 +1,7 @@
 package container
 
 import (
+	"fmt"
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
@@ -13,6 +14,7 @@ func TestHashEqMap(t *testing.T) {
 		func(v int) uintptr { return uintptr(v % 3) },
 		func(l, r int) bool { return l == r },
 	)
+
 	m := newHashEqMapImpl[int, int](he, its.OfSlice(bt.KvsOf[int, int](
 		0, 10,
 		11, 20,
@@ -23,6 +25,12 @@ func TestHashEqMap(t *testing.T) {
 		16, 25,
 		20, 30,
 	)))
+
 	m.verify()
+
+	for cur := m.head; cur != nil; cur = cur.next {
+		fmt.Println(cur)
+	}
+
 	tu.AssertEqual(t, m.Get(12), 21)
 }
