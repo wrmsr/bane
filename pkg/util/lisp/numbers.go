@@ -85,7 +85,30 @@ func NumberAdd(a Value, b Value) Value {
 		return x.AsFloat() + y.AsFloat()
 	case NumComplex:
 		return x.AsComplex() + y.AsComplex()
-	default:
-		panic("unreachable")
 	}
+	panic("unreachable")
+}
+
+func NumberLt(a Value, b Value) bool {
+	switch x, y, vt := AsNumbers(a, b); vt {
+	case NumInt:
+		return x.AsInt() < y.AsInt()
+	case NumFloat:
+		return x.AsFloat() < y.AsFloat()
+	case NumComplex:
+		panic("complex numbers can only be compared for equality")
+	}
+	panic("unreachable")
+}
+
+func NumberGt(a Value, b Value) bool {
+	switch x, y, vt := AsNumbers(a, b); vt {
+	case NumInt:
+		return x.AsInt() > y.AsInt()
+	case NumFloat:
+		return x.AsFloat() > y.AsFloat()
+	case NumComplex:
+		panic("complex numbers can only be compared for equality")
+	}
+	panic("unreachable")
 }

@@ -92,7 +92,6 @@ func Evaluate(s *Scope, p Program) Value {
 			}
 			st = append(st, vv)
 
-		/* branch if the stack top is #f */
 		case OpIfFalse:
 			if !isTrue(stackPop(&st)) {
 				if pc = int(ins.arg.(Int)); pc < 0 || pc >= len(p.insns) {
@@ -100,7 +99,6 @@ func Evaluate(s *Scope, p Program) Value {
 				}
 			}
 
-		/* unconditional jump */
 		case OpGoto:
 			if pc = int(ins.arg.(Int)); pc < 0 || pc >= len(p.insns) {
 				panic(fmt.Sprintf("branch out of scope: %s", ins.arg))

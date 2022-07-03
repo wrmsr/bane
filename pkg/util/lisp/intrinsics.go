@@ -27,8 +27,8 @@ func (it *Intrinsic) IsIdentity() bool {
 
 //
 
-var intrinsics = map[string]*Intrinsic{
-	"+": {"+", func(args []Value) Value {
+var intrinsics = []*Intrinsic{
+	{"+", func(args []Value) Value {
 		switch len(args) {
 		case 0:
 			return Int(0)
@@ -40,11 +40,37 @@ var intrinsics = map[string]*Intrinsic{
 			panic("nyi")
 		}
 	}},
+
+	{"<", func(args []Value) Value {
+		switch len(args) {
+		case 0:
+			fallthrough
+		case 1:
+			return Bool(true)
+		case 2:
+			return Bool(NumberLt(args[0], args[1]))
+		default:
+			return Bool(reduceConvolution(args, NumberLt))
+		}
+	}},
+
+	{">", func(args []Value) Value {
+		switch len(args) {
+		case 0:
+			fallthrough
+		case 1:
+			return Bool(true)
+		case 2:
+			return Bool(NumberGt(args[0], args[1]))
+		default:
+			return Bool(reduceConvolution(args, NumberGt))
+		}
+	}},
 }
 
 func addIntrinsics(sc *Scope) *Scope {
-	for k, v := range intrinsics {
-		sc.Set(k, v)
+	for _, i := range intrinsics {
+		sc.Set(i.name, i)
 	}
 	return sc
 }
