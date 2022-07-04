@@ -59,6 +59,14 @@ func MarshalString(v any) (string, error) {
 	return string(b), nil
 }
 
+func MarshalIndentString(v any, prefix, indent string) (string, error) {
+	b, err := json.MarshalIndent(v, prefix, indent)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
 //
 
 func ReadDelim(dec *json.Decoder) (json.Delim, error) {

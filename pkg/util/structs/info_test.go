@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/wrmsr/bane/pkg/util/check"
+	ju "github.com/wrmsr/bane/pkg/util/json"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
@@ -29,7 +31,7 @@ func TestTool(t *testing.T) {
 
 	sm2 := getSimpleFieldInfo(rfl.TypeOf[C](), nil, "")
 	fmt.Println(sm2)
-	fmt.Println(slices.Map(fieldInfoRepr, sm2))
+	fmt.Println(check.Must1(ju.MarshalIndentString(slices.Map(fieldInfoRepr, sm2), "", "  ")))
 
 	st := NewStructInfoCache()
 	for _, ty := range []any{
