@@ -1,6 +1,8 @@
 package http
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,25 +11,51 @@ import (
 	eu "github.com/wrmsr/bane/pkg/util/errors"
 )
 
-func DownloadFile(url string, filepath string) (err error) {
-	out, err := os.Create(filepath)
+func Fetch(ctx context.Context, url string) (*http.Response, error) {
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return
+		return nil, err
+	}
+
+	req = req.WithContext(ctx)
+
+	client := http.DefaultClient
+	res, err := client.Do(req)
+
+	if res.StatusCode != http.StatusOK {
+		err = fmt.Errorf("bad status: %s", res.Status)
+		err = eu.Append(err, res.Body.Close())
+		return nil, err
+	}
+
+	return res, err
+}
+
+func FetchBytes(ctx context.Context, url string) ([]byte, error) {
+	res, err := Fetch(ctx, url)
+	if err != nil {
+		return nil, err
+	}
+	defer eu.AppendInvoke(&err, eu.Close(res.Body))
+
+	var out bytes.Buffer
+	_, err = io.Copy(&out, res.Body)
+	return out.Bytes(), err
+}
+
+func Download(ctx context.Context, url string, path string) error {
+	out, err := os.Create(path)
+	if err != nil {
+		return err
 	}
 	defer eu.AppendInvoke(&err, eu.Close(out))
 
-	// Get the data
-	resp, err := http.Get(url)
+	res, err := Fetch(ctx, url)
 	if err != nil {
-		return
+		return err
 	}
-	defer eu.AppendInvoke(&err, eu.Close(resp.Body))
+	defer eu.AppendInvoke(&err, eu.Close(res.Body))
 
-	if resp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("bad status: %s", resp.Status)
-		return
-	}
-
-	_, err = io.Copy(out, resp.Body)
-	return
+	_, err = io.Copy(out, res.Body)
+	return err
 }

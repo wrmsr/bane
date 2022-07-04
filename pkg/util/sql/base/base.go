@@ -80,8 +80,14 @@ func (d BaseDb) isDb() {}
 
 type Adapter interface {
 	isAdapter()
+
+	ScanType(c Column) reflect.Type
 }
 
 type BaseAdapter struct{}
 
 func (a BaseAdapter) isAdapter() {}
+
+func (a BaseAdapter) ScanType(c Column) reflect.Type {
+	panic("implement me")
+}

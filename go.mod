@@ -4,6 +4,8 @@ go 1.18
 
 require (
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220626175859-9abda183db8e
+	github.com/aws/aws-sdk-go-v2/config v1.15.12
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.47.1
 	github.com/cespare/xxhash v1.1.0
 	github.com/chzyer/readline v1.5.0
 	github.com/go-sql-driver/mysql v1.6.0
@@ -21,6 +23,16 @@ require (
 )
 
 require (
+	github.com/aws/aws-sdk-go-v2 v1.16.6 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.12.7 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.7 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.13 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.7 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.14 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.11.10 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.16.8 // indirect
+	github.com/aws/smithy-go v1.12.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.12.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
@@ -29,6 +41,7 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/pgtype v1.11.0 // indirect
 	github.com/jackc/puddle v1.2.1 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/sys v0.0.0-20220702020025-31831981b65f // indirect
 )

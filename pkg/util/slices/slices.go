@@ -270,3 +270,17 @@ func Max[T constraints.Ordered](s []T) T {
 	}
 	return r
 }
+
+func MakeAppend[T any](s []T, a ...T) []T {
+	r := make([]T, len(s)+len(a))
+	copy(r, s)
+	copy(r[len(s):], a)
+	return r
+}
+
+func MakePrepend[T any](s []T, a ...T) []T {
+	r := make([]T, len(s)+len(a))
+	copy(r, a)
+	copy(r[len(a):], s)
+	return r
+}

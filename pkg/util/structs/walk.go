@@ -24,6 +24,8 @@ package structs
 import (
 	"reflect"
 	"sort"
+
+	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 //
@@ -37,16 +39,23 @@ type walkedField struct {
 
 	index []int
 	ty    reflect.Type
+
+	path     string
+	embedded bool
+
+	parent   *walkedField
+	children []*walkedField
 }
 
 type walkedFields struct {
-	list      []walkedField
+	flat []*walkedField
+
 	nameIndex map[string]int
 }
 
 //
 
-type walkedFieldsByIndex []walkedField
+type walkedFieldsByIndex []*walkedField
 
 func (x walkedFieldsByIndex) Len() int { return len(x) }
 
@@ -68,8 +77,8 @@ func (x walkedFieldsByIndex) Less(i, j int) bool {
 
 func walkFields(t reflect.Type) walkedFields {
 	// Anonymous fields to explore at the current level and the next.
-	var current []walkedField
-	next := []walkedField{{ty: t}}
+	var current []*walkedField
+	next := []*walkedField{{ty: t}}
 
 	// Count of queued names for current level and the next.
 	var count, nextCount map[reflect.Type]int
@@ -77,8 +86,7 @@ func walkFields(t reflect.Type) walkedFields {
 	// Types already visited at an earlier level.
 	visited := map[reflect.Type]bool{}
 
-	// Fields found.
-	var fields []walkedField
+	var fields []*walkedField
 
 	for len(next) > 0 {
 		current, next = next, current[:0]
@@ -103,23 +111,22 @@ func walkFields(t reflect.Type) walkedFields {
 						continue
 					}
 					// Do not ignore embedded fields of unexported struct types since they may have exported fields.
+
 				} else if !sf.IsExported() {
 					// Ignore unexported non-embedded fields.
 					continue
 				}
-				index := make([]int, len(f.index)+1)
-				copy(index, f.index)
-				index[len(f.index)] = i
+
+				index := slices.MakeAppend(f.index, i)
 
 				ft := sf.Type
 				if ft.Name() == "" && ft.Kind() == reflect.Pointer {
-					// Follow pointer.
 					ft = ft.Elem()
 				}
 
 				// Record found field and index sequence.
 				if !sf.Anonymous || ft.Kind() != reflect.Struct {
-					field := walkedField{
+					field := &walkedField{
 						field: sf,
 						name:  sf.Name,
 						index: index,
@@ -135,13 +142,17 @@ func walkFields(t reflect.Type) walkedFields {
 						// more copies.
 						fields = append(fields, fields[len(fields)-1])
 					}
-					continue
-				}
 
-				// Record new anonymous struct to explore in next round.
-				nextCount[ft]++
-				if nextCount[ft] == 1 {
-					next = append(next, walkedField{name: ft.Name(), index: index, ty: ft})
+				} else {
+					// Record new anonymous struct to explore in next round.
+					nextCount[ft]++
+					if nextCount[ft] == 1 {
+						next = append(next, &walkedField{
+							name:  ft.Name(),
+							index: index,
+							ty:    ft,
+						})
+					}
 				}
 			}
 		}
@@ -159,12 +170,11 @@ func walkFields(t reflect.Type) walkedFields {
 		return walkedFieldsByIndex(x).Less(i, j)
 	})
 
-	// Delete all fields that are hidden by the Go rules for embedded fields, except that fields with JSON tags are
-	// promoted.
+	// Delete all fields that are hidden by the Go rules for embedded fields.
 
 	// The fields are sorted in primary order of name, secondary order of field index length. Loop over names; for each
 	// name, delete hidden fields by choosing the one dominant field that survives.
-	out := fields[:0]
+	flat := fields[:0]
 	for advance, i := 0, 0; i < len(fields); i += advance {
 		// One iteration per name.
 		// Find the sequence of fields with the name of this first field.
@@ -177,20 +187,19 @@ func walkFields(t reflect.Type) walkedFields {
 			}
 		}
 		if advance == 1 { // Only one field with this name
-			out = append(out, fi)
+			flat = append(flat, fi)
 			continue
 		}
 		dominant, ok := dominantField(fields[i : i+advance])
 		if ok {
-			out = append(out, dominant)
+			flat = append(flat, dominant)
 		}
 	}
 
-	fields = out
-	sort.Sort(walkedFieldsByIndex(fields))
+	sort.Sort(walkedFieldsByIndex(flat))
 
-	nameIndex := make(map[string]int, len(fields))
-	for i, field := range fields {
+	nameIndex := make(map[string]int, len(flat))
+	for i, field := range flat {
 		nameIndex[field.name] = i
 	}
 	return walkedFields{fields, nameIndex}
@@ -199,12 +208,12 @@ func walkFields(t reflect.Type) walkedFields {
 // dominantField looks through the fields, all of which are known to have the same name, to find the single field that
 // dominates the others using Go's embedding rules, modified by the presence of JSON tags. If there are multiple
 // top-level fields, the boolean will be false: This condition is an error in Go and we skip all the fields.
-func dominantField(fields []walkedField) (walkedField, bool) {
+func dominantField(fields []*walkedField) (*walkedField, bool) {
 	// The fields are sorted in increasing index-length order, then by presence of tag. That means that the first field
 	// is the dominant one. We need only check for error cases: two fields at top level, either both tagged or neither
 	// tagged.
 	if len(fields) > 1 && len(fields[0].index) == len(fields[1].index) {
-		return walkedField{}, false
+		return &walkedField{}, false
 	}
 	return fields[0], true
 }

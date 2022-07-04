@@ -10,7 +10,20 @@ import (
 //
 
 type FieldInfo struct {
-	walkedField
+	field reflect.StructField
+
+	name      string
+	nameBytes []byte // []byte(name)
+
+	equalFold func(s, t []byte) bool // bytes.EqualFold or equivalent
+
+	index []int
+
+	path     string
+	embedded bool
+
+	parent   *FieldInfo
+	children []*FieldInfo
 
 	si *StructInfo
 }
@@ -60,12 +73,13 @@ func (fi FieldInfo) Name() string                      { return fi.name }
 func (fi FieldInfo) NameBytes() []byte                 { return fi.nameBytes }
 func (fi FieldInfo) EqualFold() func(s, t []byte) bool { return fi.equalFold }
 func (fi FieldInfo) Index() []int                      { return fi.index }
-func (fi FieldInfo) Ty() reflect.Type                  { return fi.ty }
+func (fi FieldInfo) Ty() reflect.Type                  { return fi.field.Type }
 
 //
 
 type StructInfo struct {
-	ty reflect.Type
+	name string
+	ty   reflect.Type
 
 	fields       []*FieldInfo
 	fieldsByName map[string]*FieldInfo
@@ -77,16 +91,16 @@ func newStructInfo(ty reflect.Type) *StructInfo {
 	}
 
 	si := &StructInfo{
-		ty: ty,
+		name: ty.Name(),
+		ty:   ty,
 	}
 
 	wfs := walkFields(ty)
-	fis := make([]*FieldInfo, len(wfs.list))
+	fis := make([]*FieldInfo, len(wfs.flat))
 	bn := make(map[string]*FieldInfo)
-	for i, wf := range wfs.list {
+	for i, wf := range wfs.flat {
 		fis[i] = &FieldInfo{
-			walkedField: wf,
-			si:          si,
+			si: si,
 		}
 		if wf.name != "" {
 			bn[wf.name] = fis[i]

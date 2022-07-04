@@ -1,6 +1,7 @@
 package structs
 
 import (
+	"fmt"
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
@@ -23,10 +24,13 @@ type C struct {
 }
 
 func TestTool(t *testing.T) {
+	sm := getMapping(rfl.TypeOf[C]())
+	fmt.Println(sm)
+
 	st := NewStructInfoCache()
 	for _, ty := range []any{
-		rfl.TypeOf[A](),
-		rfl.TypeOf[B](),
+		//rfl.TypeOf[A](),
+		//rfl.TypeOf[B](),
 		rfl.TypeOf[C](),
 	} {
 		st.Info(ty)

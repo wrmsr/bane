@@ -49,6 +49,14 @@ func PointerOf(v any) uintptr {
 	return reflect.ValueOf(v).Pointer()
 }
 
+func Fields(ty reflect.Type) []reflect.StructField {
+	r := make([]reflect.StructField, ty.NumField())
+	for i := range r {
+		r[i] = ty.Field(i)
+	}
+	return r
+}
+
 //
 
 func UnwrapPointerValue(v reflect.Value) (reflect.Value, bool) {

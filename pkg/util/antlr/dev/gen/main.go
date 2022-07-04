@@ -30,7 +30,7 @@ func main() {
 	if !check.Must1(osu.Exists(jarPath)) {
 		jarUrl := fmt.Sprintf("https://www.antlr.org/download/%s", jarName)
 		fmt.Println(jarUrl)
-		check.Must(httpu.DownloadFile(jarUrl, jarPath))
+		check.Must(httpu.Download(context.Background(), jarUrl, jarPath))
 	}
 
 	type g4File struct {
