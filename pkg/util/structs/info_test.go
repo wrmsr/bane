@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
+	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 type A struct {
@@ -27,6 +27,10 @@ func TestTool(t *testing.T) {
 	sm := getMapping(rfl.TypeOf[C]())
 	fmt.Println(sm)
 
+	sm2 := getSimpleFieldInfo(rfl.TypeOf[C](), nil, "")
+	fmt.Println(sm2)
+	fmt.Println(slices.Map(fieldInfoRepr, sm2))
+
 	st := NewStructInfoCache()
 	for _, ty := range []any{
 		//rfl.TypeOf[A](),
@@ -36,7 +40,7 @@ func TestTool(t *testing.T) {
 		st.Info(ty)
 	}
 
-	c := C{}
-	st.Info((*C)(nil)).Field("Z").SetValue(&c, int32(420))
-	tu.AssertEqual(t, c.Z, int32(420))
+	//c := C{}
+	//st.Info((*C)(nil)).Field("Z").SetValue(&c, int32(420))
+	//tu.AssertEqual(t, c.Z, int32(420))
 }

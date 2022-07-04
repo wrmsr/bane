@@ -116,6 +116,18 @@ func IsEmptyValue(v reflect.Value) bool {
 	return false
 }
 
+func IsNotEmptyValue(v reflect.Value) bool {
+	return !IsEmptyValue(v)
+}
+
+func IsEmpty[V any](v V) bool {
+	return IsEmptyValue(reflect.ValueOf(v))
+}
+
+func IsNotEmpty[V any](v V) bool {
+	return IsNotEmptyValue(reflect.ValueOf(v))
+}
+
 //
 
 func IsNumericType(ty reflect.Type) bool {

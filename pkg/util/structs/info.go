@@ -4,7 +4,9 @@ import (
 	"errors"
 	"reflect"
 
+	"github.com/wrmsr/bane/pkg/util/maps"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
+	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 //
@@ -18,14 +20,37 @@ type FieldInfo struct {
 	equalFold func(s, t []byte) bool // bytes.EqualFold or equivalent
 
 	index []int
+	path  string
 
-	path     string
 	embedded bool
 
 	parent   *FieldInfo
 	children []*FieldInfo
 
 	si *StructInfo
+}
+
+// FIXME: ordmap, OrdMapBuilder
+func structFieldRepr(field reflect.StructField) map[string]any {
+	return maps.FilterValues(rfl.IsNotEmpty[any], map[string]any{
+		"pkg_path":  field.PkgPath,
+		"type":      field.Type.Name(),
+		"tag":       string(field.Tag),
+		"offset":    field.Offset,
+		"index":     field.Index,
+		"anonymous": field.Anonymous,
+	})
+}
+
+func fieldInfoRepr(fi *FieldInfo) map[string]any {
+	return maps.FilterValues(rfl.IsNotEmpty[any], map[string]any{
+		"name":     fi.name,
+		"field":    structFieldRepr(fi.field),
+		"index":    fi.index,
+		"path":     fi.path,
+		"embedded": fi.embedded,
+		"children": slices.Map(fieldInfoRepr, fi.children),
+	})
 }
 
 func (fi FieldInfo) GetValue(v any) (reflect.Value, bool) {

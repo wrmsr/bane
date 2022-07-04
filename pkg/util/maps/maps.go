@@ -36,6 +36,26 @@ func MapValues[K comparable, VF, VT any](fn func(v VF) VT, m map[K]VF) map[K]VT 
 	return r
 }
 
+func FilterKeys[K comparable, V any](fn func(k K) bool, m map[K]V) map[K]V {
+	r := make(map[K]V)
+	for k, v := range m {
+		if fn(k) {
+			r[k] = v
+		}
+	}
+	return r
+}
+
+func FilterValues[K comparable, V any](fn func(v V) bool, m map[K]V) map[K]V {
+	r := make(map[K]V)
+	for k, v := range m {
+		if fn(v) {
+			r[k] = v
+		}
+	}
+	return r
+}
+
 func Copy[K comparable, V any](m map[K]V) map[K]V {
 	r := make(map[K]V, len(m))
 	for k, v := range m {
