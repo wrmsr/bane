@@ -22,6 +22,18 @@ func MapValues[K, VF, VT any](it Iterable[bt.Kv[K, VF]], fn func(v VF) VT) Itera
 	})
 }
 
+func FilterKeys[K, V any](it Iterable[bt.Kv[K, V]], fn func(k K) bool) Iterable[bt.Kv[K, V]] {
+	return Filter(it, func(kv bt.Kv[K, V]) bool {
+		return fn(kv.K)
+	})
+}
+
+func FilterValues[K, V any](it Iterable[bt.Kv[K, V]], fn func(v V) bool) Iterable[bt.Kv[K, V]] {
+	return Filter(it, func(kv bt.Kv[K, V]) bool {
+		return fn(kv.V)
+	})
+}
+
 func MakeKvs[K, V any](it Iterable[V], fn func(v V) K) Iterable[bt.Kv[K, V]] {
 	return Map(it, func(v V) bt.Kv[K, V] {
 		return bt.KvOf(fn(v), v)

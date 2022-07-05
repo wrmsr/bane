@@ -5,6 +5,7 @@ import (
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -14,7 +15,7 @@ func TestHashEqMap(t *testing.T) {
 		func(l, r int) bool { return l == r },
 	)
 
-	m := newHashEqMapImpl[int, int](he, its.OfSlice(bt.KvsOf[int, int](
+	m := newHashEqMapImpl[int, int](he, its.OfSlice(slices.KvsOf[int, int](
 		0, 10,
 		11, 20,
 		12, 21,

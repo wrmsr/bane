@@ -152,6 +152,7 @@ func (m *orderedMapImpl[K, V]) delete(k K) {
 		return
 	}
 	m.s = slices.DeleteAt(m.s, i)
+	delete(m.m, k)
 }
 
 func (m *orderedMapImpl[K, V]) default_(k K, v V) bool {
@@ -162,6 +163,18 @@ func (m *orderedMapImpl[K, V]) default_(k K, v V) bool {
 	m.m[k] = len(m.s)
 	m.s = append(m.s, bt.KvOf(k, v))
 	return true
+}
+
+func (m *orderedMapImpl[K, V]) filter(fn func(kv bt.Kv[K, V]) bool) {
+	for i := 0; i < len(m.s); {
+		kv := m.s[i]
+		if !fn(kv) {
+			m.s = slices.DeleteAt(m.s, i)
+			delete(m.m, kv.K)
+		} else {
+			i++
+		}
+	}
 }
 
 //
@@ -198,4 +211,64 @@ func (m *mutOrderedMapImpl[K, V]) Delete(k K) {
 
 func (m *mutOrderedMapImpl[K, V]) Default(k K, v V) bool {
 	return m.default_(k, v)
+}
+
+//
+
+type MapBuilder[K comparable, V any] struct {
+	m *orderedMapImpl[K, V]
+}
+
+func NewMapBuilder[K comparable, V any]() *MapBuilder[K, V] {
+	return &MapBuilder[K, V]{
+		m: &orderedMapImpl[K, V]{
+			m: make(map[K]int),
+		},
+	}
+}
+
+func (b *MapBuilder[K, V]) Put(k K, v V) *MapBuilder[K, V] {
+	b.m.put(k, v)
+	return b
+}
+
+func (b *MapBuilder[K, V]) Update(it its.Iterable[bt.Kv[K, V]]) *MapBuilder[K, V] {
+	if it != nil {
+		for it := it.Iterate(); it.HasNext(); {
+			kv := it.Next()
+			b.m.put(kv.K, kv.V)
+		}
+	}
+	return b
+}
+
+func (b *MapBuilder[K, V]) Filter(fn func(kv bt.Kv[K, V]) bool) *MapBuilder[K, V] {
+	b.m.filter(fn)
+	return b
+}
+
+func (b *MapBuilder[K, V]) FilterKeys(fn func(k K) bool) *MapBuilder[K, V] {
+	b.m.filter(func(kv bt.Kv[K, V]) bool { return fn(kv.K) })
+	return b
+}
+
+func (b *MapBuilder[K, V]) FilterValues(fn func(v V) bool) *MapBuilder[K, V] {
+	b.m.filter(func(kv bt.Kv[K, V]) bool { return fn(kv.V) })
+	return b
+}
+
+func (b *MapBuilder[K, V]) Delete(k K) *MapBuilder[K, V] {
+	b.m.delete(k)
+	return b
+}
+
+func (b *MapBuilder[K, V]) Default(k K, v V) *MapBuilder[K, V] {
+	b.m.default_(k, v)
+	return b
+}
+
+func (b *MapBuilder[K, V]) Build() OrderedMap[K, V] {
+	r := b.m
+	b.m = nil
+	return r
 }

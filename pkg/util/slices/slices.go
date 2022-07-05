@@ -284,3 +284,15 @@ func MakePrepend[T any](s []T, a ...T) []T {
 	copy(r[len(a):], s)
 	return r
 }
+
+func KvsOf[K, V any](o ...any) []bt.Kv[K, V] {
+	if len(o)%2 != 0 {
+		panic("must pass even number of args")
+	}
+	n := len(o) / 2
+	r := make([]bt.Kv[K, V], n)
+	for i, j := 0, 0; i < n; i, j = i+1, j+2 {
+		r[i] = bt.KvOf(o[j].(K), o[j+1].(V))
+	}
+	return r
+}
