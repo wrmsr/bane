@@ -4,6 +4,10 @@ import (
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 )
 
+type Locked interface {
+	isLocked()
+}
+
 type Mutable interface {
 	isMutable()
 }

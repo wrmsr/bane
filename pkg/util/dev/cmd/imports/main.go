@@ -14,6 +14,7 @@ import (
 	"golang.org/x/tools/go/packages"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	ctr "github.com/wrmsr/bane/pkg/util/container"
 	ju "github.com/wrmsr/bane/pkg/util/json"
 	"github.com/wrmsr/bane/pkg/util/maps"
 	osu "github.com/wrmsr/bane/pkg/util/os"
@@ -36,9 +37,7 @@ func main() {
 	mo := check.Must1(modfile.Parse(mf, mc, dontFixRetract))
 	mp := mo.Module.Mod.Path
 
-	fmt.Println(mo)
-
-	m := make(map[string][]string)
+	m := ctr.NewLockedMutMap[string, []string](ctr.NewMutMap[string, []string](nil))
 
 	for _, arg := range os.Args[1:] {
 		check.Must(filepath.Walk(arg, func(path string, info fs.FileInfo, err error) error {
@@ -56,7 +55,7 @@ func main() {
 			for _, pkg := range pkgs {
 				s := maps.Keys(pkg.Imports)
 				slices.Sort(s)
-				m[pkg.ID] = s
+				m.Put(pkg.ID, s)
 			}
 
 			return nil

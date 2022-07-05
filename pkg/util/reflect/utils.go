@@ -57,6 +57,13 @@ func Fields(ty reflect.Type) []reflect.StructField {
 	return r
 }
 
+func TypeName(ty reflect.Type) string {
+	if ty.PkgPath() != "" {
+		return fmt.Sprintf("%s/%s", ty.PkgPath(), ty.Name())
+	}
+	return ty.Name()
+}
+
 //
 
 func UnwrapPointerValue(v reflect.Value) (reflect.Value, bool) {
@@ -156,8 +163,6 @@ func IsNumericType(ty reflect.Type) bool {
 	}
 	return false
 }
-
-//
 
 func IsPrimitiveType(ty reflect.Type) bool {
 	switch ty.Kind() {
