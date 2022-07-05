@@ -14,14 +14,14 @@ import (
 func TestObjects(t *testing.T) {
 	asi := stu.NewStructInfoCache().Info((*A)(nil))
 	am := NewObjectMarshaler(
-		NewObjectMarshalerField("X", NewStructFieldGetter(asi.Field("X")), PrimitiveMarshaler{}),
-		NewObjectMarshalerField("Y", NewStructFieldGetter(asi.Field("Y")), PrimitiveMarshaler{}),
+		NewObjectMarshalerField("X", NewStructFieldGetter(asi.Fields().ByFlat()["X"]), PrimitiveMarshaler{}),
+		NewObjectMarshalerField("Y", NewStructFieldGetter(asi.Fields().ByFlat()["Y"]), PrimitiveMarshaler{}),
 	)
 
 	csi := stu.NewStructInfoCache().Info((*C)(nil))
 	cm := NewObjectMarshaler(
-		NewObjectMarshalerField("A", NewStructFieldGetter(csi.Field("A")), am),
-		NewObjectMarshalerField("Z", NewStructFieldGetter(csi.Field("Z")), PrimitiveMarshaler{}),
+		NewObjectMarshalerField("A", NewStructFieldGetter(csi.Fields().ByFlat()["A"]), am),
+		NewObjectMarshalerField("Z", NewStructFieldGetter(csi.Fields().ByFlat()["Z"]), PrimitiveMarshaler{}),
 	)
 
 	c := testC
@@ -30,14 +30,14 @@ func TestObjects(t *testing.T) {
 
 	au := NewObjectUnmarshaler(
 		NewStructFactory(asi),
-		NewObjectUnmarshalerField("X", NewStructFieldSetter(asi.Field("X")), NewConvertUnmarshaler(rfl.TypeOf[int](), PrimitiveUnmarshaler{})),
-		NewObjectUnmarshalerField("Y", NewStructFieldSetter(asi.Field("Y")), PrimitiveUnmarshaler{}),
+		NewObjectUnmarshalerField("X", NewStructFieldSetter(asi.Fields().ByFlat()["X"]), NewConvertUnmarshaler(rfl.TypeOf[int](), PrimitiveUnmarshaler{})),
+		NewObjectUnmarshalerField("Y", NewStructFieldSetter(asi.Fields().ByFlat()["Y"]), PrimitiveUnmarshaler{}),
 	)
 
 	cu := NewObjectUnmarshaler(
 		NewStructFactory(csi),
-		NewObjectUnmarshalerField("A", NewStructFieldSetter(csi.Field("A")), au),
-		NewObjectUnmarshalerField("Z", NewStructFieldSetter(csi.Field("Z")), NewConvertUnmarshaler(rfl.TypeOf[int32](), PrimitiveUnmarshaler{})),
+		NewObjectUnmarshalerField("A", NewStructFieldSetter(csi.Fields().ByFlat()["A"]), au),
+		NewObjectUnmarshalerField("Z", NewStructFieldSetter(csi.Fields().ByFlat()["Z"]), NewConvertUnmarshaler(rfl.TypeOf[int32](), PrimitiveUnmarshaler{})),
 	)
 
 	c2 := check.Must1(cu.Unmarshal(UnmarshalContext{}, mv)).Interface().(C)

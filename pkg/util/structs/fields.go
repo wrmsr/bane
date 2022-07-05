@@ -1,6 +1,10 @@
 package structs
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/wrmsr/bane/pkg/util/slices"
+)
 
 type StructFields struct {
 	root []*FieldInfo
@@ -56,7 +60,13 @@ func buildStructFields(root []*FieldInfo) StructFields {
 	var dupe []*FieldInfo
 	byDupe := make(map[string][]*FieldInfo)
 	for _, s := range byName {
-		FIXME fi.anonymous!!
+		if slices.Any(s, (*FieldInfo).Anonymous) {
+			if len(s) != 1 {
+				panic(fmt.Errorf("anonymous field name collision: %s", s[0].Name()))
+			}
+			continue
+		}
+
 		w := []*FieldInfo{s[0]}
 		wd := w[0].Depth()
 		for _, c := range s[1:] {
@@ -67,6 +77,7 @@ func buildStructFields(root []*FieldInfo) StructFields {
 				w = append(w, c)
 			}
 		}
+
 		if len(w) > 1 {
 			dupe = append(dupe, w...)
 			byDupe[w[0].name.s] = w

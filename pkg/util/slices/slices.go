@@ -65,6 +65,20 @@ func FindFuncLast[T comparable](s []T, fn func(v T) bool) (int, bool) {
 	return -1, false
 }
 
+func Any[T comparable](s []T, fn func(v T) bool) bool {
+	_, ok := FindFunc(s, fn)
+	return ok
+}
+
+func All[T comparable](s []T, fn func(v T) bool) bool {
+	for _, c := range s {
+		if !fn(c) {
+			return false
+		}
+	}
+	return true
+}
+
 func Contains[T comparable](s []T, v T) bool {
 	_, ok := Find(s, v)
 	return ok

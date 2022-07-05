@@ -28,12 +28,13 @@ type FieldInfo struct {
 func (fi FieldInfo) Field() reflect.StructField { return fi.field }
 func (fi FieldInfo) Name() Name                 { return fi.name }
 func (fi FieldInfo) Flat() opt.Optional[Name]   { return fi.flat }
-func (fi FieldInfo) Duple() bool                { return !fi.flat.Present() }
 func (fi FieldInfo) Index() []int               { return fi.index }
-func (fi FieldInfo) Type() reflect.Type         { return fi.field.Type }
 func (fi FieldInfo) Struct() *StructInfo        { return fi.si }
 
-func (fi FieldInfo) Depth() int { return len(fi.index) }
+func (fi FieldInfo) Type() reflect.Type { return fi.field.Type }
+func (fi FieldInfo) Anonymous() bool    { return fi.field.Anonymous }
+func (fi FieldInfo) Dupe() bool         { return !fi.flat.Present() }
+func (fi FieldInfo) Depth() int         { return len(fi.index) }
 
 func buildFieldInfo(
 	ty reflect.Type,
