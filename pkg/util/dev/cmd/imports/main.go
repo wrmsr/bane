@@ -37,29 +37,30 @@ func main() {
 	mo := check.Must1(modfile.Parse(mf, mc, dontFixRetract))
 	mp := mo.Module.Mod.Path
 
-	m := ctr.NewLockedMutMap[string, []string](ctr.NewMutMap[string, []string](nil))
-
+	var dirs []string
 	for _, arg := range os.Args[1:] {
 		check.Must(filepath.Walk(arg, func(path string, info fs.FileInfo, err error) error {
-			if !info.IsDir() {
-				return nil
+			if info.IsDir() {
+				dirs = append(dirs, path)
 			}
-
-			cfg := &packages.Config{
-				Mode: packages.NeedImports | packages.NeedDeps,
-			}
-
-			pn := fmt.Sprintf("%s/%s", mp, path)
-			pkgs := check.Must1(packages.Load(cfg, pn))
-
-			for _, pkg := range pkgs {
-				s := maps.Keys(pkg.Imports)
-				slices.Sort(s)
-				m.Put(pkg.ID, s)
-			}
-
 			return nil
 		}))
+	}
+
+	m := ctr.NewLockedMutMap[string, []string](ctr.NewMutMap[string, []string](nil))
+	for _, dir := range dirs {
+		cfg := &packages.Config{
+			Mode: packages.NeedImports | packages.NeedDeps,
+		}
+
+		pn := fmt.Sprintf("%s/%s", mp, dir)
+		pkgs := check.Must1(packages.Load(cfg, pn))
+
+		for _, pkg := range pkgs {
+			s := maps.Keys(pkg.Imports)
+			slices.Sort(s)
+			m.Put(pkg.ID, s)
+		}
 	}
 
 	fmt.Println(check.Must1(ju.MarshalIndentString(m, "", "  ")))
