@@ -38,8 +38,8 @@ func (m *Manager) Marshal(v any, o ...MarshalOpt) map[string]any { // Value {
 	si := m.sic.Info(rv.Type())
 
 	r := make(map[string]any)
-	for _, fi := range si.Fields() {
-		if fi.Name() == "" {
+	for _, fi := range si.Fields().Flat() {
+		if fi.Name().String() == "" {
 			continue
 		}
 
@@ -53,7 +53,7 @@ func (m *Manager) Marshal(v any, o ...MarshalOpt) map[string]any { // Value {
 
 		}
 
-		r[fi.Name()] = fv
+		r[fi.Name().String()] = fv
 	}
 
 	return r

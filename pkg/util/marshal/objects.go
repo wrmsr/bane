@@ -76,7 +76,7 @@ type ObjectFieldSetter = func(ctx UnmarshalContext, ov, fv reflect.Value) error
 
 func NewStructFactory(si *stu.StructInfo) ObjectFactory {
 	return func(ctx UnmarshalContext) reflect.Value {
-		return reflect.New(si.Ty()).Elem()
+		return reflect.New(si.Type()).Elem()
 	}
 }
 
