@@ -1,8 +1,12 @@
 package json
 
 import (
+	"encoding"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"reflect"
+	"strconv"
 )
 
 //
@@ -88,4 +92,26 @@ func EndDelim(d json.Delim) json.Delim {
 		return ']'
 	}
 	panic(errors.New("unreachable"))
+}
+
+//
+
+func MarshalAsKey(k reflect.Value) (string, error) {
+	if k.Kind() == reflect.String {
+		return k.String(), nil
+	}
+	if tm, ok := k.Interface().(encoding.TextMarshaler); ok {
+		if k.Kind() == reflect.Pointer && k.IsNil() {
+			return "", nil
+		}
+		buf, err := tm.MarshalText()
+		return string(buf), err
+	}
+	switch k.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return strconv.FormatInt(k.Int(), 10), nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return strconv.FormatUint(k.Uint(), 10), nil
+	}
+	return "", fmt.Errorf("unhandled key type: %s", k.Type().Name())
 }
