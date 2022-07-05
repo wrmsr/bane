@@ -1,3 +1,5 @@
+//go:build !nodev
+
 package main
 
 import (
@@ -12,7 +14,10 @@ import (
 	"golang.org/x/tools/go/packages"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	ju "github.com/wrmsr/bane/pkg/util/json"
+	"github.com/wrmsr/bane/pkg/util/maps"
 	osu "github.com/wrmsr/bane/pkg/util/os"
+	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 var dontFixRetract modfile.VersionFixer = func(_, vers string) (string, error) {
@@ -33,6 +38,8 @@ func main() {
 
 	fmt.Println(mo)
 
+	m := make(map[string][]string)
+
 	for _, arg := range os.Args[1:] {
 		check.Must(filepath.Walk(arg, func(path string, info fs.FileInfo, err error) error {
 			if !info.IsDir() {
@@ -44,11 +51,17 @@ func main() {
 			}
 
 			pn := fmt.Sprintf("%s/%s", mp, path)
-			pkg := check.Must1(packages.Load(cfg, pn))
+			pkgs := check.Must1(packages.Load(cfg, pn))
 
-			fmt.Println(pkg)
+			for _, pkg := range pkgs {
+				s := maps.Keys(pkg.Imports)
+				slices.Sort(s)
+				m[pkg.ID] = s
+			}
 
 			return nil
 		}))
 	}
+
+	fmt.Println(check.Must1(ju.MarshalIndentString(m, "", "  ")))
 }
