@@ -43,5 +43,5 @@ require (
 	github.com/jackc/puddle v1.2.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/sys v0.0.0-20220702020025-31831981b65f // indirect
+	golang.org/x/sys v0.0.0-20220704084225-05e143d24a9e // indirect
 )

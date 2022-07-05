@@ -3,13 +3,11 @@
 package impl
 
 import (
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -17,28 +15,11 @@ import (
 	"golang.org/x/tools/go/packages"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	osu "github.com/wrmsr/bane/pkg/util/os"
 )
 
 var dontFixRetract modfile.VersionFixer = func(_, vers string) (string, error) {
 	return vers, nil
-}
-
-func findDirWithFile(cd, fn string) (string, error) {
-	for {
-		if _, err := os.Stat(filepath.Join(cd, fn)); err != nil {
-			if !errors.Is(err, os.ErrNotExist) {
-				return "", err
-			}
-		} else {
-			return cd, nil
-		}
-
-		nd := filepath.Dir(cd)
-		if nd == cd {
-			return "", fmt.Errorf("file %s not found from dir %s", fn, cd)
-		}
-		cd = nd
-	}
 }
 
 type ParsedPackages struct {
@@ -47,7 +28,7 @@ type ParsedPackages struct {
 }
 
 func ParsePackages(cd string) ParsedPackages {
-	rd := check.Must1(findDirWithFile(cd, "go.mod"))
+	rd := check.Must1(osu.FindParentDirWithFile(cd, "go.mod"))
 	if !strings.HasPrefix(cd, rd) {
 		panic(fmt.Errorf("can't find path %s from root %s", cd, rd))
 	}
