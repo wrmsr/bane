@@ -7,7 +7,7 @@ import (
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
-//
+///
 
 type OptionalMarshaler struct {
 	ty   reflect.Type
@@ -30,6 +30,16 @@ func (m OptionalMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value,
 }
 
 //
+
+var optionalMarshalerFactory = NewFuncMarshalerFactory(func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
+
+})
+
+func NewOptionalMarshalerFactory() MarshalerFactory {
+	return optionalMarshalerFactory
+}
+
+///
 
 type OptionalUnmarshaler struct {
 	ty   reflect.Type
@@ -59,4 +69,14 @@ func (u OptionalUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.
 		}
 		return reflect.ValueOf(u.nvi.Replace(ev.Interface())), nil
 	}
+}
+
+//
+
+var optionalUnmarshalerFactory = NewFuncUnmarshalerFactory(func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
+
+})
+
+func NewOptionalUnmarshalerFactory() UnmarshalerFactory {
+	return optionalUnmarshalerFactory
 }
