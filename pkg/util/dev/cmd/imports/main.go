@@ -80,6 +80,6 @@ func main() {
 	}
 	_ = check.Must1(workers.DoParallelErrGroup(context.Background(), rtu.MaxProcs(), wfns))
 
-	o := ctr.MapValues[string, []string, rtu.SortedNames](fnu.Bind1x1x1(rtu.SortNames, mp), m)
+	//o := ctr.MapValues[string, []string, rtu.SortedNames](fnu.Bind1x1x1(rtu.SortNames, mp), m)
 	fmt.Println(check.Must1(ju.MarshalIndentString(m, "", "  ")))
 }
