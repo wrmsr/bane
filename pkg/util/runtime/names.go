@@ -52,3 +52,15 @@ func SortNames(pfx string, ns []string) (ret SortedNames) {
 
 	return
 }
+
+//
+
+type ParsedGenericName struct {
+	Base ParsedName
+	Args []ParsedName
+}
+
+func ParseGenericName(name string) ParsedGenericName {
+	// Optional[github.com/wrmsr/bane/pkg/util/container.Map[int,github.com/wrmsr/bane/pkg/util/optional.Optional[string]]]
+	panic("TODO")
+}

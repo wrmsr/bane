@@ -9,6 +9,7 @@ import (
 ///
 
 type MarshalerFactoryContext struct {
+	Factory func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error)
 }
 
 type MarshalerFactory interface {
@@ -54,6 +55,7 @@ func (mf SimpleMarshalerFactory) MakeMarshaler(ctx MarshalerFactoryContext, ty r
 ///
 
 type UnmarshalerFactoryContext struct {
+	Factory func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error)
 }
 
 type UnmarshalerFactory interface {

@@ -32,7 +32,7 @@ func (m OptionalMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value,
 //
 
 var optionalMarshalerFactory = NewFuncMarshalerFactory(func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
-
+	panic("nyi")
 })
 
 func NewOptionalMarshalerFactory() MarshalerFactory {
@@ -74,7 +74,7 @@ func (u OptionalUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.
 //
 
 var optionalUnmarshalerFactory = NewFuncUnmarshalerFactory(func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
-
+	panic("nyi")
 })
 
 func NewOptionalUnmarshalerFactory() UnmarshalerFactory {
