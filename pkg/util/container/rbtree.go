@@ -40,10 +40,6 @@ type rbColor bool
 
 const red, black rbColor = true, false
 
-// The red-black tree does support duplicate items, but one is not guaranteed which duplicate is found when looking to
-// remove one of many duplicates. Essentially, there is no stable ordering to duplicate items.
-type Less func(l, r any) bool
-
 type RbNode struct {
 	left   *RbNode
 	right  *RbNode
@@ -99,7 +95,7 @@ var rbNodePool = syncu.NewDrainPool[*RbNode](func() *RbNode {
 //
 
 type RbTree struct {
-	Less Less
+	Less bt.LessImpl[any]
 
 	root *RbNode
 	size int
@@ -562,24 +558,19 @@ type rbTreeMapImpl[K, V any] struct {
 	t RbTree
 }
 
-func newRbTreeMapImpl[K, V any](cmp bt.CmpImpl[K], it its.Iterable[bt.Kv[K, V]]) rbTreeMapImpl[K, V] {
+func kvLessImpl[K, V any](less bt.LessImpl[K]) bt.LessImpl[any] {
+	return func(l, r any) bool {
+		return less(bt.AsKey[K, V](l), bt.AsKey[K, V](r))
+	}
+}
+
+func newRbTreeMapImpl[K, V any](less bt.LessImpl[any], it its.Iterable[bt.Kv[K, V]]) rbTreeMapImpl[K, V] {
+	if less == nil {
+		panic("must provide less impl")
+	}
 	m := rbTreeMapImpl[K, V]{
 		t: RbTree{
-			Less: func(l, r any) bool {
-				var lk K
-				if lkv, ok := l.(bt.Kv[K, V]); ok {
-					lk = lkv.K
-				} else {
-					lk = l.(K)
-				}
-				var rk K
-				if rkv, ok := r.(bt.Kv[K, V]); ok {
-					rk = rkv.K
-				} else {
-					rk = r.(K)
-				}
-				return cmp(lk, rk) == bt.CmpLess
-			},
+			Less: less,
 		},
 	}
 	if it != nil {
@@ -591,8 +582,8 @@ func newRbTreeMapImpl[K, V any](cmp bt.CmpImpl[K], it its.Iterable[bt.Kv[K, V]])
 	return m
 }
 
-func NewRbTreeMap[K, V any](cmp bt.CmpImpl[K], it its.Iterable[bt.Kv[K, V]]) Map[K, V] {
-	return newRbTreeMapImpl[K, V](cmp, it)
+func NewRbTreeMap[K, V any](less bt.LessImpl[K], it its.Iterable[bt.Kv[K, V]]) Map[K, V] {
+	return newRbTreeMapImpl[K, V](kvLessImpl[K, V](less), it)
 }
 
 var _ Map[int, string] = rbTreeMapImpl[int, string]{}
@@ -681,8 +672,8 @@ type mutRbTreeMapImpl[K, V any] struct {
 	rbTreeMapImpl[K, V]
 }
 
-func NewMutRbTreeMap[K, V any](cmp bt.CmpImpl[K], it its.Iterable[bt.Kv[K, V]]) MutMap[K, V] {
-	return &mutRbTreeMapImpl[K, V]{newRbTreeMapImpl[K, V](cmp, it)}
+func NewMutRbTreeMap[K, V any](less bt.LessImpl[K], it its.Iterable[bt.Kv[K, V]]) MutMap[K, V] {
+	return &mutRbTreeMapImpl[K, V]{newRbTreeMapImpl[K, V](kvLessImpl[K, V](less), it)}
 }
 
 var _ MutMap[int, string] = &mutRbTreeMapImpl[int, string]{}

@@ -1,8 +1,3 @@
-/*
-TODO:
- - reflective - tailscale deephash
- - adapter - HashEqImpl{foo}
-*/
 package types
 
 import "golang.org/x/exp/constraints"

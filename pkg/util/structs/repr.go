@@ -9,7 +9,7 @@ import (
 )
 
 func typeRepr(ty reflect.Type) ctr.Map[string, any] {
-	return ctr.NewMapBuilder[string, any]().
+	return ctr.NewOrderedMapBuilder[string, any]().
 		Put("name", rfl.TypeName(ty)).
 		Put("kind", ty.Kind().String()).
 		FilterValues(rfl.IsNotEmpty[any]).
@@ -17,7 +17,7 @@ func typeRepr(ty reflect.Type) ctr.Map[string, any] {
 }
 
 func structFieldRepr(field reflect.StructField) ctr.Map[string, any] {
-	return ctr.NewMapBuilder[string, any]().
+	return ctr.NewOrderedMapBuilder[string, any]().
 		Put("pkg_path", field.PkgPath).
 		Put("type", typeRepr(field.Type)).
 		Put("tag", string(field.Tag)).
@@ -29,7 +29,7 @@ func structFieldRepr(field reflect.StructField) ctr.Map[string, any] {
 }
 
 func fieldInfoRepr(fi *FieldInfo) ctr.Map[string, any] {
-	return ctr.NewMapBuilder[string, any]().
+	return ctr.NewOrderedMapBuilder[string, any]().
 		Put("name", fi.name.s).
 		Put("field", structFieldRepr(fi.field)).
 		Put("index", fi.index).
@@ -41,7 +41,7 @@ func fieldInfoRepr(fi *FieldInfo) ctr.Map[string, any] {
 }
 
 func structInfoRepr(si *StructInfo) ctr.Map[string, any] {
-	return ctr.NewMapBuilder[string, any]().
+	return ctr.NewOrderedMapBuilder[string, any]().
 		Put("name", si.name.String()).
 		Put("type", typeRepr(si.ty)).
 		Put("fields", slices.Map(fieldInfoRepr, si.fields.root)).

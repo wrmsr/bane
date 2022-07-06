@@ -12,7 +12,14 @@ import (
 
 //
 
-type RawObject []bt.Kv[string, json.RawMessage]
+type RawField = bt.Kv[string, json.RawMessage]
+type RawObject []RawField
+
+func RawFieldOf(k string, v json.RawMessage) bt.Kv[string, json.RawMessage] {
+	return bt.KvOf(k, v)
+}
+
+//
 
 func (o RawObject) MarshalJSON() ([]byte, error) {
 	if o == nil {

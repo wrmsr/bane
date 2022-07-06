@@ -9,10 +9,12 @@ import (
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
+//
+
 func (m orderedMapImpl[K, V]) MarshalJSON() ([]byte, error) {
 	ro := make(ju.RawObject, len(m.s))
 	for i, kv := range m.s {
-		ks, err := ju.MarshalAsKey(reflect.ValueOf(kv.K))
+		ks, err := ju.MarshalAsText(reflect.ValueOf(kv.K))
 		if err != nil {
 			return nil, err
 		}
@@ -40,4 +42,14 @@ func (m *orderedMapImpl[K, V]) UnmarshalJSON(b []byte) error {
 
 	*m = newOrderedMapImpl[K, V](its.OfSlice(ret))
 	return nil
+}
+
+//
+
+func (m mutOrderedMapImpl[K, V]) MarshalJSON() ([]byte, error) {
+	return json.Marshal(m.orderedMapImpl)
+}
+
+func (m *mutOrderedMapImpl[K, V]) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &m.orderedMapImpl)
 }

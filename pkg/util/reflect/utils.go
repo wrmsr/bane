@@ -30,7 +30,7 @@ func AsType(v any) reflect.Type {
 
 func TypeOf[T any]() reflect.Type {
 	var z T
-	return reflect.TypeOf(z)
+	return reflect.TypeOf(&z).Elem()
 }
 
 func As[T any](rv reflect.Value) T {

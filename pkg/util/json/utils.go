@@ -1,29 +1,27 @@
 package json
 
 import (
-	"encoding"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"reflect"
-	"strconv"
 )
 
 //
 
 var (
-	_nullBytes      = []byte("null")
-	_trueBytes      = []byte("true")
-	_falseBytes     = []byte("false")
-	_quoteBytes     = []byte("\"")
-	_backslashBytes = []byte("\\")
+	_nullBytes        = []byte("null")
+	_trueBytes        = []byte("true")
+	_falseBytes       = []byte("false")
+	_quoteBytes       = []byte("\"")
+	_backslashBytes   = []byte("\\")
+	_emptyObjectBytes = []byte("{}")
 )
 
-func NullBytes() []byte      { return _nullBytes }
-func TrueBytes() []byte      { return _trueBytes }
-func FalseBytes() []byte     { return _falseBytes }
-func QuoteBytes() []byte     { return _quoteBytes }
-func BackslashBytes() []byte { return _backslashBytes }
+func NullBytes() []byte        { return _nullBytes }
+func TrueBytes() []byte        { return _trueBytes }
+func FalseBytes() []byte       { return _falseBytes }
+func QuoteBytes() []byte       { return _quoteBytes }
+func BackslashBytes() []byte   { return _backslashBytes }
+func EmptyObjectBytes() []byte { return _emptyObjectBytes }
 
 func IsNullBytes(b []byte) bool {
 	return len(b) == 4 && b[0] == 'n' && b[1] == 'u' && b[2] == 'l' && b[3] == 'l'
@@ -73,6 +71,13 @@ func MarshalIndentString(v any, prefix, indent string) (string, error) {
 
 //
 
+func UnmarshalAs[T any](b []byte) (v T, err error) {
+	err = json.Unmarshal(b, &v)
+	return
+}
+
+//
+
 func ReadDelim(dec *json.Decoder) (json.Delim, error) {
 	token, err := dec.Token()
 	if err != nil {
@@ -92,26 +97,4 @@ func EndDelim(d json.Delim) json.Delim {
 		return ']'
 	}
 	panic(errors.New("unreachable"))
-}
-
-//
-
-func MarshalAsKey(k reflect.Value) (string, error) {
-	if k.Kind() == reflect.String {
-		return k.String(), nil
-	}
-	if tm, ok := k.Interface().(encoding.TextMarshaler); ok {
-		if k.Kind() == reflect.Pointer && k.IsNil() {
-			return "", nil
-		}
-		buf, err := tm.MarshalText()
-		return string(buf), err
-	}
-	switch k.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return strconv.FormatInt(k.Int(), 10), nil
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		return strconv.FormatUint(k.Uint(), 10), nil
-	}
-	return "", fmt.Errorf("unhandled key type: %s", k.Type().Name())
 }

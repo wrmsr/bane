@@ -4,7 +4,7 @@ import "golang.org/x/exp/constraints"
 
 //
 
-type Cmp int8
+type CmpResult int8
 
 const (
 	CmpLess    = -1
@@ -15,15 +15,15 @@ const (
 //
 
 type Comparer[T any] interface {
-	Compare(o T) Cmp
+	Compare(o T) CmpResult
 }
 
 //
 
-type CmpImpl[T any] func(l, r T) Cmp
+type CmpImpl[T any] func(l, r T) CmpResult
 
-func IntCmp[T constraints.Integer]() CmpImpl[T] {
-	return func(l, r T) Cmp {
+func IntCmpImpl[T constraints.Integer]() CmpImpl[T] {
+	return func(l, r T) CmpResult {
 		if l < r {
 			return CmpLess
 		}

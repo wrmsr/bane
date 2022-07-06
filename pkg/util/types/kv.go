@@ -19,3 +19,18 @@ func KvMaker[K, V any](fn func(v V) K) func(v V) Kv[K, V] {
 		return Kv[K, V]{K: fn(v), V: v}
 	}
 }
+
+//
+
+func AsKey[K, V any](o any) K {
+	if kv, ok := o.(Kv[K, V]); ok {
+		return kv.K
+	}
+	return o.(K)
+}
+
+func KeyCmpImpl[K, V any](cmp CmpImpl[K]) CmpImpl[Kv[K, V]] {
+	return func(r, l Kv[K, V]) CmpResult {
+		return cmp(l.K, r.K)
+	}
+}
