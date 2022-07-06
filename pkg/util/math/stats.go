@@ -89,7 +89,7 @@ func (s *Stats) Mean() float64 {
 
 func (s *Stats) Sorted() []float64 {
 	return opt.SetIfAbsent(&s.sorted, func() []float64 {
-		return slices.Sort(slices.Copy(s.data))
+		return slices.Sort(slices.Clone(s.data))
 	})
 }
 

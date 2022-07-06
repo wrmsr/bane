@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	"io/ioutil"
@@ -15,10 +16,13 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	ctr "github.com/wrmsr/bane/pkg/util/container"
+	fnu "github.com/wrmsr/bane/pkg/util/funcs"
 	ju "github.com/wrmsr/bane/pkg/util/json"
 	"github.com/wrmsr/bane/pkg/util/maps"
 	osu "github.com/wrmsr/bane/pkg/util/os"
+	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	"github.com/wrmsr/bane/pkg/util/workers"
 )
 
 var dontFixRetract modfile.VersionFixer = func(_, vers string) (string, error) {
@@ -47,21 +51,35 @@ func main() {
 		}))
 	}
 
+	fns := make([]func(), len(dirs))
 	m := ctr.NewLockedMutMap[string, []string](ctr.NewMutMap[string, []string](nil))
-	for _, dir := range dirs {
-		cfg := &packages.Config{
-			Mode: packages.NeedImports | packages.NeedDeps,
-		}
+	for i, dir := range dirs {
+		dir := dir
+		fns[i] = func() {
+			cfg := &packages.Config{
+				Mode: packages.NeedImports | packages.NeedDeps,
+			}
 
-		pn := fmt.Sprintf("%s/%s", mp, dir)
-		pkgs := check.Must1(packages.Load(cfg, pn))
+			pn := fmt.Sprintf("%s/%s", mp, dir)
+			pkgs := check.Must1(packages.Load(cfg, pn))
 
-		for _, pkg := range pkgs {
-			s := maps.Keys(pkg.Imports)
-			slices.Sort(s)
-			m.Put(pkg.ID, s)
+			for _, pkg := range pkgs {
+				s := maps.Keys(pkg.Imports)
+				slices.Sort(s)
+				m.Put(pkg.ID, s)
+			}
 		}
 	}
 
+	wfns := make([]func(context.Context) (any, error), len(fns))
+	for i, fn := range fns {
+		fn := fn
+		wfns[i] = func(context.Context) (any, error) {
+			return nil, fnu.Recover(fn)
+		}
+	}
+	_ = check.Must1(workers.DoParallelErrGroup(context.Background(), rtu.MaxProcs(), wfns))
+
+	o := ctr.MapValues[string, []string, rtu.SortedNames](fnu.Bind1x1x1(rtu.SortNames, mp), m)
 	fmt.Println(check.Must1(ju.MarshalIndentString(m, "", "  ")))
 }

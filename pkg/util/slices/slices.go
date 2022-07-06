@@ -9,7 +9,7 @@ import (
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
-func Copy[T any](s []T) []T {
+func Clone[T any](s []T) []T {
 	r := make([]T, len(s))
 	copy(r, s)
 	return r
@@ -110,6 +110,10 @@ func Sort[T constraints.Ordered](s []T) []T {
 		return s[i] < s[j]
 	})
 	return s
+}
+
+func Sorted[T constraints.Ordered](s []T) []T {
+	return Sort(Clone(s))
 }
 
 func Equal[T comparable](l, r []T) bool {

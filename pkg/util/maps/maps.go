@@ -56,7 +56,7 @@ func FilterValues[K comparable, V any](fn func(v V) bool, m map[K]V) map[K]V {
 	return r
 }
 
-func Copy[K comparable, V any](m map[K]V) map[K]V {
+func Clone[K comparable, V any](m map[K]V) map[K]V {
 	r := make(map[K]V, len(m))
 	for k, v := range m {
 		r[k] = v

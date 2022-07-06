@@ -29,3 +29,17 @@ func Not2[T, U any](fn func(t T, u U) bool) func(t T, u U) bool {
 		return !fn(t, u)
 	}
 }
+
+func Returning[R any](fn func(), r R) func() R {
+	return func() R {
+		fn()
+		return r
+	}
+}
+
+func Returning1[T, R any](fn func(T), r R) func(T) R {
+	return func(t T) R {
+		fn(t)
+		return r
+	}
+}

@@ -18,7 +18,7 @@ func NewEnumInfo[T comparable](m map[string]T) *EnumInfo[T] {
 	return &EnumInfo[T]{
 		ty: reflect.TypeOf(z),
 
-		m: maps.Copy(m),
+		m: maps.Clone(m),
 		r: maps.Invert(m),
 	}
 }

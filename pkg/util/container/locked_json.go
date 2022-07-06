@@ -4,7 +4,7 @@ import "encoding/json"
 
 //
 
-func (m lockedMapImpl[K, V]) MarshalJSON() ([]byte, error) {
+func (m *lockedMapImpl[K, V]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.m)
 }
 
@@ -14,7 +14,7 @@ func (m *lockedMapImpl[K, V]) UnmarshalJSON(b []byte) error {
 
 //
 
-func (m lockedMutMapImpl[K, V]) MarshalJSON() ([]byte, error) {
+func (m *lockedMutMapImpl[K, V]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.m)
 }
 

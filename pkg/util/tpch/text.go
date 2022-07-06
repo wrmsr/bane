@@ -138,7 +138,7 @@ func newRandomStringSequence(
 
 func (r *randomStringSequence) nextValue() string {
 	check.Condition(r.count < len(r.dist.values))
-	values := slices.Copy(r.dist.values)
+	values := slices.Clone(r.dist.values)
 
 	// randomize first 'count' elements of the string
 	for currentPos := 0; currentPos < r.count; currentPos++ {

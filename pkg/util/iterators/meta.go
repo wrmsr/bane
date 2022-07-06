@@ -190,7 +190,7 @@ func (i *chunkSharedIterator[T]) Next() []T {
 //
 
 func Chunk[T any](it Iterable[T], n int) Iterable[[]T] {
-	return Map(ChunkShared(it, n), func(s []T) []T { return slices.Copy(s) })
+	return Map(ChunkShared(it, n), func(s []T) []T { return slices.Clone(s) })
 }
 
 //
