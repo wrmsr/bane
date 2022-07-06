@@ -29,6 +29,7 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 package container
 
 import (
+	"github.com/wrmsr/bane/pkg/util/check"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	syncu "github.com/wrmsr/bane/pkg/util/sync"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -582,6 +583,10 @@ func newRbTreeMapImpl[K, V any](less bt.LessImpl[any], it its.Iterable[bt.Kv[K, 
 	return m
 }
 
+func (m *rbTreeMapImpl[K, V]) initUnmarshal(a ...any) {
+	m.t.Less = kvLessImpl[K, V](check.Single(a).(bt.LessImpl[K]))
+}
+
 func NewRbTreeMap[K, V any](less bt.LessImpl[K], it its.Iterable[bt.Kv[K, V]]) Map[K, V] {
 	return newRbTreeMapImpl[K, V](kvLessImpl[K, V](less), it)
 }
@@ -674,6 +679,10 @@ type mutRbTreeMapImpl[K, V any] struct {
 
 func NewMutRbTreeMap[K, V any](less bt.LessImpl[K], it its.Iterable[bt.Kv[K, V]]) MutMap[K, V] {
 	return &mutRbTreeMapImpl[K, V]{newRbTreeMapImpl[K, V](kvLessImpl[K, V](less), it)}
+}
+
+func (m *mutRbTreeMapImpl[K, V]) initUnmarshal(a ...any) {
+	m.rbTreeMapImpl.initUnmarshal(a...)
 }
 
 var _ MutMap[int, string] = &mutRbTreeMapImpl[int, string]{}

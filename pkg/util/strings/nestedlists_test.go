@@ -9,7 +9,7 @@ import (
 
 type nl = NestedList
 
-func TestMatchedPairs(t *testing.T) {
+func TestNestedLists(t *testing.T) {
 	tu.AssertDeepEqual(t,
 		check.Must1(ParseNestedList("0(12(34,56),78)09", '(', ')', ',')),
 		[]nl{"0", []nl{"12", []nl{"34", "56"}, "78"}, "09"})
@@ -21,4 +21,8 @@ func TestMatchedPairs(t *testing.T) {
 
 	_, err = ParseNestedList("0(1))", '(', ')', ',')
 	tu.AssertEqual(t, err != nil, true)
+
+	tu.AssertDeepEqual(t,
+		check.Must1(ParseNestedList("Optional[github.com/wrmsr/bane/pkg/util/container.Map[int,github.com/wrmsr/bane/pkg/util/optional.Optional[string]]]", '[', ']', ',')),
+		[]nl{"Optional", []nl{"github.com/wrmsr/bane/pkg/util/container.Map", []nl{"int", "github.com/wrmsr/bane/pkg/util/optional.Optional", []nl{"string"}}}})
 }

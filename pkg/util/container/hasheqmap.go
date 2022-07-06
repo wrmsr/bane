@@ -3,6 +3,7 @@ package container
 import (
 	"fmt"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	syncu "github.com/wrmsr/bane/pkg/util/sync"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -50,6 +51,10 @@ func newHashEqMapImpl[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]
 		}
 	}
 	return m
+}
+
+func (m *hashEqMapImpl[K, V]) initUnmarshal(a ...any) {
+	m.he = check.Single(a).(bt.HashEqImpl[K])
 }
 
 func NewHashEqMap[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) Map[K, V] {
@@ -253,6 +258,10 @@ type mutHashEqMapImpl[K, V any] struct {
 
 func NewMutHashEqMap[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) MutMap[K, V] {
 	return &mutHashEqMapImpl[K, V]{newHashEqMapImpl[K, V](he, it)}
+}
+
+func (m *mutHashEqMapImpl[K, V]) initUnmarshal(a ...any) {
+	m.hashEqMapImpl.initUnmarshal(a...)
 }
 
 var _ MutMap[int, string] = &mutHashEqMapImpl[int, string]{}

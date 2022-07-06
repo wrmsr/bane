@@ -37,9 +37,9 @@ func (s *Stack[T]) Len() int {
 
 type NestedList = any // string | []NestedList
 
-func ParseNestedList(s string, left, right, sep rune) (NestedList, error) {
+func ParseNestedList(s string, left, right, sep rune) ([]NestedList, error) {
 	if s == "" {
-		return "", nil
+		return nil, nil
 	}
 	ctrl := []rune{left, right, sep}
 	parts := slices.FlatMap(fnu.Bind1x1x1(SplitAny, ctrl), SplitAny(ctrl, s))
@@ -72,12 +72,7 @@ func ParseNestedList(s string, left, right, sep rune) (NestedList, error) {
 		case left:
 			stk.Push(nil)
 		case right:
-			l := stk.Pop()
-			var a NestedList = l
-			if len(l) == 1 {
-				a = l[0]
-			}
-			if err := add(a); err != nil {
+			if err := add(stk.Pop()); err != nil {
 				return nil, err
 			}
 		case sep:

@@ -302,7 +302,7 @@ func TestRbTreeMapJson(t *testing.T) {
 	tu.AssertEqual(t, j, `{"10":"ten","11":"eleven","20":"twenty","30":"thirty"}`)
 
 	var m2 rbTreeMapImpl[int, string]
-	m2.t.Less = kvLessImpl[int, string](bt.CmpLessImpl(bt.IntCmpImpl[int]()))
+	InitUnmarshal(&m2, bt.CmpLessImpl(bt.IntCmpImpl[int]()))
 	tu.AssertNoErr(t, json.Unmarshal([]byte(j), &m2))
 	fmt.Println(m2)
 

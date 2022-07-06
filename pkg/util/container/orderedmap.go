@@ -1,10 +1,6 @@
 package container
 
 import (
-	"fmt"
-	"strings"
-
-	iou "github.com/wrmsr/bane/pkg/util/io"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -44,54 +40,6 @@ func newOrderedMapImpl[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) ordere
 
 func NewOrderedMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) OrderedMap[K, V] {
 	return newOrderedMapImpl[K, V](it)
-}
-
-func (m orderedMapImpl[K, V]) string(tn string) string {
-	var sb strings.Builder
-	sb.WriteString("ordMap")
-	for i, kv := range m.s {
-		if i > 0 {
-			sb.WriteRune(' ')
-		}
-		iou.FprintfDiscard(&sb, "%v:%v", kv.K, kv.V)
-	}
-	return sb.String()
-}
-
-func (m orderedMapImpl[K, V]) String() string {
-	return m.string("ordMap")
-}
-
-func (m orderedMapImpl[K, V]) format(tn string, f fmt.State, c rune) {
-	iou.WriteStringDiscard(f, tn)
-	if f.Flag('#') {
-		iou.WriteStringDiscard(f, "{")
-	} else {
-		iou.WriteStringDiscard(f, "[")
-	}
-	for i, kv := range m.s {
-		if i > 0 {
-			if f.Flag('#') {
-				iou.WriteStringDiscard(f, ", ")
-			} else {
-				iou.WriteStringDiscard(f, " ")
-			}
-		}
-		if f.Flag('#') {
-			iou.FprintfDiscard(f, "%#v:%#v", kv.K, kv.V)
-		} else {
-			iou.FprintfDiscard(f, "%v:%v", kv.K, kv.V)
-		}
-	}
-	if f.Flag('#') {
-		iou.WriteStringDiscard(f, "}")
-	} else {
-		iou.WriteStringDiscard(f, "]")
-	}
-}
-
-func (m orderedMapImpl[K, V]) Format(f fmt.State, c rune) {
-	m.format("ordMap", f, c)
 }
 
 var _ OrderedMap[int, any] = orderedMapImpl[int, any]{}
@@ -187,14 +135,6 @@ func NewMutOrderedMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) MutOrde
 	return &mutOrderedMapImpl[K, V]{
 		orderedMapImpl: newOrderedMapImpl[K, V](it),
 	}
-}
-
-func (m mutOrderedMapImpl[K, V]) String() string {
-	return m.string("mutOrdMap")
-}
-
-func (m mutOrderedMapImpl[K, V]) Format(f fmt.State, c rune) {
-	m.format("mutOrdMap", f, c)
 }
 
 var _ MutMap[int, any] = &mutOrderedMapImpl[int, any]{}
