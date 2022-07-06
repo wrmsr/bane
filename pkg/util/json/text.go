@@ -71,14 +71,29 @@ func UnmarshalAsText(s string, v reflect.Value) error {
 		return nil
 	}
 
-	if v.Kind() == reflect.Int {
+	if tm, ok := v.Interface().(encoding.TextUnmarshaler); ok {
+		return tm.UnmarshalText([]byte(s))
+	}
+
+	switch v.Kind() {
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		var i int64
 		if err := json.Unmarshal([]byte(s), &i); err != nil {
 			return err
 		}
-		v.Set(reflect.ValueOf(i))
+		v.SetInt(i)
 		return nil
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		var u uint64
+		if err := json.Unmarshal([]byte(s), &u); err != nil {
+			return err
+		}
+		v.SetUint(u)
+		return nil
+
 	}
 
-	panic("nyi")
+	return fmt.Errorf("unhandled text type: %s", v.Type().Name())
 }
