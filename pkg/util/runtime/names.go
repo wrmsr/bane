@@ -9,8 +9,8 @@ import (
 //
 
 type ParsedName struct {
-	Pkg string `json:"pkg"`
-	Obj string `json:"obj"`
+	Pkg string `json:"pkg,omitempty"`
+	Obj string `json:"obj,omitempty"`
 }
 
 func ParseName(name string) ParsedName {
@@ -31,9 +31,9 @@ func ParseName(name string) ParsedName {
 //
 
 type SortedNames struct {
-	Builtin  []string `json:"builtin"`
-	External []string `json:"external"`
-	Internal []string `json:"internal"`
+	Builtin  []string `json:"builtin,omitempty"`
+	External []string `json:"external,omitempty"`
+	Internal []string `json:"internal,omitempty"`
 }
 
 func SortNames(pfx string, ns []string) (ret SortedNames) {

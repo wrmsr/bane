@@ -123,3 +123,10 @@ docker-reup: docker-stop
 docker-invalidate:
 	date +%s > docker/.dockertimestamp
 	docker rmi -f docker_bane-dev
+
+
+### utils
+
+.PHONY: imports
+imports:
+	${GO} run "${MOD}/pkg/util/dev/cmd/imports" ${SRC}
