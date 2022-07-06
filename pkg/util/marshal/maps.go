@@ -8,7 +8,7 @@ import (
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
-//
+///
 
 type MapMarshaler struct {
 	k Marshaler
@@ -42,6 +42,28 @@ func (m MapMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, erro
 }
 
 //
+
+var mapMarshalerFactory = NewFuncMarshalerFactory(func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
+	if ty.Kind() != reflect.Map {
+		return nil, nil
+	}
+
+	k, err := ctx.Factory(ctx, ty.Key())
+	if err != nil {
+		return nil, err
+	}
+	v, err := ctx.Factory(ctx, ty.Elem())
+	if err != nil {
+		return nil, err
+	}
+	return NewMapMarshaler(k, v), nil
+})
+
+func NewMapMarshalerFactory() MarshalerFactory {
+	return mapMarshalerFactory
+}
+
+///
 
 type MapUnmarshaler struct {
 	ty reflect.Type
@@ -81,4 +103,26 @@ func (u MapUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value
 
 	}
 	return rfl.Invalid(), _unhandledType
+}
+
+//
+
+var mapUnmarshalerFactory = NewFuncUnmarshalerFactory(func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
+	if ty.Kind() != reflect.Slice && ty.Kind() != reflect.Array {
+		return nil, nil
+	}
+
+	k, err := ctx.Factory(ctx, ty.Key())
+	if err != nil {
+		return nil, err
+	}
+	v, err := ctx.Factory(ctx, ty.Elem())
+	if err != nil {
+		return nil, err
+	}
+	return NewMapUnmarshaler(ty, k, v), nil
+})
+
+func NewMapUnmarshalerFactory() UnmarshalerFactory {
+	return mapUnmarshalerFactory
 }
