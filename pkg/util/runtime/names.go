@@ -1,9 +1,12 @@
 package runtime
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/slices"
+	stru "github.com/wrmsr/bane/pkg/util/strings"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -13,7 +16,17 @@ type ParsedName struct {
 	Obj string `json:"obj,omitempty"`
 }
 
+func (n ParsedName) String() string {
+	if n.Pkg == "" {
+		return n.Obj
+	}
+	return n.Pkg + "." + n.Obj
+}
+
 func ParseName(name string) ParsedName {
+	if strings.IndexByte(name, '[') >= 0 {
+		panic("generics not supported")
+	}
 	sl := strings.LastIndexByte(name, '/')
 	if sl < 0 {
 		return ParsedName{Obj: name}
@@ -57,10 +70,61 @@ func SortNames(pfx string, ns []string) (ret SortedNames) {
 
 type ParsedGenericName struct {
 	Base ParsedName
-	Args []ParsedName
+	Args []ParsedGenericName
 }
 
-func ParseGenericName(name string) ParsedGenericName {
-	// Optional[github.com/wrmsr/bane/pkg/util/container.Map[int,github.com/wrmsr/bane/pkg/util/optional.Optional[string]]]
-	panic("TODO")
+func (n ParsedGenericName) String() string {
+	if len(n.Args) < 1 {
+		return n.Base.String()
+	}
+	var sb strings.Builder
+	sb.WriteString(n.Base.String())
+	sb.WriteString("[")
+	for i, a := range n.Args {
+		if i > 0 {
+			sb.WriteString(", ")
+		}
+		sb.WriteString(a.String())
+	}
+	sb.WriteString("]")
+	return sb.String()
+}
+
+func ParseGenericName(name string) (ParsedGenericName, error) {
+	nl, err := stru.ParseNestedList(name, '[', ']', ',')
+	if err != nil {
+		return ParsedGenericName{}, err
+	}
+
+	var rec func([]any) (ParsedGenericName, error)
+	rec = func(nl []any) (ParsedGenericName, error) {
+		if len(nl) != 1 && len(nl) != 2 {
+			return ParsedGenericName{}, fmt.Errorf("invalid length: %d", nl)
+		}
+
+		ret := ParsedGenericName{Base: ParseName(nl[0].(string))}
+
+		if len(nl) > 1 {
+			al := nl[1].([]any)
+
+			for i := 0; i < len(al); {
+				var j = i + 1
+				if j < len(al) && bt.Is[[]any](al[j]) {
+					j++
+				}
+
+				a, err := rec(al[i:j])
+				if err != nil {
+					return ret, err
+				}
+
+				ret.Args = append(ret.Args, a)
+				i += j
+			}
+		}
+
+		return ret, nil
+	}
+
+	return rec(nl)
 }

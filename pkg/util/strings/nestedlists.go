@@ -35,19 +35,17 @@ func (s *Stack[T]) Len() int {
 
 //
 
-type NestedList = any // string | []NestedList
-
-func ParseNestedList(s string, left, right, sep rune) ([]NestedList, error) {
+func ParseNestedList(s string, left, right, sep rune) ([]any, error) {
 	if s == "" {
 		return nil, nil
 	}
 	ctrl := []rune{left, right, sep}
 	parts := slices.FlatMap(fnu.Bind1x1x1(SplitAny, ctrl), SplitAny(ctrl, s))
 
-	var stk = Stack[[]NestedList]{}
+	var stk = Stack[[]any]{}
 	stk.Push(nil)
 
-	add := func(o NestedList) error {
+	add := func(o any) error {
 		if stk.Len() < 1 {
 			return errors.New("too many right delimiters")
 		}

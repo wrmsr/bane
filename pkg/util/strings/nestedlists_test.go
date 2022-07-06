@@ -7,12 +7,10 @@ import (
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 )
 
-type nl = NestedList
-
 func TestNestedLists(t *testing.T) {
 	tu.AssertDeepEqual(t,
 		check.Must1(ParseNestedList("0(12(34,56),78)09", '(', ')', ',')),
-		[]nl{"0", []nl{"12", []nl{"34", "56"}, "78"}, "09"})
+		[]any{"0", []any{"12", []any{"34", "56"}, "78"}, "09"})
 
 	var err error
 
@@ -24,5 +22,5 @@ func TestNestedLists(t *testing.T) {
 
 	tu.AssertDeepEqual(t,
 		check.Must1(ParseNestedList("Optional[github.com/wrmsr/bane/pkg/util/container.Map[int,github.com/wrmsr/bane/pkg/util/optional.Optional[string]]]", '[', ']', ',')),
-		[]nl{"Optional", []nl{"github.com/wrmsr/bane/pkg/util/container.Map", []nl{"int", "github.com/wrmsr/bane/pkg/util/optional.Optional", []nl{"string"}}}})
+		[]any{"Optional", []any{"github.com/wrmsr/bane/pkg/util/container.Map", []any{"int", "github.com/wrmsr/bane/pkg/util/optional.Optional", []any{"string"}}}})
 }
