@@ -60,9 +60,9 @@ func Bind{{- .bn -}}x{{- .an -}}x{{- .rn -}}[{{.bts}}, {{.ats}}, {{.rts}} any](f
 	var out strings.Builder
 	out.WriteString("package funcs\n")
 
-	for b := 1; b < bn+1; b++ {
+	for r := 1; r < rn+1; r++ {
 		for a := 1; a < an+1; a++ {
-			for r := 1; r < rn+1; r++ {
+			for b := 1; b < bn+1; b++ {
 				m := make(map[string]string)
 				pop(m, "b", b)
 				pop(m, "a", a)
