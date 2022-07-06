@@ -1,12 +1,10 @@
 package marshal
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	ctr "github.com/wrmsr/bane/pkg/util/container"
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
@@ -27,9 +25,30 @@ func TestOptionals(t *testing.T) {
 }
 
 func TestOptionalsFactory(t *testing.T) {
-	fmt.Println(rfl.TypeOf[opt.Optional[ctr.Map[int, opt.Optional[string]]]]().Name())
-	fmt.Println(rfl.TypeOf[opt.Optional[ctr.Map[int, opt.Optional[string]]]]().Name())
+	m := check.Must1(
+		optionalMarshalerFactory.MakeMarshaler(
+			MarshalerFactoryContext{
+				Factory: NewPrimitiveMarshalerFactory().MakeMarshaler,
+			},
+			rfl.TypeOf[opt.Optional[int64]](),
+		),
+	)
 
-	m := check.Must1(optionalMarshalerFactory.MakeMarshaler(MarshalerFactoryContext{}, rfl.TypeOf[opt.Optional[int]]()))
-	fmt.Println(m)
+	u := check.Must1(
+		optionalUnmarshalerFactory.MakeUnmarshaler(
+			UnmarshalerFactoryContext{
+				Factory: NewPrimitiveUnmarshalerFactory().MakeUnmarshaler,
+			},
+			rfl.TypeOf[opt.Optional[int64]](),
+		),
+	)
+
+	for _, v := range []opt.Optional[int64]{
+		opt.Just(int64(10)),
+		opt.None[int64](),
+	} {
+		mv := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(v)))
+		v2 := check.Must1(u.Unmarshal(UnmarshalContext{}, mv)).Interface().(opt.Optional[int64])
+		tu.AssertDeepEqual(t, v, v2)
+	}
 }

@@ -69,13 +69,23 @@ func (o Optional[T]) OrZero() T {
 type Interface interface {
 	Present() bool
 	Interface() any
+	ZeroInterface() any
 	Replace(any) Interface
+
+	isOptional()
 }
 
 var _ Interface = Optional[int]{}
 
+func (o Optional[T]) isOptional() {}
+
 func (o Optional[T]) Interface() any {
 	return o.v
+}
+
+func (o Optional[T]) ZeroInterface() any {
+	var z T
+	return z
 }
 
 func (o Optional[T]) Replace(v any) Interface {

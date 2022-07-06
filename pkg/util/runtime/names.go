@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -127,4 +128,14 @@ func ParseGenericName(name string) (ParsedGenericName, error) {
 	}
 
 	return rec(nl)
+}
+
+//
+
+func ParseTypeName(ty reflect.Type) (ParsedGenericName, error) {
+	s := ty.Name()
+	if ty.PkgPath() != "" {
+		s = ty.PkgPath() + "." + s
+	}
+	return ParseGenericName(s)
 }
