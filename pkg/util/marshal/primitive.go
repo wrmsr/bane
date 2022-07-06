@@ -8,6 +8,25 @@ import (
 
 //
 
+var primitiveTypes = []reflect.Type{
+	rfl.TypeOf[int](),
+	rfl.TypeOf[int8](),
+	rfl.TypeOf[int16](),
+	rfl.TypeOf[int32](),
+	rfl.TypeOf[int64](),
+	rfl.TypeOf[uint](),
+	rfl.TypeOf[uint8](),
+	rfl.TypeOf[uint16](),
+	rfl.TypeOf[uint32](),
+	rfl.TypeOf[uint64](),
+	rfl.TypeOf[uintptr](),
+	rfl.TypeOf[float32](),
+	rfl.TypeOf[float64](),
+	rfl.TypeOf[string](),
+}
+
+//
+
 type Primitive interface {
 	isPrimitive()
 }
@@ -60,6 +79,14 @@ func (p PrimitiveMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value
 
 //
 
+var primitiveMarshalerFactory = NewSimpleMarshalerFactory(primitiveTypes, PrimitiveMarshaler{})
+
+func NewPrimitiveMarshalerFactory() MarshalerFactory {
+	return primitiveMarshalerFactory
+}
+
+//
+
 type PrimitiveUnmarshaler struct{}
 
 var _ Unmarshaler = PrimitiveUnmarshaler{}
@@ -89,4 +116,12 @@ func (p PrimitiveUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect
 
 	}
 	return rfl.Invalid(), _unhandledType
+}
+
+//
+
+var primitiveUnmarshalerFactory = NewSimpleUnmarshalerFactory(primitiveTypes, PrimitiveUnmarshaler{})
+
+func NewPrimitiveUnmarshalerFactory() UnmarshalerFactory {
+	return primitiveUnmarshalerFactory
 }

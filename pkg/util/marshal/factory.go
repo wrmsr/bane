@@ -6,7 +6,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/maps"
 )
 
-//
+///
 
 type MarshalerFactoryContext struct {
 }
@@ -32,10 +32,10 @@ func (mf SimpleMarshalerFactory) MakeMarshaler(ctx MarshalerFactoryContext, ty r
 	if _, ok := mf.tys[ty]; !ok {
 		return nil, nil
 	}
-	panic("implement me")
+	return mf.m, nil
 }
 
-//
+///
 
 type UnmarshalerFactoryContext struct {
 }
@@ -51,11 +51,15 @@ type SimpleUnmarshalerFactory struct {
 	u   Unmarshaler
 }
 
+func NewSimpleUnmarshalerFactory(tys []reflect.Type, u Unmarshaler) SimpleUnmarshalerFactory {
+	return SimpleUnmarshalerFactory{tys: maps.NewTypeSet(tys), u: u}
+}
+
 var _ UnmarshalerFactory = SimpleUnmarshalerFactory{}
 
 func (uf SimpleUnmarshalerFactory) MakeUnmarshaler(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
-	if _, ok := mf.tys[ty]; !ok {
+	if _, ok := uf.tys[ty]; !ok {
 		return nil, nil
 	}
-	panic("implement me")
+	return uf.u, nil
 }
