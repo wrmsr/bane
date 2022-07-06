@@ -28,6 +28,12 @@ func Bind{{- .bn -}}x{{- .an -}}x{{- .rn -}}[{{.bts}}, {{.ats}}, {{.rts}} any](f
 		return fn({{.bas}}, {{.aas}})
 	}
 }
+
+func BindR{{- .an -}}x{{- .bn -}}x{{- .rn -}}[{{.ats}}, {{.bts}}, {{.rts}} any](fn func({{.ats}}, {{.bts}}) {{.prts}}, {{.bps}}) func({{.ats}}) {{.prts}} {
+	return func({{.aps}}) {{.prts}} {
+		return fn({{.aas}}, {{.bas}})
+	}
+}
 `))
 
 	pop := func(m map[string]string, p string, n int) {

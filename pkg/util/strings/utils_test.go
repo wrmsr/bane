@@ -26,7 +26,7 @@ func TestDedent(t *testing.T) {
 }
 
 func TestSplitFunc(t *testing.T) {
-	tu.AssertDeepEqual(t, SplitFunc("abcdEfgHij", unicode.IsUpper), []string{"abcd", "Efg", "Hij"})
-	tu.AssertDeepEqual(t, SplitFunc("AbcdEfgHij", unicode.IsUpper), []string{"Abcd", "Efg", "Hij"})
-	tu.AssertDeepEqual(t, SplitFunc("AbcdEfgHiJ", unicode.IsUpper), []string{"Abcd", "Efg", "Hi", "J"})
+	tu.AssertDeepEqual(t, SplitFunc(unicode.IsUpper, "abcdEfgHij"), []string{"abcd", "Efg", "Hij"})
+	tu.AssertDeepEqual(t, SplitFunc(unicode.IsUpper, "AbcdEfgHij"), []string{"Abcd", "Efg", "Hij"})
+	tu.AssertDeepEqual(t, SplitFunc(unicode.IsUpper, "AbcdEfgHiJ"), []string{"Abcd", "Efg", "Hi", "J"})
 }

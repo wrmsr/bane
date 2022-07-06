@@ -7,6 +7,7 @@ import (
 
 	fnu "github.com/wrmsr/bane/pkg/util/funcs"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
+	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 func ScanAllLines(r io.Reader, skipEmpty bool) ([]string, error) {
@@ -134,7 +135,7 @@ func IndexAllFunc(s string, f func(rune) bool) []int {
 	return r
 }
 
-func SplitFunc(s string, f func(rune) bool) []string {
+func SplitFunc(f func(rune) bool, s string) []string {
 	var ret []string
 	rs := []rune(s)
 	l := 0
@@ -150,4 +151,8 @@ func SplitFunc(s string, f func(rune) bool) []string {
 		ret = append(ret, string(rs[l:]))
 	}
 	return ret
+}
+
+func SplitAny(ds []rune, s string) []string {
+	return SplitFunc(fnu.Bind1x1x1(slices.Contains[rune], ds), s)
 }
