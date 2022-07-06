@@ -1,5 +1,9 @@
 package maps
 
+import "reflect"
+
+//
+
 type Set[T comparable] map[T]struct{}
 
 func MakeSet[T comparable]() Set[T] {
@@ -45,4 +49,14 @@ func (s Set[T]) Slice() []T {
 		i++
 	}
 	return r
+}
+
+//
+
+func NewTypeSet(s []reflect.Type) map[reflect.Type]struct{} {
+	m := make(map[reflect.Type]struct{}, len(s))
+	for _, ty := range s {
+		m[ty] = struct{}{}
+	}
+	return m
 }
