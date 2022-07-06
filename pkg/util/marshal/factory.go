@@ -28,7 +28,10 @@ func NewSimpleMarshalerFactory(tys []reflect.Type, m Marshaler) SimpleMarshalerF
 
 var _ MarshalerFactory = SimpleMarshalerFactory{}
 
-func (s SimpleMarshalerFactory) MakeMarshaler(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
+func (mf SimpleMarshalerFactory) MakeMarshaler(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
+	if _, ok := mf.tys[ty]; !ok {
+		return nil, nil
+	}
 	panic("implement me")
 }
 
@@ -50,6 +53,9 @@ type SimpleUnmarshalerFactory struct {
 
 var _ UnmarshalerFactory = SimpleUnmarshalerFactory{}
 
-func (s SimpleUnmarshalerFactory) MakeUnmarshaler(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
+func (uf SimpleUnmarshalerFactory) MakeUnmarshaler(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
+	if _, ok := mf.tys[ty]; !ok {
+		return nil, nil
+	}
 	panic("implement me")
 }
