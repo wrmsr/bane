@@ -2,8 +2,6 @@ package marshal
 
 import (
 	"reflect"
-
-	"github.com/wrmsr/bane/pkg/util/maps"
 )
 
 ///
@@ -35,21 +33,20 @@ func (mf FuncMarshalerFactory) MakeMarshaler(ctx MarshalerFactoryContext, ty ref
 //
 
 type SimpleMarshalerFactory struct {
-	tys map[reflect.Type]struct{}
-	m   Marshaler
+	m map[reflect.Type]Marshaler
 }
 
-func NewSimpleMarshalerFactory(tys []reflect.Type, m Marshaler) SimpleMarshalerFactory {
-	return SimpleMarshalerFactory{tys: maps.NewTypeSet(tys), m: m}
+func NewSimpleMarshalerFactory(m map[reflect.Type]Marshaler) SimpleMarshalerFactory {
+	return SimpleMarshalerFactory{m: m}
 }
 
 var _ MarshalerFactory = SimpleMarshalerFactory{}
 
 func (mf SimpleMarshalerFactory) MakeMarshaler(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
-	if _, ok := mf.tys[ty]; !ok {
-		return nil, nil
+	if m, ok := mf.m[ty]; ok {
+		return m, nil
 	}
-	return mf.m, nil
+	return nil, nil
 }
 
 ///
@@ -81,19 +78,18 @@ func (uf FuncUnmarshalerFactory) MakeUnmarshaler(ctx UnmarshalerFactoryContext, 
 //
 
 type SimpleUnmarshalerFactory struct {
-	tys map[reflect.Type]struct{}
-	u   Unmarshaler
+	m map[reflect.Type]Unmarshaler
 }
 
-func NewSimpleUnmarshalerFactory(tys []reflect.Type, u Unmarshaler) SimpleUnmarshalerFactory {
-	return SimpleUnmarshalerFactory{tys: maps.NewTypeSet(tys), u: u}
+func NewSimpleUnmarshalerFactory(m map[reflect.Type]Unmarshaler) SimpleUnmarshalerFactory {
+	return SimpleUnmarshalerFactory{m: m}
 }
 
 var _ UnmarshalerFactory = SimpleUnmarshalerFactory{}
 
 func (uf SimpleUnmarshalerFactory) MakeUnmarshaler(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
-	if _, ok := uf.tys[ty]; !ok {
-		return nil, nil
+	if u, ok := uf.m[ty]; ok {
+		return u, nil
 	}
-	return uf.u, nil
+	return nil, nil
 }

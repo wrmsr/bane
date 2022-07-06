@@ -8,21 +8,21 @@ import (
 
 //
 
-var primitiveTypes = []reflect.Type{
-	rfl.TypeOf[int](),
-	rfl.TypeOf[int8](),
-	rfl.TypeOf[int16](),
-	rfl.TypeOf[int32](),
-	rfl.TypeOf[int64](),
-	rfl.TypeOf[uint](),
-	rfl.TypeOf[uint8](),
-	rfl.TypeOf[uint16](),
-	rfl.TypeOf[uint32](),
-	rfl.TypeOf[uint64](),
-	rfl.TypeOf[uintptr](),
-	rfl.TypeOf[float32](),
-	rfl.TypeOf[float64](),
-	rfl.TypeOf[string](),
+var primitiveTypes = map[reflect.Type]reflect.Type{
+	rfl.TypeOf[int]():     rfl.TypeOf[int64](),
+	rfl.TypeOf[int8]():    rfl.TypeOf[int64](),
+	rfl.TypeOf[int16]():   rfl.TypeOf[int64](),
+	rfl.TypeOf[int32]():   rfl.TypeOf[int64](),
+	rfl.TypeOf[int64]():   rfl.TypeOf[int64](),
+	rfl.TypeOf[uint]():    rfl.TypeOf[uint64](),
+	rfl.TypeOf[uint8]():   rfl.TypeOf[uint64](),
+	rfl.TypeOf[uint16]():  rfl.TypeOf[uint64](),
+	rfl.TypeOf[uint32]():  rfl.TypeOf[uint64](),
+	rfl.TypeOf[uint64]():  rfl.TypeOf[uint64](),
+	rfl.TypeOf[uintptr](): rfl.TypeOf[uint64](),
+	rfl.TypeOf[float32](): rfl.TypeOf[float64](),
+	rfl.TypeOf[float64](): rfl.TypeOf[float64](),
+	rfl.TypeOf[string]():  rfl.TypeOf[string](),
 }
 
 //
@@ -79,7 +79,14 @@ func (p PrimitiveMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value
 
 //
 
-var primitiveMarshalerFactory = NewSimpleMarshalerFactory(primitiveTypes, PrimitiveMarshaler{})
+var primitiveMarshalerFactory = func() MarshalerFactory {
+	i := PrimitiveMarshaler{}
+	m := make(map[reflect.Type]Marshaler, len(primitiveTypes))
+	for ty := range primitiveTypes {
+		m[ty] = i
+	}
+	return NewSimpleMarshalerFactory(m)
+}()
 
 func NewPrimitiveMarshalerFactory() MarshalerFactory {
 	return primitiveMarshalerFactory
@@ -120,7 +127,14 @@ func (p PrimitiveUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect
 
 //
 
-var primitiveUnmarshalerFactory = NewSimpleUnmarshalerFactory(primitiveTypes, PrimitiveUnmarshaler{})
+var primitiveUnmarshalerFactory = func() UnmarshalerFactory {
+	i := PrimitiveUnmarshaler{}
+	m := make(map[reflect.Type]Unmarshaler, len(primitiveTypes))
+	for ty := range primitiveTypes {
+		m[ty] = i
+	}
+	return NewSimpleUnmarshalerFactory(m)
+}()
 
 func NewPrimitiveUnmarshalerFactory() UnmarshalerFactory {
 	return primitiveUnmarshalerFactory

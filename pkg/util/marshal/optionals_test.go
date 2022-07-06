@@ -30,25 +30,25 @@ func TestOptionalsFactory(t *testing.T) {
 			MarshalerFactoryContext{
 				Factory: NewPrimitiveMarshalerFactory().MakeMarshaler,
 			},
-			rfl.TypeOf[opt.Optional[int64]](),
+			rfl.TypeOf[opt.Optional[int]](),
 		),
 	)
 
 	u := check.Must1(
 		optionalUnmarshalerFactory.MakeUnmarshaler(
 			UnmarshalerFactoryContext{
-				Factory: NewPrimitiveUnmarshalerFactory().MakeUnmarshaler,
+				Factory: NewConvertPrimitiveUnmarshalerFactory().MakeUnmarshaler,
 			},
-			rfl.TypeOf[opt.Optional[int64]](),
+			rfl.TypeOf[opt.Optional[int]](),
 		),
 	)
 
-	for _, v := range []opt.Optional[int64]{
-		opt.Just(int64(10)),
-		opt.None[int64](),
+	for _, v := range []opt.Optional[int]{
+		opt.Just(10),
+		opt.None[int](),
 	} {
 		mv := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(v)))
-		v2 := check.Must1(u.Unmarshal(UnmarshalContext{}, mv)).Interface().(opt.Optional[int64])
+		v2 := check.Must1(u.Unmarshal(UnmarshalContext{}, mv)).Interface().(opt.Optional[int])
 		tu.AssertDeepEqual(t, v, v2)
 	}
 }

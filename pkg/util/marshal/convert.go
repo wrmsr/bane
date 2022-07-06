@@ -27,3 +27,21 @@ func (u ConvertUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.V
 
 	return rv.Convert(u.ty), nil
 }
+
+//
+
+var convertPrimitiveUnmarshalerFactory = func() UnmarshalerFactory {
+	m := make(map[reflect.Type]Unmarshaler, len(primitiveTypes))
+	for ty, cty := range primitiveTypes {
+		if ty != cty {
+			m[ty] = NewConvertUnmarshaler(ty, PrimitiveUnmarshaler{})
+		} else {
+			m[ty] = PrimitiveUnmarshaler{}
+		}
+	}
+	return NewSimpleUnmarshalerFactory(m)
+}()
+
+func NewConvertPrimitiveUnmarshalerFactory() UnmarshalerFactory {
+	return convertPrimitiveUnmarshalerFactory
+}
