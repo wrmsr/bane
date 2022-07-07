@@ -1,5 +1,7 @@
 package jmespath
 
+import opt "github.com/wrmsr/bane/pkg/util/optional"
+
 // TODO: //go:generate go run github.com/wrmsr/bane/pkg/util/trees/dev/gen
 
 //
@@ -89,7 +91,7 @@ type Current struct {
 
 //
 
-type ExpressionRef struct {
+type ExprRef struct {
 	node
 	expr Node
 }
@@ -106,66 +108,100 @@ type FlattenObject struct {
 	leaf
 }
 
-/*
 //
 
-class FunctionCall(Node):
-    name: str
-    args: ta.Sequence[Node]
+type Call struct {
+	node
+	name string
+	args []Node
+}
 
+//
 
-class Index(Leaf):
-    value: int
+type Index struct {
+	leaf
+	value int
+}
 
+//
 
-class JsonLiteral(Leaf):
-    text: str
+type JsonLiteral struct {
+	leaf
+	text string
+}
 
+//
 
-class Negate(Node):
-    item: Node
+type Negate struct {
+	node
+	item Node
+}
 
+//
 
-class Or(Operator):
-    left: Node
-    right: Node
+type Or struct {
+	op
+	left  Node
+	right Node
+}
 
+//
 
-class Parameter(Leaf):
-    class Target(dc.Enum, sealed=True):
-        pass
+type Target interface {
+	isTarget()
+}
 
-    class NumberTarget(Target):
-        value: int
+type NumberTarget int
+type NameTarget string
 
-    class NameTarget(Target):
-        value: str
+func (t NumberTarget) isTarget() {}
+func (t NameTarget) isTarget()   {}
 
-    target: Target
+type Parameter struct {
+	leaf
+	target Target
+}
 
+//
 
-class Project(Node):
-    child: Node
+type Project struct {
+	node
+	child Node
+}
 
+//
 
-class Property(Leaf):
-    name: str
+type Property struct {
+	leaf
+	name string
+}
 
+//
 
-class Selection(Node):
-    child: Node
+type Selection struct {
+	Node
+	child Node
+}
 
+//
 
-class Sequence(Node):
-    items: ta.Sequence[Node]
+type Sequence struct {
+	node
+	items []Node
+}
 
+//
 
-class Slice(Leaf):
-    start: ta.Optional[int]
-    stop: ta.Optional[int]
-    step: ta.Optional[int]
+type Slice struct {
+	leaf
+	start opt.Optional[int]
+	stop  opt.Optional[int]
+	step  opt.Optional[int]
+}
 
+//
 
-class String(Leaf):
-    value: Node
-*/
+type String struct {
+	leaf
+	value Node
+}
