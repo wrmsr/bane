@@ -3,6 +3,8 @@ package marshal
 import (
 	"fmt"
 	"reflect"
+
+	opt "github.com/wrmsr/bane/pkg/util/optional"
 )
 
 ///
@@ -45,6 +47,39 @@ func (f TypeMapFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 	}
 	var z R
 	return z, nil
+}
+
+//
+
+type TypeCacheFactory[R, C any] struct {
+	f Factory[R, C, reflect.Type]
+	m map[reflect.Type]opt.Optional[R]
+}
+
+func NewTypeCacheFactory[R, C any](f Factory[R, C, reflect.Type]) TypeCacheFactory[R, C] {
+	return TypeCacheFactory[R, C]{
+		f: f,
+		m: make(map[reflect.Type]opt.Optional[R]),
+	}
+}
+
+var _ Factory[int, uint, reflect.Type] = TypeCacheFactory[int, uint]{}
+
+func (f TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
+	if r, ok := f.m[a]; ok {
+		return r.OrZero(), nil
+	}
+	r, err := f.f.Make(ctx, a)
+	if err != nil {
+		var z R
+		return z, err
+	}
+	if !reflect.ValueOf(r).IsValid() {
+		f.m[a] = opt.None[R]()
+	} else {
+		f.m[a] = opt.Just(r)
+	}
+	return r, nil
 }
 
 //
@@ -120,6 +155,10 @@ func NewTypeMapMarshalerFactory(m map[reflect.Type]Marshaler) MarshalerFactory {
 	return NewTypeMapFactory[Marshaler, MarshalerFactoryContext](m)
 }
 
+func NewTypeCacheMarshalerFactory(f MarshalerFactory) MarshalerFactory {
+	return NewTypeCacheFactory[Marshaler, MarshalerFactoryContext](f)
+}
+
 ///
 
 type UnmarshalerFactoryContext struct {
@@ -130,4 +169,8 @@ type UnmarshalerFactory = Factory[Unmarshaler, UnmarshalerFactoryContext, reflec
 
 func NewTypeMapUnmarshalerFactory(m map[reflect.Type]Unmarshaler) UnmarshalerFactory {
 	return NewTypeMapFactory[Unmarshaler, UnmarshalerFactoryContext](m)
+}
+
+func NewTypeCacheUnmarshalerFactory(f UnmarshalerFactory) UnmarshalerFactory {
+	return NewTypeCacheFactory[Unmarshaler, UnmarshalerFactoryContext](f)
 }

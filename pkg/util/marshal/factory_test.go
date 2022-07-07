@@ -11,7 +11,7 @@ import (
 )
 
 func TestDefaultFactory(t *testing.T) {
-	mf := NewCompositeFactory(
+	mf := NewTypeCacheMarshalerFactory(NewCompositeFactory(
 		FirstComposite,
 		NewPrimitiveMarshalerFactory(),
 		NewPointerMarshalerFactory(),
@@ -19,9 +19,9 @@ func TestDefaultFactory(t *testing.T) {
 		NewMapMarshalerFactory(),
 		NewBase64MarshalerFactory(),
 		NewOptionalMarshalerFactory(),
-	)
+	))
 
-	uf := NewCompositeFactory(
+	uf := NewTypeCacheUnmarshalerFactory(NewCompositeFactory(
 		FirstComposite,
 		NewConvertPrimitiveUnmarshalerFactory(),
 		NewPointerUnmarshalerFactory(),
@@ -29,7 +29,7 @@ func TestDefaultFactory(t *testing.T) {
 		NewMapUnmarshalerFactory(),
 		NewBase64UnmarshalerFactory(),
 		NewOptionalUnmarshalerFactory(),
-	)
+	))
 
 	o := map[opt.Optional[int]][]*string{
 		opt.Just(10):    {bt.PtrTo("ten"), bt.PtrTo("one zero")},
