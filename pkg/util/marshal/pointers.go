@@ -6,7 +6,7 @@ import (
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
-//
+///
 
 type PointerMarshaler struct {
 	elem Marshaler
@@ -27,6 +27,24 @@ func (m PointerMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, 
 }
 
 //
+
+var pointerMarshalerFactory = NewFuncMarshalerFactory(func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
+	if ty.Kind() != reflect.Pointer {
+		return nil, nil
+	}
+
+	elem, err := ctx.Make(ctx, ty.Elem())
+	if err != nil {
+		return nil, err
+	}
+	return NewPointerMarshaler(elem), nil
+})
+
+func NewPointerMarshalerFactory() MarshalerFactory {
+	return pointerMarshalerFactory
+}
+
+///
 
 type PointerUnmarshaler struct {
 	ty   reflect.Type
@@ -50,4 +68,26 @@ func (u PointerUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.V
 	default:
 		return u.elem.Unmarshal(ctx, mv)
 	}
+}
+
+//
+
+var pointerUnmarshalerFactory = NewFuncUnmarshalerFactory(func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
+	if ty.Kind() != reflect.Slice && ty.Kind() != reflect.Array {
+		return nil, nil
+	}
+
+	elem, err := ctx.Make(ctx, ty.Elem())
+	if err != nil {
+		return nil, err
+	}
+	if ty.Kind() == reflect.Slice {
+		return NewSliceUnmarshaler(ty, elem), nil
+	} else {
+		return NewArrayUnmarshaler(ty, elem), nil
+	}
+})
+
+func NewPointerUnmarshalerFactory() UnmarshalerFactory {
+	return pointerUnmarshalerFactory
 }

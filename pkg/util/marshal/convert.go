@@ -39,7 +39,7 @@ var convertPrimitiveUnmarshalerFactory = func() UnmarshalerFactory {
 			m[ty] = PrimitiveUnmarshaler{}
 		}
 	}
-	return NewSimpleUnmarshalerFactory(m)
+	return NewTypeMapUnmarshalerFactory(m)
 }()
 
 func NewConvertPrimitiveUnmarshalerFactory() UnmarshalerFactory {

@@ -85,7 +85,7 @@ var primitiveMarshalerFactory = func() MarshalerFactory {
 	for ty := range primitiveTypes {
 		m[ty] = i
 	}
-	return NewSimpleMarshalerFactory(m)
+	return NewTypeMapMarshalerFactory(m)
 }()
 
 func NewPrimitiveMarshalerFactory() MarshalerFactory {
@@ -133,7 +133,7 @@ var primitiveUnmarshalerFactory = func() UnmarshalerFactory {
 	for ty := range primitiveTypes {
 		m[ty] = i
 	}
-	return NewSimpleUnmarshalerFactory(m)
+	return NewTypeMapUnmarshalerFactory(m)
 }()
 
 func NewPrimitiveUnmarshalerFactory() UnmarshalerFactory {

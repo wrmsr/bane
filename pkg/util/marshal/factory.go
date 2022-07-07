@@ -6,90 +6,74 @@ import (
 
 ///
 
-type MarshalerFactoryContext struct {
-	Factory func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error)
-}
-
-type MarshalerFactory interface {
-	MakeMarshaler(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error)
+type Factory[R, C, A any] interface {
+	Make(ctx C, a A) (R, error)
 }
 
 //
 
-type FuncMarshalerFactory struct {
-	fn func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error)
+type FuncFactory[R, C, A any] struct {
+	fn func(ctx C, a A) (R, error)
 }
 
-func NewFuncMarshalerFactory(fn func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error)) FuncMarshalerFactory {
-	return FuncMarshalerFactory{fn: fn}
+func NewFuncFactory[R, C, A any](fn func(ctx C, a A) (R, error)) FuncFactory[R, C, A] {
+	return FuncFactory[R, C, A]{fn: fn}
 }
 
-var _ MarshalerFactory = FuncMarshalerFactory{}
+var _ Factory[int, uint, string] = FuncFactory[int, uint, string]{}
 
-func (mf FuncMarshalerFactory) MakeMarshaler(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
-	return mf.fn(ctx, ty)
+func (f FuncFactory[R, C, A]) Make(ctx C, a A) (R, error) {
+	return f.fn(ctx, a)
 }
 
 //
 
-type SimpleMarshalerFactory struct {
-	m map[reflect.Type]Marshaler
+type TypeMapFactory[R, C any] struct {
+	m map[reflect.Type]R
 }
 
-func NewSimpleMarshalerFactory(m map[reflect.Type]Marshaler) SimpleMarshalerFactory {
-	return SimpleMarshalerFactory{m: m}
+func NewTypeMapFactory[R, C any](m map[reflect.Type]R) TypeMapFactory[R, C] {
+	return TypeMapFactory[R, C]{m: m}
 }
 
-var _ MarshalerFactory = SimpleMarshalerFactory{}
+var _ Factory[int, uint, reflect.Type] = TypeMapFactory[int, uint]{}
 
-func (mf SimpleMarshalerFactory) MakeMarshaler(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
-	if m, ok := mf.m[ty]; ok {
+func (f TypeMapFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
+	if m, ok := f.m[a]; ok {
 		return m, nil
 	}
-	return nil, nil
+	var z R
+	return z, nil
+}
+
+///
+
+type MarshalerFactoryContext struct {
+	Make func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error)
+}
+
+type MarshalerFactory = Factory[Marshaler, MarshalerFactoryContext, reflect.Type]
+
+func NewFuncMarshalerFactory(fn func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error)) MarshalerFactory {
+	return NewFuncFactory(fn)
+}
+
+func NewTypeMapMarshalerFactory(m map[reflect.Type]Marshaler) MarshalerFactory {
+	return NewTypeMapFactory[Marshaler, MarshalerFactoryContext](m)
 }
 
 ///
 
 type UnmarshalerFactoryContext struct {
-	Factory func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error)
+	Make func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error)
 }
 
-type UnmarshalerFactory interface {
-	MakeUnmarshaler(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error)
+type UnmarshalerFactory = Factory[Unmarshaler, UnmarshalerFactoryContext, reflect.Type]
+
+func NewFuncUnmarshalerFactory(fn func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error)) UnmarshalerFactory {
+	return NewFuncFactory(fn)
 }
 
-//
-
-type FuncUnmarshalerFactory struct {
-	fn func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error)
-}
-
-func NewFuncUnmarshalerFactory(fn func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error)) FuncUnmarshalerFactory {
-	return FuncUnmarshalerFactory{fn: fn}
-}
-
-var _ UnmarshalerFactory = FuncUnmarshalerFactory{}
-
-func (uf FuncUnmarshalerFactory) MakeUnmarshaler(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
-	return uf.fn(ctx, ty)
-}
-
-//
-
-type SimpleUnmarshalerFactory struct {
-	m map[reflect.Type]Unmarshaler
-}
-
-func NewSimpleUnmarshalerFactory(m map[reflect.Type]Unmarshaler) SimpleUnmarshalerFactory {
-	return SimpleUnmarshalerFactory{m: m}
-}
-
-var _ UnmarshalerFactory = SimpleUnmarshalerFactory{}
-
-func (uf SimpleUnmarshalerFactory) MakeUnmarshaler(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
-	if u, ok := uf.m[ty]; ok {
-		return u, nil
-	}
-	return nil, nil
+func NewTypeMapUnmarshalerFactory(m map[reflect.Type]Unmarshaler) UnmarshalerFactory {
+	return NewTypeMapFactory[Unmarshaler, UnmarshalerFactoryContext](m)
 }

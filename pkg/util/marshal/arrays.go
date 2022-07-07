@@ -44,7 +44,7 @@ var indexMarshalerFactory = NewFuncMarshalerFactory(func(ctx MarshalerFactoryCon
 		return nil, nil
 	}
 
-	elem, err := ctx.Factory(ctx, ty.Elem())
+	elem, err := ctx.Make(ctx, ty.Elem())
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ var indexUnmarshalerFactory = NewFuncUnmarshalerFactory(func(ctx UnmarshalerFact
 		return nil, nil
 	}
 
-	elem, err := ctx.Factory(ctx, ty.Elem())
+	elem, err := ctx.Make(ctx, ty.Elem())
 	if err != nil {
 		return nil, err
 	}

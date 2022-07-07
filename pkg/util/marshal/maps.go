@@ -48,11 +48,11 @@ var mapMarshalerFactory = NewFuncMarshalerFactory(func(ctx MarshalerFactoryConte
 		return nil, nil
 	}
 
-	k, err := ctx.Factory(ctx, ty.Key())
+	k, err := ctx.Make(ctx, ty.Key())
 	if err != nil {
 		return nil, err
 	}
-	v, err := ctx.Factory(ctx, ty.Elem())
+	v, err := ctx.Make(ctx, ty.Elem())
 	if err != nil {
 		return nil, err
 	}
@@ -108,15 +108,15 @@ func (u MapUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value
 //
 
 var mapUnmarshalerFactory = NewFuncUnmarshalerFactory(func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
-	if ty.Kind() != reflect.Slice && ty.Kind() != reflect.Array {
+	if ty.Kind() != reflect.Map {
 		return nil, nil
 	}
 
-	k, err := ctx.Factory(ctx, ty.Key())
+	k, err := ctx.Make(ctx, ty.Key())
 	if err != nil {
 		return nil, err
 	}
-	v, err := ctx.Factory(ctx, ty.Elem())
+	v, err := ctx.Make(ctx, ty.Elem())
 	if err != nil {
 		return nil, err
 	}

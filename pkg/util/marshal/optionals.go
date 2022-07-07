@@ -39,7 +39,7 @@ var optionalMarshalerFactory = NewFuncMarshalerFactory(func(ctx MarshalerFactory
 	}
 
 	ety := reflect.TypeOf(reflect.New(ty).Interface().(opt.Interface).ZeroInterface())
-	elem, err := ctx.Factory(ctx, ety)
+	elem, err := ctx.Make(ctx, ety)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ var optionalUnmarshalerFactory = NewFuncUnmarshalerFactory(func(ctx UnmarshalerF
 	}
 
 	ety := reflect.TypeOf(reflect.New(ty).Interface().(opt.Interface).ZeroInterface())
-	elem, err := ctx.Factory(ctx, ety)
+	elem, err := ctx.Make(ctx, ety)
 	if err != nil {
 		return nil, err
 	}

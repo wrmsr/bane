@@ -26,18 +26,18 @@ func TestOptionals(t *testing.T) {
 
 func TestOptionalsFactory(t *testing.T) {
 	m := check.Must1(
-		optionalMarshalerFactory.MakeMarshaler(
+		optionalMarshalerFactory.Make(
 			MarshalerFactoryContext{
-				Factory: NewPrimitiveMarshalerFactory().MakeMarshaler,
+				Make: NewPrimitiveMarshalerFactory().Make,
 			},
 			rfl.TypeOf[opt.Optional[int]](),
 		),
 	)
 
 	u := check.Must1(
-		optionalUnmarshalerFactory.MakeUnmarshaler(
+		optionalUnmarshalerFactory.Make(
 			UnmarshalerFactoryContext{
-				Factory: NewConvertPrimitiveUnmarshalerFactory().MakeUnmarshaler,
+				Make: NewConvertPrimitiveUnmarshalerFactory().Make,
 			},
 			rfl.TypeOf[opt.Optional[int]](),
 		),
