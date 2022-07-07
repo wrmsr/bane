@@ -42,6 +42,10 @@ func Range(start, stop, step int) Iterable[int] {
 	}, nil)
 }
 
+func Range1(start, stop int) Iterable[int] {
+	return Range(start, stop, 1)
+}
+
 var _ Iterator[int] = &rangeIterator{}
 
 func (i *rangeIterator) Iterate() Iterator[int] {
