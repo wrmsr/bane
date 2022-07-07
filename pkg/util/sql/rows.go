@@ -31,22 +31,12 @@ func ScanMap(cs []sqb.Column, scan RowScanner) (map[string]any, error) {
 	return m, nil
 }
 
-func ScanMapAny(ns []string, scan RowScanner) (map[string]any, error) {
-	vvs := make([]reflect.Value, len(ns))
-	dvs := make([]any, len(ns))
-	for i := range ns {
-		sv := reflect.New(rfl.Any())
-		vvs[i] = sv.Elem()
-		dvs[i] = sv.Interface()
+func MakeAnyColumns(names ...string) []sqb.Column {
+	cs := make([]sqb.Column, len(names))
+	for i, n := range names {
+		cs[i] = sqb.Column{Name: n, Type: rfl.Any()}
 	}
-	if err := scan(dvs...); err != nil {
-		return nil, err
-	}
-	m := make(map[string]any, len(ns))
-	for i, n := range ns {
-		m[n] = vvs[i].Interface()
-	}
-	return m, nil
+	return cs
 }
 
 //

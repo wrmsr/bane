@@ -43,8 +43,8 @@ func TestMysql(t *testing.T) {
 	))
 	fmt.Println(m)
 
-	m = check.Must1(ScanMapAny(
-		[]string{"foo"},
+	m = check.Must1(ScanMap(
+		MakeAnyColumns("foo"),
 		db.QueryRow("SELECT VERSION()").Scan,
 	))
 	fmt.Println(m)
