@@ -23,10 +23,6 @@ func NewManager() *Manager {
 	}
 }
 
-//func (m *Manager) ResolveMarshaler(ty reflect.Type) Marshaler {
-//
-//}
-
 func (m *Manager) Marshal(v any, o ...MarshalOpt) map[string]any { // Value {
 	//opts := ctr.NewTypeMap[MarshalOpt](its.Of(o...))
 
