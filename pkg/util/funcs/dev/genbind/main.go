@@ -82,7 +82,7 @@ func main() {
 	rn := check.Must1(strconv.Atoi(flags.Args()[2]))
 
 	tmpl := check.Must1(template.New("?").Parse(`
-func Bind{{- .n_b -}}x{{- .n_a -}}x{{- .n_r -}}[{{.a_bar}} any](fn func({{.t_ba}}) {{.pr_r}}, {{.p_b}}) func({{.t_a}}) {{.pt_r}} {
+func Bind{{- .n_b -}}x{{- .n_a -}}x{{- .n_r -}}[{{.t_bar}} any](fn func({{.t_ba}}) {{.pt_r}}, {{.p_b}}) func({{.t_a}}) {{.pt_r}} {
 	return func({{.p_a}}) {{.pt_r}} {
 		return fn({{.a_ba}})
 	}
