@@ -48,9 +48,10 @@ func buildStructFields(root []*FieldInfo) StructFields {
 		rec(fi)
 	}
 
-	byName := ctr.NewMutMap[string, []*FieldInfo](nil)
-	byPath := ctr.NewMutMap[string, *FieldInfo](nil)
+	byName := ctr.NewMutOrderedMap[string, ctr.MutList[*FieldInfo]](nil)
+	byPath := ctr.NewMutOrderedMap[string, *FieldInfo](nil)
 	for _, fi := range all {
+		ctr.GetOrMake(byName, fi.name.s, fnu.Bind1
 		byName.Put(fi.name.s, append(byName.Get(fi.name.s), fi))
 		if byPath.Contains(fi.path) {
 			panic(fmt.Errorf("duplicate field path: %s", fi.path))
@@ -59,7 +60,7 @@ func buildStructFields(root []*FieldInfo) StructFields {
 	}
 
 	var flat []*FieldInfo
-	byFlat := ctr.NewMutMap[string, *FieldInfo](nil)
+	byFlat := ctr.NewMutOrderedMap[string, *FieldInfo](nil)
 	var dupe []*FieldInfo
 	byDupe := make(map[string][]*FieldInfo)
 	byName.ForEach(func(kv bt.Kv[string, []*FieldInfo]) bool {
@@ -104,7 +105,7 @@ func buildStructFields(root []*FieldInfo) StructFields {
 		flat:   ctr.NewList(its.OfSlice(flat)),
 		byFlat: byFlat,
 
-		dupe:   dupe,
+		dupe:   ctr.WrapSlice(dupe),
 		byDupe: byDupe,
 	}
 }

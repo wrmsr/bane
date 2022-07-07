@@ -56,3 +56,13 @@ func NewSetMap[K, V comparable](it its.Iterable[bt.Kv[K, V]]) Map[K, Set[V]] {
 	}
 	return m.(Map[K, Set[V]])
 }
+
+func GetOrMake[K, V any](m MutMap[K, V], k K, fn func() V) V {
+	v, ok := m.TryGet(k)
+	if ok {
+		return v
+	}
+	v = fn()
+	m.Put(k, v)
+	return v
+}
