@@ -129,4 +129,4 @@ docker-invalidate:
 
 .PHONY: imports
 imports:
-	${GO} run "${MOD}/pkg/util/dev/cmd/imports" ${SRC}
+	@${GO} run "${MOD}/pkg/util/dev/cmd/imports" ${SRC}
