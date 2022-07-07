@@ -1,1 +1,6 @@
+- struct opts - simultaneously both marshal/unmarshal
+- registries (anns)
+- interfaces (polymorph)
+- containers
+- identities / objgraphs
 - TextMarshal/Un
