@@ -36,19 +36,27 @@ type iface struct {
 	tab, data unsafe.Pointer
 }
 
-func readAllTypes() map[string]reflect.Type {
-	m := make(map[string]reflect.Type)
-	typ := reflect.TypeOf(0)
-	face := (*iface)(unsafe.Pointer(&typ))
+func readAllTypes() []reflect.Type {
+	s := make([]reflect.Type, 0, 1024)
+	ty := reflect.TypeOf(0)
+	f := (*iface)(unsafe.Pointer(&ty))
 	sections, offset := typelinks()
 	for i, offs := range offset {
 		rodata := sections[i]
 		for _, off := range offs {
-			face.data = resolveTypeOff(rodata, off)
-			if typ.Kind() == reflect.Ptr && len(typ.Elem().Name()) > 0 {
-				m[typ.String()] = typ
-				m[typ.Elem().String()] = typ.Elem()
-			}
+			f.data = resolveTypeOff(rodata, off)
+			s = append(s, ty)
+		}
+	}
+	return s
+}
+
+func makeTypeNameMap(tys []reflect.Type) map[string]reflect.Type {
+	m := make(map[string]reflect.Type, len(tys))
+	for _, ty := range tys {
+		if ty.Kind() == reflect.Ptr && len(ty.Elem().Name()) > 0 {
+			m[ty.String()] = ty
+			m[ty.Elem().String()] = ty.Elem()
 		}
 	}
 	return m
@@ -57,19 +65,26 @@ func readAllTypes() map[string]reflect.Type {
 //
 
 var (
-	allTypesOnce sync.Once
-	allTypes     map[string]reflect.Type
+	allTypesOnce   sync.Once
+	allTypes       []reflect.Type
+	allTypesByName map[string]reflect.Type
 )
 
-func AllTypes() map[string]reflect.Type {
+func AllTypes() []reflect.Type {
 	allTypesOnce.Do(func() {
 		allTypes = readAllTypes()
+		allTypesByName = makeTypeNameMap(allTypes)
 	})
 	return allTypes
 }
 
+func AllTypesByName() map[string]reflect.Type {
+	AllTypes()
+	return allTypesByName
+}
+
 func GetType(name string) reflect.Type {
-	if typ, ok := AllTypes()[name]; ok {
+	if typ, ok := AllTypesByName()[name]; ok {
 		return typ
 	}
 	return nil

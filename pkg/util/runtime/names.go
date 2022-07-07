@@ -83,7 +83,7 @@ func (n ParsedGenericName) String() string {
 	sb.WriteString("[")
 	for i, a := range n.Args {
 		if i > 0 {
-			sb.WriteString(", ")
+			sb.WriteString(",")
 		}
 		sb.WriteString(a.String())
 	}

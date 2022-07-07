@@ -46,6 +46,4 @@ func TestDefaultFactory(t *testing.T) {
 
 	o2 := check.Must1(u.Unmarshal(UnmarshalContext{}, v))
 	fmt.Println(o2)
-
-	//tu.AssertDeepEqual(t, o, o2)
 }
