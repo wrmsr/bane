@@ -1,6 +1,7 @@
 package marshal
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -48,23 +49,50 @@ func (f TypeMapFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 
 //
 
+type CompositeStrategy int8
+
+const (
+	FirstComposite CompositeStrategy = iota
+	OneComposite
+)
+
 type CompositeFactory[R, C, A any] struct {
+	st CompositeStrategy
 	fs []Factory[R, C, A]
 }
 
-func NewCompositeFactory[R, C, A any](fs ...Factory[R, C, A]) CompositeFactory[R, C, A] {
-	return CompositeFactory[R, C, A]{fs: fs}
+func NewCompositeFactory[R, C, A any](st CompositeStrategy, fs ...Factory[R, C, A]) CompositeFactory[R, C, A] {
+	return CompositeFactory[R, C, A]{st: st, fs: fs}
 }
 
 var _ Factory[int, uint, string] = CompositeFactory[int, uint, string]{}
 
 func (f CompositeFactory[R, C, A]) Make(ctx C, a A) (R, error) {
-	var z R
+	var w []R
 	for _, c := range f.fs {
 		r, err := c.Make(ctx, a)
 		if err != nil {
+			var z R
 			return z, err
 		}
+		if f.st == FirstComposite {
+			return r, nil
+		}
+		w = append(w, r)
+	}
+
+	switch f.st {
+
+	case OneComposite:
+		if len(w) == 1 {
+			return w[0], nil
+		}
+
+		var z R
+		return z, fmt.Errorf("multiple implementations: %#v", w)
+
+	default:
+		panic(fmt.Errorf("unknown composite strategy: %v", f.st))
 	}
 }
 
