@@ -9,3 +9,7 @@ func Zero[T any]() T {
 	var z T
 	return z
 }
+
+func PtrTo[T any](v T) *T {
+	return &v
+}

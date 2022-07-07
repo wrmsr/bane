@@ -75,10 +75,22 @@ func (f CompositeFactory[R, C, A]) Make(ctx C, a A) (R, error) {
 			var z R
 			return z, err
 		}
+		if !reflect.ValueOf(r).IsValid() {
+			continue
+		}
 		if f.st == FirstComposite {
 			return r, nil
 		}
 		w = append(w, r)
+	}
+
+	if len(w) < 1 {
+		var z R
+		return z, fmt.Errorf("no implementations: %v", a)
+	}
+
+	if len(w) == 1 {
+		return w[0], nil
 	}
 
 	switch f.st {
@@ -89,7 +101,7 @@ func (f CompositeFactory[R, C, A]) Make(ctx C, a A) (R, error) {
 		}
 
 		var z R
-		return z, fmt.Errorf("multiple implementations: %#v", w)
+		return z, fmt.Errorf("multiple implementations: %v %#v", a, w)
 
 	default:
 		panic(fmt.Errorf("unknown composite strategy: %v", f.st))
