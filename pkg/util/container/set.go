@@ -18,6 +18,7 @@ type Set[T any] interface {
 type MutSet[T any] interface {
 	Set[T]
 	Mutable
+	//Decay[Set[T]]
 
 	Add(v T)
 	TryAdd(v T) bool
@@ -99,28 +100,29 @@ func NewMutSetOf[T comparable](vs ...T) MutSet[T] {
 
 var _ MutSet[int] = mutSetImpl[int]{}
 
-func (m mutSetImpl[T]) isMutable() {}
+func (s mutSetImpl[T]) isMutable()    {}
+func (s mutSetImpl[T]) Decay() Set[T] { return s.setImpl }
 
-func (m mutSetImpl[T]) Add(value T) {
-	m.m[value] = struct{}{}
+func (s mutSetImpl[T]) Add(value T) {
+	s.m[value] = struct{}{}
 }
 
-func (m mutSetImpl[T]) TryAdd(value T) bool {
-	if m.Contains(value) {
+func (s mutSetImpl[T]) TryAdd(value T) bool {
+	if s.Contains(value) {
 		return false
 	}
-	m.m[value] = struct{}{}
+	s.m[value] = struct{}{}
 	return true
 }
 
-func (m mutSetImpl[T]) Remove(value T) {
-	delete(m.m, value)
+func (s mutSetImpl[T]) Remove(value T) {
+	delete(s.m, value)
 }
 
-func (m mutSetImpl[T]) TryRemove(value T) bool {
-	if m.Contains(value) {
+func (s mutSetImpl[T]) TryRemove(value T) bool {
+	if s.Contains(value) {
 		return false
 	}
-	delete(m.m, value)
+	delete(s.m, value)
 	return true
 }

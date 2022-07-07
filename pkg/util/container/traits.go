@@ -12,6 +12,10 @@ type Mutable interface {
 	isMutable()
 }
 
+type Decay[T any] interface {
+	Decay() T
+}
+
 type Ordered[T any] interface {
 	isOrdered()
 

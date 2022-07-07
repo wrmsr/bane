@@ -37,6 +37,6 @@ func TestTool(t *testing.T) {
 	}
 
 	c := C{}
-	st.Info((*C)(nil)).Fields().ByFlat()["Z"].SetValue(&c, int32(420))
+	st.Info((*C)(nil)).Fields().ByFlat().Get("Z").SetValue(&c, int32(420))
 	tu.AssertEqual(t, c.Z, int32(420))
 }

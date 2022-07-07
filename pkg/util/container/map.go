@@ -20,6 +20,7 @@ type Map[K, V any] interface {
 type MutMap[K, V any] interface {
 	Map[K, V]
 	Mutable
+	//Decay[Map[K, V]]
 
 	Put(k K, v V)
 	Delete(k K)
@@ -101,7 +102,8 @@ func WrapMap[K comparable, V any](m map[K]V) MutMap[K, V] {
 
 var _ MutMap[int, any] = mutMapImpl[int, any]{}
 
-func (m mutMapImpl[K, V]) isMutable() {}
+func (m mutMapImpl[K, V]) isMutable()       {}
+func (m mutMapImpl[K, V]) Decay() Map[K, V] { return m.mapImpl }
 
 func (m mutMapImpl[K, V]) Put(k K, v V) {
 	m.m[k] = v

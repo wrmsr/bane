@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
+	fnu "github.com/wrmsr/bane/pkg/util/funcs"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
-	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -23,17 +23,17 @@ type StructFields struct {
 	byDupe ctr.OrderedMap[string, ctr.List[*FieldInfo]]
 }
 
-func (s StructFields) Root() ctr.List[*FieldInfo] { return s.root }
-func (s StructFields) All() ctr.List[*FieldInfo]  { return s.all }
+func (sf StructFields) Root() ctr.List[*FieldInfo] { return sf.root }
+func (sf StructFields) All() ctr.List[*FieldInfo]  { return sf.all }
 
-func (s StructFields) ByName() ctr.OrderedMap[string, ctr.List[*FieldInfo]] { return s.byName }
-func (s StructFields) ByPath() ctr.OrderedMap[string, *FieldInfo]           { return s.byPath }
+func (sf StructFields) ByName() ctr.OrderedMap[string, ctr.List[*FieldInfo]] { return sf.byName }
+func (sf StructFields) ByPath() ctr.OrderedMap[string, *FieldInfo]           { return sf.byPath }
 
-func (s StructFields) Flat() ctr.List[*FieldInfo]                 { return s.flat }
-func (s StructFields) ByFlat() ctr.OrderedMap[string, *FieldInfo] { return s.byFlat }
+func (sf StructFields) Flat() ctr.List[*FieldInfo]                 { return sf.flat }
+func (sf StructFields) ByFlat() ctr.OrderedMap[string, *FieldInfo] { return sf.byFlat }
 
-func (s StructFields) Dupe() ctr.List[*FieldInfo]                           { return s.dupe }
-func (s StructFields) ByDupe() ctr.OrderedMap[string, ctr.List[*FieldInfo]] { return s.byDupe }
+func (sf StructFields) Dupe() ctr.List[*FieldInfo]                           { return sf.dupe }
+func (sf StructFields) ByDupe() ctr.OrderedMap[string, ctr.List[*FieldInfo]] { return sf.byDupe }
 
 func buildStructFields(root []*FieldInfo) StructFields {
 	var all []*FieldInfo
@@ -51,8 +51,7 @@ func buildStructFields(root []*FieldInfo) StructFields {
 	byName := ctr.NewMutOrderedMap[string, ctr.MutList[*FieldInfo]](nil)
 	byPath := ctr.NewMutOrderedMap[string, *FieldInfo](nil)
 	for _, fi := range all {
-		ctr.GetOrMake(byName, fi.name.s, fnu.Bind1
-		byName.Put(fi.name.s, append(byName.Get(fi.name.s), fi))
+		ctr.GetOrMake[string, ctr.MutList[*FieldInfo]](byName, fi.name.s, fnu.Bind1x0x1(ctr.NewMutList[*FieldInfo], nil)).Append(fi)
 		if byPath.Contains(fi.path) {
 			panic(fmt.Errorf("duplicate field path: %s", fi.path))
 		}
@@ -62,30 +61,36 @@ func buildStructFields(root []*FieldInfo) StructFields {
 	var flat []*FieldInfo
 	byFlat := ctr.NewMutOrderedMap[string, *FieldInfo](nil)
 	var dupe []*FieldInfo
-	byDupe := make(map[string][]*FieldInfo)
-	byName.ForEach(func(kv bt.Kv[string, []*FieldInfo]) bool {
+	byDupe := ctr.NewMutOrderedMap[string, ctr.List[*FieldInfo]](nil)
+	byName.ForEach(func(kv bt.Kv[string, ctr.MutList[*FieldInfo]]) bool {
 		s := kv.V
-		if slices.Any(s, (*FieldInfo).Anonymous) {
-			if len(s) != 1 {
-				panic(fmt.Errorf("anonymous field name collision: %s", s[0].Name()))
+		if its.Any((*FieldInfo).Anonymous, s.(its.Iterable[*FieldInfo])) {
+			if s.Len() != 1 {
+				panic(fmt.Errorf("anonymous field name collision: %s", s.Get(0).Name()))
 			}
 			return true
 		}
 
-		w := []*FieldInfo{s[0]}
-		wd := w[0].Depth()
-		for _, c := range s[1:] {
-			cd := c.Depth()
-			if cd < wd {
+		var w []*FieldInfo
+		var wd int
+		s.ForEach(func(c *FieldInfo) bool {
+			if w == nil {
 				w = []*FieldInfo{c}
-			} else if cd == wd {
-				w = append(w, c)
+				wd = w[0].Depth()
+			} else {
+				cd := c.Depth()
+				if cd < wd {
+					w = []*FieldInfo{c}
+				} else if cd == wd {
+					w = append(w, c)
+				}
 			}
-		}
+			return true
+		})
 
 		if len(w) > 1 {
 			dupe = append(dupe, w...)
-			byDupe[w[0].name.s] = w
+			byDupe.Put(w[0].name.s, ctr.NewList(its.OfSlice(w)))
 		} else {
 			f := w[0]
 			flat = append(flat, f)
@@ -99,7 +104,7 @@ func buildStructFields(root []*FieldInfo) StructFields {
 		root: ctr.NewList(its.OfSlice(root)),
 		all:  ctr.NewList(its.OfSlice(all)),
 
-		byName: byName,
+		byName: ctr.NewOrderedMap(its.MapValues[string, ctr.MutList[*FieldInfo], ctr.List[*FieldInfo]](byName, ctr.DecayList[*FieldInfo])),
 		byPath: byPath,
 
 		flat:   ctr.NewList(its.OfSlice(flat)),

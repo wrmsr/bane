@@ -48,6 +48,7 @@ type Binder = func() Bindings
 
 type Bindings interface {
 	its.Traversable[Binding]
+	isBindings()
 }
 
 type bindings struct {
@@ -56,6 +57,8 @@ type bindings struct {
 }
 
 var _ Bindings = bindings{}
+
+func (bs bindings) isBindings() {}
 
 func (bs bindings) ForEach(fn func(Binding) bool) bool {
 	for _, p := range bs.ps {

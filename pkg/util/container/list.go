@@ -17,6 +17,7 @@ type List[T any] interface {
 type MutList[T any] interface {
 	List[T]
 	Mutable
+	//Decay[List[T]]
 
 	Append(v T)
 	Delete(i int)
@@ -92,7 +93,8 @@ func WrapSlice[T any](s []T) MutList[T] {
 
 var _ MutList[int] = &mutListImpl[int]{}
 
-func (l *mutListImpl[T]) isMutable() {}
+func (l *mutListImpl[T]) isMutable()     {}
+func (l *mutListImpl[T]) Decay() List[T] { return l.listImpl }
 
 func (l *mutListImpl[T]) Append(v T) {
 	l.s = append(l.s, v)

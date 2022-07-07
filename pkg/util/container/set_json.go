@@ -6,20 +6,20 @@ import (
 
 //
 
-func (m setImpl[T]) MarshalJSON() ([]byte, error) {
-	return json.Marshal(m.m)
+func (s setImpl[T]) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.m)
 }
 
-func (m *setImpl[T]) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &m.m)
+func (s *setImpl[T]) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &s.m)
 }
 
 //
 
-func (m mutSetImpl[T]) MarshalJSON() ([]byte, error) {
-	return json.Marshal(m.m)
+func (s mutSetImpl[T]) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.m)
 }
 
-func (m *mutSetImpl[T]) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &m.m)
+func (s *mutSetImpl[T]) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &s.m)
 }

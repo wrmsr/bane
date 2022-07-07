@@ -60,3 +60,14 @@ func CheckUniqueKeys[K comparable, V any](it Iterable[bt.Kv[K, V]]) Iterable[bt.
 		}).Iterate()
 	}, it)
 }
+
+//
+
+func Any[T any](fn func(v T) bool, it Iterable[T]) bool {
+	for it := it.Iterate(); it.HasNext(); {
+		if fn(it.Next()) {
+			return true
+		}
+	}
+	return false
+}

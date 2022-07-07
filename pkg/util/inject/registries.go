@@ -21,6 +21,8 @@ func NewBinderRegistry() *BinderRegistry {
 
 var _ Bindings = &BinderRegistry{}
 
+func (r *BinderRegistry) isBindings() {}
+
 func (r *BinderRegistry) Register(bs ...Binder) *BinderRegistry {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()

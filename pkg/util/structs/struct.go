@@ -16,6 +16,9 @@ func (si *StructInfo) Name() Name            { return si.name }
 func (si *StructInfo) Type() reflect.Type    { return si.ty }
 func (si *StructInfo) Fields() *StructFields { return &si.fields }
 
+func (si *StructInfo) GetPath(name string) *FieldInfo { return si.fields.byPath.Get(name) }
+func (si *StructInfo) GetFlat(name string) *FieldInfo { return si.fields.byFlat.Get(name) }
+
 func buildStructInfo(
 	ty reflect.Type,
 ) *StructInfo {
@@ -36,9 +39,10 @@ func buildStructInfo(
 		fields: buildStructFields(rootFields),
 	}
 
-	for _, fi := range si.fields.all {
+	si.fields.all.ForEach(func(fi *FieldInfo) bool {
 		fi.si = si
-	}
+		return true
+	})
 
 	return si
 }

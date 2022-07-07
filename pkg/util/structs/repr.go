@@ -4,6 +4,7 @@ import (
 	"reflect"
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
+	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
@@ -44,7 +45,7 @@ func structInfoRepr(si *StructInfo) ctr.Map[string, any] {
 	return ctr.NewOrderedMapBuilder[string, any]().
 		Put("name", si.name.String()).
 		Put("type", typeRepr(si.ty)).
-		Put("fields", slices.Map(fieldInfoRepr, si.fields.root)).
+		Put("fields", its.Seq(its.Map[*FieldInfo](si.fields.root, fieldInfoRepr))).
 		FilterValues(rfl.IsNotEmpty[any]).
 		Build()
 }

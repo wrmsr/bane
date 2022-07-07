@@ -66,6 +66,10 @@ func NewMutBiMap[K, V comparable](it its.Iterable[bt.Kv[K, V]]) MutBiMap[K, V] {
 
 var _ MutBiMap[int, string] = mutBiMapImpl[int, string]{}
 
+func (m mutBiMapImpl[K, V]) isMutable() {}
+
+//func (m mutBiMapImpl[K, V]) Decay() BiMap
+
 func (m mutBiMapImpl[K, V]) Len() int {
 	return m.m.Len()
 }
@@ -89,8 +93,6 @@ func (m mutBiMapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
 func (m mutBiMapImpl[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool {
 	return m.m.ForEach(fn)
 }
-
-func (m mutBiMapImpl[K, V]) isMutable() {}
 
 func (m mutBiMapImpl[K, V]) Put(k K, v V) {
 	if o, ok := m.m.TryGet(k); ok {

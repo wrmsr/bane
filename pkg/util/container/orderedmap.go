@@ -139,7 +139,8 @@ func NewMutOrderedMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) MutOrde
 
 var _ MutMap[int, any] = &mutOrderedMapImpl[int, any]{}
 
-func (m *mutOrderedMapImpl[K, V]) isMutable() {}
+func (m *mutOrderedMapImpl[K, V]) isMutable()       {}
+func (m *mutOrderedMapImpl[K, V]) Decay() Map[K, V] { return m.orderedMapImpl }
 
 func (m *mutOrderedMapImpl[K, V]) Put(k K, v V) {
 	m.put(k, v)
