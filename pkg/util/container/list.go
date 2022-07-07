@@ -6,25 +6,6 @@ import (
 
 //
 
-type List[T any] interface {
-	Len() int
-	Get(i int) T
-
-	its.Iterable[T]
-	its.Traversable[T]
-}
-
-type MutList[T any] interface {
-	List[T]
-	Mutable
-	//Decay[List[T]]
-
-	Append(v T)
-	Delete(i int)
-}
-
-//
-
 type listImpl[T any] struct {
 	s []T
 }

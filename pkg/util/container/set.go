@@ -7,27 +7,6 @@ import (
 
 //
 
-type Set[T any] interface {
-	Len() int
-	Contains(v T) bool
-
-	its.Iterable[T]
-	its.Traversable[T]
-}
-
-type MutSet[T any] interface {
-	Set[T]
-	Mutable
-	//Decay[Set[T]]
-
-	Add(v T)
-	TryAdd(v T) bool
-	Remove(v T)
-	TryRemove(v T) bool
-}
-
-//
-
 type setImpl[T comparable] struct {
 	m map[T]struct{}
 }

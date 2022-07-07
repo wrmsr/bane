@@ -8,18 +8,6 @@ import (
 
 //
 
-type OrderedMap[K, V any] interface {
-	Map[K, V]
-	Ordered[bt.Kv[K, V]]
-}
-
-type MutOrderedMap[K, V any] interface {
-	OrderedMap[K, V]
-	MutMap[K, V]
-}
-
-//
-
 type orderedMapImpl[K comparable, V any] struct {
 	s []bt.Kv[K, V]
 	m map[K]int

@@ -7,28 +7,6 @@ import (
 
 //
 
-type Map[K, V any] interface {
-	Len() int
-	Contains(k K) bool
-	Get(k K) V
-	TryGet(k K) (V, bool)
-
-	its.Iterable[bt.Kv[K, V]]
-	its.Traversable[bt.Kv[K, V]]
-}
-
-type MutMap[K, V any] interface {
-	Map[K, V]
-	Mutable
-	//Decay[Map[K, V]]
-
-	Put(k K, v V)
-	Delete(k K)
-	Default(k K, v V) bool
-}
-
-//
-
 type mapImpl[K comparable, V any] struct {
 	m map[K]V
 }

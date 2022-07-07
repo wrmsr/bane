@@ -19,11 +19,6 @@ func (l *locked) isLocked() {}
 
 //
 
-type LockedMap[K, V any] interface {
-	Map[K, V]
-	Locked
-}
-
 type lockedMapImpl[K, V any] struct {
 	locked
 	m Map[K, V]
@@ -78,11 +73,6 @@ func (m *lockedMapImpl[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 }
 
 //
-
-type LockedMutMap[K, V any] interface {
-	MutMap[K, V]
-	Locked
-}
 
 type lockedMutMapImpl[K, V any] struct {
 	lockedMapImpl[K, V]

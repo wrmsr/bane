@@ -7,21 +7,6 @@ import (
 
 //
 
-type BiMap[K, V comparable] interface {
-	Map[K, V]
-
-	Invert() BiMap[V, K]
-}
-
-type MutBiMap[K, V comparable] interface {
-	MutMap[K, V]
-	BiMap[K, V]
-
-	MutInvert() MutBiMap[V, K]
-}
-
-//
-
 type biMapImpl[K, V comparable] struct {
 	Map[K, V]
 	i Map[V, K]

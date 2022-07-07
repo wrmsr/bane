@@ -8,27 +8,6 @@ import (
 
 //
 
-type TypeMap[T any] interface {
-	Len() int
-	Contains(ty reflect.Type) bool
-	Get(ty reflect.Type) T
-	TryGet(ty reflect.Type) (T, bool)
-
-	its.Iterable[T]
-	its.Traversable[T]
-}
-
-type MutTypeMap[T any] interface {
-	TypeMap[T]
-	Mutable
-
-	Put(v T)
-	Delete(ty reflect.Type)
-	Default(v T) bool
-}
-
-//
-
 type typeMapImpl[T any] struct {
 	m map[reflect.Type]T
 }

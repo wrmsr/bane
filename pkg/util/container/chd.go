@@ -20,8 +20,7 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSE
 WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-// Package mph is a Go implementation of the compress, hash and displace (CHD)
-// minimal perfect hash algorithm.
+// Package mph is a Go implementation of the compress, hash and displace (CHD) minimal perfect hash algorithm.
 //
 // See http://cmph.sourceforge.net/papers/esa09.pdf for details.
 //
@@ -45,8 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //		    // Key not found
 //		}
 //
-// MMAP is also indirectly supported, by deserializing from a byte
-// slice and slicing the keys and values.
+// MMAP is also indirectly supported, by deserializing from a byte slice and slicing the keys and values.
 //
 // See https://github.com/alecthomas/mph for source.
 package container
@@ -61,8 +59,7 @@ import (
 type Chd struct {
 	// Random hash function table.
 	r []uint64
-	// Array of indices into hash function table r. We assume there aren't
-	// more than 2^16 hash functions O_o
+	// Array of indices into hash function table r. We assume there aren't more than 2^16 hash functions O_o
 	indices []uint16
 	// Final table of values.
 	keys   [][]byte
@@ -111,8 +108,7 @@ func (c *Chd) Iterate() *ChdIterator {
 	return &ChdIterator{c: c}
 }
 
-// Serialize the CHD. The serialized form is conducive to mmapped access. See
-// the Mmap function for details.
+// Serialize the CHD. The serialized form is conducive to mmapped access. See the Mmap function for details.
 func (c *Chd) Write(w io.Writer) error {
 	write := func(nd ...interface{}) error {
 		for _, d := range nd {

@@ -75,9 +75,17 @@ func (b *ChdBuilder) Add(key []byte, value []byte) {
 	b.values = append(b.values, value)
 }
 
-// Try to find a hash function that does not cause collisions with table, when
-// applied to the keys in the bucket.
-func chdTryHash(hasher *chdHasher, seen map[uint64]bool, keys [][]byte, values [][]byte, indices []uint16, bucket *chdBucket, ri uint16, r uint64) bool {
+// Try to find a hash function that does not cause collisions with table, when applied to the keys in the bucket.
+func chdTryHash(
+	hasher *chdHasher,
+	seen map[uint64]bool,
+	keys [][]byte,
+	values [][]byte,
+	indices []uint16,
+	bucket *chdBucket,
+	ri uint16,
+	r uint64,
+) bool {
 	// Track duplicates within this bucket.
 	duplicate := make(map[uint64]bool)
 	// Make hashes for each entry in the bucket.
@@ -162,9 +170,8 @@ nextBucket:
 			}
 		}
 
-		// Keep trying new functions until we get one that does not collide.
-		// The number of retries here is very high to allow a very high
-		// probability of not getting collisions.
+		// Keep trying new functions until we get one that does not collide. The number of retries here is very high to
+		// allow a very high probability of not getting collisions.
 		for i := 0; i < 10000000; i++ {
 			if i > collisions {
 				collisions = i
