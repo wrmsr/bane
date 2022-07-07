@@ -69,6 +69,8 @@ func (c BaseConn) isConn() {}
 type Db interface {
 	Querier
 
+	Connect(ctx context.Context) (Conn, error)
+
 	isDb()
 }
 

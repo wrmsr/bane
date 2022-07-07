@@ -12,6 +12,8 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/log"
+	sqa "github.com/wrmsr/bane/pkg/util/sql/adapters"
+	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
 )
 
 func TestPgx(t *testing.T) {
@@ -34,6 +36,28 @@ func TestMysql(t *testing.T) {
 	var version string
 	check.Must(db.QueryRow("SELECT VERSION()").Scan(&version))
 
+	ctx := context.Background()
+
+	d := sqa.NewStdDb(db)
+
+	c := check.Must1(d.Connect(ctx))
+	defer log.OrError(c.Close)
+
+	r := check.Must1(c.Query(sqb.Query{
+		Ctx:  ctx,
+		Mode: sqb.QueryQuery,
+		Text: "select version()",
+	}))
+	defer log.OrError(r.Close)
+
+	for r.Err() == nil && r.Next() {
+		var s string
+		check.Must(r.Scan(&s))
+		fmt.Println(s)
+	}
+	check.Must(r.Err())
+
+	//Exec(context.Background(), )
 	fmt.Println(version)
 }
 

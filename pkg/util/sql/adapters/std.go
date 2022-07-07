@@ -1,6 +1,7 @@
 package adapters
 
 import (
+	"context"
 	"database/sql"
 
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
@@ -104,7 +105,19 @@ type StdDb struct {
 
 var _ sqb.Db = StdDb{}
 
+func NewStdDb(d *sql.DB) StdDb {
+	return StdDb{d: d}
+}
+
 func (d StdDb) Adapter() sqb.Adapter { return StdAdapter{} }
+
+func (d StdDb) Connect(ctx context.Context) (sqb.Conn, error) {
+	c, err := d.d.Conn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return StdConn{c: c}, nil
+}
 
 func (d StdDb) Query(qry sqb.Query) (sqb.Rows, error) {
 	switch qry.Mode {
