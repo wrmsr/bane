@@ -9,6 +9,8 @@ import (
 	"github.com/wrmsr/bane/pkg/util/jmespath/parser"
 )
 
+//
+
 type TreeShapeListener struct {
 	*parser.BaseJmespathListener
 }
@@ -17,9 +19,42 @@ func NewTreeShapeListener() *TreeShapeListener {
 	return new(TreeShapeListener)
 }
 
+func (l *TreeShapeListener) EnterIdentifier(ctx *parser.IdentifierContext) {
+	fmt.Println("identifier!")
+}
+
 func (l *TreeShapeListener) EnterEveryRule(ctx antlr.ParserRuleContext) {
 	fmt.Println(ctx.GetText())
 }
+
+//
+
+type TreeVisitor struct {
+	parser.BaseJmespathVisitor
+}
+
+var _ parser.JmespathVisitor = &TreeVisitor{}
+
+func (v *TreeVisitor) VisitSingleExpression(ctx *parser.SingleExpressionContext) interface{} {
+	return v.Visit(ctx.Expression())
+}
+
+func (v *TreeVisitor) VisitIdentifier(ctx *parser.IdentifierContext) interface{} {
+	fmt.Println(ctx)
+	return v.BaseJmespathVisitor.VisitIdentifier(ctx)
+}
+
+//func (v *TreeVisitor) VisitChildren(node antlr.RuleNode) interface{} {
+//	for i := 0; i < node.GetChildCount(); i++ {
+//		child := node.GetChild(i)
+//		if pt, ok := child.(antlr.ParseTree); ok {
+//			pt.Accept(v)
+//		}
+//	}
+//	return nil
+//}
+
+//
 
 const testExpr = "people[?age > `20`].[name, age]"
 
@@ -31,7 +66,10 @@ func TestParser1(t *testing.T) {
 	p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
 	p.BuildParseTrees = true
 	tree := p.SingleExpression()
+
 	antlr.ParseTreeWalkerDefault.Walk(NewTreeShapeListener(), tree)
+
+	tree.Accept(&TreeVisitor{})
 }
 
 func TestParser2(t *testing.T) {
