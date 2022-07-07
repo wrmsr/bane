@@ -142,35 +142,3 @@ func (f CompositeFactory[R, C, A]) Make(ctx C, a A) (R, error) {
 		panic(fmt.Errorf("unknown composite strategy: %v", f.st))
 	}
 }
-
-///
-
-type MarshalerFactoryContext struct {
-	Make func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error)
-}
-
-type MarshalerFactory = Factory[Marshaler, MarshalerFactoryContext, reflect.Type]
-
-func NewTypeMapMarshalerFactory(m map[reflect.Type]Marshaler) MarshalerFactory {
-	return NewTypeMapFactory[Marshaler, MarshalerFactoryContext](m)
-}
-
-func NewTypeCacheMarshalerFactory(f MarshalerFactory) MarshalerFactory {
-	return NewTypeCacheFactory[Marshaler, MarshalerFactoryContext](f)
-}
-
-///
-
-type UnmarshalerFactoryContext struct {
-	Make func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error)
-}
-
-type UnmarshalerFactory = Factory[Unmarshaler, UnmarshalerFactoryContext, reflect.Type]
-
-func NewTypeMapUnmarshalerFactory(m map[reflect.Type]Unmarshaler) UnmarshalerFactory {
-	return NewTypeMapFactory[Unmarshaler, UnmarshalerFactoryContext](m)
-}
-
-func NewTypeCacheUnmarshalerFactory(f UnmarshalerFactory) UnmarshalerFactory {
-	return NewTypeCacheFactory[Unmarshaler, UnmarshalerFactoryContext](f)
-}

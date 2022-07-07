@@ -7,10 +7,13 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
+	stu "github.com/wrmsr/bane/pkg/util/structs"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func TestDefaultFactory(t *testing.T) {
+	sic := stu.NewStructInfoCache()
+
 	mf := NewTypeCacheMarshalerFactory(NewCompositeFactory(
 		FirstComposite,
 		NewPrimitiveMarshalerFactory(),
@@ -18,8 +21,9 @@ func TestDefaultFactory(t *testing.T) {
 		NewIndexMarshalerFactory(),
 		NewMapMarshalerFactory(),
 		NewBase64MarshalerFactory(),
-		NewTimeMarshalerFactory(),
+		NewTimeMarshalerFactory(DefaultTimeMarshalLayout),
 		NewOptionalMarshalerFactory(),
+		NewStructMarshalerFactory(sic),
 	))
 
 	uf := NewTypeCacheUnmarshalerFactory(NewCompositeFactory(
@@ -29,8 +33,9 @@ func TestDefaultFactory(t *testing.T) {
 		NewIndexUnmarshalerFactory(),
 		NewMapUnmarshalerFactory(),
 		NewBase64UnmarshalerFactory(),
-		NewTimeUnmarshalerFactory(),
+		NewTimeUnmarshalerFactory(DefaultTimeUnmarshalLayouts()),
 		NewOptionalUnmarshalerFactory(),
+		NewStructUnmarshalerFactory(sic),
 	))
 
 	o := map[opt.Optional[int]][]*string{
@@ -40,8 +45,8 @@ func TestDefaultFactory(t *testing.T) {
 	}
 	fmt.Println(o)
 
-	m := check.Must1(mf.Make(MarshalerFactoryContext{Make: mf.Make}, reflect.TypeOf(o)))
-	u := check.Must1(uf.Make(UnmarshalerFactoryContext{Make: uf.Make}, reflect.TypeOf(o)))
+	m := check.Must1(mf.Make(MarshalContext{Make: mf.Make}, reflect.TypeOf(o)))
+	u := check.Must1(uf.Make(UnmarshalContext{Make: uf.Make}, reflect.TypeOf(o)))
 
 	v := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(o)))
 	fmt.Println(v)

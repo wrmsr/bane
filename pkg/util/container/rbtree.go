@@ -29,11 +29,8 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 package container
 
 import (
-	"reflect"
-
 	"github.com/wrmsr/bane/pkg/util/check"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
-	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	syncu "github.com/wrmsr/bane/pkg/util/sync"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -595,10 +592,6 @@ func NewRbTreeMap[K, V any](less bt.LessImpl[K], it its.Iterable[bt.Kv[K, V]]) M
 }
 
 var _ Map[int, string] = rbTreeMapImpl[int, string]{}
-
-func (m rbTreeMapImpl[K, V]) ReflectTypeArgs() []reflect.Type {
-	return []reflect.Type{rfl.TypeOf[K](), rfl.TypeOf[V]()}
-}
 
 func (m rbTreeMapImpl[K, V]) Len() int {
 	return m.t.Len()

@@ -1,0 +1,1 @@
+- type Reflection struct {}; type Mirror interface {Reflect(ty reflect.Type) opt.Optional[Reflection]}

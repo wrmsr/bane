@@ -27,7 +27,7 @@ func TestOptionals(t *testing.T) {
 func TestOptionalsFactory(t *testing.T) {
 	m := check.Must1(
 		optionalMarshalerFactory.Make(
-			MarshalerFactoryContext{
+			MarshalContext{
 				Make: NewPrimitiveMarshalerFactory().Make,
 			},
 			rfl.TypeOf[opt.Optional[int]](),
@@ -36,7 +36,7 @@ func TestOptionalsFactory(t *testing.T) {
 
 	u := check.Must1(
 		optionalUnmarshalerFactory.Make(
-			UnmarshalerFactoryContext{
+			UnmarshalContext{
 				Make: NewConvertPrimitiveUnmarshalerFactory().Make,
 			},
 			rfl.TypeOf[opt.Optional[int]](),

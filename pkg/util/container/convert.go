@@ -1,10 +1,7 @@
 package container
 
 import (
-	"reflect"
-
 	its "github.com/wrmsr/bane/pkg/util/iterators"
-	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -19,10 +16,6 @@ func MapSet[K, V any](m Map[K, V]) Set[K] {
 }
 
 var _ Set[int] = mapSet[int, any]{}
-
-func (s mapSet[K, V]) ReflectTypeArgs() []reflect.Type {
-	return []reflect.Type{rfl.TypeOf[K](), rfl.TypeOf[V]()}
-}
 
 func (s mapSet[K, V]) Len() int {
 	return s.m.Len()
@@ -94,10 +87,6 @@ func SetMap[K, V any](s Set[K]) Map[K, V] {
 }
 
 var _ Map[int, string] = setMap[int, string]{}
-
-func (m setMap[K, V]) ReflectTypeArgs() []reflect.Type {
-	return []reflect.Type{rfl.TypeOf[K](), rfl.TypeOf[V]()}
-}
 
 func (m setMap[K, V]) Len() int {
 	return m.s.Len()

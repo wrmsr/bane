@@ -1,8 +1,6 @@
 package optional
 
 import (
-	"reflect"
-
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -92,12 +90,6 @@ func (o Optional[T]) ZeroInterface() any {
 
 func (o Optional[T]) Replace(v any) Interface {
 	return Just(v.(T))
-}
-
-//
-
-func (o Optional[T]) ReflectTypeArgs() []reflect.Type {
-	return []reflect.Type{reflect.TypeOf(o.v)}
 }
 
 //

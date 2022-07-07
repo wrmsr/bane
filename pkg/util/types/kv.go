@@ -1,7 +1,5 @@
 package types
 
-import "reflect"
-
 //
 
 type Kv[K, V any] struct {
@@ -37,10 +35,4 @@ func KeyCmpImpl[K, V any](cmp CmpImpl[K]) CmpImpl[Kv[K, V]] {
 	return func(r, l Kv[K, V]) CmpResult {
 		return cmp(l.K, r.K)
 	}
-}
-
-//
-
-func (kv Kv[K, V]) ReflectTypeArgs() []reflect.Type {
-	return []reflect.Type{reflect.TypeOf(kv.K), reflect.TypeOf(kv.V)}
 }

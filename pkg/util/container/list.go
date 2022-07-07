@@ -1,10 +1,7 @@
 package container
 
 import (
-	"reflect"
-
 	its "github.com/wrmsr/bane/pkg/util/iterators"
-	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
 //
@@ -15,8 +12,6 @@ type List[T any] interface {
 
 	its.Iterable[T]
 	its.Traversable[T]
-
-	rfl.TypeArgsReflector
 }
 
 type MutList[T any] interface {
@@ -55,10 +50,6 @@ func NewListOf[T any](vs ...T) List[T] {
 }
 
 var _ List[int] = listImpl[int]{}
-
-func (l listImpl[T]) ReflectTypeArgs() []reflect.Type {
-	return []reflect.Type{rfl.TypeOf[T]()}
-}
 
 func (l listImpl[T]) Len() int {
 	return len(l.s)

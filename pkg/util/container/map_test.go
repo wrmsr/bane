@@ -1,9 +1,11 @@
 package container
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
@@ -28,4 +30,13 @@ func TestMapReflect(t *testing.T) {
 	m := NewMap[int, string](nil)
 	ta := rfl.TypeArgs(reflect.TypeOf(m))
 	tu.AssertDeepEqual(t, ta, []reflect.Type{rfl.TypeOf[int](), rfl.TypeOf[string]()})
+}
+
+func TestMapReflect2(t *testing.T) {
+	ty := rfl.TypeOf[Map[int, string]]()
+	ity := check.Ok1(ty.MethodByName("Iterate")).Type.Out(0)
+	kvty := check.Ok1(ity.MethodByName("Next")).Type.Out(0)
+	kty := check.Ok1(kvty.MethodByName("GetK")).Type.Out(0)
+	vty := check.Ok1(kvty.MethodByName("GetV")).Type.Out(0)
+	fmt.Println(kty, vty)
 }

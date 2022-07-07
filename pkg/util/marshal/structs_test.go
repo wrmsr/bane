@@ -11,7 +11,7 @@ import (
 	stu "github.com/wrmsr/bane/pkg/util/structs"
 )
 
-func TestObjects(t *testing.T) {
+func TestStructs(t *testing.T) {
 	asi := stu.NewStructInfoCache().Info((*A)(nil))
 	am := NewObjectMarshaler(
 		NewObjectMarshalerField("X", NewStructFieldGetter(asi.Fields().ByFlat()["X"]), PrimitiveMarshaler{}),

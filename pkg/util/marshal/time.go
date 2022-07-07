@@ -33,10 +33,8 @@ func (m TimeMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, err
 
 const DefaultTimeMarshalLayout = time.RFC3339Nano
 
-var timeMarshalerFactory = NewTypeMapMarshalerFactory(map[reflect.Type]Marshaler{rfl.TypeOf[time.Time](): NewTimeMarshaler(DefaultTimeMarshalLayout)})
-
-func NewTimeMarshalerFactory() MarshalerFactory {
-	return timeMarshalerFactory
+func NewTimeMarshalerFactory(layout string) MarshalerFactory {
+	return NewTypeMapMarshalerFactory(map[reflect.Type]Marshaler{rfl.TypeOf[time.Time](): NewTimeMarshaler(layout)})
 }
 
 ///
@@ -93,8 +91,6 @@ func DefaultTimeUnmarshalLayouts() []string {
 	return defaultTimeUnmarshalLayouts
 }
 
-var timeUnmarshalerFactory = NewTypeMapUnmarshalerFactory(map[reflect.Type]Unmarshaler{rfl.TypeOf[time.Time](): NewTimeUnmarshaler(defaultTimeUnmarshalLayouts)})
-
-func NewTimeUnmarshalerFactory() UnmarshalerFactory {
-	return timeUnmarshalerFactory
+func NewTimeUnmarshalerFactory(layouts []string) UnmarshalerFactory {
+	return NewTypeMapUnmarshalerFactory(map[reflect.Type]Unmarshaler{rfl.TypeOf[time.Time](): NewTimeUnmarshaler(layouts)})
 }

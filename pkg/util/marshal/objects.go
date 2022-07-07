@@ -1,29 +1,17 @@
 package marshal
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
-	stu "github.com/wrmsr/bane/pkg/util/structs"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
 
 type ObjectFieldGetter = func(ctx MarshalContext, rv reflect.Value) (opt.Optional[reflect.Value], error)
-
-func NewStructFieldGetter(fi *stu.FieldInfo) ObjectFieldGetter {
-	return func(ctx MarshalContext, rv reflect.Value) (opt.Optional[reflect.Value], error) {
-		fv, ok := fi.GetValue(rv)
-		if !ok {
-			return opt.None[reflect.Value](), nil
-		}
-		return opt.Just(fv), nil
-	}
-}
 
 type ObjectMarshalerField struct {
 	Name string
@@ -73,21 +61,6 @@ func (m ObjectMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, e
 
 type ObjectFactory = func(ctx UnmarshalContext) reflect.Value
 type ObjectFieldSetter = func(ctx UnmarshalContext, ov, fv reflect.Value) error
-
-func NewStructFactory(si *stu.StructInfo) ObjectFactory {
-	return func(ctx UnmarshalContext) reflect.Value {
-		return reflect.New(si.Type()).Elem()
-	}
-}
-
-func NewStructFieldSetter(fi *stu.FieldInfo) ObjectFieldSetter {
-	return func(ctx UnmarshalContext, ov, fv reflect.Value) error {
-		if !fi.SetValue(ov.Addr().Interface(), fv.Interface()) {
-			return errors.New("can't set struct value")
-		}
-		return nil
-	}
-}
 
 type ObjectUnmarshalerField struct {
 	Name string

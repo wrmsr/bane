@@ -31,6 +31,7 @@ func (o BaseMarshalOpt) isMarshalOpt() {}
 //
 
 type MarshalContext struct {
+	Make func(ctx MarshalContext, ty reflect.Type) (Marshaler, error)
 	Opts ctr.TypeMap[MarshalOpt]
 }
 
@@ -54,6 +55,18 @@ func (m FuncMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, err
 	return m.fn(ctx, rv)
 }
 
+//
+
+type MarshalerFactory = Factory[Marshaler, MarshalContext, reflect.Type]
+
+func NewTypeMapMarshalerFactory(m map[reflect.Type]Marshaler) MarshalerFactory {
+	return NewTypeMapFactory[Marshaler, MarshalContext](m)
+}
+
+func NewTypeCacheMarshalerFactory(f MarshalerFactory) MarshalerFactory {
+	return NewTypeCacheFactory[Marshaler, MarshalContext](f)
+}
+
 ///
 
 type UnmarshalOpt interface {
@@ -67,6 +80,7 @@ func (o BaseUnmarshalOpt) isUnmarshalOpt() {}
 //
 
 type UnmarshalContext struct {
+	Make func(ctx UnmarshalContext, ty reflect.Type) (Unmarshaler, error)
 	Opts ctr.TypeMap[UnmarshalOpt]
 }
 
@@ -88,4 +102,16 @@ var _ Unmarshaler = FuncUnmarshaler{}
 
 func (u FuncUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
 	return u.fn(ctx, mv)
+}
+
+//
+
+type UnmarshalerFactory = Factory[Unmarshaler, UnmarshalContext, reflect.Type]
+
+func NewTypeMapUnmarshalerFactory(m map[reflect.Type]Unmarshaler) UnmarshalerFactory {
+	return NewTypeMapFactory[Unmarshaler, UnmarshalContext](m)
+}
+
+func NewTypeCacheUnmarshalerFactory(f UnmarshalerFactory) UnmarshalerFactory {
+	return NewTypeCacheFactory[Unmarshaler, UnmarshalContext](f)
 }

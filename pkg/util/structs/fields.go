@@ -3,34 +3,37 @@ package structs
 import (
 	"fmt"
 
+	ctr "github.com/wrmsr/bane/pkg/util/container"
+	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type StructFields struct {
-	root []*FieldInfo
-	all  []*FieldInfo
+	root ctr.List[*FieldInfo]
+	all  ctr.List[*FieldInfo]
 
-	byName map[string][]*FieldInfo
-	byPath map[string]*FieldInfo
+	byName ctr.OrderedMap[string, ctr.List[*FieldInfo]]
+	byPath ctr.OrderedMap[string, *FieldInfo]
 
-	flat   []*FieldInfo
-	byFlat map[string]*FieldInfo
+	flat   ctr.List[*FieldInfo]
+	byFlat ctr.OrderedMap[string, *FieldInfo]
 
-	dupe   []*FieldInfo
-	byDupe map[string][]*FieldInfo
+	dupe   ctr.List[*FieldInfo]
+	byDupe ctr.OrderedMap[string, ctr.List[*FieldInfo]]
 }
 
-func (s StructFields) Root() []*FieldInfo { return s.root }
-func (s StructFields) All() []*FieldInfo  { return s.all }
+func (s StructFields) Root() ctr.List[*FieldInfo] { return s.root }
+func (s StructFields) All() ctr.List[*FieldInfo]  { return s.all }
 
-func (s StructFields) ByName() map[string][]*FieldInfo { return s.byName }
-func (s StructFields) ByPath() map[string]*FieldInfo   { return s.byPath }
+func (s StructFields) ByName() ctr.OrderedMap[string, ctr.List[*FieldInfo]] { return s.byName }
+func (s StructFields) ByPath() ctr.OrderedMap[string, *FieldInfo]           { return s.byPath }
 
-func (s StructFields) Flat() []*FieldInfo            { return s.flat }
-func (s StructFields) ByFlat() map[string]*FieldInfo { return s.byFlat }
+func (s StructFields) Flat() ctr.List[*FieldInfo]                 { return s.flat }
+func (s StructFields) ByFlat() ctr.OrderedMap[string, *FieldInfo] { return s.byFlat }
 
-func (s StructFields) Dupe() []*FieldInfo              { return s.dupe }
-func (s StructFields) ByDupe() map[string][]*FieldInfo { return s.byDupe }
+func (s StructFields) Dupe() ctr.List[*FieldInfo]                           { return s.dupe }
+func (s StructFields) ByDupe() ctr.OrderedMap[string, ctr.List[*FieldInfo]] { return s.byDupe }
 
 func buildStructFields(root []*FieldInfo) StructFields {
 	var all []*FieldInfo
@@ -45,26 +48,27 @@ func buildStructFields(root []*FieldInfo) StructFields {
 		rec(fi)
 	}
 
-	byName := make(map[string][]*FieldInfo)
-	byPath := make(map[string]*FieldInfo)
+	byName := ctr.NewMutMap[string, []*FieldInfo](nil)
+	byPath := ctr.NewMutMap[string, *FieldInfo](nil)
 	for _, fi := range all {
-		byName[fi.name.s] = append(byName[fi.name.s], fi)
-		if _, ok := byPath[fi.path]; ok {
+		byName.Put(fi.name.s, append(byName.Get(fi.name.s), fi))
+		if byPath.Contains(fi.path) {
 			panic(fmt.Errorf("duplicate field path: %s", fi.path))
 		}
-		byPath[fi.path] = fi
+		byPath.Put(fi.path, fi)
 	}
 
 	var flat []*FieldInfo
-	byFlat := make(map[string]*FieldInfo)
+	byFlat := ctr.NewMutMap[string, *FieldInfo](nil)
 	var dupe []*FieldInfo
 	byDupe := make(map[string][]*FieldInfo)
-	for _, s := range byName {
+	byName.ForEach(func(kv bt.Kv[string, []*FieldInfo]) bool {
+		s := kv.V
 		if slices.Any(s, (*FieldInfo).Anonymous) {
 			if len(s) != 1 {
 				panic(fmt.Errorf("anonymous field name collision: %s", s[0].Name()))
 			}
-			continue
+			return true
 		}
 
 		w := []*FieldInfo{s[0]}
@@ -84,18 +88,20 @@ func buildStructFields(root []*FieldInfo) StructFields {
 		} else {
 			f := w[0]
 			flat = append(flat, f)
-			byFlat[f.name.s] = f
+			byFlat.Put(f.name.s, f)
 		}
-	}
+
+		return true
+	})
 
 	return StructFields{
-		root: root,
-		all:  all,
+		root: ctr.NewList(its.OfSlice(root)),
+		all:  ctr.NewList(its.OfSlice(all)),
 
 		byName: byName,
 		byPath: byPath,
 
-		flat:   flat,
+		flat:   ctr.NewList(its.OfSlice(flat)),
 		byFlat: byFlat,
 
 		dupe:   dupe,

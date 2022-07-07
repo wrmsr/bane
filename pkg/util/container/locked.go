@@ -1,11 +1,9 @@
 package container
 
 import (
-	"reflect"
 	"sync"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
-	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -36,10 +34,6 @@ func NewLockedMap[K, V any](m Map[K, V]) LockedMap[K, V] {
 }
 
 var _ LockedMap[int, string] = &lockedMapImpl[int, string]{}
-
-func (m *lockedMapImpl[K, V]) ReflectTypeArgs() []reflect.Type {
-	return []reflect.Type{rfl.TypeOf[K](), rfl.TypeOf[V]()}
-}
 
 func (m *lockedMapImpl[K, V]) Len() int {
 	m.mtx.Lock()

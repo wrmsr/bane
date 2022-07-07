@@ -70,8 +70,8 @@ func SortNames(pfx string, ns []string) (ret SortedNames) {
 //
 
 type ParsedGenericName struct {
-	Base ParsedName
-	Args []ParsedGenericName
+	Base ParsedName          `json:"base,omitempty"`
+	Args []ParsedGenericName `json:"args,omitempty"`
 }
 
 func (n ParsedGenericName) String() string {
@@ -132,10 +132,14 @@ func ParseGenericName(name string) (ParsedGenericName, error) {
 
 //
 
-func ParseTypeName(ty reflect.Type) (ParsedGenericName, error) {
+func TypeName(ty reflect.Type) string {
 	s := ty.Name()
 	if ty.PkgPath() != "" {
 		s = ty.PkgPath() + "." + s
 	}
-	return ParseGenericName(s)
+	return s
+}
+
+func ParseTypeName(ty reflect.Type) (ParsedGenericName, error) {
+	return ParseGenericName(TypeName(ty))
 }

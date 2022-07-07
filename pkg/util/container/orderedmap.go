@@ -1,10 +1,7 @@
 package container
 
 import (
-	"reflect"
-
 	its "github.com/wrmsr/bane/pkg/util/iterators"
-	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -46,10 +43,6 @@ func NewOrderedMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) OrderedMap
 }
 
 var _ OrderedMap[int, any] = orderedMapImpl[int, any]{}
-
-func (m orderedMapImpl[K, V]) ReflectTypeArgs() []reflect.Type {
-	return []reflect.Type{rfl.TypeOf[K](), rfl.TypeOf[V]()}
-}
 
 func (m orderedMapImpl[K, V]) isOrdered() {}
 

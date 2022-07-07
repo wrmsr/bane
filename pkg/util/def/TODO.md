@@ -62,3 +62,8 @@
 - generators https://pvs-studio.com/en/blog/posts/csharp/0808/
 - dispatch via method name prefixes - fooBar_Ints
     - raise on ambiguous types
+- infer receiver name
+- 'companion structs'
+- name powered:
+  - func (f *Foo) _def_init_barfs() {}
+  - func (f *Foo) _def_lazy_Things() []int { return nil }
