@@ -1,7 +1,10 @@
 package container
 
 import (
+	"reflect"
+
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -65,6 +68,10 @@ func NewMutBiMap[K, V comparable](it its.Iterable[bt.Kv[K, V]]) MutBiMap[K, V] {
 }
 
 var _ MutBiMap[int, string] = mutBiMapImpl[int, string]{}
+
+func (m mutBiMapImpl[K, V]) ReflectTypeArgs() []reflect.Type {
+	return []reflect.Type{rfl.TypeOf[K](), rfl.TypeOf[V]()}
+}
 
 func (m mutBiMapImpl[K, V]) Len() int {
 	return m.m.Len()

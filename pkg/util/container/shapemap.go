@@ -2,8 +2,10 @@ package container
 
 import (
 	"errors"
+	"reflect"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -34,6 +36,10 @@ func NewMapShape[K comparable](ks its.Iterable[K]) MapShape[K] {
 }
 
 var _ Set[int] = MapShape[int]{}
+
+func (s MapShape[K]) ReflectTypeArgs() []reflect.Type {
+	return []reflect.Type{rfl.TypeOf[K]()}
+}
 
 func (s MapShape[K]) Len() int {
 	return len(s.ks)
@@ -87,6 +93,10 @@ func (m ShapeMap[K, V]) Shape() MapShape[K] {
 }
 
 var _ Map[int, string] = ShapeMap[int, string]{}
+
+func (m ShapeMap[K, V]) ReflectTypeArgs() []reflect.Type {
+	return []reflect.Type{rfl.TypeOf[K](), rfl.TypeOf[V]()}
+}
 
 func (m ShapeMap[K, V]) Len() int {
 	return len(m.vs)

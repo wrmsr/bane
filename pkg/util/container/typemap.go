@@ -4,6 +4,7 @@ import (
 	"reflect"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
 //
@@ -16,6 +17,8 @@ type TypeMap[T any] interface {
 
 	its.Iterable[T]
 	its.Traversable[T]
+
+	rfl.TypeArgsReflector
 }
 
 type MutTypeMap[T any] interface {
@@ -49,6 +52,10 @@ func NewTypeMap[T any](it its.Iterable[T]) TypeMap[T] {
 }
 
 var _ TypeMap[any] = typeMapImpl[any]{}
+
+func (m typeMapImpl[T]) ReflectTypeArgs() []reflect.Type {
+	return []reflect.Type{rfl.TypeOf[T]()}
+}
 
 func (m typeMapImpl[T]) Len() int {
 	return len(m.m)

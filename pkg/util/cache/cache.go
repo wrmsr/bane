@@ -1,10 +1,12 @@
 package cache
 
 import (
+	"reflect"
 	"time"
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -426,4 +428,8 @@ var _ ctr.Map[int, any] = &Cache[int]{}
 
 func (c *Cache[K]) Iterate() its.Iterator[bt.Kv[K, any]] {
 	return its.OfSlice(its.SeqForEach[bt.Kv[K, any]](c)).Iterate()
+}
+
+func (c *Cache[K]) ReflectTypeArgs() []reflect.Type {
+	return []reflect.Type{rfl.TypeOf[K]()}
 }

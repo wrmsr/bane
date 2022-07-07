@@ -1,7 +1,10 @@
 package container
 
 import (
+	"reflect"
+
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -13,6 +16,8 @@ type Set[T any] interface {
 
 	its.Iterable[T]
 	its.Traversable[T]
+
+	rfl.TypeArgsReflector
 }
 
 type MutSet[T any] interface {
@@ -55,6 +60,10 @@ func NewSetOf[T comparable](vs ...T) Set[T] {
 }
 
 var _ Set[int] = setImpl[int]{}
+
+func (s setImpl[T]) ReflectTypeArgs() []reflect.Type {
+	return []reflect.Type{rfl.TypeOf[T]()}
+}
 
 func (s setImpl[T]) Len() int {
 	return len(s.m)

@@ -41,8 +41,11 @@
 package container
 
 import (
+	"reflect"
+
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rndu "github.com/wrmsr/bane/pkg/util/rand"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -260,6 +263,10 @@ func NewTreapMap[K, V any](cmp Comparer[K]) PersistentMap[K, V] {
 }
 
 var _ PersistentMap[int, string] = treapMap[int, string]{}
+
+func (m treapMap[K, V]) ReflectTypeArgs() []reflect.Type {
+	return []reflect.Type{rfl.TypeOf[K](), rfl.TypeOf[V]()}
+}
 
 func (m treapMap[K, V]) isPersistent() {}
 

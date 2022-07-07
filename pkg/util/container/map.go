@@ -1,7 +1,10 @@
 package container
 
 import (
+	"reflect"
+
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -15,6 +18,8 @@ type Map[K, V any] interface {
 
 	its.Iterable[bt.Kv[K, V]]
 	its.Traversable[bt.Kv[K, V]]
+
+	rfl.TypeArgsReflector
 }
 
 type MutMap[K, V any] interface {
@@ -53,6 +58,10 @@ func NewMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) Map[K, V] {
 }
 
 var _ Map[int, any] = mapImpl[int, any]{}
+
+func (m mapImpl[K, V]) ReflectTypeArgs() []reflect.Type {
+	return []reflect.Type{rfl.TypeOf[K](), rfl.TypeOf[V]()}
+}
 
 func (m mapImpl[K, V]) Len() int {
 	return len(m.m)

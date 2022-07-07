@@ -2,9 +2,11 @@ package container
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	syncu "github.com/wrmsr/bane/pkg/util/sync"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -62,6 +64,10 @@ func NewHashEqMap[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) M
 }
 
 var _ Map[int, string] = hashEqMapImpl[int, string]{}
+
+func (m hashEqMapImpl[K, V]) ReflectTypeArgs() []reflect.Type {
+	return []reflect.Type{rfl.TypeOf[K](), rfl.TypeOf[V]()}
+}
 
 func (m hashEqMapImpl[K, V]) Len() int {
 	return m.l

@@ -2,8 +2,10 @@ package container
 
 import (
 	"container/list"
+	"reflect"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
 type LinkedList[T any] struct {
@@ -21,6 +23,10 @@ func NewLinkedList[T any](it its.Iterable[T]) LinkedList[T] {
 }
 
 var _ MutList[int] = LinkedList[int]{}
+
+func (l LinkedList[T]) ReflectTypeArgs() []reflect.Type {
+	return []reflect.Type{rfl.TypeOf[T]()}
+}
 
 func (l LinkedList[T]) isMutable() {}
 
@@ -62,6 +68,7 @@ func (i *linkedListIterator[T]) Next() T {
 	i.e = i.e.Next()
 	return v.(T)
 }
+
 func (l LinkedList[T]) Iterate() its.Iterator[T] {
 	return &linkedListIterator[T]{l.Front()}
 }
