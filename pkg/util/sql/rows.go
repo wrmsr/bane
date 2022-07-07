@@ -4,6 +4,7 @@ import (
 	"reflect"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -26,6 +27,24 @@ func ScanMap(cs []sqb.Column, scan RowScanner) (map[string]any, error) {
 	m := make(map[string]any, len(cs))
 	for i, c := range cs {
 		m[c.Name] = vvs[i].Interface()
+	}
+	return m, nil
+}
+
+func ScanMapAny(ns []string, scan RowScanner) (map[string]any, error) {
+	vvs := make([]reflect.Value, len(ns))
+	dvs := make([]any, len(ns))
+	for i := range ns {
+		sv := reflect.New(rfl.Any())
+		vvs[i] = sv.Elem()
+		dvs[i] = sv.Interface()
+	}
+	if err := scan(dvs...); err != nil {
+		return nil, err
+	}
+	m := make(map[string]any, len(ns))
+	for i, n := range ns {
+		m[n] = vvs[i].Interface()
 	}
 	return m, nil
 }

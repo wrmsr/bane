@@ -43,6 +43,12 @@ func TestMysql(t *testing.T) {
 	))
 	fmt.Println(m)
 
+	m = check.Must1(ScanMapAny(
+		[]string{"foo"},
+		db.QueryRow("SELECT VERSION()").Scan,
+	))
+	fmt.Println(m)
+
 	ctx := context.Background()
 
 	d := sqa.NewStdDb(db)
