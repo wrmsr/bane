@@ -66,7 +66,17 @@ func (u PointerUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.V
 		return u.nv, nil
 
 	default:
-		return u.elem.Unmarshal(ctx, mv)
+		ev, err := u.elem.Unmarshal(ctx, mv)
+		if err != nil {
+			return rfl.Invalid(), err
+		}
+		if ev.CanAddr() {
+			return ev.Addr(), nil
+		}
+		pv := reflect.New(u.ty.Elem())
+		pv.Elem().Set(ev)
+		return pv, nil
+
 	}
 }
 
