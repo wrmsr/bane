@@ -33,7 +33,7 @@ func (m OptionalMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value,
 
 var _optionalInterfaceTy = rfl.TypeOf[opt.Interface]()
 
-var optionalMarshalerFactory = NewFuncMarshalerFactory(func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
+var optionalMarshalerFactory = NewFuncFactory(func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
 	if !ty.AssignableTo(_optionalInterfaceTy) {
 		return nil, nil
 	}
@@ -85,7 +85,7 @@ func (u OptionalUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.
 
 //
 
-var optionalUnmarshalerFactory = NewFuncUnmarshalerFactory(func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
+var optionalUnmarshalerFactory = NewFuncFactory(func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
 	if !ty.AssignableTo(_optionalInterfaceTy) {
 		return nil, nil
 	}

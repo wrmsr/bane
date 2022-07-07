@@ -28,7 +28,7 @@ func (m PointerMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, 
 
 //
 
-var pointerMarshalerFactory = NewFuncMarshalerFactory(func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
+var pointerMarshalerFactory = NewFuncFactory(func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
 	if ty.Kind() != reflect.Pointer {
 		return nil, nil
 	}
@@ -72,7 +72,7 @@ func (u PointerUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.V
 
 //
 
-var pointerUnmarshalerFactory = NewFuncUnmarshalerFactory(func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
+var pointerUnmarshalerFactory = NewFuncFactory(func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
 	if ty.Kind() != reflect.Slice && ty.Kind() != reflect.Array {
 		return nil, nil
 	}

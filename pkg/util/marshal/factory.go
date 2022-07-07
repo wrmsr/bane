@@ -46,6 +46,28 @@ func (f TypeMapFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 	return z, nil
 }
 
+//
+
+type CompositeFactory[R, C, A any] struct {
+	fs []Factory[R, C, A]
+}
+
+func NewCompositeFactory[R, C, A any](fs ...Factory[R, C, A]) CompositeFactory[R, C, A] {
+	return CompositeFactory[R, C, A]{fs: fs}
+}
+
+var _ Factory[int, uint, string] = CompositeFactory[int, uint, string]{}
+
+func (f CompositeFactory[R, C, A]) Make(ctx C, a A) (R, error) {
+	var z R
+	for _, c := range f.fs {
+		r, err := c.Make(ctx, a)
+		if err != nil {
+			return z, err
+		}
+	}
+}
+
 ///
 
 type MarshalerFactoryContext struct {
@@ -53,10 +75,6 @@ type MarshalerFactoryContext struct {
 }
 
 type MarshalerFactory = Factory[Marshaler, MarshalerFactoryContext, reflect.Type]
-
-func NewFuncMarshalerFactory(fn func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error)) MarshalerFactory {
-	return NewFuncFactory(fn)
-}
 
 func NewTypeMapMarshalerFactory(m map[reflect.Type]Marshaler) MarshalerFactory {
 	return NewTypeMapFactory[Marshaler, MarshalerFactoryContext](m)
@@ -69,10 +87,6 @@ type UnmarshalerFactoryContext struct {
 }
 
 type UnmarshalerFactory = Factory[Unmarshaler, UnmarshalerFactoryContext, reflect.Type]
-
-func NewFuncUnmarshalerFactory(fn func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error)) UnmarshalerFactory {
-	return NewFuncFactory(fn)
-}
 
 func NewTypeMapUnmarshalerFactory(m map[reflect.Type]Unmarshaler) UnmarshalerFactory {
 	return NewTypeMapFactory[Unmarshaler, UnmarshalerFactoryContext](m)

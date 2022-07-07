@@ -39,7 +39,7 @@ func (m IndexMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, er
 
 //
 
-var indexMarshalerFactory = NewFuncMarshalerFactory(func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
+var indexMarshalerFactory = NewFuncFactory(func(ctx MarshalerFactoryContext, ty reflect.Type) (Marshaler, error) {
 	if ty.Kind() != reflect.Slice && ty.Kind() != reflect.Array {
 		return nil, nil
 	}
@@ -136,7 +136,7 @@ func (u ArrayUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Val
 
 //
 
-var indexUnmarshalerFactory = NewFuncUnmarshalerFactory(func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
+var indexUnmarshalerFactory = NewFuncFactory(func(ctx UnmarshalerFactoryContext, ty reflect.Type) (Unmarshaler, error) {
 	if ty.Kind() != reflect.Slice && ty.Kind() != reflect.Array {
 		return nil, nil
 	}
