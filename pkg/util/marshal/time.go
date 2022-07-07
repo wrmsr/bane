@@ -8,7 +8,7 @@ import (
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
-//
+///
 
 type TimeMarshaler struct {
 	layout string
@@ -30,6 +30,16 @@ func (m TimeMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, err
 }
 
 //
+
+const DefaultTimeMarshalLayout = time.RFC3339Nano
+
+var timeMarshalerFactory = NewTypeMapMarshalerFactory(map[reflect.Type]Marshaler{rfl.TypeOf[time.Time](): NewTimeMarshaler(DefaultTimeMarshalLayout)})
+
+func NewTimeMarshalerFactory() MarshalerFactory {
+	return timeMarshalerFactory
+}
+
+///
 
 type TimeUnmarshaler struct {
 	layouts []string
@@ -57,4 +67,34 @@ func (u TimeUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Valu
 
 	}
 	return rfl.Invalid(), _unhandledType
+}
+
+//
+
+var defaultTimeUnmarshalLayouts = []string{
+	time.RFC3339Nano,
+	time.RFC3339,
+
+	time.RFC1123,
+	time.RFC1123Z,
+
+	time.RFC850,
+
+	time.RFC822Z,
+	time.RFC822,
+
+	time.StampNano,
+	time.StampMicro,
+	time.StampMilli,
+	time.Stamp,
+}
+
+func DefaultTimeUnmarshalLayouts() []string {
+	return defaultTimeUnmarshalLayouts
+}
+
+var timeUnmarshalerFactory = NewTypeMapUnmarshalerFactory(map[reflect.Type]Unmarshaler{rfl.TypeOf[time.Time](): NewTimeUnmarshaler(defaultTimeUnmarshalLayouts)})
+
+func NewTimeUnmarshalerFactory() UnmarshalerFactory {
+	return timeUnmarshalerFactory
 }

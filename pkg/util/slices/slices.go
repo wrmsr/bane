@@ -314,3 +314,17 @@ func KvsOf[K, V any](o ...any) []bt.Kv[K, V] {
 	}
 	return r
 }
+
+//
+
+func Get[T any](s []T, i int) T {
+	return s[i]
+}
+
+func Set[T any](s []T, i int, t T) {
+	s[i] = t
+}
+
+func PtrTo[T any](s []T, i int) *T {
+	return &s[i]
+}

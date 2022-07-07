@@ -18,6 +18,7 @@ func TestDefaultFactory(t *testing.T) {
 		NewIndexMarshalerFactory(),
 		NewMapMarshalerFactory(),
 		NewBase64MarshalerFactory(),
+		NewTimeMarshalerFactory(),
 		NewOptionalMarshalerFactory(),
 	))
 
@@ -28,6 +29,7 @@ func TestDefaultFactory(t *testing.T) {
 		NewIndexUnmarshalerFactory(),
 		NewMapUnmarshalerFactory(),
 		NewBase64UnmarshalerFactory(),
+		NewTimeUnmarshalerFactory(),
 		NewOptionalUnmarshalerFactory(),
 	))
 

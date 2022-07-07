@@ -1,5 +1,7 @@
 package maps
 
+//
+
 func Keys[K comparable, V any](m map[K]V) []K {
 	s := make([]K, len(m))
 	i := 0
@@ -56,6 +58,8 @@ func FilterValues[K comparable, V any](fn func(v V) bool, m map[K]V) map[K]V {
 	return r
 }
 
+//
+
 func Clone[K comparable, V any](m map[K]V) map[K]V {
 	r := make(map[K]V, len(m))
 	for k, v := range m {
@@ -70,4 +74,24 @@ func Invert[K, V comparable](m map[K]V) map[V]K {
 		r[v] = k
 	}
 	return r
+}
+
+//
+
+func Get[K comparable, V any](m map[K]V, k K) V {
+	return m[k]
+}
+
+func TryGet[K comparable, V any](m map[K]V, k K) (V, bool) {
+	v, ok := m[k]
+	return v, ok
+}
+
+func Contains[K comparable, V any](m map[K]V, k K) bool {
+	_, ok := m[k]
+	return ok
+}
+
+func Put[K comparable, V any](m map[K]V, k K, v V) {
+	m[k] = v
 }

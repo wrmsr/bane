@@ -8,33 +8,6 @@ import (
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
-//
-
-type Stack[T any] struct {
-	s []T
-}
-
-func (s *Stack[T]) Top() *T {
-	return &s.s[len(s.s)-1]
-}
-
-func (s *Stack[T]) Push(t T) {
-	s.s = append(s.s, t)
-}
-
-func (s *Stack[T]) Pop() T {
-	l := len(s.s) - 1
-	r := s.s[l]
-	s.s = s.s[:l]
-	return r
-}
-
-func (s *Stack[T]) Len() int {
-	return len(s.s)
-}
-
-//
-
 func ParseNestedList(s string, left, right, sep rune) ([]any, error) {
 	if s == "" {
 		return nil, nil
@@ -42,7 +15,7 @@ func ParseNestedList(s string, left, right, sep rune) ([]any, error) {
 	ctrl := []rune{left, right, sep}
 	parts := slices.FlatMap(fnu.Bind1x1x1(SplitAny, ctrl), SplitAny(ctrl, s))
 
-	var stk = Stack[[]any]{}
+	var stk = slices.Stack[[]any]{}
 	stk.Push(nil)
 
 	add := func(o any) error {
