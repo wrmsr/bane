@@ -12,6 +12,7 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/log"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	sqa "github.com/wrmsr/bane/pkg/util/sql/adapters"
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
 )
@@ -36,6 +37,12 @@ func TestMysql(t *testing.T) {
 	var version string
 	check.Must(db.QueryRow("SELECT VERSION()").Scan(&version))
 
+	m := check.Must1(ScanMap(
+		[]sqb.Column{{Name: "foo", Type: rfl.TypeOf[string]()}},
+		db.QueryRow("SELECT VERSION()").Scan,
+	))
+	fmt.Println(m)
+
 	ctx := context.Background()
 
 	d := sqa.NewStdDb(db)
@@ -46,16 +53,22 @@ func TestMysql(t *testing.T) {
 	r := check.Must1(c.Query(sqb.Query{
 		Ctx:  ctx,
 		Mode: sqb.QueryQuery,
-		Text: "select version()",
+		Text: "select version() union select 'foo'",
 	}))
 	defer log.OrError(r.Close)
 
-	for r.Err() == nil && r.Next() {
-		var s string
-		check.Must(r.Scan(&s))
-		fmt.Println(s)
+	//for r.Err() == nil && r.Next() {
+	//	var s string
+	//	check.Must(r.Scan(&s))
+	//	fmt.Println(s)
+	//}
+	//check.Must(r.Err())
+
+	for ri := Iter(r); ri.HasNext(); {
+		re := ri.Next()
+		check.Must(re.Err)
+		fmt.Println(re.Val)
 	}
-	check.Must(r.Err())
 
 	//Exec(context.Background(), )
 	fmt.Println(version)
