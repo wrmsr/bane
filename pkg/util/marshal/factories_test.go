@@ -14,7 +14,7 @@ import (
 func TestDefaultFactory(t *testing.T) {
 	sic := stu.NewStructInfoCache()
 
-	mf := NewTypeCacheMarshalerFactory(NewCompositeFactory(
+	mf := NewTypeCacheMarshalerFactory(NewCompositeMarshalerFactory(
 		FirstComposite,
 		NewPrimitiveMarshalerFactory(),
 		NewPointerMarshalerFactory(),
@@ -26,7 +26,7 @@ func TestDefaultFactory(t *testing.T) {
 		NewStructMarshalerFactory(sic),
 	))
 
-	uf := NewTypeCacheUnmarshalerFactory(NewCompositeFactory(
+	uf := NewTypeCacheUnmarshalerFactory(NewCompositeUnmarshalerFactory(
 		FirstComposite,
 		NewConvertPrimitiveUnmarshalerFactory(),
 		NewPointerUnmarshalerFactory(),

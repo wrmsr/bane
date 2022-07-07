@@ -67,6 +67,10 @@ func NewTypeCacheMarshalerFactory(f MarshalerFactory) MarshalerFactory {
 	return NewTypeCacheFactory[Marshaler, MarshalContext](f)
 }
 
+func NewCompositeMarshalerFactory(st CompositeStrategy, fs ...MarshalerFactory) MarshalerFactory {
+	return NewCompositeFactory[Marshaler, MarshalContext, reflect.Type](st, fs...)
+}
+
 ///
 
 type UnmarshalOpt interface {
@@ -114,4 +118,8 @@ func NewTypeMapUnmarshalerFactory(m map[reflect.Type]Unmarshaler) UnmarshalerFac
 
 func NewTypeCacheUnmarshalerFactory(f UnmarshalerFactory) UnmarshalerFactory {
 	return NewTypeCacheFactory[Unmarshaler, UnmarshalContext](f)
+}
+
+func NewCompositeUnmarshalerFactory(st CompositeStrategy, fs ...UnmarshalerFactory) UnmarshalerFactory {
+	return NewCompositeFactory[Unmarshaler, UnmarshalContext, reflect.Type](st, fs...)
 }
