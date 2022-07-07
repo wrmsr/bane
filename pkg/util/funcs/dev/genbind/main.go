@@ -82,15 +82,15 @@ func main() {
 	rn := check.Must1(strconv.Atoi(flags.Args()[2]))
 
 	tmpl := check.Must1(template.New("?").Parse(`
-func Bind{{- .n_b -}}x{{- .n_a -}}x{{- .n_r -}}[{{.t_bar}} any](fn func({{.t_ba}}) {{.pt_r}}, {{.p_b}}) func({{.t_a}}) {{.pt_r}} {
+func Bind{{- .n_b -}}x{{- .n_a -}}x{{- .n_r -}}{{if .t_bar}}[{{.t_bar}} any]{{end}}(fn func({{.t_ba}}) {{.pt_r}}{{if .p_b}}, {{.p_b}}{{end -}}) func({{.t_a}}) {{.pt_r}} {
 	return func({{.p_a}}) {{.pt_r}} {
-		return fn({{.a_ba}})
+		{{if .pt_r}}return {{end}}fn({{.a_ba}})
 	}
 }
 
-func BindR{{- .n_a -}}x{{- .n_b -}}x{{- .n_r -}}[{{.t_abr}} any](fn func({{.t_ab}}) {{.pt_r}}, {{.p_b}}) func({{.t_a}}) {{.pt_r}} {
+func BindR{{- .n_a -}}x{{- .n_b -}}x{{- .n_r -}}{{if .t_abr}}[{{.t_abr}} any]{{end}}(fn func({{.t_ab}}) {{.pt_r}}{{if .p_b}}, {{.p_b}}{{end -}}) func({{.t_a}}) {{.pt_r}} {
 	return func({{.p_a}}) {{.pt_r}} {
-		return fn({{.a_ab}})
+		{{if .pt_r}}return {{end}}fn({{.a_ab}})
 	}
 }
 `))
@@ -98,9 +98,9 @@ func BindR{{- .n_a -}}x{{- .n_b -}}x{{- .n_r -}}[{{.t_abr}} any](fn func({{.t_ab
 	var out strings.Builder
 	out.WriteString("package funcs\n")
 
-	for cr := 1; cr < rn+1; cr++ {
-		for ca := 1; ca < an+1; ca++ {
-			for cb := 1; cb < bn+1; cb++ {
+	for cr := 0; cr < rn+1; cr++ {
+		for ca := 0; ca < an+1; ca++ {
+			for cb := 0; cb < bn+1; cb++ {
 				b := newDim("b", cb)
 				a := newDim("a", ca)
 				r := newDim("r", cr)
@@ -123,9 +123,14 @@ func BindR{{- .n_a -}}x{{- .n_b -}}x{{- .n_r -}}[{{.t_abr}} any](fn func({{.t_ab
 		}
 	}
 
+	s := out.String()
+	s = strings.ReplaceAll(s, " , ", ", ")
+	s = strings.ReplaceAll(s, "  {", " {")
+	s = strings.ReplaceAll(s, " ) ", ") ")
+
 	if noWrite {
-		fmt.Println(out.String())
+		fmt.Println(s)
 	} else {
-		check.Must(ioutil.WriteFile("bind_gen.go", []byte(out.String()), 0644))
+		check.Must(ioutil.WriteFile("bind_gen.go", []byte(s), 0644))
 	}
 }
