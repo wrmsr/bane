@@ -11,6 +11,11 @@ import (
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
+type FooStruct struct {
+	M map[opt.Optional[int]][]*string
+	S string
+}
+
 func TestDefaultFactory(t *testing.T) {
 	sic := stu.NewStructInfoCache()
 
@@ -38,10 +43,13 @@ func TestDefaultFactory(t *testing.T) {
 		NewStructUnmarshalerFactory(sic),
 	))
 
-	o := map[opt.Optional[int]][]*string{
-		opt.Just(10):    {bt.PtrTo("ten"), bt.PtrTo("one zero")},
-		opt.Just(20):    {bt.PtrTo("twenty"), bt.PtrTo("two zero")},
-		opt.None[int](): {bt.PtrTo("none")},
+	o := FooStruct{
+		M: map[opt.Optional[int]][]*string{
+			opt.Just(10):    {bt.PtrTo("ten"), bt.PtrTo("one zero")},
+			opt.Just(20):    {bt.PtrTo("twenty"), bt.PtrTo("two zero")},
+			opt.None[int](): {bt.PtrTo("none")},
+		},
+		S: "foo..",
 	}
 	fmt.Println(o)
 

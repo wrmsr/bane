@@ -3,7 +3,6 @@ package structs
 import (
 	"reflect"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
@@ -12,7 +11,7 @@ type FieldInfo struct {
 	field reflect.StructField
 
 	name Name
-	flat opt.Optional[Name]
+	flat bool
 
 	index []int
 	path  string
@@ -27,13 +26,13 @@ type FieldInfo struct {
 
 func (fi FieldInfo) Field() reflect.StructField { return fi.field }
 func (fi FieldInfo) Name() Name                 { return fi.name }
-func (fi FieldInfo) Flat() opt.Optional[Name]   { return fi.flat }
+func (fi FieldInfo) Flat() bool                 { return fi.flat }
 func (fi FieldInfo) Index() []int               { return fi.index }
 func (fi FieldInfo) Struct() *StructInfo        { return fi.si }
 
 func (fi FieldInfo) Type() reflect.Type { return fi.field.Type }
 func (fi FieldInfo) Anonymous() bool    { return fi.field.Anonymous }
-func (fi FieldInfo) Dupe() bool         { return !fi.flat.Present() }
+func (fi FieldInfo) Dupe() bool         { return !fi.flat }
 func (fi FieldInfo) Depth() int         { return len(fi.index) }
 
 func buildFieldInfo(

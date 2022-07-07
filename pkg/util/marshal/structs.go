@@ -38,9 +38,26 @@ func (mf StructMarshalerFactory) Make(ctx MarshalContext, ty reflect.Type) (Mars
 	}
 
 	si := mf.sic.Info(ty)
-	si.Fields().ByFlat()
-
-	panic("nyi")
+	var flds []ObjectMarshalerField
+	var err error
+	si.Fields().Flat().ForEach(func(fi *stu.FieldInfo) bool {
+		var impl Marshaler
+		impl, err = ctx.Make(ctx, fi.Type())
+		if err != nil {
+			return false
+		}
+		of := ObjectMarshalerField{
+			Name: fi.Name().String(),
+			Get:  NewStructFieldGetter(fi),
+			Impl: impl,
+		}
+		flds = append(flds, of)
+		return true
+	})
+	if err != nil {
+		return nil, err
+	}
+	return NewObjectMarshaler(flds...), nil
 }
 
 ///
@@ -77,5 +94,26 @@ func (mf StructUnmarshalerFactory) Make(ctx UnmarshalContext, ty reflect.Type) (
 		return nil, nil
 	}
 
-	panic("nyi")
+	si := mf.sic.Info(ty)
+	var flds []ObjectUnmarshalerField
+	var err error
+	si.Fields().Flat().ForEach(func(fi *stu.FieldInfo) bool {
+		var impl Unmarshaler
+		impl, err = ctx.Make(ctx, fi.Type())
+		if err != nil {
+			return false
+		}
+		of := ObjectUnmarshalerField{
+			Name: fi.Name().String(),
+			Set:  NewStructFieldSetter(fi),
+			Impl: impl,
+		}
+		flds = append(flds, of)
+		return true
+	})
+	if err != nil {
+		return nil, err
+	}
+	fac := NewStructFactory(si)
+	return NewObjectUnmarshaler(fac, flds...), nil
 }

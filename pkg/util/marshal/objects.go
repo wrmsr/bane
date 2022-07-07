@@ -47,7 +47,6 @@ func (m ObjectMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, e
 		if !frv.Present() {
 			continue
 		}
-
 		fmv, err := fld.Impl.Marshal(ctx, frv.Value())
 		if err != nil {
 			return nil, err

@@ -93,6 +93,7 @@ func buildStructFields(root []*FieldInfo) StructFields {
 			byDupe.Put(w[0].name.s, ctr.NewList(its.OfSlice(w)))
 		} else {
 			f := w[0]
+			f.flat = true
 			flat = append(flat, f)
 			byFlat.Put(f.name.s, f)
 		}
