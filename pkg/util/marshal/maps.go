@@ -87,7 +87,7 @@ func (u MapUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value
 		return u.nv, nil
 
 	case Object:
-		rv := reflect.New(u.ty).Elem()
+		rv := reflect.MakeMap(u.ty)
 		for _, kv := range mv.v {
 			k, err := u.k.Unmarshal(ctx, kv.K)
 			if err != nil {
