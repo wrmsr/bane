@@ -1,9 +1,11 @@
 package container
 
 import (
+	"reflect"
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
 func TestMap(t *testing.T) {
@@ -20,4 +22,10 @@ func TestMap(t *testing.T) {
 
 	m.Delete(20)
 	tu.AssertEqual(t, m.Contains(20), false)
+}
+
+func TestMapReflect(t *testing.T) {
+	m := NewMap[int, string](nil)
+	ta := rfl.TypeArgs(reflect.TypeOf(m))
+	tu.AssertDeepEqual(t, ta, []reflect.Type{rfl.TypeOf[int](), rfl.TypeOf[string]()})
 }

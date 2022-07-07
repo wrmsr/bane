@@ -9,9 +9,15 @@ type TypeArgsReflector interface {
 	ReflectTypeArgs() []reflect.Type
 }
 
+var _typeArgsReflectorTy = TypeOf[TypeArgsReflector]()
+
 func TypeArgs(ty reflect.Type) []reflect.Type {
-	if ty, ok := ty.(TypeArgsReflector); ok {
-		return ty.ReflectTypeArgs()
+	if ty.AssignableTo(_typeArgsReflectorTy) {
+		inst := reflect.New(ty).Elem().Interface()
+		if r, ok := inst.(TypeArgsReflector); ok {
+			return r.ReflectTypeArgs()
+		}
+		panic(fmt.Errorf("can't reflect: %s", ty))
 	}
 
 	switch ty.Kind() {
