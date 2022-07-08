@@ -156,12 +156,21 @@ func TestTensor(t *testing.T) {
 	fmt.Println(tns.strides.Offset(2, 3, 1))
 	fmt.Println(tns.strides.Offset(3, 3, 3))
 
-	zb := make([]byte, tns.width)
-	platform.NativeEndian().PutUint32(zb, math.Float32bits(1))
-
 	for i := int64(0); i < int64(tns.Sz()); i += int64(tns.width) {
-		copy(tns.buf[i:i+int64(tns.width)], zb)
+		b := make([]byte, tns.width)
+		platform.NativeEndian().PutUint32(b, math.Float32bits(float32(i)))
+		copy(tns.buf[i:i+int64(tns.width)], b)
 	}
 
 	fmt.Println(tns.buf)
+
+	for i := Dim(0); i < tns.shape[0]; i++ {
+		for j := Dim(0); j < tns.shape[1]; j++ {
+			for k := Dim(0); k < tns.shape[2]; k++ {
+				ofs := tns.strides.Offset(i, j, k)
+				f := math.Float32frombits(platform.NativeEndian().Uint32(tns.buf[ofs : ofs+tns.width]))
+				fmt.Printf("%2d %2d %2d %3d %f\n", i, j, k, ofs, f)
+			}
+		}
+	}
 }
