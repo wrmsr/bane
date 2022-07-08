@@ -100,7 +100,7 @@ func BindR{{- .n_a -}}x{{- .n_b -}}x{{- .n_r -}}{{if .t_abr}}[{{.t_abr}} any]{{e
 
 	for cr := 0; cr < rn+1; cr++ {
 		for ca := 0; ca < an+1; ca++ {
-			for cb := 0; cb < bn+1; cb++ {
+			for cb := 1; cb < bn+1; cb++ {
 				b := newDim("b", cb)
 				a := newDim("a", ca)
 				r := newDim("r", cr)
