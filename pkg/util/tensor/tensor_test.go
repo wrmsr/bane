@@ -2,7 +2,10 @@ package tensor
 
 import (
 	"fmt"
+	"math"
 	"testing"
+
+	"github.com/wrmsr/bane/pkg/util/platform"
 )
 
 //
@@ -113,6 +116,10 @@ func NewBaseTensor(
 	}
 }
 
+func (t BaseTensor) Sz() Sz {
+	return t.strides[0] * t.width
+}
+
 //
 
 type HeapTensor struct {
@@ -125,7 +132,7 @@ func NewHeapTensor(bt BaseTensor) HeapTensor {
 	return HeapTensor{
 		BaseTensor: bt,
 
-		buf: make([]byte, bt.strides[0]*bt.width),
+		buf: make([]byte, bt.Sz()),
 	}
 }
 
@@ -148,4 +155,13 @@ func TestTensor(t *testing.T) {
 	fmt.Println(tns.strides.Offset(2, 3, 0))
 	fmt.Println(tns.strides.Offset(2, 3, 1))
 	fmt.Println(tns.strides.Offset(3, 3, 3))
+
+	zb := make([]byte, tns.width)
+	platform.NativeEndian().PutUint32(zb, math.Float32bits(1))
+
+	for i := int64(0); i < int64(tns.Sz()); i += int64(tns.width) {
+		copy(tns.buf[i:i+int64(tns.width)], zb)
+	}
+
+	fmt.Println(tns.buf)
 }
