@@ -152,17 +152,17 @@ func (self Interface) String() string {
 }
 
 func (self Interface) Format(f fmt.State, r rune) {
-	fmt.Fprint(f, self.ret)
-	io.WriteString(f, "(*)(")
+	_, _ = fmt.Fprint(f, self.ret)
+	_, _ = io.WriteString(f, "(*)(")
 
 	for i, arg := range self.args {
 		if i != 0 {
-			io.WriteString(f, ", ")
+			_, _ = io.WriteString(f, ", ")
 		}
-		fmt.Fprint(f, arg)
+		_, _ = fmt.Fprint(f, arg)
 	}
 
-	io.WriteString(f, ")")
+	_, _ = io.WriteString(f, ")")
 }
 
 func Call(fptr unsafe.Pointer, ret interface{}, args ...interface{}) (err error) {
