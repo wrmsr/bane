@@ -169,7 +169,7 @@ func TestTensor(t *testing.T) {
 			for k := Dim(0); k < tns.shape[2]; k++ {
 				ofs := tns.strides.Offset(i, j, k)
 				f := math.Float32frombits(platform.NativeEndian().Uint32(tns.buf[ofs : ofs+tns.width]))
-				fmt.Printf("%2d %2d %2d %3d %f\n", i, j, k, ofs, f)
+				fmt.Printf("%2d %2d %2d %3d %12f\n", i, j, k, ofs, f)
 			}
 		}
 	}
