@@ -5,9 +5,24 @@ import (
 	"testing"
 )
 
-type ByteWidth int64
+//
 
-type Shape []int64
+type Sz int64
+type Dim int64
+
+//
+
+type Shape []Dim
+
+func (sh Shape) Dim() Dim {
+	r := sh[0]
+	for _, c := range sh[1:] {
+		r *= c
+	}
+	return r
+}
+
+//
 
 type Orientation int8
 
@@ -16,26 +31,26 @@ const (
 	ColumnMajor
 )
 
-func (o Orientation) BuildStrides(shape Shape, width ByteWidth) Strides {
+func (o Orientation) BuildStrides(shape Shape, width Sz) Strides {
 	switch o {
 	case RowMajor:
 		rem := int64(width)
 		for _, v := range shape {
-			rem *= v
+			rem *= int64(v)
 		}
 
 		if rem == 0 {
 			strides := make(Strides, len(shape))
 			for i := range strides {
-				strides[i] = int64(width)
+				strides[i] = width
 			}
 			return strides
 		}
 
 		strides := make(Strides, len(shape))
 		for i, v := range shape {
-			rem /= v
-			strides[i] = rem
+			rem /= int64(v)
+			strides[i] = Sz(rem)
 		}
 		return strides
 
@@ -45,7 +60,7 @@ func (o Orientation) BuildStrides(shape Shape, width ByteWidth) Strides {
 			if v == 0 {
 				strides := make(Strides, len(shape))
 				for i := range strides {
-					strides[i] = total
+					strides[i] = Sz(total)
 				}
 				return strides
 			}
@@ -53,8 +68,8 @@ func (o Orientation) BuildStrides(shape Shape, width ByteWidth) Strides {
 
 		strides := make(Strides, len(shape))
 		for i, v := range shape {
-			strides[i] = total
-			total *= v
+			strides[i] = Sz(total)
+			total *= int64(v)
 		}
 		return strides
 
@@ -62,22 +77,22 @@ func (o Orientation) BuildStrides(shape Shape, width ByteWidth) Strides {
 	panic("unknown orientation")
 }
 
-type Index int64
+//
 
-type Offset int64
+type Strides []Sz
 
-func (s Strides) Offset(idxs []Index, width ByteWidth) Offset {
-	var offset int64
+func (st Strides) Offset(idxs ...Dim) Sz {
+	var ofs Sz
 	for i, idx := range idxs {
-		offset += int64(idx) * s[i]
+		ofs += Sz(idx) * st[i]
 	}
-	return Offset(offset / int64(width))
+	return ofs
 }
 
-type Strides []int64
+//
 
 type BaseTensor struct {
-	width  ByteWidth
+	width  Sz
 	shape  Shape
 	orient Orientation
 
@@ -85,7 +100,7 @@ type BaseTensor struct {
 }
 
 func NewBaseTensor(
-	width ByteWidth,
+	width Sz,
 	shape Shape,
 	orient Orientation,
 ) BaseTensor {
@@ -98,26 +113,39 @@ func NewBaseTensor(
 	}
 }
 
-func (t BaseTensor) Offset(idxs ...Index) Offset {
-	return t.strides.Offset(idxs, t.width)
+//
+
+type HeapTensor struct {
+	BaseTensor
+
+	buf []byte
 }
 
-//type Float32Tensor struct {
-//	buf []float32
-//}
+func NewHeapTensor(bt BaseTensor) HeapTensor {
+	return HeapTensor{
+		BaseTensor: bt,
+
+		buf: make([]byte, bt.strides[0]*bt.width),
+	}
+}
+
+//
 
 func TestTensor(t *testing.T) {
-	tns := NewBaseTensor(
-		ByteWidth(4),
-		Shape{4, 4, 4},
-		RowMajor,
+	tns := NewHeapTensor(
+		NewBaseTensor(
+			Sz(4),
+			Shape{4, 4, 4},
+			RowMajor,
+		),
 	)
 
 	fmt.Println(tns)
 
-	fmt.Println(tns.Offset(1, 3))
-	fmt.Println(tns.Offset(2))
-	fmt.Println(tns.Offset(2, 3))
-	fmt.Println(tns.Offset(2, 3, 0))
-	fmt.Println(tns.Offset(2, 3, 1))
+	fmt.Println(tns.strides.Offset(1, 3))
+	fmt.Println(tns.strides.Offset(2))
+	fmt.Println(tns.strides.Offset(2, 3))
+	fmt.Println(tns.strides.Offset(2, 3, 0))
+	fmt.Println(tns.strides.Offset(2, 3, 1))
+	fmt.Println(tns.strides.Offset(3, 3, 3))
 }
