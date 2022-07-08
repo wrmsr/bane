@@ -461,11 +461,11 @@ func TestCallItoaClosure(t *testing.T) {
 func init() {
 	var err error
 
-	if libc, err = load("libc"); err != nil {
+	if libc, err = load("libc.dylib"); err != nil {
 		panic(err)
 	}
 
-	if libm, err = load("libm"); err != nil {
+	if libm, err = load("libm.dylib"); err != nil {
 		panic(err)
 	}
 
@@ -477,17 +477,23 @@ func init() {
 }
 
 func load(name string) (lib dl.Library, err error) {
-	var path string
-
-	if path, err = dl.Find(name); err != nil {
-		return
-	}
-
-	if lib, err = dl.Open(path, 0); err != nil {
+	if lib, err = dl.Open(name, 0); err != nil {
 		return
 	}
 
 	return
+
+	//var path string
+	//
+	//if path, err = dl.Find(name); err != nil {
+	//	return
+	//}
+	//
+	//if lib, err = dl.Open(path, 0); err != nil {
+	//	return
+	//}
+	//
+	//return
 }
 
 func symbol(lib dl.Library, name string) (addr uintptr) {

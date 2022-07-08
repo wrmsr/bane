@@ -18,8 +18,8 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 */
 package ffi
 
-// #cgo CFLAGS: -I/usr/include/ffi
-// #cgo LDFLAGS: -lffi
+// #cgo CFLAGS: -I/opt/homebrew/Cellar/libffi/3.4.2/include
+// #cgo LDFLAGS: -L/opt/homebrew/Cellar/libffi/3.4.2/lib -lffi
 //
 // #include <ffi.h>
 // #include <unistd.h>
