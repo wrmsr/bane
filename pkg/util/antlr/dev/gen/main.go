@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"io/fs"
 	"os"
@@ -22,9 +23,16 @@ import (
 )
 
 func main() {
+	flags := flag.NewFlagSet("gen", flag.ExitOnError)
+
+	var force bool
+	flags.BoolVar(&force, "f", false, "force generation (ignore mtime)")
+
+	check.Must(flags.Parse(os.Args[1:]))
+
 	check.Condition(check.Must1(os.Stat(".cache")).IsDir())
 
-	antlrVer := os.Args[1]
+	antlrVer := flags.Args()[0]
 	jarName := fmt.Sprintf("antlr-%s-complete.jar", antlrVer)
 	jarPath := filepath.Join(check.Must1(os.Getwd()), ".cache", jarName)
 	if !check.Must1(osu.Exists(jarPath)) {
@@ -39,7 +47,7 @@ func main() {
 	}
 
 	var g4s []g4File
-	for _, arg := range os.Args[2:] {
+	for _, arg := range flags.Args()[1:] {
 		check.Must(filepath.Walk(arg, func(path string, info fs.FileInfo, err error) error {
 			if strings.HasSuffix(info.Name(), ".g4") {
 				g4s = append(g4s, g4File{path, info})
@@ -60,6 +68,10 @@ func main() {
 
 	needsBuildsByDir := make(map[string][]g4File)
 	for dir, dirG4s := range g4sByDir {
+		if force {
+			needsBuildsByDir[dir] = dirG4s
+			continue
+		}
 		var needsBuild bool
 		for _, g4 := range dirG4s {
 			nr := []rune(g4.info.Name())

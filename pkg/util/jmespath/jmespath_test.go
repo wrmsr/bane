@@ -33,6 +33,11 @@ type TreeVisitor struct {
 	parser.BaseJmespathVisitor
 }
 
+func (v *TreeVisitor) Visit(tree antlr.ParseTree) interface{}            { return tree.Accept(v) }
+func (v *TreeVisitor) VisitChildren(node antlr.RuleNode) interface{}     { return nil }
+func (v *TreeVisitor) VisitTerminal(node antlr.TerminalNode) interface{} { return nil }
+func (v *TreeVisitor) VisitErrorNode(node antlr.ErrorNode) interface{}   { return nil }
+
 var _ parser.JmespathVisitor = &TreeVisitor{}
 
 func (v *TreeVisitor) VisitSingleExpression(ctx *parser.SingleExpressionContext) interface{} {
@@ -69,7 +74,9 @@ func TestParser1(t *testing.T) {
 
 	antlr.ParseTreeWalkerDefault.Walk(NewTreeShapeListener(), tree)
 
-	tree.Accept(&TreeVisitor{})
+	v := &TreeVisitor{}
+	//v.BaseParseTreeVisitor = v
+	tree.Accept(v)
 }
 
 func TestParser2(t *testing.T) {
