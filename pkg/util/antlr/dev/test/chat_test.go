@@ -11,7 +11,21 @@ import (
 	"github.com/wrmsr/bane/pkg/util/antlr/dev/test/parser"
 )
 
-type SuperChatVisitor struct{}
+//
+
+type SuperChatVisitor struct {
+	Super parser.ChatVisitor
+}
+
+func (v SuperChatVisitor) SuperVisitChildren(node antlr.RuleNode) any {
+	for i := 0; i < node.GetChildCount(); i++ {
+		child := node.GetChild(i)
+		if pt, ok := child.(antlr.ParseTree); ok {
+			pt.Accept(v.Super)
+		}
+	}
+	return nil
+}
 
 var _ parser.ChatVisitor = &SuperChatVisitor{}
 
@@ -20,13 +34,7 @@ func (v SuperChatVisitor) Visit(tree antlr.ParseTree) any {
 }
 
 func (v SuperChatVisitor) VisitChildren(node antlr.RuleNode) any {
-	for i := 0; i < node.GetChildCount(); i++ {
-		child := node.GetChild(i)
-		if pt, ok := child.(antlr.ParseTree); ok {
-			pt.Accept(v)
-		}
-	}
-	return nil
+	return v.SuperVisitChildren(node)
 }
 
 func (v SuperChatVisitor) VisitTerminal(node antlr.TerminalNode) any {
@@ -47,6 +55,19 @@ func (v SuperChatVisitor) VisitLink(ctx *parser.LinkContext) any         { retur
 func (v SuperChatVisitor) VisitColor(ctx *parser.ColorContext) any       { return v.VisitChildren(ctx) }
 func (v SuperChatVisitor) VisitMention(ctx *parser.MentionContext) any   { return v.VisitChildren(ctx) }
 
+//
+
+type MyChatVisitor struct {
+	SuperChatVisitor
+}
+
+func (v *MyChatVisitor) VisitName(ctx *parser.NameContext) any {
+	fmt.Printf("got name: %v\n", ctx.GetText())
+	return v.SuperChatVisitor.VisitName(ctx)
+}
+
+//
+
 func TestChat(t *testing.T) {
 	testChat := `
 barf says: hi // comment0
@@ -63,4 +84,8 @@ xarf says: /* comment2 */ xi
 	tree := p.Chat()
 
 	fmt.Println(tree)
+
+	v := MyChatVisitor{}
+	v.Super = &v
+	tree.Accept(&v)
 }
