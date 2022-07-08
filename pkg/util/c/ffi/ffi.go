@@ -165,7 +165,7 @@ func (self Interface) Format(f fmt.State, r rune) {
 	_, _ = io.WriteString(f, ")")
 }
 
-func Call(fptr unsafe.Pointer, ret interface{}, args ...interface{}) (err error) {
+func Call(fptr unsafe.Pointer, ret any, args ...any) (err error) {
 	vret := valueOfRet(ret)
 	varg := valueOfArgs(args)
 
@@ -192,7 +192,7 @@ func freeArgValues(varg []unsafe.Pointer, args []reflect.Value) {
 	}
 }
 
-func valueOfRet(ret interface{}) reflect.Value {
+func valueOfRet(ret any) reflect.Value {
 	v := reflect.ValueOf(ret)
 
 	if ret != nil && v.Kind() != reflect.Ptr {
@@ -202,7 +202,7 @@ func valueOfRet(ret interface{}) reflect.Value {
 	return v
 }
 
-func valueOfArgs(args []interface{}) []reflect.Value {
+func valueOfArgs(args []any) []reflect.Value {
 	v := make([]reflect.Value, len(args))
 
 	for i, a := range args {
@@ -233,7 +233,7 @@ func (fn *function) Pointer() uintptr {
 	return uintptr(fn.fptr)
 }
 
-func Closure(v interface{}) Function {
+func Closure(v any) Function {
 	switch f := v.(type) {
 	case Function:
 		return f

@@ -368,7 +368,7 @@ func TestCallSnprintfString(t *testing.T) {
 	testCallSnprintf(t, "%s", "Hello World!")
 }
 
-func testCallSnprintf(t *testing.T, f string, v interface{}) {
+func testCallSnprintf(t *testing.T, f string, v any) {
 	buf := make([]byte, 128)
 	res := 0
 	err := Call(unsafe.Pointer(snprintf), &res, &buf[0], uintptr(len(buf)), f, v)
