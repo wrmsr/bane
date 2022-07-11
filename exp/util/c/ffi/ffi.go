@@ -18,6 +18,8 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 */
 package ffi
 
+// #cgo CFLAGS: -Wno-deprecated-declarations
+//
 // #include <ffi.h>
 // #include <stdint.h>
 // #include <stdlib.h>
