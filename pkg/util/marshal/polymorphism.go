@@ -11,24 +11,28 @@ import (
 ///
 
 type PolymorphismEntry struct {
+	Impl reflect.Type
 	Tag  string
 	Alt  []string
-	Impl reflect.Type
 }
 
 type Polymorphism struct {
 	ty reflect.Type
 	es []PolymorphismEntry
 
-	tm map[string]*PolymorphismEntry
 	im map[reflect.Type]*PolymorphismEntry
+	tm map[string]*PolymorphismEntry
 }
 
 func NewPolymorphism(ty reflect.Type, es ...PolymorphismEntry) *Polymorphism {
-	tm := make(map[string]*PolymorphismEntry, len(es))
 	im := make(map[reflect.Type]*PolymorphismEntry, len(es))
+	tm := make(map[string]*PolymorphismEntry, len(es))
 	for i := range es {
 		e := &es[i]
+		if _, ok := im[e.Impl]; ok {
+			panic(fmt.Errorf("duplicate impl: %s", e.Impl))
+		}
+		im[e.Impl] = e
 		if _, ok := tm[e.Tag]; ok {
 			panic(fmt.Errorf("duplicate tag: %s", e.Tag))
 		}
@@ -39,12 +43,8 @@ func NewPolymorphism(ty reflect.Type, es ...PolymorphismEntry) *Polymorphism {
 			}
 			tm[a] = e
 		}
-		if _, ok := im[e.Impl]; ok {
-			panic(fmt.Errorf("duplicate impl: %s", e.Impl))
-		}
-		im[e.Impl] = e
 	}
-	return &Polymorphism{ty: ty, es: es, tm: tm, im: im}
+	return &Polymorphism{ty: ty, es: es, im: im, tm: tm}
 }
 
 ///
