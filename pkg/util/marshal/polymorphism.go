@@ -10,23 +10,27 @@ import (
 
 ///
 
-type PolymorphismEntry struct {
+type SetImpl struct {
 	Impl reflect.Type
 	Tag  string
 	Alt  []string
 }
 
+func (ri SetImpl) isRegistryItem() {}
+
+///
+
 type Polymorphism struct {
 	ty reflect.Type
-	es []PolymorphismEntry
+	es []SetImpl
 
-	im map[reflect.Type]*PolymorphismEntry
-	tm map[string]*PolymorphismEntry
+	im map[reflect.Type]*SetImpl
+	tm map[string]*SetImpl
 }
 
-func NewPolymorphism(ty reflect.Type, es ...PolymorphismEntry) *Polymorphism {
-	im := make(map[reflect.Type]*PolymorphismEntry, len(es))
-	tm := make(map[string]*PolymorphismEntry, len(es))
+func NewPolymorphism(ty reflect.Type, es ...SetImpl) *Polymorphism {
+	im := make(map[reflect.Type]*SetImpl, len(es))
+	tm := make(map[string]*SetImpl, len(es))
 	for i := range es {
 		e := &es[i]
 		if _, ok := im[e.Impl]; ok {
@@ -96,7 +100,7 @@ func (m PolymorphismMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Va
 
 //
 
-func NewPolymorphicMarshalerFactory(p *Polymorphism) MarshalerFactory {
+func NewPolymorphismMarshalerFactory(p *Polymorphism) MarshalerFactory {
 	return NewFuncFactory(func(ctx MarshalContext, a reflect.Type) (Marshaler, error) {
 		if a != p.ty {
 			return nil, nil
@@ -149,7 +153,7 @@ func (u PolymorphismUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (refl
 
 //
 
-func NewPolymorphicUnmarshalerFactory(p *Polymorphism) UnmarshalerFactory {
+func NewPolymorphismUnmarshalerFactory(p *Polymorphism) UnmarshalerFactory {
 	return NewFuncFactory(func(ctx UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
 		if a != p.ty {
 			return nil, nil

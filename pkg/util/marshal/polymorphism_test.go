@@ -36,23 +36,23 @@ func TestPolymorphism(t *testing.T) {
 	}
 
 	p := NewPolymorphism(rfl.TypeOf[PolyI](),
-		PolymorphismEntry{Tag: "a", Impl: rfl.TypeOf[PolyA]()},
-		PolymorphismEntry{Tag: "b", Impl: rfl.TypeOf[PolyB]()},
-		PolymorphismEntry{Tag: "c", Impl: rfl.TypeOf[PolyC]()},
+		SetImpl{Impl: rfl.TypeOf[PolyA](), Tag: "a"},
+		SetImpl{Impl: rfl.TypeOf[PolyB](), Tag: "b"},
+		SetImpl{Impl: rfl.TypeOf[PolyC](), Tag: "c"},
 	)
 
 	sic := stu.NewStructInfoCache()
 
 	mf := NewTypeCacheMarshalerFactory(NewRecursiveMarshalerFactory(NewCompositeMarshalerFactory(
 		FirstComposite,
-		NewPolymorphicMarshalerFactory(p),
+		NewPolymorphismMarshalerFactory(p),
 		NewStructMarshalerFactory(sic),
 		NewPrimitiveMarshalerFactory(),
 	)))
 
 	uf := NewTypeCacheUnmarshalerFactory(NewRecursiveUnmarshalerFactory(NewCompositeUnmarshalerFactory(
 		FirstComposite,
-		NewPolymorphicUnmarshalerFactory(p),
+		NewPolymorphismUnmarshalerFactory(p),
 		NewStructUnmarshalerFactory(sic),
 		NewConvertPrimitiveUnmarshalerFactory(),
 	)))

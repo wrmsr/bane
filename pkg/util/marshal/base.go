@@ -33,6 +33,7 @@ func (o BaseMarshalOpt) isMarshalOpt() {}
 type MarshalContext struct {
 	Make func(ctx MarshalContext, ty reflect.Type) (Marshaler, error)
 	Opts ctr.TypeMap[MarshalOpt]
+	Reg  *Registry
 }
 
 type Marshaler interface {
@@ -108,6 +109,7 @@ func (o BaseUnmarshalOpt) isUnmarshalOpt() {}
 type UnmarshalContext struct {
 	Make func(ctx UnmarshalContext, ty reflect.Type) (Unmarshaler, error)
 	Opts ctr.TypeMap[UnmarshalOpt]
+	Reg  *Registry
 }
 
 type Unmarshaler interface {

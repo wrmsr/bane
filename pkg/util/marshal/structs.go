@@ -10,6 +10,20 @@ import (
 
 ///
 
+type SetField struct {
+	Name string
+	Tag  string
+
+	Omit bool
+
+	Marshaler   Marshaler
+	Unmarshaler Unmarshaler
+}
+
+func (ri SetField) isRegistryItem() {}
+
+///
+
 func NewStructFieldGetter(fi *stu.FieldInfo) ObjectFieldGetter {
 	return func(ctx MarshalContext, rv reflect.Value) (opt.Optional[reflect.Value], error) {
 		fv, ok := fi.GetValue(rv)
