@@ -4,6 +4,7 @@ MOD:=$(shell grep -o '^module .*' go.mod | awk '{print $$2}')
 
 SRC=\
 	cmd \
+	exp \
 	pkg \
 
 BREW_DEPS=\
