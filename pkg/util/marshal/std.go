@@ -2,6 +2,7 @@ package marshal
 
 import (
 	"encoding"
+	"fmt"
 	"reflect"
 
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
@@ -42,36 +43,45 @@ func NewStdTextMarshalerFactory() MarshalerFactory {
 
 ///
 
-type StdTextUnmarshaler struct{}
+type StdTextUnmarshaler struct {
+	ty reflect.Type
+}
+
+func NewStdTextUnmarshaler(ty reflect.Type) Unmarshaler {
+	if !reflect.PointerTo(ty).AssignableTo(stdTextUnmarshalerTy) {
+		panic(fmt.Errorf("must be pointer-assignable to TextUnmarshaler"))
+	}
+	return StdTextUnmarshaler{ty: ty}
+}
 
 var _ Unmarshaler = StdTextUnmarshaler{}
 
 func (u StdTextUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+	var s string
 	switch mv := mv.(type) {
 
 	case Null:
+		s = ""
 
+	case String:
+		s = mv.v
+
+	default:
+		return rfl.Invalid(), _unhandledType
 	}
-	if rfl.SafeIsNil(rv) {
-		return _nullValue, nil
+
+	rv := reflect.New(u.ty)
+	tu := rv.Interface().(encoding.TextUnmarshaler)
+	if err := tu.UnmarshalText([]byte(s)); err != nil {
+		return rfl.Invalid(), err
 	}
-	tm := rv.Interface().(encoding.TextMarshaler)
-	b, err := tm.MarshalText()
-	if err != nil {
-		return nil, err
-	}
-	return String{v: string(b)}, nil
+	return rv.Elem(), nil
 }
 
 //
 
-var stdTextUnmarshalerFactory = NewFuncFactory(func(ctx UnmarshalContext, ty reflect.Type) (Unmarshaler, error) {
-	if !ty.AssignableTo(stdTextMarshalerTy) {
-		return nil, nil
-	}
-	return StdTextUnmarshaler{}, nil
-})
+var stdTextUnmarshalerTy = rfl.TypeOf[encoding.TextUnmarshaler]()
 
-func NewStdTextUnmarshalerFactory() UnmarshalerFactory {
-	return stdTextUnmarshalerFactory
+func NewStdTextUnmarshalerFactory(ty reflect.Type) UnmarshalerFactory {
+	return NewTypeUnmarshalerFactory(NewStdTextUnmarshaler(ty), ty)
 }
