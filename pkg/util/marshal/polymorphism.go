@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -89,6 +90,12 @@ func (m PolymorphismMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Va
 
 }
 
+//
+
+func NewPolymorphicMarshalerFactory(p *Polymorphism) PolymorphismMarshaler {
+
+}
+
 ///
 
 type PolymorphismUnmarshaler struct {
@@ -102,5 +109,29 @@ func NewPolymorphismUnmarshaler(m map[string]Unmarshaler) PolymorphismUnmarshale
 var _ Unmarshaler = PolymorphismUnmarshaler{}
 
 func (u PolymorphismUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
-	panic("implement me")
+	switch mv := mv.(type) {
+
+	case Object:
+		if len(mv.v) != 1 {
+			return rfl.Invalid(), fmt.Errorf("expected object of one item")
+		}
+		kv := mv.v[0]
+		ks, ok := kv.K.(String)
+		if !ok {
+			return rfl.Invalid(), fmt.Errorf("expected object of one string key")
+		}
+		e, ok := u.m[ks.v]
+		if !ok {
+			return rfl.Invalid(), fmt.Errorf("impl not found: %s", ks.v)
+		}
+		return e.Unmarshal(ctx, kv.V)
+
+	}
+	return rfl.Invalid(), _unhandledType
+}
+
+//
+
+func NewPolymorphicUnmarshalerFactory(p *Polymorphism) PolymorphismUnmarshaler {
+
 }
