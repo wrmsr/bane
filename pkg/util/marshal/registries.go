@@ -2,22 +2,15 @@ package marshal
 
 import (
 	"reflect"
+
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
-//
+///
 
 type RegistryItem interface {
 	isRegistryItem()
 }
-
-//
-
-type SetType struct {
-	Marshaler   Marshaler
-	Unmarshaler Unmarshaler
-}
-
-func (ri SetType) isRegistryItem() {}
 
 //
 
@@ -67,4 +60,72 @@ func (r *Registry) Register(ty reflect.Type, items ...RegistryItem) *Registry {
 
 func (r *Registry) Get(ty reflect.Type) *TypeRegistry {
 	return r.m[ty]
+}
+
+func (r *Registry) GetOf(ty, ity reflect.Type) []RegistryItem {
+	e := r.m[ty]
+	if e == nil {
+		return nil
+	}
+	return e.m[ity]
+}
+
+///
+
+type SetType struct {
+	Marshaler   Marshaler
+	Unmarshaler Unmarshaler
+
+	MarshalerFactory   MarshalerFactory
+	UnmarshalerFactory UnmarshalerFactory
+}
+
+func (ri SetType) isRegistryItem() {}
+
+//
+
+type RegistryMarshalerFactory struct{}
+
+var _ MarshalerFactory = RegistryMarshalerFactory{}
+
+var _setTypeTy = rfl.TypeOf[SetType]()
+
+func (f RegistryMarshalerFactory) Make(ctx MarshalContext, a reflect.Type) (Marshaler, error) {
+	if ctx.Reg == nil {
+		return nil, nil
+	}
+	sts := ctx.Reg.GetOf(a, _setTypeTy)
+	for i := len(sts) - 1; i >= 0; i-- {
+		st := sts[i].(SetType)
+		if st.MarshalerFactory != nil {
+			return st.MarshalerFactory.Make(ctx, a)
+		}
+		if st.Marshaler != nil {
+			return st.Marshaler, nil
+		}
+	}
+	return nil, nil
+}
+
+//
+
+type RegistryUnmarshalerFactory struct{}
+
+var _ UnmarshalerFactory = RegistryUnmarshalerFactory{}
+
+func (f RegistryUnmarshalerFactory) Make(ctx UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
+	if ctx.Reg == nil {
+		return nil, nil
+	}
+	sts := ctx.Reg.GetOf(a, _setTypeTy)
+	for i := len(sts) - 1; i >= 0; i-- {
+		st := sts[i].(SetType)
+		if st.UnmarshalerFactory != nil {
+			return st.UnmarshalerFactory.Make(ctx, a)
+		}
+		if st.Unmarshaler != nil {
+			return st.Unmarshaler, nil
+		}
+	}
+	return nil, nil
 }

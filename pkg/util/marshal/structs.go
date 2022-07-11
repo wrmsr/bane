@@ -4,7 +4,9 @@ import (
 	"errors"
 	"reflect"
 
+	"github.com/wrmsr/bane/pkg/util/coalesce"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	stu "github.com/wrmsr/bane/pkg/util/structs"
 )
 
@@ -18,6 +20,21 @@ type SetField struct {
 
 	Marshaler   Marshaler
 	Unmarshaler Unmarshaler
+}
+
+func (ri SetField) Coalesce(sfs ...SetField) SetField {
+	for _, sf := range sfs {
+		ri.Name = coalesce.Cmp(sf.Name, ri.Name)
+		ri.Tag = coalesce.Cmp(sf.Tag, ri.Tag)
+		ri.Omit = coalesce.Cmp(sf.Omit, ri.Omit)
+		if sf.Marshaler != nil {
+			ri.Marshaler = sf.Marshaler
+		}
+		if sf.Unmarshaler != nil {
+			ri.Unmarshaler = sf.Unmarshaler
+		}
+	}
+	return ri
 }
 
 func (ri SetField) isRegistryItem() {}
@@ -46,22 +63,54 @@ func NewStructMarshalerFactory(sic *stu.StructInfoCache) StructMarshalerFactory 
 
 var _ MarshalerFactory = StructMarshalerFactory{}
 
+var _setFieldTy = rfl.TypeOf[SetField]()
+
+func collectStructSetFields(r *Registry, ty reflect.Type) map[string]SetField {
+	if r == nil {
+		return nil
+	}
+	s := r.GetOf(ty, _setFieldTy)
+	if len(s) < 1 {
+		return nil
+	}
+	m := make(map[string]SetField)
+	for _, sfi := range s {
+		sf := sfi.(SetField)
+		m[sf.Name] = m[sf.Name].Coalesce(sf)
+	}
+	return m
+}
+
 func (mf StructMarshalerFactory) Make(ctx MarshalContext, ty reflect.Type) (Marshaler, error) {
 	if ty.Kind() != reflect.Struct {
 		return nil, nil
 	}
 
 	si := mf.sic.Info(ty)
+	fsfs := collectStructSetFields(ctx.Reg, ty)
 	var flds []ObjectMarshalerField
 	var err error
 	si.Fields().Flat().ForEach(func(fi *stu.FieldInfo) bool {
-		var impl Marshaler
-		impl, err = ctx.Make(ctx, fi.Type())
-		if err != nil {
-			return false
+		var sf SetField
+		if fsfs != nil {
+			sf = fsfs[fi.Name().String()]
+		}
+		var tag = fi.Name().String()
+		if sf.Tag != "" {
+			tag = sf.Tag
+		}
+		if sf.Omit {
+			return true
+		}
+		var impl = sf.Marshaler
+		if impl == nil {
+			impl, err = ctx.Make(ctx, fi.Type())
+			if err != nil {
+				return false
+			}
 		}
 		of := ObjectMarshalerField{
-			Name: fi.Name().String(),
+			Name: tag,
 			Get:  NewStructFieldGetter(fi),
 			Impl: impl,
 		}
@@ -109,16 +158,28 @@ func (mf StructUnmarshalerFactory) Make(ctx UnmarshalContext, ty reflect.Type) (
 	}
 
 	si := mf.sic.Info(ty)
+	fsfs := collectStructSetFields(ctx.Reg, ty)
 	var flds []ObjectUnmarshalerField
 	var err error
 	si.Fields().Flat().ForEach(func(fi *stu.FieldInfo) bool {
-		var impl Unmarshaler
+		var sf SetField
+		if fsfs != nil {
+			sf = fsfs[fi.Name().String()]
+		}
+		var tag = fi.Name().String()
+		if sf.Tag != "" {
+			tag = sf.Tag
+		}
+		if sf.Omit {
+			return true
+		}
+		var impl = sf.Unmarshaler
 		impl, err = ctx.Make(ctx, fi.Type())
 		if err != nil {
 			return false
 		}
 		of := ObjectUnmarshalerField{
-			Name: fi.Name().String(),
+			Name: tag,
 			Set:  NewStructFieldSetter(fi),
 			Impl: impl,
 		}

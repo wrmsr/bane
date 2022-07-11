@@ -10,9 +10,9 @@ import (
 //
 
 type Manager struct {
-	sic *stu.StructInfoCache
+	reg *Registry
 
-	mm map[reflect.Type]Marshaler
+	sic *stu.StructInfoCache
 }
 
 func NewManager() *Manager {

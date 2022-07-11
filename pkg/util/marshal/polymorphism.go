@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
+	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -117,6 +118,33 @@ func NewPolymorphismMarshalerFactory(p *Polymorphism) MarshalerFactory {
 	})
 }
 
+var _setImplTy = rfl.TypeOf[SetImpl]()
+
+func buildRegistryPolymorphism(r *Registry, ty reflect.Type) *Polymorphism {
+	tr := r.Get(ty)
+	if tr == nil {
+		return nil
+	}
+	ris := tr.Get(_setImplTy)
+	if len(ris) < 1 {
+		return nil
+	}
+	return NewPolymorphism(ty, slices.Map(func(ri RegistryItem) SetImpl { return ri.(SetImpl) }, ris)...)
+}
+
+func NewRegistryPolymorphismMarshalerFactory() MarshalerFactory {
+	return NewFuncFactory(func(ctx MarshalContext, a reflect.Type) (Marshaler, error) {
+		if ctx.Reg == nil {
+			return nil, nil
+		}
+		p := buildRegistryPolymorphism(ctx.Reg, a)
+		if p == nil {
+			return nil, nil
+		}
+		return NewPolymorphismMarshalerFactory(p).Make(ctx, a)
+	})
+}
+
 ///
 
 type PolymorphismUnmarshaler struct {
@@ -170,5 +198,18 @@ func NewPolymorphismUnmarshalerFactory(p *Polymorphism) UnmarshalerFactory {
 			}
 		}
 		return NewPolymorphismUnmarshaler(m), nil
+	})
+}
+
+func NewRegistryPolymorphismUnmarshalerFactory() UnmarshalerFactory {
+	return NewFuncFactory(func(ctx UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
+		if ctx.Reg == nil {
+			return nil, nil
+		}
+		p := buildRegistryPolymorphism(ctx.Reg, a)
+		if p == nil {
+			return nil, nil
+		}
+		return NewPolymorphismUnmarshalerFactory(p).Make(ctx, a)
 	})
 }

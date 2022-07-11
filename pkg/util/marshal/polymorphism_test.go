@@ -68,3 +68,54 @@ func TestPolymorphism(t *testing.T) {
 
 	//tu.AssertDeepEqual(t, i, o2)
 }
+
+func TestRegistryPolymorphism(t *testing.T) {
+	var o PolyI = PolyC{
+		L: PolyA{
+			I: 420,
+		},
+		R: PolyC{
+			L: PolyA{
+				I: 421,
+			},
+			R: PolyB{
+				S: "four twenty three",
+			},
+		},
+	}
+
+	r := NewRegistry(nil)
+	r.Register(rfl.TypeOf[PolyI](),
+		SetImpl{Impl: rfl.TypeOf[PolyA](), Tag: "a"},
+		SetImpl{Impl: rfl.TypeOf[PolyB](), Tag: "b"},
+		SetImpl{Impl: rfl.TypeOf[PolyC](), Tag: "c"},
+	)
+
+	sic := stu.NewStructInfoCache()
+
+	mf := NewTypeCacheMarshalerFactory(NewRecursiveMarshalerFactory(NewCompositeMarshalerFactory(
+		FirstComposite,
+		NewRegistryPolymorphismMarshalerFactory(),
+		NewStructMarshalerFactory(sic),
+		NewPrimitiveMarshalerFactory(),
+	)))
+
+	uf := NewTypeCacheUnmarshalerFactory(NewRecursiveUnmarshalerFactory(NewCompositeUnmarshalerFactory(
+		FirstComposite,
+		NewRegistryPolymorphismUnmarshalerFactory(),
+		NewStructUnmarshalerFactory(sic),
+		NewConvertPrimitiveUnmarshalerFactory(),
+	)))
+
+	mc := MarshalContext{Make: mf.Make, Reg: r}
+	uc := UnmarshalContext{Make: uf.Make, Reg: r}
+
+	m := check.Must1(mf.Make(mc, rfl.TypeOf[PolyI]()))
+	u := check.Must1(uf.Make(uc, rfl.TypeOf[PolyI]()))
+
+	v := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(o)))
+	fmt.Println(v)
+
+	o2 := check.Must1(u.Unmarshal(UnmarshalContext{}, v))
+	fmt.Println(o2)
+}
