@@ -25,7 +25,7 @@ type InspectState struct {
 	StartedAt  time.Time `json:"StartedAt"`
 	FinishedAt time.Time `json:"FinishedAt"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 type InspectHostConfigMount struct {
@@ -33,26 +33,26 @@ type InspectHostConfigMount struct {
 	Source string `json:"Source"`
 	Target string `json:"Target"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 type InspectHostConfigRestartPolicy struct {
 	Name              string `json:"Name"`
 	MaximumRetryCount int    `json:"MaximumRetryCount"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 type InspectHostConfigPortBinding struct {
 	HostIp   string `json:"HostIp"`
 	HostPort string `json:"HostPort"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 type InspectHostConfig struct {
-	Binds       []interface{} `json:"Binds"`
-	NetworkMode string        `json:"NetworkMode"`
+	Binds       []any  `json:"Binds"`
+	NetworkMode string `json:"NetworkMode"`
 
 	PortBindings map[string][]InspectHostConfigPortBinding `json:"PortBindings"`
 
@@ -60,45 +60,45 @@ type InspectHostConfig struct {
 
 	AutoRemove bool `json:"AutoRemove"`
 
-	VolumeDriver string      `json:"VolumeDriver"`
-	VolumesFrom  interface{} `json:"VolumesFrom"`
+	VolumeDriver string `json:"VolumeDriver"`
+	VolumesFrom  any    `json:"VolumesFrom"`
 
-	CapAdd       interface{} `json:"CapAdd"`
-	CapDrop      interface{} `json:"CapDrop"`
-	CgroupnsMode string      `json:"CgroupnsMode"`
+	CapAdd       any    `json:"CapAdd"`
+	CapDrop      any    `json:"CapDrop"`
+	CgroupnsMode string `json:"CgroupnsMode"`
 
-	Dns        []interface{} `json:"Dns"`
-	DnsOptions []interface{} `json:"DnsOptions"`
-	DnsSearch  []interface{} `json:"DnsSearch"`
+	Dns        []any `json:"Dns"`
+	DnsOptions []any `json:"DnsOptions"`
+	DnsSearch  []any `json:"DnsSearch"`
 
-	ExtraHosts      []interface{} `json:"ExtraHosts"`
-	GroupAdd        interface{}   `json:"GroupAdd"`
-	IpcMode         string        `json:"IpcMode"`
-	Cgroup          string        `json:"Cgroup"`
-	Links           interface{}   `json:"Links"`
-	OomScoreAdj     int           `json:"OomScoreAdj"`
-	PidMode         string        `json:"PidMode"`
-	Privileged      bool          `json:"Privileged"`
-	PublishAllPorts bool          `json:"PublishAllPorts"`
-	ReadonlyRootfs  bool          `json:"ReadonlyRootfs"`
-	SecurityOpt     interface{}   `json:"SecurityOpt"`
-	UtsMode         string        `json:"UTSMode"`
-	UsernsMode      string        `json:"UsernsMode"`
-	ShmSize         int           `json:"ShmSize"`
-	Runtime         string        `json:"Runtime"`
-	ConsoleSize     []int         `json:"ConsoleSize"`
-	Isolation       string        `json:"Isolation"`
-	CpuShares       int           `json:"CpuShares"`
-	Memory          int           `json:"Memory"`
-	NanoCpus        int           `json:"NanoCpus"`
-	CgroupParent    string        `json:"CgroupParent"`
+	ExtraHosts      []any  `json:"ExtraHosts"`
+	GroupAdd        any    `json:"GroupAdd"`
+	IpcMode         string `json:"IpcMode"`
+	Cgroup          string `json:"Cgroup"`
+	Links           any    `json:"Links"`
+	OomScoreAdj     int    `json:"OomScoreAdj"`
+	PidMode         string `json:"PidMode"`
+	Privileged      bool   `json:"Privileged"`
+	PublishAllPorts bool   `json:"PublishAllPorts"`
+	ReadonlyRootfs  bool   `json:"ReadonlyRootfs"`
+	SecurityOpt     any    `json:"SecurityOpt"`
+	UtsMode         string `json:"UTSMode"`
+	UsernsMode      string `json:"UsernsMode"`
+	ShmSize         int    `json:"ShmSize"`
+	Runtime         string `json:"Runtime"`
+	ConsoleSize     []int  `json:"ConsoleSize"`
+	Isolation       string `json:"Isolation"`
+	CpuShares       int    `json:"CpuShares"`
+	Memory          int    `json:"Memory"`
+	NanoCpus        int    `json:"NanoCpus"`
+	CgroupParent    string `json:"CgroupParent"`
 
-	BlkioWeight          int         `json:"BlkioWeight"`
-	BlkioWeightDevice    interface{} `json:"BlkioWeightDevice"`
-	BlkioDeviceReadBps   interface{} `json:"BlkioDeviceReadBps"`
-	BlkioDeviceWriteBps  interface{} `json:"BlkioDeviceWriteBps"`
-	BlkioDeviceReadIops  interface{} `json:"BlkioDeviceReadIOps"`
-	BlkioDeviceWriteIops interface{} `json:"BlkioDeviceWriteIOps"`
+	BlkioWeight          int `json:"BlkioWeight"`
+	BlkioWeightDevice    any `json:"BlkioWeightDevice"`
+	BlkioDeviceReadBps   any `json:"BlkioDeviceReadBps"`
+	BlkioDeviceWriteBps  any `json:"BlkioDeviceWriteBps"`
+	BlkioDeviceReadIops  any `json:"BlkioDeviceReadIOps"`
+	BlkioDeviceWriteIops any `json:"BlkioDeviceWriteIOps"`
 
 	CpuPeriod          int    `json:"CpuPeriod"`
 	CpuQuota           int    `json:"CpuQuota"`
@@ -107,20 +107,20 @@ type InspectHostConfig struct {
 	CpusetCpus         string `json:"CpusetCpus"`
 	CpusetMems         string `json:"CpusetMems"`
 
-	Devices           interface{} `json:"Devices"`
-	DeviceCgroupRules interface{} `json:"DeviceCgroupRules"`
-	DeviceRequests    interface{} `json:"DeviceRequests"`
-	KernelMemory      int         `json:"KernelMemory"`
-	KernelMemoryTcp   int         `json:"KernelMemoryTCP"`
+	Devices           any `json:"Devices"`
+	DeviceCgroupRules any `json:"DeviceCgroupRules"`
+	DeviceRequests    any `json:"DeviceRequests"`
+	KernelMemory      int `json:"KernelMemory"`
+	KernelMemoryTcp   int `json:"KernelMemoryTCP"`
 
-	MemoryReservation int         `json:"MemoryReservation"`
-	MemorySwap        int         `json:"MemorySwap"`
-	MemorySwappiness  interface{} `json:"MemorySwappiness"`
+	MemoryReservation int `json:"MemoryReservation"`
+	MemorySwap        int `json:"MemorySwap"`
+	MemorySwappiness  any `json:"MemorySwappiness"`
 
-	OomKillDisable interface{} `json:"OomKillDisable"`
+	OomKillDisable any `json:"OomKillDisable"`
 
-	PidsLimit interface{} `json:"PidsLimit"`
-	Ulimits   interface{} `json:"Ulimits"`
+	PidsLimit any `json:"PidsLimit"`
+	Ulimits   any `json:"Ulimits"`
 
 	CpuCount   int `json:"CpuCount"`
 	CpuPercent int `json:"CpuPercent"`
@@ -133,7 +133,7 @@ type InspectHostConfig struct {
 	MaskedPaths   []string `json:"MaskedPaths"`
 	ReadonlyPaths []string `json:"ReadonlyPaths"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 type InspectMount struct {
@@ -146,7 +146,7 @@ type InspectMount struct {
 	Rw          bool   `json:"RW"`
 	Propagation string `json:"Propagation"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 type InspectConfig struct {
@@ -159,7 +159,7 @@ type InspectConfig struct {
 	AttachStdout bool `json:"AttachStdout"`
 	AttachStderr bool `json:"AttachStderr"`
 
-	ExposedPorts map[string]interface{} `json:"ExposedPorts"`
+	ExposedPorts map[string]any `json:"ExposedPorts"`
 
 	Tty       bool `json:"Tty"`
 	OpenStdin bool `json:"OpenStdin"`
@@ -169,42 +169,42 @@ type InspectConfig struct {
 	Cmd   []string `json:"Cmd"`
 	Image string   `json:"Image"`
 
-	Volumes    map[string]interface{} `json:"Volumes"`
-	WorkingDir string                 `json:"WorkingDir"`
-	Entrypoint []string               `json:"Entrypoint"`
+	Volumes    map[string]any `json:"Volumes"`
+	WorkingDir string         `json:"WorkingDir"`
+	Entrypoint []string       `json:"Entrypoint"`
 
-	OnBuild interface{} `json:"OnBuild"`
+	OnBuild any `json:"OnBuild"`
 
 	Labels map[string]string `json:"Labels"`
 
 	StopSignal string `json:"StopSignal"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 type InspectNetwork struct {
-	IpamConfig          interface{} `json:"IPAMConfig"`
-	Links               interface{} `json:"Links"`
-	Aliases             []string    `json:"Aliases"`
-	NetworkId           string      `json:"NetworkID"`
-	EndpointId          string      `json:"EndpointID"`
-	Gateway             string      `json:"Gateway"`
-	IpAddress           string      `json:"IPAddress"`
-	IpPrefixLen         int         `json:"IPPrefixLen"`
-	Ipv6Gateway         string      `json:"IPv6Gateway"`
-	GlobalIpv6Address   string      `json:"GlobalIPv6Address"`
-	GlobalIpv6PrefixLen int         `json:"GlobalIPv6PrefixLen"`
-	MacAddress          string      `json:"MacAddress"`
-	DriverOpts          interface{} `json:"DriverOpts"`
+	IpamConfig          any      `json:"IPAMConfig"`
+	Links               any      `json:"Links"`
+	Aliases             []string `json:"Aliases"`
+	NetworkId           string   `json:"NetworkID"`
+	EndpointId          string   `json:"EndpointID"`
+	Gateway             string   `json:"Gateway"`
+	IpAddress           string   `json:"IPAddress"`
+	IpPrefixLen         int      `json:"IPPrefixLen"`
+	Ipv6Gateway         string   `json:"IPv6Gateway"`
+	GlobalIpv6Address   string   `json:"GlobalIPv6Address"`
+	GlobalIpv6PrefixLen int      `json:"GlobalIPv6PrefixLen"`
+	MacAddress          string   `json:"MacAddress"`
+	DriverOpts          any      `json:"DriverOpts"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 type InspectNetworkSettingsPort struct {
 	HostIp   string `json:"HostIp"`
 	HostPort string `json:"HostPort"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 type InspectNetworkSettings struct {
@@ -219,8 +219,8 @@ type InspectNetworkSettings struct {
 
 	SandboxKey string `json:"SandboxKey"`
 
-	SecondaryIpAddresses   interface{} `json:"SecondaryIPAddresses"`
-	SecondaryIpv6Addresses interface{} `json:"SecondaryIPv6Addresses"`
+	SecondaryIpAddresses   any `json:"SecondaryIPAddresses"`
+	SecondaryIpv6Addresses any `json:"SecondaryIPv6Addresses"`
 
 	EndpointID string `json:"EndpointID"`
 
@@ -237,7 +237,7 @@ type InspectNetworkSettings struct {
 
 	Networks map[string]InspectNetwork `json:"Networks"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 type Inspect struct {
@@ -268,7 +268,7 @@ type Inspect struct {
 
 	AppArmorProfile string `json:"AppArmorProfile"`
 
-	ExecIDs interface{} `json:"ExecIDs"`
+	ExecIDs any `json:"ExecIDs"`
 
 	HostConfig InspectHostConfig `json:"HostConfig"`
 
@@ -278,7 +278,7 @@ type Inspect struct {
 
 	NetworkSettings InspectNetworkSettings `json:"NetworkSettings"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 //

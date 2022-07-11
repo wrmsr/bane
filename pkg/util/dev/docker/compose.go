@@ -12,7 +12,7 @@ type ComposeService struct {
 	Expose []string `json:"expose"`
 	Ports  []string `json:"ports"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 type ComposeConfig struct {
@@ -20,5 +20,5 @@ type ComposeConfig struct {
 
 	Services map[string]ComposeService
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }

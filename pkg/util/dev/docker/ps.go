@@ -28,7 +28,7 @@ type Ps struct {
 	State        string `json:"State"`
 	Status       string `json:"Status"`
 
-	X map[string]interface{} `json:"-"`
+	X map[string]any `json:"-"`
 }
 
 //

@@ -26,7 +26,7 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/wrmsr/bane/pkg/util/c/dl"
+	"github.com/wrmsr/bane/exp/util/c/dl"
 )
 
 var (
