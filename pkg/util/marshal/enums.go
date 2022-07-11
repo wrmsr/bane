@@ -16,7 +16,7 @@ type EnumMarshaler[T comparable] struct {
 }
 
 func NewEnumMarshaler[T comparable](m map[T]string) EnumMarshaler[T] {
-	return EnumMarshaler[T]{m: maps.MapValues(MakeString, m)}
+	return EnumMarshaler[T]{m: maps.MapValues(func(s string) Value { return MakeString(s) }, m)}
 }
 
 var _ Marshaler = EnumMarshaler[int]{}

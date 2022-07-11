@@ -35,6 +35,12 @@ func TestGoTool(t *testing.T) {
 }
 
 func TestArchPkg(t *testing.T) {
-	inst := check.Must1(arm64asm.Decode(check.Must1(hex.DecodeString("0a011f1a"))))
+	var s string
+
+	//s = "0a011f1a"
+	s = "80348052"
+	//s = "c0035fd6"
+
+	inst := check.Must1(arm64asm.Decode(check.Must1(hex.DecodeString(s))))
 	fmt.Println(inst)
 }

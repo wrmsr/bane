@@ -276,9 +276,18 @@ func (v Any) String() string    { return iou.InvokeToString(v.WriteString) }
 
 //
 
-func MakeString(s string) Value {
-	return String{v: s}
-}
+func MakeNull() Null                            { return _nullValue }
+func MakeBool(v bool) Bool                      { return Bool{v: v} }
+func MakeInt(v int64) Int                       { return Int{v: v} }
+func MakeFloat(v float64) Float                 { return Float{v: v} }
+func MakeNumber(v big.Rat) Number               { return Number{v: v} }
+func MakeString(v string) String                { return String{v: v} }
+func MakeBytes(v []byte) Bytes                  { return Bytes{v: v} }
+func MakeArray(v []Value) Array                 { return Array{v: v} }
+func MakeObject(v []bt.Kv[Value, Value]) Object { return Object{v: v} }
+func MakeAny(v any) Any                         { return Any{v: v} }
+
+//
 
 func MakeSimpleValue(o any) (Value, bool) {
 	if o == nil {
