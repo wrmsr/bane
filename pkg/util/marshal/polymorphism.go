@@ -76,6 +76,10 @@ func NewPolymorphismMarshaler(p *Polymorphism, m map[reflect.Type]Marshaler) Pol
 var _ Marshaler = PolymorphismMarshaler{}
 
 func (m PolymorphismMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+	if rv.Kind() == reflect.Interface {
+		rv = rv.Elem()
+	}
+
 	e, ok := m.m[rv.Type()]
 	if !ok {
 		return nil, _unhandledType

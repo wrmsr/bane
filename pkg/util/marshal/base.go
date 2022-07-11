@@ -75,6 +75,20 @@ func NewTypeCacheMarshalerFactory(f MarshalerFactory) MarshalerFactory {
 	return NewTypeCacheFactory[Marshaler, MarshalContext](f)
 }
 
+func NewRecursiveMarshalerFactory(f MarshalerFactory) MarshalerFactory {
+	return NewRecursiveTypeFactory(f, func() (Marshaler, func(Marshaler)) {
+		var m Marshaler
+		return NewFuncMarshaler(func(ctx MarshalContext, rv reflect.Value) (Value, error) {
+				if m == nil {
+					panic("recursive impl not yet set")
+				}
+				return m.Marshal(ctx, rv)
+			}), func(m_ Marshaler) {
+				m = m_
+			}
+	})
+}
+
 func NewCompositeMarshalerFactory(st CompositeStrategy, fs ...MarshalerFactory) MarshalerFactory {
 	return NewCompositeFactory[Marshaler, MarshalContext, reflect.Type](st, fs...)
 }
@@ -134,6 +148,20 @@ func NewTypeUnmarshalerFactory(impl Unmarshaler, tys ...reflect.Type) Unmarshale
 
 func NewTypeCacheUnmarshalerFactory(f UnmarshalerFactory) UnmarshalerFactory {
 	return NewTypeCacheFactory[Unmarshaler, UnmarshalContext](f)
+}
+
+func NewRecursiveUnmarshalerFactory(f UnmarshalerFactory) UnmarshalerFactory {
+	return NewRecursiveTypeFactory(f, func() (Unmarshaler, func(Unmarshaler)) {
+		var u Unmarshaler
+		return NewFuncUnmarshaler(func(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+				if u == nil {
+					panic("recursive impl not yet set")
+				}
+				return u.Unmarshal(ctx, mv)
+			}), func(u_ Unmarshaler) {
+				u = u_
+			}
+	})
 }
 
 func NewCompositeUnmarshalerFactory(st CompositeStrategy, fs ...UnmarshalerFactory) UnmarshalerFactory {

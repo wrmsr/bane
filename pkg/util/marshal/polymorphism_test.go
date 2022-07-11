@@ -43,26 +43,28 @@ func TestPolymorphism(t *testing.T) {
 
 	sic := stu.NewStructInfoCache()
 
-	mf := NewTypeCacheMarshalerFactory(NewCompositeMarshalerFactory(
+	mf := NewTypeCacheMarshalerFactory(NewRecursiveMarshalerFactory(NewCompositeMarshalerFactory(
 		FirstComposite,
 		NewPolymorphicMarshalerFactory(p),
 		NewStructMarshalerFactory(sic),
 		NewPrimitiveMarshalerFactory(),
-	))
+	)))
 
-	uf := NewTypeCacheUnmarshalerFactory(NewCompositeUnmarshalerFactory(
+	uf := NewTypeCacheUnmarshalerFactory(NewRecursiveUnmarshalerFactory(NewCompositeUnmarshalerFactory(
 		FirstComposite,
 		NewPolymorphicUnmarshalerFactory(p),
 		NewStructUnmarshalerFactory(sic),
 		NewConvertPrimitiveUnmarshalerFactory(),
-	))
+	)))
 
-	m := check.Must1(mf.Make(MarshalContext{Make: mf.Make}, reflect.TypeOf(i)))
-	u := check.Must1(uf.Make(UnmarshalContext{Make: uf.Make}, reflect.TypeOf(i)))
+	m := check.Must1(mf.Make(MarshalContext{Make: mf.Make}, rfl.TypeOf[PolyI]()))
+	u := check.Must1(uf.Make(UnmarshalContext{Make: uf.Make}, rfl.TypeOf[PolyI]()))
 
 	v := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(i)))
 	fmt.Println(v)
 
 	o2 := check.Must1(u.Unmarshal(UnmarshalContext{}, v))
 	fmt.Println(o2)
+
+	//tu.AssertDeepEqual(t, i, o2)
 }

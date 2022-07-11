@@ -1,10 +1,7 @@
 package marshal
 
 import (
-	"fmt"
 	"reflect"
-
-	ctr "github.com/wrmsr/bane/pkg/util/container"
 )
 
 //
@@ -31,7 +28,7 @@ func (ri SetUnmarshaler) isRegistryItem() {}
 
 type typeRegistry struct {
 	ty reflect.Type
-	m  ctr.MutTypeMap[RegistryItem]
+	m  map[reflect.Type][]RegistryItem
 }
 
 type Registry struct {
@@ -52,17 +49,14 @@ func (r *Registry) Register(ty reflect.Type, items ...RegistryItem) *Registry {
 	if ti == nil {
 		ti = &typeRegistry{
 			ty: ty,
-			m:  ctr.NewMutTypeMap[RegistryItem](nil),
+			m:  make(map[reflect.Type][]RegistryItem),
 		}
 		r.m[ty] = ti
 	}
 
 	for _, i := range items {
 		ity := reflect.TypeOf(i)
-		if ti.m.Contains(ity) {
-			panic(fmt.Errorf("duplicate registration: %s %s", ty, ity))
-		}
-		ti.m.Put(i)
+		ti.m[ity] = append(ti.m[ity], i)
 	}
 
 	return r

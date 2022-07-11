@@ -84,6 +84,40 @@ func (f TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 
 //
 
+type RecursiveTypeFactory[R, C any] struct {
+	f Factory[R, C, reflect.Type]
+	p func() (R, func(R))
+	m map[reflect.Type]R
+}
+
+func NewRecursiveTypeFactory[R, C any](f Factory[R, C, reflect.Type], p func() (R, func(R))) RecursiveTypeFactory[R, C] {
+	return RecursiveTypeFactory[R, C]{
+		f: f,
+		p: p,
+		m: make(map[reflect.Type]R),
+	}
+}
+
+var _ Factory[int, uint, reflect.Type] = RecursiveTypeFactory[int, uint]{}
+
+func (f RecursiveTypeFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
+	if r, ok := f.m[a]; ok {
+		return r, nil
+	}
+	p, sp := f.p()
+	f.m[a] = p
+	defer delete(f.m, a)
+	i, err := f.f.Make(ctx, a)
+	if err != nil {
+		var z R
+		return z, err
+	}
+	sp(i)
+	return i, nil
+}
+
+//
+
 type CompositeStrategy int8
 
 const (

@@ -23,7 +23,7 @@ func TestRegistry(t *testing.T) {
 			return MakeString("reg_thing"), nil
 		})})
 
-	o := reg.m[rfl.TypeOf[RegThing]()].m.Get(rfl.TypeOf[SetMarshaler]())
+	o := reg.m[rfl.TypeOf[RegThing]()].m[rfl.TypeOf[SetMarshaler]()][0]
 	tu.AssertEqual(t, o != nil, true)
 
 	rt := RegThing{I: 420, S: "four twenty"}
