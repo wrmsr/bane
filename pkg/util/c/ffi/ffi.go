@@ -28,6 +28,15 @@ package ffi
 //   return n < 0 ? -n : n;
 // }
 //
+// static void ffi_call_1(ffi_cif *cif, void *fn, void *rvalue,
+//   void *avalue0
+// ){
+//   void *avalues[1] = {
+//     avalue0
+//   };
+//   return ffi_call(cif, (function) fn, rvalue, avalues);
+// }
+//
 import "C"
 import (
 	"fmt"
@@ -137,6 +146,17 @@ func Prepare(ret Type, args ...Type) (cif Interface) {
 }
 
 func (cif Interface) Call(fptr unsafe.Pointer, ret unsafe.Pointer, args ...unsafe.Pointer) (err error) {
+	fmt.Printf("fptr: %x\n", fptr)
+	fmt.Printf("ret: %x\n", ret)
+	for i, p := range args {
+		fmt.Printf("args[%d]: %x\n", i, p)
+	}
+	if len(args) == 1 {
+		//_, err = C.ffi_call_1(&cif.ffi_cif, C.function(fptr), ret, args[0])
+		_, err = C.ffi_call_1(&cif.ffi_cif, fptr, ret, args[0])
+		return
+	}
+
 	var va *unsafe.Pointer
 
 	if len(args) != 0 {

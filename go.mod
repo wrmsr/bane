@@ -13,6 +13,7 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/mattn/go-sqlite3 v1.14.13
+	github.com/segmentio/asm v1.2.0
 	golang.org/x/arch v0.0.0-20220412001346-fc48f9fe4c15
 	golang.org/x/exp v0.0.0-20220706164943-b4a6d9510983
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4
