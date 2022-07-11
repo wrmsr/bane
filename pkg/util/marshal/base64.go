@@ -27,7 +27,7 @@ func (m Base64Marshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, e
 
 //
 
-var base64MarshalerFactory = NewTypeMapMarshalerFactory(map[reflect.Type]Marshaler{rfl.TypeOf[[]byte](): Base64Marshaler{}})
+var base64MarshalerFactory = NewTypeMarshalerFactory(Base64Marshaler{}, rfl.TypeOf[[]byte]())
 
 func NewBase64MarshalerFactory() MarshalerFactory {
 	return base64MarshalerFactory
@@ -58,7 +58,7 @@ func (u Base64Unmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Va
 
 //
 
-var base64UnmarshalerFactory = NewTypeMapUnmarshalerFactory(map[reflect.Type]Unmarshaler{rfl.TypeOf[[]byte](): Base64Unmarshaler{}})
+var base64UnmarshalerFactory = NewTypeUnmarshalerFactory(Base64Unmarshaler{}, rfl.TypeOf[[]byte]())
 
 func NewBase64UnmarshalerFactory() UnmarshalerFactory {
 	return base64UnmarshalerFactory

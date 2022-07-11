@@ -64,6 +64,21 @@ func TypeName(ty reflect.Type) string {
 	return ty.Name()
 }
 
+func SafeIsNil(v reflect.Value) bool {
+	switch v.Kind() {
+	case
+		reflect.Chan,
+		reflect.Func,
+		reflect.Map,
+		reflect.Pointer,
+		reflect.UnsafePointer,
+		reflect.Interface,
+		reflect.Slice:
+		return v.IsNil()
+	}
+	return false
+}
+
 //
 
 func UnwrapPointerValue(v reflect.Value) (reflect.Value, bool) {

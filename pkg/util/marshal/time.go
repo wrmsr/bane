@@ -92,5 +92,5 @@ func DefaultTimeUnmarshalLayouts() []string {
 }
 
 func NewTimeUnmarshalerFactory(layouts []string) UnmarshalerFactory {
-	return NewTypeMapUnmarshalerFactory(map[reflect.Type]Unmarshaler{rfl.TypeOf[time.Time](): NewTimeUnmarshaler(layouts)})
+	return NewTypeUnmarshalerFactory(NewTimeUnmarshaler(layouts), rfl.TypeOf[time.Time]())
 }

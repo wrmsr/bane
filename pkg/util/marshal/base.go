@@ -63,6 +63,14 @@ func NewTypeMapMarshalerFactory(m map[reflect.Type]Marshaler) MarshalerFactory {
 	return NewTypeMapFactory[Marshaler, MarshalContext](m)
 }
 
+func NewTypeMarshalerFactory(impl Marshaler, tys ...reflect.Type) MarshalerFactory {
+	m := make(map[reflect.Type]Marshaler, len(tys))
+	for _, ty := range tys {
+		m[ty] = impl
+	}
+	return NewTypeMapMarshalerFactory(m)
+}
+
 func NewTypeCacheMarshalerFactory(f MarshalerFactory) MarshalerFactory {
 	return NewTypeCacheFactory[Marshaler, MarshalContext](f)
 }
@@ -114,6 +122,14 @@ type UnmarshalerFactory = Factory[Unmarshaler, UnmarshalContext, reflect.Type]
 
 func NewTypeMapUnmarshalerFactory(m map[reflect.Type]Unmarshaler) UnmarshalerFactory {
 	return NewTypeMapFactory[Unmarshaler, UnmarshalContext](m)
+}
+
+func NewTypeUnmarshalerFactory(impl Unmarshaler, tys ...reflect.Type) UnmarshalerFactory {
+	m := make(map[reflect.Type]Unmarshaler, len(tys))
+	for _, ty := range tys {
+		m[ty] = impl
+	}
+	return NewTypeMapUnmarshalerFactory(m)
 }
 
 func NewTypeCacheUnmarshalerFactory(f UnmarshalerFactory) UnmarshalerFactory {
