@@ -92,8 +92,21 @@ func (m PolymorphismMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Va
 
 //
 
-func NewPolymorphicMarshalerFactory(p *Polymorphism) PolymorphismMarshaler {
-
+func NewPolymorphicMarshalerFactory(p *Polymorphism) MarshalerFactory {
+	return NewFuncFactory(func(ctx MarshalContext, a reflect.Type) (Marshaler, error) {
+		if a != p.ty {
+			return nil, nil
+		}
+		m := make(map[reflect.Type]Marshaler, len(p.es))
+		for _, e := range p.es {
+			em, err := ctx.Make(ctx, e.Impl)
+			if err != nil {
+				return nil, err
+			}
+			m[e.Impl] = em
+		}
+		return NewPolymorphismMarshaler(p, m), nil
+	})
 }
 
 ///
@@ -132,6 +145,22 @@ func (u PolymorphismUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (refl
 
 //
 
-func NewPolymorphicUnmarshalerFactory(p *Polymorphism) PolymorphismUnmarshaler {
-
+func NewPolymorphicUnmarshalerFactory(p *Polymorphism) UnmarshalerFactory {
+	return NewFuncFactory(func(ctx UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
+		if a != p.ty {
+			return nil, nil
+		}
+		m := make(map[string]Unmarshaler, len(p.tm))
+		for _, e := range p.tm {
+			u, err := ctx.Make(ctx, e.Impl)
+			if err != nil {
+				return nil, err
+			}
+			m[e.Tag] = u
+			for _, a := range e.Alt {
+				m[a] = u
+			}
+		}
+		return NewPolymorphismUnmarshaler(m), nil
+	})
 }
