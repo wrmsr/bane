@@ -3,6 +3,7 @@ package container
 import (
 	"golang.org/x/exp/constraints"
 
+	"github.com/wrmsr/bane/pkg/util/container/rbtree"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -10,7 +11,7 @@ import (
 //
 
 type RbTreeMap[K, V any] struct {
-	t RbTree
+	t rbtree.RbTree
 
 	less bt.LessImpl[K]
 }
@@ -26,7 +27,7 @@ func NewRbTreeMap[K, V any](less bt.LessImpl[K], it its.Iterable[bt.Kv[K, V]]) R
 		panic("must provide less impl")
 	}
 	m := RbTreeMap[K, V]{
-		t: RbTree{
+		t: rbtree.RbTree{
 			Less: kvLessImpl[K, V](less),
 		},
 		less: less,
@@ -65,7 +66,7 @@ func (m RbTreeMap[K, V]) TryGet(k K) (V, bool) {
 }
 
 type rbTreeMapIterator[K, V any] struct {
-	i RbIter
+	i rbtree.RbIter
 }
 
 var _ its.Iterator[bt.Kv[int, string]] = &rbTreeMapIterator[int, string]{}
@@ -85,11 +86,11 @@ func (i *rbTreeMapIterator[K, V]) Next() bt.Kv[K, V] {
 }
 
 func (m RbTreeMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
-	return &rbTreeMapIterator[K, V]{i: RbIterAt(m.t.Min())}
+	return &rbTreeMapIterator[K, V]{i: rbtree.RbIterAt(m.t.Min())}
 }
 
 func (m RbTreeMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
-	for it := RbIterAt(m.t.Min()); it.Ok(); it.Right() {
+	for it := rbtree.RbIterAt(m.t.Min()); it.Ok(); it.Right() {
 		if !fn(it.Item().(bt.Kv[K, V])) {
 			return false
 

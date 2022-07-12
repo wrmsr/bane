@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // MMAP is also indirectly supported, by deserializing from a byte slice and slicing the keys and values.
 //
 // See https://github.com/alecthomas/mph for source.
-package container
+package chd
 
 import (
 	"bytes"

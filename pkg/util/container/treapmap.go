@@ -1,6 +1,7 @@
 package container
 
 import (
+	"github.com/wrmsr/bane/pkg/util/container/treap"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rndu "github.com/wrmsr/bane/pkg/util/rand"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -13,11 +14,11 @@ func (c treapMapComparer[K, V]) Compare(kv1, kv2 bt.Kv[K, V]) int {
 }
 
 type TreapMap[K, V any] struct {
-	n *TreapNode[bt.Kv[K, V]]
-	c Comparer[bt.Kv[K, V]]
+	n *treap.TreapNode[bt.Kv[K, V]]
+	c treap.Comparer[bt.Kv[K, V]]
 }
 
-func NewTreapMap[K, V any](cmp Comparer[K]) TreapMap[K, V] {
+func NewTreapMap[K, V any](cmp treap.Comparer[K]) TreapMap[K, V] {
 	return TreapMap[K, V]{
 		c: treapMapComparer[K, V](func(v1, v2 bt.Kv[K, V]) int {
 			return cmp.Compare(v1.K, v2.K)
@@ -72,7 +73,7 @@ func (m TreapMap[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool {
 }
 
 func (m TreapMap[K, V]) With(k K, v V) PersistentMap[K, V] {
-	node := &TreapNode[bt.Kv[K, V]]{
+	node := &treap.TreapNode[bt.Kv[K, V]]{
 		bt.KvOf(k, v),
 		int(rndu.FastUint32()),
 		nil,

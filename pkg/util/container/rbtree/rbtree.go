@@ -26,7 +26,7 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // For more information about a red-black tree, and to understand the implementation, see Wikipedia:
 //
 //     https://en.wikipedia.org/wiki/Red%E2%80%93black_tree
-package container
+package rbtree
 
 import (
 	syncu "github.com/wrmsr/bane/pkg/util/sync"
