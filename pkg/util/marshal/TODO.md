@@ -1,3 +1,9 @@
 - struct opts - simultaneously both marshal/unmarshal
 - containers
 - identities / objgraphs
+- 'auto-hierarchy' - default polymorphism tags
+- 'auto-factory' - arg names / types correspond to fields
+    - correlate with getters
+- single mut lock, copy on write, update all at once
+- register warming types
+- case folding impl on ctxs
