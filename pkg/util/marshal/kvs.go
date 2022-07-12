@@ -60,18 +60,18 @@ type AnyKvIterableMarshaler struct {
 	v Marshaler
 }
 
-func NewAnyKvIterableMarshaler(ty reflect.Type, k, v Marshaler) AnyKvIterableMarshaler {
+func NewAnyKvIterableMarshaler(k, v Marshaler) AnyKvIterableMarshaler {
 	return AnyKvIterableMarshaler{k: k, v: v}
 }
 
 var _ Marshaler = AnyKvIterableMarshaler{}
 
 func (m AnyKvIterableMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
-	kvi := rv.Interface().(its.AnyKvIterable)
+	ai := rv.Interface().(its.AnyIterable)
 
 	var vs []bt.Kv[Value, Value]
-	for kvi := kvi.AnyKvIterate(); kvi.HasNext(); {
-		kv := kvi.Next()
+	for ai := ai.AnyIterate(); ai.HasNext(); {
+		kv := ai.Next().(bt.AnyKv)
 
 		k, err := m.k.Marshal(ctx, reflect.ValueOf(kv.AnyK()))
 		if err != nil {

@@ -72,6 +72,12 @@ func (m orderedMapImpl[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
 	return true
 }
 
+var _ its.AnyIterable = orderedMapImpl[int, string]{}
+
+func (m orderedMapImpl[K, V]) AnyIterate() its.Iterator[any] {
+	return its.AsAny[bt.Kv[K, V]](m).Iterate()
+}
+
 func (m *orderedMapImpl[K, V]) put(k K, v V) {
 	i, ok := m.m[k]
 	if ok {

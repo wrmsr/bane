@@ -32,6 +32,8 @@ type AnyKv interface {
 func (kv Kv[K, V]) AnyK() any { return kv.K }
 func (kv Kv[K, V]) AnyV() any { return kv.V }
 
+func (kv Kv[K, V]) Any() Kv[any, any] { return Kv[any, any]{K: kv.K, V: kv.V} }
+
 //
 
 func AsKey[K, V any](o any) K {
