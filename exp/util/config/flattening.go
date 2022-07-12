@@ -76,7 +76,7 @@ type missing struct{}
 
 type unflattenNode interface {
 	get(key any) (any, error)
-	put(key, value any)
+	put(key, value any) error
 	build() any
 }
 
@@ -106,12 +106,17 @@ func (n *unflattenMap) get(key any) (any, error) {
 	return missing{}, nil
 }
 
-func (n *unflattenMap) put(key, value any) {
-	ks := key.(string)
+func (n *unflattenMap) put(key, value any) error {
+	ks, ok := key.(string)
+	if !ok {
+		return fmt.Errorf("invalid key: %v", key)
+	}
+
 	if _, ok := n.m[ks]; ok {
-		panic(fmt.Errorf("duplicate key: %s", ks))
+		return fmt.Errorf("duplicate key: %s", ks)
 	}
 	n.m[ks] = value
+	return nil
 }
 
 func (n *unflattenMap) build() any {
@@ -135,28 +140,42 @@ func newUnflattenSlice() *unflattenSlice {
 var _ unflattenNode = &unflattenSlice{}
 
 func (n *unflattenSlice) get(key any) (any, error) {
-	ki := key.(int)
+	ki, ok := key.(int)
+	if !ok {
+		return nil, fmt.Errorf("invalid key: %v", key)
+	}
+
 	if ki < 0 {
 		return nil, fmt.Errorf("invalid slice index: %d", ki)
 	}
+
 	if ki < len(n.s) {
 		return n.s[ki], nil
 	}
+
 	return missing{}, nil
 }
 
-func (n *unflattenSlice) put(key, value any) {
-	ki := key.(int)
-	if ki < 0 {
-		panic(fmt.Errorf("invalid slice index: %d", ki))
+func (n *unflattenSlice) put(key, value any) error {
+	ki, ok := key.(int)
+	if !ok {
+		return fmt.Errorf("invalid key: %v", key)
 	}
+
+	if ki < 0 {
+		return fmt.Errorf("invalid slice index: %d", ki)
+	}
+
 	for ki >= len(n.s) {
 		n.s = append(n.s, missing{})
 	}
+
 	if _, ok := n.s[ki].(missing); !ok {
-		panic(fmt.Errorf("duplicate slice index: %d", ki))
+		return fmt.Errorf("duplicate slice index: %d", ki)
 	}
+
 	n.s[ki] = value
+	return nil
 }
 
 func (n *unflattenSlice) build() any {
@@ -206,10 +225,17 @@ func (f Flattening) Unflatten(flattened map[string]any) (map[string]any, error) 
 
 		if _, ok := ret.(missing); ok {
 			ret = fn()
-			n.put(key, ret)
+			if err := n.put(key, ret); err != nil {
+				return nil, err
+			}
 		}
 
-		return ret.(unflattenNode), nil
+		retn, ok := ret.(unflattenNode)
+		if !ok {
+			return nil, fmt.Errorf("invalid node: %v", ret)
+		}
+
+		return retn, nil
 	}
 
 	for fk, v := range flattened {
@@ -238,7 +264,9 @@ func (f Flattening) Unflatten(flattened map[string]any) (map[string]any, error) 
 				return nil, err
 			}
 		}
-		node.put(fks[len(fks)-1], v)
+		if err := node.put(fks[len(fks)-1], v); err != nil {
+			return nil, err
+		}
 	}
 
 	return root.build().(map[string]any), nil

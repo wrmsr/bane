@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	ju "github.com/wrmsr/bane/pkg/util/json"
 )
 
@@ -43,4 +44,6 @@ func TestFlattening(t *testing.T) {
 
 	uf := check.Must1(f.Unflatten(of))
 	fmt.Println(check.Must1(ju.MarshalIndentString(uf, "", "  ")))
+
+	tu.AssertDeepEqual(t, o, uf)
 }
