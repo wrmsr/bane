@@ -52,7 +52,6 @@ type List[T any] interface {
 type MutList[T any] interface {
 	List[T]
 	Mutable
-	//Decay[List[T]]
 
 	Append(v T)
 	Delete(i int)
@@ -71,7 +70,6 @@ type Set[T any] interface {
 type MutSet[T any] interface {
 	Set[T]
 	Mutable
-	//Decay[Set[T]]
 
 	Add(v T)
 	TryAdd(v T) bool
@@ -94,7 +92,6 @@ type Map[K, V any] interface {
 type MutMap[K, V any] interface {
 	Map[K, V]
 	Mutable
-	//Decay[Map[K, V]]
 
 	Put(k K, v V)
 	Delete(k K)
