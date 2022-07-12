@@ -22,7 +22,7 @@ type Comparer[T any] interface {
 
 type CmpImpl[T any] func(l, r T) CmpResult
 
-func IntCmpImpl[T constraints.Integer]() CmpImpl[T] {
+func PrimitiveCmpImpl[T constraints.Ordered]() CmpImpl[T] {
 	return func(l, r T) CmpResult {
 		if l < r {
 			return CmpLess
