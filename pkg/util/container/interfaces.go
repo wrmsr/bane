@@ -93,6 +93,8 @@ type Map[K, V any] interface {
 
 	its.Iterable[bt.Kv[K, V]]
 	its.Traversable[bt.Kv[K, V]]
+
+	//AnyIterate() its.Iterator[bt.Kv[any, any]]
 }
 
 type MutMap[K, V any] interface {
