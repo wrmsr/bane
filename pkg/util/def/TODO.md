@@ -65,6 +65,6 @@
 - infer receiver name
 - 'companion structs'
 - name powered:
-  - func (f *Foo) _def_init_barfs() {}
-  - func (f *Foo) _def_lazy_Things() []int { return nil }
+    - func (f *Foo) _def_init_barfs() {}
+    - func (f *Foo) _def_lazy_Things() []int { return nil }
 - //def:override

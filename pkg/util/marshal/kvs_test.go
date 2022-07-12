@@ -15,7 +15,7 @@ func TestKvIterable(t *testing.T) {
 		Put("200", "two hundred").
 		Build()
 
-	mv := check.Must1(NewKvIterableMarshaler(
+	mv := check.Must1(NewReflectKvIterableMarshaler(
 		reflect.TypeOf(m),
 		PrimitiveMarshaler{},
 		PrimitiveMarshaler{},

@@ -2,6 +2,10 @@ package iterators
 
 import bt "github.com/wrmsr/bane/pkg/util/types"
 
+type AnyKvIterable interface {
+	AnyKvIterate() Iterator[bt.Kv[any, any]]
+}
+
 func Keys[K, V any](it Iterable[bt.Kv[K, V]]) Iterable[K] {
 	return Map(it, func(kv bt.Kv[K, V]) K { return kv.K })
 }

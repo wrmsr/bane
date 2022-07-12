@@ -39,3 +39,9 @@ var _ Iterable[int] = factoryIterable[int]{}
 func (f factoryIterable[T]) Iterate() Iterator[T] {
 	return f.fn()
 }
+
+//
+
+type AnyIterable interface {
+	AnyIterate() Iterator[any]
+}
