@@ -1,6 +1,7 @@
 package jmespath
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
@@ -19,5 +20,6 @@ func TestParsing(t *testing.T) {
 	tree := p.SingleExpression()
 
 	v := &parseVisitor{}
-	tree.Accept(v)
+	root := tree.Accept(v).(Node)
+	fmt.Println(root)
 }

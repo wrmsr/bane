@@ -12,6 +12,13 @@ type parseVisitor struct {
 	chainedNode Node
 }
 
+func maybeNode(o any) Node {
+	if o == nil {
+		return nil
+	}
+	return o.(Node)
+}
+
 func (v *parseVisitor) createProjectionIfChained(node Node) Node {
 	if v.chainedNode != nil {
 		node = Sequence{items: []Node{node, Project{child: v.chainedNode}}}
@@ -81,7 +88,7 @@ func (v *parseVisitor) VisitErrorNode(node antlr.ErrorNode) any {
 //
 
 func (v *parseVisitor) VisitSingleExpression(ctx *parser.SingleExpressionContext) any {
-	return v.VisitChildren(ctx)
+	return v.Visit(ctx.Expression())
 }
 
 func (v *parseVisitor) VisitPipeExpression(ctx *parser.PipeExpressionContext) any {
@@ -129,7 +136,8 @@ func (v *parseVisitor) VisitCurrentNodeExpression(ctx *parser.CurrentNodeExpress
 }
 
 func (v *parseVisitor) VisitChainExpression(ctx *parser.ChainExpressionContext) any {
-	return v.VisitChildren(ctx)
+	v.chainedNode = maybeNode(v.Visit(ctx.ChainedExpression()))
+	return v.createSequenceIfChained(maybeNode(v.Visit(ctx.Expression())))
 }
 
 func (v *parseVisitor) VisitAndExpression(ctx *parser.AndExpressionContext) any {
@@ -149,11 +157,19 @@ func (v *parseVisitor) VisitFunctionCallExpression(ctx *parser.FunctionCallExpre
 }
 
 func (v *parseVisitor) VisitMultiSelectListExpression(ctx *parser.MultiSelectListExpressionContext) any {
+	//var lst []Node
+	//for _, c := range ctx.ExpressionContext.GetChildren() {
+	//	lst = append(lst, v.nonChainingVisit(c.(antlr.ParseTree)).(Node))
+	//}
+	//return v.createSequenceIfChained(CreateArray{items: lst})
 	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitBracketedExpression(ctx *parser.BracketedExpressionContext) any {
-	return v.VisitChildren(ctx)
+	chainAfterExpression := maybeNode(v.Visit(ctx.BracketSpecifier()))
+	expression := v.createSequenceIfChained(v.Visit(ctx.Expression()).(Node))
+	v.chainedNode = chainAfterExpression
+	return v.createSequenceIfChained(expression)
 }
 
 func (v *parseVisitor) VisitLiteralExpression(ctx *parser.LiteralExpressionContext) any {
@@ -190,7 +206,11 @@ func (v *parseVisitor) VisitSelect(ctx *parser.SelectContext) any {
 }
 
 func (v *parseVisitor) VisitMultiSelectList(ctx *parser.MultiSelectListContext) any {
-	return v.VisitChildren(ctx)
+	var lst []Node
+	for _, c := range ctx.AllExpression() {
+		lst = append(lst, v.nonChainingVisit(c).(Node))
+	}
+	return v.createSequenceIfChained(CreateArray{items: lst})
 }
 
 func (v *parseVisitor) VisitMultiSelectHash(ctx *parser.MultiSelectHashContext) any {
