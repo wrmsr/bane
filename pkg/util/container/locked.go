@@ -13,59 +13,59 @@ type locked struct {
 	mtx sync.Mutex
 }
 
-var _ Locked = &locked{}
+var _ Sync = &locked{}
 
-func (l *locked) isLocked() {}
+func (l *locked) isSync() {}
 
 //
 
-type lockedMapImpl[K, V any] struct {
+type LockedMap[K, V any] struct {
 	locked
 	m Map[K, V]
 }
 
-func NewLockedMap[K, V any](m Map[K, V]) LockedMap[K, V] {
-	return &lockedMapImpl[K, V]{m: m}
+func NewLockedMap[K, V any](m Map[K, V]) *LockedMap[K, V] {
+	return &LockedMap[K, V]{m: m}
 }
 
-var _ LockedMap[int, string] = &lockedMapImpl[int, string]{}
+var _ SyncedMap[int, string] = &LockedMap[int, string]{}
 
-func (m *lockedMapImpl[K, V]) Len() int {
+func (m *LockedMap[K, V]) Len() int {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	return m.m.Len()
 }
 
-func (m *lockedMapImpl[K, V]) Contains(k K) bool {
+func (m *LockedMap[K, V]) Contains(k K) bool {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	return m.m.Contains(k)
 }
 
-func (m *lockedMapImpl[K, V]) Get(k K) V {
+func (m *LockedMap[K, V]) Get(k K) V {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	return m.m.Get(k)
 }
 
-func (m *lockedMapImpl[K, V]) TryGet(k K) (V, bool) {
+func (m *LockedMap[K, V]) TryGet(k K) (V, bool) {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	return m.m.TryGet(k)
 }
 
-func (m *lockedMapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m *LockedMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	return its.OfSlice(its.Seq[bt.Kv[K, V]](m.m)).Iterate()
 }
 
-func (m *lockedMapImpl[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
+func (m *LockedMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
@@ -74,34 +74,34 @@ func (m *lockedMapImpl[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 
 //
 
-type lockedMutMapImpl[K, V any] struct {
-	lockedMapImpl[K, V]
+type LockedMutMap[K, V any] struct {
+	LockedMap[K, V]
 	m MutMap[K, V]
 }
 
-func NewLockedMutMap[K, V any](m MutMap[K, V]) LockedMutMap[K, V] {
-	return &lockedMutMapImpl[K, V]{lockedMapImpl: lockedMapImpl[K, V]{m: m}, m: m}
+func NewLockedMutMap[K, V any](m MutMap[K, V]) *LockedMutMap[K, V] {
+	return &LockedMutMap[K, V]{LockedMap: LockedMap[K, V]{m: m}, m: m}
 }
 
-var _ LockedMutMap[int, string] = &lockedMutMapImpl[int, string]{}
+var _ SyncedMutMap[int, string] = &LockedMutMap[int, string]{}
 
-func (m *lockedMutMapImpl[K, V]) isMutable() {}
+func (m *LockedMutMap[K, V]) isMutable() {}
 
-func (m *lockedMutMapImpl[K, V]) Put(k K, v V) {
+func (m *LockedMutMap[K, V]) Put(k K, v V) {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	m.m.Put(k, v)
 }
 
-func (m *lockedMutMapImpl[K, V]) Delete(k K) {
+func (m *LockedMutMap[K, V]) Delete(k K) {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	m.m.Delete(k)
 }
 
-func (m *lockedMutMapImpl[K, V]) Default(k K, v V) bool {
+func (m *LockedMutMap[K, V]) Default(k K, v V) bool {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 

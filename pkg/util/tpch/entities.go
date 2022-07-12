@@ -126,7 +126,7 @@ func reflectEntity(
 			return ctr.NewSliceList(its.OfSlice(s))
 		})),
 
-		columns: ctr.NewOrderedMap(its.Map(
+		columns: ctr.NewLinkedMap(its.Map(
 			its.Range(0, ty.NumField(), 1),
 			func(i int) bt.Kv[string, Column] {
 				col := reflectColumn(ty.Field(i))

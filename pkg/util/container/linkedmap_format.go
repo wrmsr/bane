@@ -9,7 +9,7 @@ import (
 
 //
 
-func (m orderedMapImpl[K, V]) format(tn string, f fmt.State, c rune) {
+func (m LinkedMap[K, V]) format(tn string, f fmt.State, c rune) {
 	iou.WriteStringDiscard(f, tn)
 	if f.Flag('#') {
 		iou.WriteStringDiscard(f, "{")
@@ -37,11 +37,11 @@ func (m orderedMapImpl[K, V]) format(tn string, f fmt.State, c rune) {
 	}
 }
 
-func (m orderedMapImpl[K, V]) Format(f fmt.State, c rune) {
+func (m LinkedMap[K, V]) Format(f fmt.State, c rune) {
 	m.format("ordMap", f, c)
 }
 
-func (m orderedMapImpl[K, V]) string(tn string) string {
+func (m LinkedMap[K, V]) string(tn string) string {
 	var sb strings.Builder
 	sb.WriteString("ordMap")
 	for i, kv := range m.s {
@@ -53,16 +53,16 @@ func (m orderedMapImpl[K, V]) string(tn string) string {
 	return sb.String()
 }
 
-func (m orderedMapImpl[K, V]) String() string {
+func (m LinkedMap[K, V]) String() string {
 	return m.string("ordMap")
 }
 
 //
 
-func (m mutOrderedMapImpl[K, V]) String() string {
+func (m MutLinkedMap[K, V]) String() string {
 	return m.string("mutOrdMap")
 }
 
-func (m mutOrderedMapImpl[K, V]) Format(f fmt.State, c rune) {
+func (m MutLinkedMap[K, V]) Format(f fmt.State, c rune) {
 	m.format("mutOrdMap", f, c)
 }

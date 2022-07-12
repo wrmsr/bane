@@ -83,7 +83,7 @@ func TestProcStatus(t *testing.T) {
 		}
 		return opt.Just(bt.KvOf(strings.TrimSpace(k), v))
 	})
-	m := ctr.NewOrderedMap(kvs)
+	m := ctr.NewLinkedMap(kvs)
 
 	fmt.Println(m)
 	tu.AssertDeepEqual(t, m.Get("Threads"), "1")
@@ -115,9 +115,10 @@ func TestProcNetNetstat(t *testing.T) {
 			its.OfSlice(stru.TrimSpaceSplit(kl, " ")),
 			its.OfSlice(stru.TrimSpaceSplit(vl, " ")),
 		))
-		return opt.Just(bt.KvOf(kt, ctr.NewOrderedMap(kvs)))
+		m := ctr.NewLinkedMap(kvs)
+		return opt.Just(bt.KvOf[string, ctr.OrderedMap[string, string]](kt, m))
 	})
-	m := ctr.NewOrderedMap(kvs)
+	m := ctr.NewLinkedMap(kvs)
 
 	fmt.Println(m)
 	tu.AssertDeepEqual(t, m.Get("IpExt").Get("InBcastPkts"), "420")

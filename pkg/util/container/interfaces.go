@@ -9,8 +9,8 @@ import (
 
 //
 
-type Locked interface {
-	isLocked()
+type Sync interface {
+	isSync()
 }
 
 type Mutable interface {
@@ -119,14 +119,14 @@ type MutOrderedMap[K, V any] interface {
 
 //
 
-type LockedMap[K, V any] interface {
+type SyncedMap[K, V any] interface {
 	Map[K, V]
-	Locked
+	Sync
 }
 
-type LockedMutMap[K, V any] interface {
+type SyncedMutMap[K, V any] interface {
 	MutMap[K, V]
-	Locked
+	Sync
 }
 
 //

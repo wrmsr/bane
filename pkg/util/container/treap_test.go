@@ -15,7 +15,7 @@ func (i IntComparer) Compare(left, right int) int {
 }
 
 func TestTreapMap(t *testing.T) {
-	m := NewTreapMap[int, string](IntComparer{})
+	var m PersistentMap[int, string] = NewTreapMap[int, string](IntComparer{})
 	fmt.Println("Len:", m.Len())
 
 	for i := 0; i < 32; i++ {

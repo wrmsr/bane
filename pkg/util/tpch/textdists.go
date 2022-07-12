@@ -71,7 +71,7 @@ func (tdl textDistsLoader) loadDists(lines its.Iterator[string]) textDists {
 
 func (tdl textDistsLoader) loadDist(lines its.Iterator[string], name string) *textDist {
 	count := -1
-	members := ctr.NewMutOrderedMap[string, int](nil)
+	members := ctr.NewMutLinkedMap[string, int](nil)
 	for lines.HasNext() {
 		line := lines.Next()
 
