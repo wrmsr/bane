@@ -98,6 +98,10 @@ func (ri SetType) isRegistryItem() {}
 
 type RegistryMarshalerFactory struct{}
 
+func NewRegistryMarshalerFactory() RegistryMarshalerFactory {
+	return RegistryMarshalerFactory{}
+}
+
 var _ MarshalerFactory = RegistryMarshalerFactory{}
 
 var _setTypeTy = rfl.TypeOf[SetType]()
@@ -122,6 +126,10 @@ func (f RegistryMarshalerFactory) Make(ctx MarshalContext, a reflect.Type) (Mars
 //
 
 type RegistryUnmarshalerFactory struct{}
+
+func NewRegistryUnmarshalerFactory() RegistryUnmarshalerFactory {
+	return RegistryUnmarshalerFactory{}
+}
 
 var _ UnmarshalerFactory = RegistryUnmarshalerFactory{}
 

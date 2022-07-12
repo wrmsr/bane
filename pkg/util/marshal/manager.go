@@ -3,6 +3,8 @@ package marshal
 import (
 	"reflect"
 
+	ctr "github.com/wrmsr/bane/pkg/util/container"
+	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	stu "github.com/wrmsr/bane/pkg/util/structs"
 )
@@ -18,49 +20,11 @@ type Manager struct {
 	uf UnmarshalerFactory
 }
 
-func NewManager() *Manager {
-	sic := stu.NewStructInfoCache()
-
-	mf := NewTypeCacheMarshalerFactory(NewCompositeMarshalerFactory(
-		FirstComposite,
-		NewPrimitiveMarshalerFactory(),
-		NewPointerMarshalerFactory(),
-		NewIndexMarshalerFactory(),
-		NewMapMarshalerFactory(),
-		NewBase64MarshalerFactory(),
-		NewTimeMarshalerFactory(DefaultTimeMarshalLayout),
-		NewOptionalMarshalerFactory(),
-		NewRegistryPolymorphismMarshalerFactory(),
-		NewStructMarshalerFactory(sic),
-	))
-
-	uf := NewTypeCacheUnmarshalerFactory(NewCompositeUnmarshalerFactory(
-		FirstComposite,
-		NewConvertPrimitiveUnmarshalerFactory(),
-		NewPointerUnmarshalerFactory(),
-		NewIndexUnmarshalerFactory(),
-		NewMapUnmarshalerFactory(),
-		NewBase64UnmarshalerFactory(),
-		NewTimeUnmarshalerFactory(DefaultTimeUnmarshalLayouts()),
-		NewOptionalUnmarshalerFactory(),
-		NewRegistryPolymorphismUnmarshalerFactory(),
-		NewStructUnmarshalerFactory(sic),
-	))
-
-	return &Manager{
-		sic: sic,
-
-		reg: globalRegistry,
-
-		mf: mf,
-		uf: uf,
-	}
-}
-
 func (m *Manager) MarshalRfl(rv reflect.Value, o ...MarshalOpt) (Value, error) {
 	ty := rv.Type()
 	mc := MarshalContext{
 		Make: m.mf.Make,
+		Opts: ctr.NewTypeMap(its.OfSlice(o)),
 		Reg:  m.reg,
 	}
 	mi, err := m.mf.Make(mc, ty)
@@ -77,6 +41,7 @@ func (m *Manager) Marshal(v any, o ...MarshalOpt) (Value, error) {
 func (m *Manager) UnmarshalRfl(mv Value, ty reflect.Type, o ...UnmarshalOpt) (reflect.Value, error) {
 	uc := UnmarshalContext{
 		Make: m.uf.Make,
+		Opts: ctr.NewTypeMap(its.OfSlice(o)),
 		Reg:  m.reg,
 	}
 	ui, err := m.uf.Make(uc, ty)
