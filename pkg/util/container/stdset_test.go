@@ -7,7 +7,7 @@ import (
 )
 
 func TestSet(t *testing.T) {
-	s := NewMutSetOf(10, 20, 30)
+	s := NewMutStdSetOf(10, 20, 30)
 	tu.AssertEqual(t, s.Contains(10), true)
 	tu.AssertEqual(t, s.Contains(11), false)
 

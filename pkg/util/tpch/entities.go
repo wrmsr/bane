@@ -121,9 +121,9 @@ func reflectEntity(
 	e := &Entity{
 		name: check.NotZero(name),
 
-		primaryKey: ctr.NewList(its.OfSlice(primaryKey)),
-		indexes: ctr.NewList(its.Map(its.OfSlice(indexes), func(s []string) ctr.List[string] {
-			return ctr.NewList(its.OfSlice(s))
+		primaryKey: ctr.NewSliceList(its.OfSlice(primaryKey)),
+		indexes: ctr.NewSliceList(its.Map(its.OfSlice(indexes), func(s []string) ctr.List[string] {
+			return ctr.NewSliceList(its.OfSlice(s))
 		})),
 
 		columns: ctr.NewOrderedMap(its.Map(
@@ -170,7 +170,7 @@ type EntitySet struct {
 
 func newEntitySet(entities []*Entity) *EntitySet {
 	return &EntitySet{
-		entities: ctr.NewMap(its.CheckUniqueKeys(its.Map(its.OfSlice(entities), bt.KvMaker((*Entity).Name)))),
+		entities: ctr.NewStdMap(its.CheckUniqueKeys(its.Map(its.OfSlice(entities), bt.KvMaker((*Entity).Name)))),
 	}
 }
 

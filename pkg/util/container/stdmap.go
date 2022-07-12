@@ -1,0 +1,93 @@
+package container
+
+import (
+	its "github.com/wrmsr/bane/pkg/util/iterators"
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
+
+//
+
+type StdMap[K comparable, V any] struct {
+	m map[K]V
+}
+
+func NewStdMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) StdMap[K, V] {
+	m := make(map[K]V)
+	if it != nil {
+		for it := it.Iterate(); it.HasNext(); {
+			c := it.Next()
+			m[c.K] = c.V
+		}
+	}
+	return StdMap[K, V]{
+		m: m,
+	}
+}
+
+var _ Map[int, any] = StdMap[int, any]{}
+
+func (m StdMap[K, V]) Len() int {
+	return len(m.m)
+}
+
+func (m StdMap[K, V]) Contains(k K) bool {
+	_, ok := m.m[k]
+	return ok
+}
+
+func (m StdMap[K, V]) Get(k K) V {
+	return m.m[k]
+}
+
+func (m StdMap[K, V]) TryGet(k K) (V, bool) {
+	v, ok := m.m[k]
+	return v, ok
+}
+
+func (m StdMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+	return its.OfMap[K, V](m.m).Iterate()
+}
+
+func (m StdMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
+	for k, v := range m.m {
+		if !fn(bt.KvOf(k, v)) {
+			return false
+		}
+	}
+	return true
+}
+
+//
+
+type MutStdMap[K comparable, V any] struct {
+	StdMap[K, V]
+}
+
+func NewMutStdMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) MutStdMap[K, V] {
+	return MutStdMap[K, V]{NewStdMap[K, V](it)}
+}
+
+func WrapMap[K comparable, V any](m map[K]V) MutMap[K, V] {
+	return MutStdMap[K, V]{StdMap[K, V]{m}}
+}
+
+var _ MutMap[int, any] = MutStdMap[int, any]{}
+
+func (m MutStdMap[K, V]) isMutable()       {}
+func (m MutStdMap[K, V]) Decay() Map[K, V] { return m.StdMap }
+
+func (m MutStdMap[K, V]) Put(k K, v V) {
+	m.m[k] = v
+}
+
+func (m MutStdMap[K, V]) Delete(k K) {
+	delete(m.m, k)
+}
+
+func (m MutStdMap[K, V]) Default(k K, v V) bool {
+	if m.Contains(k) {
+		return false
+	}
+	m.m[k] = v
+	return true
+}

@@ -13,7 +13,7 @@ import (
 
 //
 
-func (m rbTreeMapImpl[K, V]) MarshalJSON() ([]byte, error) {
+func (m RbTreeMap[K, V]) MarshalJSON() ([]byte, error) {
 	if m.Len() < 1 {
 		return ju.EmptyObjectBytes(), nil
 	}
@@ -75,7 +75,7 @@ func (m rbTreeMapImpl[K, V]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s)
 }
 
-func (m *rbTreeMapImpl[K, V]) UnmarshalJSON(b []byte) error {
+func (m *RbTreeMap[K, V]) UnmarshalJSON(b []byte) error {
 	m.clear()
 	if len(b) < 1 {
 		return errors.New("empty")
@@ -131,16 +131,16 @@ func (m *rbTreeMapImpl[K, V]) UnmarshalJSON(b []byte) error {
 
 	}
 
-	*m = newRbTreeMapImpl[K, V](m.t.Less, its.OfSlice(kvs))
+	*m = NewRbTreeMap[K, V](m.less, its.OfSlice(kvs))
 	return nil
 }
 
 //
 
-func (m mutRbTreeMapImpl[K, V]) MarshalJSON() ([]byte, error) {
-	return json.Marshal(m.rbTreeMapImpl)
+func (m MutRbTreeMap[K, V]) MarshalJSON() ([]byte, error) {
+	return json.Marshal(m.RbTreeMap)
 }
 
-func (m *mutRbTreeMapImpl[K, V]) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &m.rbTreeMapImpl)
+func (m *MutRbTreeMap[K, V]) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &m.RbTreeMap)
 }

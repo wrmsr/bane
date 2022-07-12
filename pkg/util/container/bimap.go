@@ -27,7 +27,7 @@ func initBiMap[K, V comparable](it its.Iterable[bt.Kv[K, V]]) (map[K]V, map[V]K)
 
 func NewBiMap[K, V comparable](it its.Iterable[bt.Kv[K, V]]) BiMap[K, V] {
 	m, i := initBiMap(it)
-	return biMapImpl[K, V]{Map: mapImpl[K, V]{m: m}, i: mapImpl[V, K]{i}}
+	return biMapImpl[K, V]{Map: StdMap[K, V]{m: m}, i: StdMap[V, K]{i}}
 }
 
 var _ BiMap[int, string] = biMapImpl[int, string]{}
@@ -46,7 +46,7 @@ type mutBiMapImpl[K, V comparable] struct {
 
 func NewMutBiMap[K, V comparable](it its.Iterable[bt.Kv[K, V]]) MutBiMap[K, V] {
 	m, i := initBiMap(it)
-	return mutBiMapImpl[K, V]{m: mutMapImpl[K, V]{mapImpl[K, V]{m: m}}, i: mutMapImpl[V, K]{mapImpl[V, K]{i}}}
+	return mutBiMapImpl[K, V]{m: MutStdMap[K, V]{StdMap[K, V]{m: m}}, i: MutStdMap[V, K]{StdMap[V, K]{i}}}
 }
 
 var _ MutBiMap[int, string] = mutBiMapImpl[int, string]{}

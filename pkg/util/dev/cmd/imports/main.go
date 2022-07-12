@@ -52,7 +52,7 @@ func main() {
 	}
 
 	fns := make([]func(), len(dirs))
-	m := ctr.NewLockedMutMap[string, []string](ctr.NewMutMap[string, []string](nil))
+	m := ctr.NewLockedMutMap[string, []string](ctr.NewMutStdMap[string, []string](nil))
 	for i, dir := range dirs {
 		dir := dir
 		fns[i] = func() {

@@ -1,7 +1,7 @@
 package container
 
 func Union[T comparable](ss ...Set[T]) Set[T] {
-	r := NewMutSet[T](nil)
+	r := NewMutStdSet[T](nil)
 	for _, s := range ss {
 		s.ForEach(func(v T) bool {
 			r.Add(v)
@@ -13,7 +13,7 @@ func Union[T comparable](ss ...Set[T]) Set[T] {
 
 func Intersection[T comparable](ss ...Set[T]) Set[T] {
 	if len(ss) < 1 {
-		return NewSet[T](nil)
+		return NewStdSet[T](nil)
 	}
 	cts := make(map[T]int)
 	for _, s := range ss[1:] {
@@ -22,7 +22,7 @@ func Intersection[T comparable](ss ...Set[T]) Set[T] {
 			return true
 		})
 	}
-	r := NewMutSet[T](nil)
+	r := NewMutStdSet[T](nil)
 	for v, ct := range cts {
 		if ct == len(ss) {
 			r.Add(v)
@@ -33,9 +33,9 @@ func Intersection[T comparable](ss ...Set[T]) Set[T] {
 
 func Difference[T comparable](ss ...Set[T]) Set[T] {
 	if len(ss) < 1 {
-		return NewSet[T](nil)
+		return NewStdSet[T](nil)
 	}
-	r := NewMutSet[T](ss[0])
+	r := NewMutStdSet[T](ss[0])
 	for _, s := range ss[1:] {
 		s.ForEach(func(v T) bool {
 			r.Remove(v)

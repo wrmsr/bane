@@ -86,7 +86,7 @@ func (pr *peekReader) skipWhile(fn func(ch rune) bool) {
 	}
 }
 
-var spaceRunes = ctr.NewSetOf(
+var spaceRunes = ctr.NewStdSetOf(
 	' ',
 	'\f',
 	'\n',

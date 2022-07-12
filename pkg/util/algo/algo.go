@@ -39,7 +39,7 @@ func TopoSort[T comparable](data ctr.Map[T, ctr.Set[T]]) (ctr.List[ctr.Set[T]], 
 		}
 
 		rem := ord.Slice()
-		ret = append(ret, ctr.NewSetOf[T](ord.Slice()...))
+		ret = append(ret, ctr.NewStdSetOf[T](ord.Slice()...))
 		for k, v := range m {
 			if !ord.Contains(k) {
 				v.RemoveAll(rem)
@@ -53,11 +53,11 @@ func TopoSort[T comparable](data ctr.Map[T, ctr.Set[T]]) (ctr.List[ctr.Set[T]], 
 		return nil, fmt.Errorf("cyclic dependencies exist among these items: %s", data)
 	}
 
-	return ctr.NewListOf(ret...), nil
+	return ctr.NewSliceListOf(ret...), nil
 }
 
 func Histogram[T comparable](it its.Iterable[T]) ctr.Map[T, int] {
-	m := ctr.NewMutMap[T, int](nil)
+	m := ctr.NewMutStdMap[T, int](nil)
 	for it := it.Iterate(); it.HasNext(); {
 		k := it.Next()
 		m.Put(k, m.Get(k)+1)

@@ -20,7 +20,7 @@ func TestDags(t *testing.T) {
 	fmt.Println(d.All())
 	fmt.Println(d.OutputSetsByOutput())
 
-	sd := d.Subdag(ctr.NewSetOf(1), nil)
+	sd := d.Subdag(ctr.NewStdSetOf(1), nil)
 	fmt.Println(sd.Inputs())
 	fmt.Println(sd.Outputs())
 	fmt.Println(sd.OutputInputs())

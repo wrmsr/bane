@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
-	fnu "github.com/wrmsr/bane/pkg/util/funcs"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -51,7 +50,9 @@ func buildStructFields(root []*FieldInfo) StructFields {
 	byName := ctr.NewMutOrderedMap[string, ctr.MutList[*FieldInfo]](nil)
 	byPath := ctr.NewMutOrderedMap[string, *FieldInfo](nil)
 	for _, fi := range all {
-		ctr.GetOrMake[string, ctr.MutList[*FieldInfo]](byName, fi.name.s, fnu.Bind1x0x1(ctr.NewMutList[*FieldInfo], nil)).Append(fi)
+		ctr.GetOrMake[string, ctr.MutList[*FieldInfo]](byName, fi.name.s, func() ctr.MutList[*FieldInfo] {
+			return ctr.NewSliceMutList[*FieldInfo](nil)
+		}).Append(fi)
 		if byPath.Contains(fi.path) {
 			panic(fmt.Errorf("duplicate field path: %s", fi.path))
 		}
@@ -90,7 +91,7 @@ func buildStructFields(root []*FieldInfo) StructFields {
 
 		if len(w) > 1 {
 			dupe = append(dupe, w...)
-			byDupe.Put(w[0].name.s, ctr.NewList(its.OfSlice(w)))
+			byDupe.Put(w[0].name.s, ctr.NewSliceList(its.OfSlice(w)))
 		} else {
 			f := w[0]
 			f.flat = true
@@ -102,13 +103,13 @@ func buildStructFields(root []*FieldInfo) StructFields {
 	})
 
 	return StructFields{
-		root: ctr.NewList(its.OfSlice(root)),
-		all:  ctr.NewList(its.OfSlice(all)),
+		root: ctr.NewSliceList(its.OfSlice(root)),
+		all:  ctr.NewSliceList(its.OfSlice(all)),
 
 		byName: ctr.NewOrderedMap(its.MapValues[string, ctr.MutList[*FieldInfo], ctr.List[*FieldInfo]](byName, ctr.DecayList[*FieldInfo])),
 		byPath: byPath,
 
-		flat:   ctr.NewList(its.OfSlice(flat)),
+		flat:   ctr.NewSliceList(its.OfSlice(flat)),
 		byFlat: byFlat,
 
 		dupe:   ctr.WrapSlice(dupe),

@@ -20,11 +20,11 @@ type Dag[T comparable] struct {
 }
 
 func SliceEdges[T comparable](m map[T][]T) ctr.Map[T, ctr.Set[T]] {
-	return ctr.NewMap(its.OfMap(maps.MapValues(func(s []T) ctr.Set[T] { return ctr.NewSet(its.OfSlice(s)) }, m)))
+	return ctr.NewStdMap(its.OfMap(maps.MapValues(func(s []T) ctr.Set[T] { return ctr.NewStdSet(its.OfSlice(s)) }, m)))
 }
 
 func ItEdges[T comparable](it its.Iterable[bt.Kv[T, its.Iterable[T]]]) ctr.Map[T, ctr.Set[T]] {
-	return ctr.NewMap[T, ctr.Set[T]](its.MapValues(it, func(i its.Iterable[T]) ctr.Set[T] { return ctr.NewSet(i) }))
+	return ctr.NewStdMap[T, ctr.Set[T]](its.MapValues(it, func(i its.Iterable[T]) ctr.Set[T] { return ctr.NewStdSet(i) }))
 }
 
 func NewDag[T comparable](inputSetsByOutput ctr.Map[T, ctr.Set[T]]) *Dag[T] {
@@ -39,15 +39,15 @@ func (d *Dag[T]) InputSetsByOutput() ctr.Map[T, ctr.Set[T]] {
 
 func (d *Dag[T]) All() ctr.Set[T] {
 	return opt.SetIfAbsent(&d.all, func() ctr.Set[T] {
-		return ctr.NewSet(ctr.Keys(d.inputSetsByOutput))
+		return ctr.NewStdSet(ctr.Keys(d.inputSetsByOutput))
 	})
 }
 
 func (d *Dag[T]) OutputSetsByOutput() ctr.Map[T, ctr.Set[T]] {
 	return opt.SetIfAbsent(&d.outputSetsByOutput, func() ctr.Map[T, ctr.Set[T]] {
-		m := ctr.NewMutMap[T, ctr.MutSet[T]](nil)
+		m := ctr.NewMutStdMap[T, ctr.MutSet[T]](nil)
 		d.All().ForEach(func(t T) bool {
-			m.Put(t, ctr.NewMutSet[T](nil))
+			m.Put(t, ctr.NewMutStdSet[T](nil))
 			return true
 		})
 		d.inputSetsByOutput.ForEach(func(kv bt.Kv[T, ctr.Set[T]]) bool {
@@ -65,17 +65,17 @@ func (d *Dag[T]) Subdag(targets its.Iterable[T], ignored its.Iterable[T]) *Subda
 	return &Subdag[T]{
 		dag: d,
 
-		targets: ctr.NewSet[T](targets),
-		ignored: ctr.NewSet[T](ignored),
+		targets: ctr.NewStdSet[T](targets),
+		ignored: ctr.NewStdSet[T](ignored),
 	}
 }
 
 func TraverseLinks[T comparable](data ctr.Map[T, ctr.Set[T]], keys its.Iterable[T]) ctr.Set[T] {
-	keySet := ctr.NewSet(keys)
-	todoSet := ctr.NewMutSet[T](keySet)
-	seenSet := ctr.NewMutSet[T](nil)
+	keySet := ctr.NewStdSet(keys)
+	todoSet := ctr.NewMutStdSet[T](keySet)
+	seenSet := ctr.NewMutStdSet[T](nil)
 	for todoSet.Len() > 0 {
-		key := check.Ok1(ctr.SetPop(todoSet))
+		key := check.Ok1(ctr.SetPop[T](todoSet))
 		seenSet.Add(key)
 		if cur, ok := data.TryGet(key); ok {
 			cur.ForEach(func(v T) bool {

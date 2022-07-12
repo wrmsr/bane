@@ -7,7 +7,7 @@ import (
 )
 
 func TestList(t *testing.T) {
-	l := NewMutListOf("zero", "one", "two", "three")
+	l := NewMutSliceListOf("zero", "one", "two", "three")
 	tu.AssertEqual(t, l.Get(0), "zero")
 	tu.AssertEqual(t, l.Get(1), "one")
 	tu.AssertEqual(t, l.Get(2), "two")

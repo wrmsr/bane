@@ -29,7 +29,7 @@ var hashEqMapNodePool = syncu.NewDrainPool[*hashEqMapNode](func() *hashEqMapNode
 
 //
 
-type hashEqMapImpl[K, V any] struct {
+type HashEqMap[K, V any] struct {
 	he bt.HashEqImpl[K]
 
 	head, tail *hashEqMapNode
@@ -38,8 +38,12 @@ type hashEqMapImpl[K, V any] struct {
 	l int
 }
 
-func newHashEqMapImpl[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) hashEqMapImpl[K, V] {
-	m := hashEqMapImpl[K, V]{
+func (m *HashEqMap[K, V]) initUnmarshal(a ...any) {
+	m.he = check.Single(a).(bt.HashEqImpl[K])
+}
+
+func NewHashEqMap[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) HashEqMap[K, V] {
+	m := HashEqMap[K, V]{
 		he: he,
 		m:  make(map[uintptr]*hashEqMapNode),
 	}
@@ -53,31 +57,23 @@ func newHashEqMapImpl[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]
 	return m
 }
 
-func (m *hashEqMapImpl[K, V]) initUnmarshal(a ...any) {
-	m.he = check.Single(a).(bt.HashEqImpl[K])
-}
+var _ Map[int, string] = HashEqMap[int, string]{}
 
-func NewHashEqMap[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) Map[K, V] {
-	return newHashEqMapImpl[K, V](he, it)
-}
-
-var _ Map[int, string] = hashEqMapImpl[int, string]{}
-
-func (m hashEqMapImpl[K, V]) Len() int {
+func (m HashEqMap[K, V]) Len() int {
 	return m.l
 }
 
-func (m hashEqMapImpl[K, V]) Contains(k K) bool {
+func (m HashEqMap[K, V]) Contains(k K) bool {
 	_, ok := m.TryGet(k)
 	return ok
 }
 
-func (m hashEqMapImpl[K, V]) Get(k K) V {
+func (m HashEqMap[K, V]) Get(k K) V {
 	v, _ := m.TryGet(k)
 	return v
 }
 
-func (m hashEqMapImpl[K, V]) getNode(k K, h uintptr) *hashEqMapNode {
+func (m HashEqMap[K, V]) getNode(k K, h uintptr) *hashEqMapNode {
 	for cur := m.m[h]; cur != nil && cur.h == h; cur = cur.prev {
 		if m.he.Eq(k, cur.k.(K)) {
 			return cur
@@ -86,7 +82,7 @@ func (m hashEqMapImpl[K, V]) getNode(k K, h uintptr) *hashEqMapNode {
 	return nil
 }
 
-func (m hashEqMapImpl[K, V]) TryGet(k K) (V, bool) {
+func (m HashEqMap[K, V]) TryGet(k K) (V, bool) {
 	if n := m.getNode(k, m.he.Hash(k)); n != nil {
 		return n.v.(V), true
 	}
@@ -114,11 +110,11 @@ func (i *hashEqMapIterator[K, V]) Next() bt.Kv[K, V] {
 	return kv
 }
 
-func (m hashEqMapImpl[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m HashEqMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
 	return &hashEqMapIterator[K, V]{m.head}
 }
 
-func (m hashEqMapImpl[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
+func (m HashEqMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 	for cur := m.head; cur != nil; cur = cur.next {
 		if !fn(bt.KvOf(cur.k.(K), cur.v.(V))) {
 			return false
@@ -127,7 +123,7 @@ func (m hashEqMapImpl[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 	return true
 }
 
-func (m *hashEqMapImpl[K, V]) put(k K, v V) {
+func (m *HashEqMap[K, V]) put(k K, v V) {
 	h := m.he.Hash(k)
 	if n := m.getNode(k, h); n != nil {
 		n.v = v
@@ -172,7 +168,7 @@ func (m *hashEqMapImpl[K, V]) put(k K, v V) {
 	m.l++
 }
 
-func (m *hashEqMapImpl[K, V]) verify() {
+func (m *HashEqMap[K, V]) verify() {
 	i := 0
 	var prev *hashEqMapNode
 	for cur := m.head; cur != nil; prev, cur = cur, cur.next {
@@ -189,14 +185,14 @@ func (m *hashEqMapImpl[K, V]) verify() {
 	}
 }
 
-func (m *hashEqMapImpl[K, V]) print() {
+func (m *HashEqMap[K, V]) print() {
 	for cur := m.head; cur != nil; cur = cur.next {
 		fmt.Println(cur)
 	}
 	fmt.Println()
 }
 
-func (m *hashEqMapImpl[K, V]) delete(k K) {
+func (m *HashEqMap[K, V]) delete(k K) {
 	h := m.he.Hash(k)
 	n := m.getNode(k, h)
 	if n == nil {
@@ -231,7 +227,7 @@ func (m *hashEqMapImpl[K, V]) delete(k K) {
 	hashEqMapNodePool.Put(n)
 }
 
-func (m *hashEqMapImpl[K, V]) default_(k K, v V) bool {
+func (m *HashEqMap[K, V]) default_(k K, v V) bool {
 	if _, ok := m.TryGet(k); ok {
 		return false
 	}
@@ -239,7 +235,7 @@ func (m *hashEqMapImpl[K, V]) default_(k K, v V) bool {
 	return true
 }
 
-func (m *hashEqMapImpl[K, V]) clear() {
+func (m *HashEqMap[K, V]) clear() {
 	for cur := m.head; cur != nil; cur = cur.next {
 		*cur = hashEqMapNode{}
 		hashEqMapNodePool.Put(cur)
@@ -252,31 +248,31 @@ func (m *hashEqMapImpl[K, V]) clear() {
 
 //
 
-type mutHashEqMapImpl[K, V any] struct {
-	hashEqMapImpl[K, V]
+type MutHashEqMap[K, V any] struct {
+	HashEqMap[K, V]
 }
 
-func NewMutHashEqMap[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) MutMap[K, V] {
-	return &mutHashEqMapImpl[K, V]{newHashEqMapImpl[K, V](he, it)}
+func NewMutHashEqMap[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) *MutHashEqMap[K, V] {
+	return &MutHashEqMap[K, V]{NewHashEqMap[K, V](he, it)}
 }
 
-func (m *mutHashEqMapImpl[K, V]) initUnmarshal(a ...any) {
-	m.hashEqMapImpl.initUnmarshal(a...)
+func (m *MutHashEqMap[K, V]) initUnmarshal(a ...any) {
+	m.HashEqMap.initUnmarshal(a...)
 }
 
-var _ MutMap[int, string] = &mutHashEqMapImpl[int, string]{}
+var _ MutMap[int, string] = &MutHashEqMap[int, string]{}
 
-func (m *mutHashEqMapImpl[K, V]) isMutable() {}
+func (m *MutHashEqMap[K, V]) isMutable() {}
 
-func (m *mutHashEqMapImpl[K, V]) Put(k K, v V) {
+func (m *MutHashEqMap[K, V]) Put(k K, v V) {
 	m.put(k, v)
 }
 
-func (m *mutHashEqMapImpl[K, V]) Delete(k K) {
+func (m *MutHashEqMap[K, V]) Delete(k K) {
 	m.delete(k)
 }
 
-func (m *mutHashEqMapImpl[K, V]) Default(k K, v V) bool {
+func (m *MutHashEqMap[K, V]) Default(k K, v V) bool {
 	return m.default_(k, v)
 }
 
@@ -287,7 +283,7 @@ func NewHashEqSet[K any](he bt.HashEqImpl[K], it its.Iterable[K]) Set[K] {
 	if it != nil {
 		kvs = its.StubKvs(it)
 	}
-	return MapSet(NewHashEqMap[K, struct{}](he, kvs))
+	return MapSet[K, struct{}](NewHashEqMap[K, struct{}](he, kvs))
 }
 
 func NewMutHashEqSet[K any](he bt.HashEqImpl[K], it its.Iterable[K]) MutSet[K] {
@@ -295,5 +291,5 @@ func NewMutHashEqSet[K any](he bt.HashEqImpl[K], it its.Iterable[K]) MutSet[K] {
 	if it != nil {
 		kvs = its.StubKvs(it)
 	}
-	return MutMapSet(NewMutHashEqMap[K, struct{}](he, kvs))
+	return MutMapSet[K, struct{}](NewMutHashEqMap[K, struct{}](he, kvs))
 }

@@ -304,10 +304,8 @@ func TestRbTreeMapJson(t *testing.T) {
 	//var m2 rbTreeMapImpl[int, string]
 	//InitUnmarshal(&m2, bt.CmpLessImpl(bt.IntCmpImpl[int]()))
 
-	m2 := rbTreeMapImpl[int, string]{
-		t: RbTree{
-			Less: kvLessImpl[int, string](bt.CmpLessImpl(bt.IntCmpImpl[int]())),
-		},
+	m2 := RbTreeMap[int, string]{
+		less: bt.CmpLessImpl(bt.IntCmpImpl[int]()),
 	}
 
 	tu.AssertNoErr(t, json.Unmarshal([]byte(j), &m2))

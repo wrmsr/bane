@@ -15,7 +15,7 @@ func TestHashEqMap(t *testing.T) {
 		func(l, r int) bool { return l == r },
 	)
 
-	m := newHashEqMapImpl[int, int](he, its.OfSlice(slices.KvsOf[int, int](
+	m := NewHashEqMap[int, int](he, its.OfSlice(slices.KvsOf[int, int](
 		0, 10,
 		11, 20,
 		12, 21,

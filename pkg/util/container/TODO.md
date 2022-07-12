@@ -1,3 +1,6 @@
+- ** re-add ref sharing for immuts
+- ** fix json unwanted mutability
+
 - index
 - concmap
 - table (indexes)

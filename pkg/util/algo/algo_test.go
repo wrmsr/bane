@@ -19,13 +19,14 @@ func TestTopo(t *testing.T) {
 		6: {1, 3},
 	}
 
-	ts, err := TopoSort(
-		ctr.NewMap(
-			its.MapValues(
-				its.OfMap(data),
-				func(v []int) ctr.Set[int] {
-					return ctr.NewSet(its.OfSlice(v))
-				})))
+	var m ctr.Map[int, ctr.Set[int]] = ctr.NewStdMap(
+		its.MapValues(
+			its.OfMap(data),
+			func(v []int) ctr.Set[int] {
+				return ctr.NewStdSet(its.OfSlice(v))
+			}))
+
+	ts, err := TopoSort(m)
 
 	tu.AssertNoErr(t, err)
 	fmt.Println(ts)

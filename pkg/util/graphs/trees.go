@@ -54,14 +54,14 @@ func NewTree[T any](root T, walk func(T) its.Iterable[T], he bt.HashEqImpl[T]) (
 		he:   he,
 	}
 
-	nodes := ctr.NewMutList[T](nil)
+	nodes := ctr.NewSliceMutList[T](nil)
 	nodeSet := ctr.NewMutHashEqSet[T](he, nil)
 
 	parentsByNode := ctr.NewMutHashEqMap[opt.Optional[T], opt.Optional[T]](opt.HashEq(he), nil)
 	childrenByNode := ctr.NewMutHashEqMap[opt.Optional[T], ctr.List[T]](opt.HashEq(he), nil)
 	childSetsByNode := ctr.NewMutHashEqMap[opt.Optional[T], ctr.Set[T]](opt.HashEq(he), nil)
 
-	childrenByNode.Put(opt.None[T](), ctr.NewListOf(root))
+	childrenByNode.Put(opt.None[T](), ctr.NewSliceListOf(root))
 	childSetsByNode.Put(opt.None[T](), ctr.NewHashEqSet(he, its.Of(root)))
 
 	var rec func(T, opt.Optional[T]) error
@@ -82,7 +82,7 @@ func NewTree[T any](root T, walk func(T) its.Iterable[T], he bt.HashEqImpl[T]) (
 
 		parentsByNode.Put(opt.Just(cur), parent)
 
-		children := ctr.NewList(walk(cur))
+		children := ctr.NewSliceList(walk(cur))
 		childrenByNode.Put(opt.Just(cur), children)
 		childSetsByNode.Put(opt.Just(cur), ctr.NewHashEqSet[T](he, children))
 
