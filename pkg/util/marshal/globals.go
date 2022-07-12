@@ -16,7 +16,7 @@ func Register(ty reflect.Type, items ...RegistryItem) *Registry {
 
 //
 
-var globalManager = NewDefaultManager(func() *Registry { return globalRegistry })
+var globalManager = NewDefaultManager(globalRegistry)
 
 func GlobalManager() *Manager {
 	return globalManager

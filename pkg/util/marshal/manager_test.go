@@ -37,7 +37,7 @@ var testC = C{
 func TestMarshal(t *testing.T) {
 	fmt.Printf("%+v\n", testC)
 
-	em := NewDefaultManager(func() *Registry { return globalRegistry })
+	em := NewDefaultManager(globalRegistry)
 
 	m := check.Must1(em.Marshal(testC))
 	fmt.Printf("%+v\n", m)
