@@ -74,6 +74,6 @@ func (i *Injector) InjectOne(fn any) any {
 	return rs[0]
 }
 
-func Provide[T any](i *Injector) T {
+func ProvideAs[T any](i *Injector) T {
 	return i.Provide(KeyOf[T]()).(T)
 }

@@ -9,6 +9,6 @@ func NewDeferInjector(bs Bindings) (*Injector, func() error) {
 			bs,
 		),
 	)
-	ds := Provide[*eu.DeferStack](inj)
+	ds := ProvideAs[*eu.DeferStack](inj)
 	return inj, ds.Call
 }

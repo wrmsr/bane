@@ -11,6 +11,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/dev"
 	"github.com/wrmsr/bane/pkg/util/log"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	sqa "github.com/wrmsr/bane/pkg/util/sql/adapters"
@@ -88,4 +89,9 @@ func TestSqlite(t *testing.T) {
 	check.Must(db.QueryRow("SELECT sqlite_version()").Scan(&version))
 
 	fmt.Println(version)
+}
+
+func TestDev(t *testing.T) {
+	dsn := dev.ProvideAs[sqb.Dsn]()
+	fmt.Println(dsn)
 }

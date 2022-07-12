@@ -42,6 +42,10 @@ func asBindings(os []any) []Binding {
 	return bs
 }
 
+func As(k, p any) Binding {
+	return Binding{AsKey(k), asProvider(p)}
+}
+
 //
 
 type Binder = func() Bindings

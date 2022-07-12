@@ -29,6 +29,12 @@ func AsKey(o any) Key {
 	}
 }
 
+func Tag(o, tag any) Key {
+	k := AsKey(o)
+	k.tag = tag
+	return k
+}
+
 func (k Key) String() string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("Key{ty: %s", k.ty.Name()))
