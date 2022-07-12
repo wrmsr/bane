@@ -28,5 +28,20 @@ var _ = dev.Register(func() inj.Bindings {
 				Pass: stru.SecretOf(svc.Compose.Environment["MYSQL_PASS"]),
 			})
 		})),
+
+		inj.As(inj.Tag(rfl.TypeOf[opt.Optional[sqb.Dsn]](), "postgres"), inj.Singleton(func(dsl *docker.ServiceLocator) opt.Optional[sqb.Dsn] {
+			svc := dsl.Locate("bane-postgres")
+			if svc == nil {
+				return opt.None[sqb.Dsn]()
+			}
+
+			return opt.Just(sqb.Dsn{
+				Host: svc.Host,
+				Port: svc.Ports[5432],
+
+				User: svc.Compose.Environment["POSTGRES_USER"],
+				Pass: stru.SecretOf(svc.Compose.Environment["POSTGRES_PASSWORD"]),
+			})
+		})),
 	)
 })

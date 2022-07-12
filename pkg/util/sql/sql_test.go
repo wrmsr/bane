@@ -93,7 +93,12 @@ func TestSqlite(t *testing.T) {
 	fmt.Println(version)
 }
 
-func TestDev(t *testing.T) {
+func TestDevMysql(t *testing.T) {
 	dsn := dev.Provide(inj.Tag(rfl.TypeOf[opt.Optional[sqb.Dsn]](), "mysql")).(opt.Optional[sqb.Dsn]).Value()
+	fmt.Println(dsn)
+}
+
+func TestDevPostgres(t *testing.T) {
+	dsn := dev.Provide(inj.Tag(rfl.TypeOf[opt.Optional[sqb.Dsn]](), "postgres")).(opt.Optional[sqb.Dsn]).Value()
 	fmt.Println(dsn)
 }

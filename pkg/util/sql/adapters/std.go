@@ -74,25 +74,25 @@ type StdConn struct {
 
 var _ sqb.Conn = StdConn{}
 
-func (s StdConn) Adapter() sqb.Adapter { return StdAdapter{} }
+func (c StdConn) Adapter() sqb.Adapter { return StdAdapter{} }
 
-func (s StdConn) Query(qry sqb.Query) (sqb.Rows, error) {
+func (c StdConn) Query(qry sqb.Query) (sqb.Rows, error) {
 	switch qry.Mode {
 	case sqb.QueryQuery:
-		r, err := s.c.QueryContext(qry.Ctx, qry.Text, qry.Args...)
+		r, err := c.c.QueryContext(qry.Ctx, qry.Text, qry.Args...)
 		if err != nil {
 			return nil, err
 		}
 		return newStdRows(r), nil
 	case sqb.ExecQuery:
-		_, err := s.c.ExecContext(qry.Ctx, qry.Text, qry.Args...)
+		_, err := c.c.ExecContext(qry.Ctx, qry.Text, qry.Args...)
 		return nil, err
 	}
 	panic("unreachable")
 }
 
-func (s StdConn) Close() error {
-	return s.c.Close()
+func (c StdConn) Close() error {
+	return c.c.Close()
 }
 
 //
