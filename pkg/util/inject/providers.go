@@ -36,6 +36,10 @@ func asProvider(o any) Provider {
 		return o
 	}
 
+	if o, ok := o.(Key); ok {
+		return Link(o)
+	}
+
 	rv := reflect.ValueOf(o)
 	rt := rv.Type()
 	if rt.Kind() == reflect.Func {
