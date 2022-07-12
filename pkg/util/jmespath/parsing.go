@@ -21,7 +21,7 @@ func maybeNode(o any) Node {
 
 func (v *parseVisitor) createProjectionIfChained(node Node) Node {
 	if v.chainedNode != nil {
-		node = Sequence{items: []Node{node, Project{child: v.chainedNode}}}
+		node = Sequence{Items: []Node{node, Project{Child: v.chainedNode}}}
 		v.chainedNode = nil
 	}
 	return node
@@ -29,7 +29,7 @@ func (v *parseVisitor) createProjectionIfChained(node Node) Node {
 
 func (v *parseVisitor) createSequenceIfChained(node Node) Node {
 	if v.chainedNode != nil {
-		node = Sequence{items: []Node{node, v.chainedNode}}
+		node = Sequence{Items: []Node{node, v.chainedNode}}
 		v.chainedNode = nil
 	}
 	return node
@@ -112,10 +112,10 @@ func (v *parseVisitor) VisitRawStringExpression(ctx *parser.RawStringExpressionC
 }
 
 func (v *parseVisitor) VisitComparisonExpression(ctx *parser.ComparisonExpressionContext) any {
-	o := ParseCmpOp(ctx.COMPARATOR().GetText())
+	op := ParseCmpOp(ctx.COMPARATOR().GetText())
 	right := v.nonChainingVisit(ctx.Expression(1))
 	left := v.nonChainingVisit(ctx.Expression(0))
-	return Cmp{o: o, left: left, right: right}
+	return Cmp{Op: op, Left: left, Right: right}
 
 }
 
@@ -201,7 +201,7 @@ func (v *parseVisitor) VisitBracketFlatten(ctx *parser.BracketFlattenContext) an
 }
 
 func (v *parseVisitor) VisitSelect(ctx *parser.SelectContext) any {
-	v.chainedNode = v.createProjectionIfChained(Selection{child: v.nonChainingVisit(ctx.Expression())})
+	v.chainedNode = v.createProjectionIfChained(Selection{Child: v.nonChainingVisit(ctx.Expression())})
 	return nil
 }
 
@@ -210,7 +210,7 @@ func (v *parseVisitor) VisitMultiSelectList(ctx *parser.MultiSelectListContext) 
 	for _, c := range ctx.AllExpression() {
 		lst = append(lst, v.nonChainingVisit(c).(Node))
 	}
-	return v.createSequenceIfChained(CreateArray{items: lst})
+	return v.createSequenceIfChained(CreateArray{Items: lst})
 }
 
 func (v *parseVisitor) VisitMultiSelectHash(ctx *parser.MultiSelectHashContext) any {
@@ -252,12 +252,12 @@ func (v *parseVisitor) VisitExpressionType(ctx *parser.ExpressionTypeContext) an
 func (v *parseVisitor) VisitLiteral(ctx *parser.LiteralContext) any {
 	// FIXME: unescape
 	s := ctx.JsonValue().GetText()
-	return JsonLiteral{text: s}
+	return JsonLiteral{Text: s}
 }
 
 func (v *parseVisitor) VisitIdentifier(ctx *parser.IdentifierContext) any {
 	// FIXME: unquote
-	return v.createSequenceIfChained(Property{name: ctx.GetText()})
+	return v.createSequenceIfChained(Property{Name: ctx.GetText()})
 }
 
 func (v *parseVisitor) VisitJsonObject(ctx *parser.JsonObjectContext) any {

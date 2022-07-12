@@ -6,7 +6,10 @@ import (
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/jmespath/parser"
+	ju "github.com/wrmsr/bane/pkg/util/json"
+	msh "github.com/wrmsr/bane/pkg/util/marshal"
 )
 
 func TestParsing(t *testing.T) {
@@ -21,5 +24,8 @@ func TestParsing(t *testing.T) {
 
 	v := &parseVisitor{}
 	root := tree.Accept(v).(Node)
-	fmt.Println(root)
+	fmt.Printf("%+v\n", root)
+
+	mv := check.Must1(msh.Marshal(root))
+	fmt.Println(check.Must1(ju.MarshalPretty(mv)))
 }

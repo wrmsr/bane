@@ -48,8 +48,8 @@ func (l leaf) isLeaf() {}
 
 type And struct {
 	op
-	left  Node
-	right Node
+	Left  Node
+	Right Node
 }
 
 //
@@ -104,23 +104,23 @@ func ParseCmpOp(s string) CmpOp {
 
 type Cmp struct {
 	op
-	o     CmpOp
-	left  Node
-	right Node
+	Op    CmpOp
+	Left  Node
+	Right Node
 }
 
 //
 
 type CreateArray struct {
 	node
-	items []Node
+	Items []Node
 }
 
 //
 
 type CreateObject struct {
 	node
-	fields map[string]Node
+	Fields map[string]Node
 }
 
 //
@@ -133,7 +133,7 @@ type Current struct {
 
 type ExprRef struct {
 	node
-	expr Node
+	Expr Node
 }
 
 //
@@ -152,37 +152,37 @@ type FlattenObject struct {
 
 type Call struct {
 	node
-	name string
-	args []Node
+	Name string
+	Args []Node
 }
 
 //
 
 type Index struct {
 	leaf
-	value int
+	Value int
 }
 
 //
 
 type JsonLiteral struct {
 	leaf
-	text string
+	Text string
 }
 
 //
 
 type Negate struct {
 	node
-	item Node
+	Item Node
 }
 
 //
 
 type Or struct {
 	op
-	left  Node
-	right Node
+	Left  Node
+	Right Node
 }
 
 //
@@ -199,49 +199,49 @@ func (t NameTarget) isTarget()   {}
 
 type Parameter struct {
 	leaf
-	target Target
+	Target Target
 }
 
 //
 
 type Project struct {
 	node
-	child Node
+	Child Node
 }
 
 //
 
 type Property struct {
 	leaf
-	name string
+	Name string
 }
 
 //
 
 type Selection struct {
 	Node
-	child Node
+	Child Node
 }
 
 //
 
 type Sequence struct {
 	node
-	items []Node
+	Items []Node
 }
 
 //
 
 type Slice struct {
 	leaf
-	start opt.Optional[int]
-	stop  opt.Optional[int]
-	step  opt.Optional[int]
+	Start opt.Optional[int]
+	Stop  opt.Optional[int]
+	Step  opt.Optional[int]
 }
 
 //
 
 type String struct {
 	leaf
-	value Node
+	Value Node
 }

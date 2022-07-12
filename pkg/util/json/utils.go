@@ -69,6 +69,10 @@ func MarshalIndentString(v any, prefix, indent string) (string, error) {
 	return string(b), nil
 }
 
+func MarshalPretty(v any) (string, error) {
+	return MarshalIndentString(v, "", "  ")
+}
+
 //
 
 func UnmarshalAs[T any](b []byte) (v T, err error) {
