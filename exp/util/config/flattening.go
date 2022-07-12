@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -72,13 +73,6 @@ func maybeUnflattenBuild(v any) any {
 	}
 	return v
 }
-
-//def setdefault(self, key: K, supplier: ta.Callable[[], V]) -> V:
-//	ret = self.get(key)
-//	if ret is _MISSING:
-//		ret = supplier()
-//		self.put(key, ret)
-//	return ret
 
 //
 
@@ -160,36 +154,60 @@ func (n *unflattenSlice) build() any {
 	return s
 }
 
-/*
 //
 
-def unflatten(self, flattened: map[string]any) -> map[string]any:
-	root = Flattening.UnflattenDict()
+func (f Flattening) Unflatten(flattened map[string]any) map[string]any {
+	var root unflattenNode = newUnflattenMap()
 
-	def split_keys(fkey: str) -> ta.Iterable[ta.Union[str, int]]:
-		for part in fkey.split(self._delimiter):
-			if self._index_open in part:
-				check.state(part.endswith(self._index_close))
-				pos = part.index(self._index_open)
-				yield part[:pos]
-				for p in part[pos + len(self._index_open):-len(self._index_close)] \
-						.split(self._index_close + self._index_open):
-					yield int(p)
-			else:
-				check.state(')' not in part)
-				yield part
+	splitKeys := func(fkey string) []any {
+		var ret []any
+		for _, part := range strings.Split(fkey, f.cfg.Delimiter) {
+			if strings.Contains(part, f.cfg.IndexOpen) {
+				if !strings.HasSuffix(part, f.cfg.IndexClose) {
+					panic(fmt.Errorf("invalid key: %s", fkey))
+				}
+				pos := strings.Index(part, f.cfg.IndexOpen)
+				ret = append(ret, part[:pos])
+				ps1 := part[pos+len(f.cfg.IndexOpen) : len(part)-len(f.cfg.IndexClose)]
+				for _, p := range strings.Split(ps1, f.cfg.IndexClose+f.cfg.IndexOpen) {
+					ret = append(ret, check.Must1(strconv.Atoi(p)))
+				}
+			} else {
+				if strings.Contains(part, f.cfg.IndexClose) {
+					panic(fmt.Errorf("invalid key: %s", fkey))
+				}
+				ret = append(ret, part)
+			}
+		}
+		return ret
+	}
 
-	for fk, v in flattened.items():
-		node = root
-		fks = list(split_keys(fk))
-		for key, nkey in zip(fks, fks[1:]):
-			if isinstance(nkey, str):
-				node = node.setdefault(key, Flattening.UnflattenDict)
-			elif isinstance(nkey, int):
-				node = node.setdefault(key, Flattening.UnflattenSlice)
-			else:
-				raise TypeError(key)
-		node.put(fks[-1], v)
+	setDefault := func(n unflattenNode, key any, fn func() unflattenNode) unflattenNode {
+		ret := n.get(key)
+		if _, ok := ret.(missing); ok {
+			ret = fn()
+			n.put(key, ret)
+		}
+		return ret.(unflattenNode)
+	}
 
-	return root.build()
-*/
+	for fk, v := range flattened {
+		node := root
+		fks := splitKeys(fk)
+		for i := 0; i < len(fks)-1; i++ {
+			key := fks[i]
+			nkey := fks[i+1]
+			switch nkey.(type) {
+			case string:
+				node = setDefault(node, key, func() unflattenNode { return newUnflattenMap() })
+			case int:
+				node = setDefault(node, key, func() unflattenNode { return newUnflattenSlice() })
+			default:
+				panic(fmt.Errorf("invalid key part: %v", nkey))
+			}
+		}
+		node.put(fks[len(fks)-1], v)
+	}
+
+	return root.build().(map[string]any)
+}
