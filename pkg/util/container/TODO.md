@@ -1,6 +1,9 @@
 - ** re-add ref sharing for immuts
 - ** fix json unwanted mutability
 
+- pool linkedlist
+- pool treap
+
 - index
 - concmap
 - table (indexes)

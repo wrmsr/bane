@@ -1,0 +1,29 @@
+- default aspects
+    - Coercion
+    - Defaulting
+    - Doc
+    - Eq
+    - Fields
+    - FixVarAnnotations
+    - Frozen
+    - Hash
+    - Iterable
+    - Order
+    - Params
+    - Pickle
+    - Placeholders
+    - PostInitAspect
+    - Repr
+    - Slots
+    - StandardInit
+    - StandardStorage
+    - Validation
+
+- phases
+    - BOOTSTRAP
+    - COERCE
+    - DEFAULT
+    - VALIDATE
+    - SET_ATTRS
+    - POST
+    - RETURN

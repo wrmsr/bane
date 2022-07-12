@@ -5,6 +5,7 @@ import (
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	syncu "github.com/wrmsr/bane/pkg/util/sync"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -43,7 +44,8 @@ func unlink(l *link, self, next, prev *list) {
 }
 
 type link struct {
-	seq int
+	seq    int
+	linked bool
 
 	ins list
 	lru list
@@ -56,9 +58,12 @@ type link struct {
 	written  int64
 	accessed int64
 
-	hits     int
-	unlinked bool
+	hits int
 }
+
+var linkPool = syncu.NewDrainPool[*link](func() *link {
+	return &link{}
+})
 
 type cache struct {
 	root *link
@@ -82,8 +87,9 @@ func NewCache[K comparable](cfg Config) *Cache[K] {
 		cfg.TrackFrequency = true
 	}
 
-	root := &link{
-		seq: 0,
+	root := linkPool.Get()
+	*root = link{
+		linked: true,
 	}
 
 	root.ins.set(root, root)
@@ -110,8 +116,8 @@ func (c *Cache[K]) unlink(l *link) {
 	if l == c.root {
 		panic("can't unlink root")
 	}
-	if l.unlinked {
-		return
+	if !l.linked {
+		panic("not linked")
 	}
 
 	unlink(l, &l.ins, &l.ins.next.ins, &l.ins.prev.ins)
@@ -124,13 +130,13 @@ func (c *Cache[K]) unlink(l *link) {
 		c.cfg.OnRemove(l.key, l.value)
 	}
 
-	l.key = nil
-	l.value = nil
 	c.stats.Size--
 	if c.cfg.Weigher != nil {
 		c.stats.Weight -= l.weight
 	}
-	l.unlinked = true
+
+	*l = link{}
+	linkPool.Put(l)
 }
 
 func (c *Cache[K]) kill(l *link) {
@@ -194,8 +200,8 @@ func (c *Cache[K]) getLink(k K) *link {
 	if l == nil {
 		return nil
 	}
-	if l.unlinked {
-		panic("unlinked")
+	if !l.linked {
+		panic("not linked")
 	}
 	return l
 }
@@ -274,8 +280,8 @@ func (c *Cache[K]) Clear() {
 		if l == c.root {
 			break
 		}
-		if l.unlinked {
-			panic("already unlinked")
+		if !l.linked {
+			panic("not linked")
 		}
 		c.unlink(l)
 	}
@@ -315,8 +321,10 @@ func (c *Cache[K]) Put(k K, v any) bool {
 	c.stats.Seq++
 	now := c.now()
 
-	l := &link{
-		seq: c.stats.Seq,
+	l := linkPool.Get()
+	*l = link{
+		seq:    c.stats.Seq,
+		linked: true,
 
 		key:   k,
 		value: v,
