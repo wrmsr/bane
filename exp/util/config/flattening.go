@@ -31,30 +31,42 @@ func NewFlattening(cfg FlatteningConfig) Flattening {
 	return Flattening{cfg: cfg}
 }
 
-func (f Flattening) Flatten(unflattened map[string]any) map[string]any {
+func (f Flattening) Flatten(unflattened map[string]any) (map[string]any, error) {
 	ret := make(map[string]any)
-	var rec func([]string, any)
-	rec = func(prefix []string, value any) {
+
+	var rec func([]string, any) error
+	rec = func(prefix []string, value any) error {
 		switch value := value.(type) {
+
 		case map[string]any:
 			for k, v := range value {
-				rec(slices.MakeAppend(prefix, k), v)
+				if err := rec(slices.MakeAppend(prefix, k), v); err != nil {
+					return err
+				}
 			}
+
 		case []any:
 			check.Condition(len(prefix) > 0)
 			for i, v := range value {
-				rec(slices.MakeAppend(prefix[:len(prefix)-1], fmt.Sprintf("%s%s%d%s", prefix[len(prefix)-1], f.cfg.IndexOpen, i, f.cfg.IndexClose)), v)
+				if err := rec(slices.MakeAppend(prefix[:len(prefix)-1], fmt.Sprintf("%s%s%d%s", prefix[len(prefix)-1], f.cfg.IndexOpen, i, f.cfg.IndexClose)), v); err != nil {
+					return err
+				}
 			}
+
 		default:
 			k := strings.Join(prefix, f.cfg.Delimiter)
 			if _, ok := ret[k]; ok {
-				panic(fmt.Errorf("duplicate key: %s", k))
+				return fmt.Errorf("duplicate key: %s", k)
 			}
 			ret[k] = value
+
 		}
+		return nil
 	}
-	rec(nil, unflattened)
-	return ret
+	if err := rec(nil, unflattened); err != nil {
+		return nil, err
+	}
+	return ret, nil
 }
 
 //
