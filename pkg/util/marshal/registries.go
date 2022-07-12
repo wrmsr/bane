@@ -70,6 +70,18 @@ func (r *Registry) GetOf(ty, ity reflect.Type) []RegistryItem {
 	return e.m[ity]
 }
 
+//
+
+var globalRegistry = NewRegistry(nil)
+
+func GlobalRegistry() *Registry {
+	return globalRegistry
+}
+
+func Register(ty reflect.Type, items ...RegistryItem) *Registry {
+	return globalRegistry.Register(ty, items...)
+}
+
 ///
 
 type SetType struct {

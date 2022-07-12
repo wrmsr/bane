@@ -35,8 +35,15 @@ var testC = C{
 }
 
 func TestMarshal(t *testing.T) {
+	fmt.Printf("%+v\n", testC)
+
 	em := NewManager()
-	m := em.Marshal(testC)
+
+	m := check.Must1(em.Marshal(testC))
 	fmt.Printf("%+v\n", m)
 	fmt.Println(check.Must1(ju.MarshalString(m)))
+
+	var tc2 C
+	check.Must(em.Unmarshal(m, &tc2))
+	fmt.Printf("%+v\n", tc2)
 }

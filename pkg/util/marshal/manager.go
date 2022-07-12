@@ -10,48 +10,88 @@ import (
 //
 
 type Manager struct {
+	sic *stu.StructInfoCache
+
 	reg *Registry
 
-	sic *stu.StructInfoCache
+	mf MarshalerFactory
+	uf UnmarshalerFactory
 }
 
 func NewManager() *Manager {
-	return &Manager{
-		sic: stu.NewStructInfoCache(),
+	sic := stu.NewStructInfoCache()
 
-		mm: make(map[reflect.Type]Marshaler),
+	mf := NewTypeCacheMarshalerFactory(NewCompositeMarshalerFactory(
+		FirstComposite,
+		NewPrimitiveMarshalerFactory(),
+		NewPointerMarshalerFactory(),
+		NewIndexMarshalerFactory(),
+		NewMapMarshalerFactory(),
+		NewBase64MarshalerFactory(),
+		NewTimeMarshalerFactory(DefaultTimeMarshalLayout),
+		NewOptionalMarshalerFactory(),
+		NewRegistryPolymorphismMarshalerFactory(),
+		NewStructMarshalerFactory(sic),
+	))
+
+	uf := NewTypeCacheUnmarshalerFactory(NewCompositeUnmarshalerFactory(
+		FirstComposite,
+		NewConvertPrimitiveUnmarshalerFactory(),
+		NewPointerUnmarshalerFactory(),
+		NewIndexUnmarshalerFactory(),
+		NewMapUnmarshalerFactory(),
+		NewBase64UnmarshalerFactory(),
+		NewTimeUnmarshalerFactory(DefaultTimeUnmarshalLayouts()),
+		NewOptionalUnmarshalerFactory(),
+		NewRegistryPolymorphismUnmarshalerFactory(),
+		NewStructUnmarshalerFactory(sic),
+	))
+
+	return &Manager{
+		sic: sic,
+
+		reg: globalRegistry,
+
+		mf: mf,
+		uf: uf,
 	}
 }
 
-func (m *Manager) Marshal(v any, o ...MarshalOpt) map[string]any { // Value {
-	//opts := ctr.NewTypeMap[MarshalOpt](its.Of(o...))
-
-	rv, ok := rfl.UnwrapPointerValue(rfl.AsValue(v))
-	if !ok {
-		return nil
+func (m *Manager) MarshalRfl(rv reflect.Value, o ...MarshalOpt) (Value, error) {
+	ty := rv.Type()
+	mc := MarshalContext{
+		Make: m.mf.Make,
+		Reg:  m.reg,
 	}
+	mi, err := m.mf.Make(mc, ty)
+	if err != nil {
+		return nil, err
+	}
+	return mi.Marshal(mc, rv)
+}
 
-	si := m.sic.Info(rv.Type())
+func (m *Manager) Marshal(v any, o ...MarshalOpt) (Value, error) {
+	return m.MarshalRfl(reflect.ValueOf(v), o...)
+}
 
-	r := make(map[string]any)
-	si.Fields().Flat().ForEach(func(fi *stu.FieldInfo) bool {
-		if fi.Name().String() == "" {
-			return true
-		}
+func (m *Manager) UnmarshalRfl(mv Value, ty reflect.Type, o ...UnmarshalOpt) (reflect.Value, error) {
+	uc := UnmarshalContext{
+		Make: m.uf.Make,
+		Reg:  m.reg,
+	}
+	ui, err := m.uf.Make(uc, ty)
+	if err != nil {
+		return rfl.Invalid(), err
+	}
+	return ui.Unmarshal(uc, mv)
+}
 
-		frv, ok := fi.GetValue(v)
-		if !ok {
-			return true
-		}
-		fv := frv.Interface()
-
-		if frv.Kind() == reflect.Struct {
-
-		}
-
-		r[fi.Name().String()] = fv
-		return true
-	})
-
-	return r
+func (m *Manager) Unmarshal(mv Value, v any, o ...UnmarshalOpt) error {
+	rv := reflect.ValueOf(v).Elem()
+	uv, err := m.UnmarshalRfl(mv, rv.Type(), o...)
+	if err != nil {
+		return err
+	}
+	rv.Set(uv)
+	return nil
 }
