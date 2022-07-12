@@ -41,6 +41,6 @@ func TestFlattening(t *testing.T) {
 	of := check.Must1(f.Flatten(o))
 	fmt.Println(check.Must1(ju.MarshalIndentString(of, "", "  ")))
 
-	uf := f.Unflatten(of)
+	uf := check.Must1(f.Unflatten(of))
 	fmt.Println(check.Must1(ju.MarshalIndentString(uf, "", "  ")))
 }

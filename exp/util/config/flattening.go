@@ -48,7 +48,8 @@ func (f Flattening) Flatten(unflattened map[string]any) (map[string]any, error) 
 		case []any:
 			check.Condition(len(prefix) > 0)
 			for i, v := range value {
-				if err := rec(slices.MakeAppend(prefix[:len(prefix)-1], fmt.Sprintf("%s%s%d%s", prefix[len(prefix)-1], f.cfg.IndexOpen, i, f.cfg.IndexClose)), v); err != nil {
+				nk := fmt.Sprintf("%s%s%d%s", prefix[len(prefix)-1], f.cfg.IndexOpen, i, f.cfg.IndexClose)
+				if err := rec(slices.MakeAppend(prefix[:len(prefix)-1], nk), v); err != nil {
 					return err
 				}
 			}
@@ -74,7 +75,7 @@ func (f Flattening) Flatten(unflattened map[string]any) (map[string]any, error) 
 type missing struct{}
 
 type unflattenNode interface {
-	get(key any) any
+	get(key any) (any, error)
 	put(key, value any)
 	build() any
 }
@@ -98,11 +99,11 @@ func newUnflattenMap() *unflattenMap {
 
 var _ unflattenNode = &unflattenMap{}
 
-func (n *unflattenMap) get(key any) any {
+func (n *unflattenMap) get(key any) (any, error) {
 	if v, ok := n.m[key.(string)]; ok {
-		return v
+		return v, nil
 	}
-	return missing{}
+	return missing{}, nil
 }
 
 func (n *unflattenMap) put(key, value any) {
@@ -133,15 +134,15 @@ func newUnflattenSlice() *unflattenSlice {
 
 var _ unflattenNode = &unflattenSlice{}
 
-func (n *unflattenSlice) get(key any) any {
+func (n *unflattenSlice) get(key any) (any, error) {
 	ki := key.(int)
 	if ki < 0 {
-		panic(fmt.Errorf("invalid slice index: %d", ki))
+		return nil, fmt.Errorf("invalid slice index: %d", ki)
 	}
 	if ki < len(n.s) {
-		return n.s[ki]
+		return n.s[ki], nil
 	}
-	return missing{}
+	return missing{}, nil
 }
 
 func (n *unflattenSlice) put(key, value any) {
@@ -168,58 +169,77 @@ func (n *unflattenSlice) build() any {
 
 //
 
-func (f Flattening) Unflatten(flattened map[string]any) map[string]any {
+func (f Flattening) Unflatten(flattened map[string]any) (map[string]any, error) {
 	var root unflattenNode = newUnflattenMap()
 
-	splitKeys := func(fkey string) []any {
+	splitKeys := func(fkey string) ([]any, error) {
 		var ret []any
 		for _, part := range strings.Split(fkey, f.cfg.Delimiter) {
 			if strings.Contains(part, f.cfg.IndexOpen) {
 				if !strings.HasSuffix(part, f.cfg.IndexClose) {
-					panic(fmt.Errorf("invalid key: %s", fkey))
+					return nil, fmt.Errorf("invalid key: %s", fkey)
 				}
+
 				pos := strings.Index(part, f.cfg.IndexOpen)
 				ret = append(ret, part[:pos])
 				ps1 := part[pos+len(f.cfg.IndexOpen) : len(part)-len(f.cfg.IndexClose)]
 				for _, p := range strings.Split(ps1, f.cfg.IndexClose+f.cfg.IndexOpen) {
 					ret = append(ret, check.Must1(strconv.Atoi(p)))
 				}
+
 			} else {
 				if strings.Contains(part, f.cfg.IndexClose) {
-					panic(fmt.Errorf("invalid key: %s", fkey))
+					return nil, fmt.Errorf("invalid key: %s", fkey)
 				}
 				ret = append(ret, part)
+
 			}
 		}
-		return ret
+		return ret, nil
 	}
 
-	setDefault := func(n unflattenNode, key any, fn func() unflattenNode) unflattenNode {
-		ret := n.get(key)
+	setDefault := func(n unflattenNode, key any, fn func() unflattenNode) (unflattenNode, error) {
+		ret, err := n.get(key)
+		if err != nil {
+			return nil, err
+		}
+
 		if _, ok := ret.(missing); ok {
 			ret = fn()
 			n.put(key, ret)
 		}
-		return ret.(unflattenNode)
+
+		return ret.(unflattenNode), nil
 	}
 
 	for fk, v := range flattened {
 		node := root
-		fks := splitKeys(fk)
+		fks, err := splitKeys(fk)
+		if err != nil {
+			return nil, err
+		}
+
 		for i := 0; i < len(fks)-1; i++ {
 			key := fks[i]
 			nkey := fks[i+1]
 			switch nkey.(type) {
+
 			case string:
-				node = setDefault(node, key, func() unflattenNode { return newUnflattenMap() })
+				node, err = setDefault(node, key, func() unflattenNode { return newUnflattenMap() })
+
 			case int:
-				node = setDefault(node, key, func() unflattenNode { return newUnflattenSlice() })
+				node, err = setDefault(node, key, func() unflattenNode { return newUnflattenSlice() })
+
 			default:
-				panic(fmt.Errorf("invalid key part: %v", nkey))
+				return nil, fmt.Errorf("invalid key part: %v", nkey)
+
+			}
+			if err != nil {
+				return nil, err
 			}
 		}
 		node.put(fks[len(fks)-1], v)
 	}
 
-	return root.build().(map[string]any)
+	return root.build().(map[string]any), nil
 }
