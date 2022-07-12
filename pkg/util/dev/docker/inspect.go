@@ -283,7 +283,7 @@ type Inspect struct {
 
 //
 
-type Inspects []Inspect
+type Inspects []*Inspect
 
 //
 

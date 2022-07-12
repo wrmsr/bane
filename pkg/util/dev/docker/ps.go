@@ -33,7 +33,7 @@ type Ps struct {
 
 //
 
-type Pss []Ps
+type Pss []*Ps
 
 func (pss Pss) Ids() []string {
 	s := make([]string, len(pss))
@@ -62,7 +62,7 @@ func CliPs(ctx context.Context) (Pss, error) {
 		if err := json.Unmarshal([]byte(l), &ps); err != nil {
 			return nil, err
 		}
-		pss = append(pss, ps)
+		pss = append(pss, &ps)
 	}
 
 	return pss, nil
