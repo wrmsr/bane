@@ -12,7 +12,9 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev"
+	inj "github.com/wrmsr/bane/pkg/util/inject"
 	"github.com/wrmsr/bane/pkg/util/log"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	sqa "github.com/wrmsr/bane/pkg/util/sql/adapters"
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
@@ -92,6 +94,6 @@ func TestSqlite(t *testing.T) {
 }
 
 func TestDev(t *testing.T) {
-	dsn := dev.ProvideAs[sqb.Dsn]()
+	dsn := dev.Provide(inj.Tag(rfl.TypeOf[opt.Optional[sqb.Dsn]](), "mysql")).(opt.Optional[sqb.Dsn]).Value()
 	fmt.Println(dsn)
 }

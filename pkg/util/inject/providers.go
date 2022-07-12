@@ -14,7 +14,7 @@ type providerFn = func(injector any) any
 type providerMap map[Key]providerFn
 
 type Provider interface {
-	providedTy() reflect.Type
+	providedTy(rec func(Key) reflect.Type) reflect.Type
 	providerFn() providerFn
 }
 
@@ -30,6 +30,10 @@ func asProvider(o any) Provider {
 
 	if o == nil {
 		return Const(nil)
+	}
+
+	if o, ok := o.(Provider); ok {
+		return o
 	}
 
 	rv := reflect.ValueOf(o)
@@ -53,7 +57,7 @@ func Const(v any) Provider {
 
 var _ Provider = constProvider{}
 
-func (p constProvider) providedTy() reflect.Type {
+func (p constProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
 	return reflect.TypeOf(p.v)
 }
 
@@ -84,13 +88,35 @@ func Func(fn any) Provider {
 
 var _ Provider = funcProvider{}
 
-func (p funcProvider) providedTy() reflect.Type {
+func (p funcProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
 	return p.ty.Out(0)
 }
 
 func (p funcProvider) providerFn() providerFn {
 	return func(i any) any {
 		return i.(*Injector).InjectOne(p.fn)
+	}
+}
+
+//
+
+type linkProvider struct {
+	k Key
+}
+
+func Link(k any) Provider {
+	return linkProvider{k: AsKey(k)}
+}
+
+var _ Provider = linkProvider{}
+
+func (p linkProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
+	return rec(p.k)
+}
+
+func (p linkProvider) providerFn() providerFn {
+	return func(i any) any {
+		return i.(*Injector).Provide(p.k)
 	}
 }
 
@@ -106,8 +132,8 @@ func Singleton(p any) Provider {
 
 var _ Provider = singletonProvider{}
 
-func (p singletonProvider) providedTy() reflect.Type {
-	return p.p.providedTy()
+func (p singletonProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
+	return p.p.providedTy(rec)
 }
 
 func (p singletonProvider) providerFn() providerFn {
