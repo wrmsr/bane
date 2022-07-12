@@ -175,5 +175,7 @@ type PersistentMap[K, V any] interface {
 //
 
 type Decay[T any] interface {
+	Mutable
+
 	Decay() T
 }
