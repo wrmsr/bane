@@ -4,7 +4,7 @@ import (
 	stu "github.com/wrmsr/bane/pkg/util/structs"
 )
 
-func NewDefaultManager(reg *Registry) *Manager {
+func NewDefaultManager(reg func() *Registry) *Manager {
 	sic := stu.NewStructInfoCache()
 
 	var mfs = []MarshalerFactory{
@@ -50,7 +50,7 @@ func NewDefaultManager(reg *Registry) *Manager {
 	return &Manager{
 		sic: sic,
 
-		reg: reg,
+		reg: reg(),
 
 		mf: mf,
 		uf: uf,
