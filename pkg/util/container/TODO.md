@@ -10,3 +10,5 @@
 - blooms
 - generalize rbtree json
 - generalize map builder - use ord, return directly if impl is ord else use fac
+- bitset
+- scapegoat

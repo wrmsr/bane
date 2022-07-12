@@ -24,6 +24,16 @@ func KvMaker[K, V any](fn func(v V) K) func(v V) Kv[K, V] {
 
 //
 
+type AnyKv interface {
+	AnyK() any
+	AnyV() any
+}
+
+func (kv Kv[K, V]) AnyK() any { return kv.K }
+func (kv Kv[K, V]) AnyV() any { return kv.V }
+
+//
+
 func AsKey[K, V any](o any) K {
 	if kv, ok := o.(Kv[K, V]); ok {
 		return kv.K

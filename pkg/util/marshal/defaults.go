@@ -7,8 +7,7 @@ import (
 func NewDefaultManager() *Manager {
 	sic := stu.NewStructInfoCache()
 
-	mf := NewTypeCacheMarshalerFactory(NewCompositeMarshalerFactory(
-		FirstComposite,
+	var mfs = []MarshalerFactory{
 		NewRegistryMarshalerFactory(),
 		NewPrimitiveMarshalerFactory(),
 		NewPointerMarshalerFactory(),
@@ -19,10 +18,16 @@ func NewDefaultManager() *Manager {
 		NewOptionalMarshalerFactory(),
 		NewRegistryPolymorphismMarshalerFactory(),
 		NewStructMarshalerFactory(sic),
-	))
+	}
 
-	uf := NewTypeCacheUnmarshalerFactory(NewCompositeUnmarshalerFactory(
-		FirstComposite,
+	mf := NewTypeCacheMarshalerFactory(
+		NewRecursiveMarshalerFactory(
+			NewCompositeMarshalerFactory(
+				FirstComposite,
+				mfs...,
+			)))
+
+	var ufs = []UnmarshalerFactory{
 		NewRegistryUnmarshalerFactory(),
 		NewConvertPrimitiveUnmarshalerFactory(),
 		NewPointerUnmarshalerFactory(),
@@ -33,7 +38,14 @@ func NewDefaultManager() *Manager {
 		NewOptionalUnmarshalerFactory(),
 		NewRegistryPolymorphismUnmarshalerFactory(),
 		NewStructUnmarshalerFactory(sic),
-	))
+	}
+
+	uf := NewTypeCacheUnmarshalerFactory(
+		NewRecursiveUnmarshalerFactory(
+			NewCompositeUnmarshalerFactory(
+				FirstComposite,
+				ufs...,
+			)))
 
 	return &Manager{
 		sic: sic,
