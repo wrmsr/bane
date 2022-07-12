@@ -5,6 +5,7 @@ package docker
 import (
 	"bytes"
 	"io/ioutil"
+	"regexp"
 
 	"gopkg.in/yaml.v3"
 )
@@ -25,7 +26,7 @@ type ComposeService struct {
 type ComposeConfig struct {
 	Version string `json:"version"`
 
-	Services map[string]ComposeService
+	Services map[string]*ComposeService
 
 	X map[string]any `json:"-"`
 }
@@ -42,4 +43,22 @@ func ReadComposeConfig(path string) (*ComposeConfig, error) {
 	}
 
 	return &cfg, nil
+}
+
+var composeNameRegexp = regexp.MustCompile(`^docker-(?P<n>[\w\-]+)-\d+$`)
+
+func GetComposeName(n string) string {
+	s := composeNameRegexp.FindStringSubmatch(n)
+	if len(s) < 1 {
+		return ""
+	}
+	return s[1]
+}
+
+func MatchComposeName(h, n string) bool {
+	if h == n {
+		return true
+	}
+	cn := GetComposeName(h)
+	return cn != "" && cn == n
 }

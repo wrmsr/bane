@@ -56,6 +56,16 @@ func FindFunc[T comparable](s []T, fn func(v T) bool) (int, bool) {
 	return -1, false
 }
 
+func FindElemFunc[T comparable](s []T, fn func(v T) bool) (T, bool) {
+	for _, c := range s {
+		if fn(c) {
+			return c, true
+		}
+	}
+	var z T
+	return z, false
+}
+
 func FindFuncLast[T comparable](s []T, fn func(v T) bool) (int, bool) {
 	for i := len(s) - 1; i >= 0; i-- {
 		if fn(s[i]) {

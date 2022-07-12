@@ -4,49 +4,172 @@ package docker
 
 import (
 	"context"
+	"net"
 	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
+	fnu "github.com/wrmsr/bane/pkg/util/funcs"
 	"github.com/wrmsr/bane/pkg/util/log"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
+	"github.com/wrmsr/bane/pkg/util/slices"
+	stru "github.com/wrmsr/bane/pkg/util/strings"
 )
 
+//
+
+type ServiceLocatorConfig struct {
+	Timeout     time.Duration
+	ComposePath string
+}
+
+func DefaultServiceLocatorConfig() ServiceLocatorConfig {
+	return ServiceLocatorConfig{
+		Timeout:     time.Duration(5) * time.Second,
+		ComposePath: filepath.Join("docker", "docker-compose.yml"),
+	}
+}
+
+//
+
+type Service struct {
+	Name string
+
+	Host  string
+	Ports map[int]int
+
+	Ps      *Ps
+	Inspect *Inspect
+	Compose *ComposeService
+}
+
 type ServiceLocator struct {
+	cfg ServiceLocatorConfig
+
 	pss opt.Optional[Pss]
 	ins opt.Optional[Inspects]
 	cmp opt.Optional[*ComposeConfig]
+
+	m map[string]*Service
 }
 
-func (sl *ServiceLocator) Pss(ctx context.Context) Pss {
+func NewServiceLocator(cfg ServiceLocatorConfig) *ServiceLocator {
+	return &ServiceLocator{
+		cfg: cfg,
+
+		m: make(map[string]*Service),
+	}
+}
+
+func (sl *ServiceLocator) Pss() Pss {
 	return opt.SetIfAbsent(&sl.pss, func() Pss {
+		ctx, cancel := context.WithTimeout(context.Background(), sl.cfg.Timeout)
+		defer cancel()
+
 		pss, err := CliPs(ctx)
 		if err != nil {
 			log.Error("docker error", log.Err(err))
 			return nil
 		}
+
 		return pss
 	})
 }
 
-func (sl *ServiceLocator) Inspects(ctx context.Context) Inspects {
+func (sl *ServiceLocator) Inspects() Inspects {
 	return opt.SetIfAbsent(&sl.ins, func() Inspects {
-		ins, err := CliInspectAll(ctx)
+		pss := sl.Pss()
+
+		ctx, cancel := context.WithTimeout(context.Background(), sl.cfg.Timeout)
+		defer cancel()
+
+		ins, err := CliInspect(ctx, pss.Ids())
 		if err != nil {
 			log.Error("docker error", log.Err(err))
 			return nil
 		}
+
 		return ins
 	})
 }
 
-func (sl *ServiceLocator) ComposeConfig() *ComposeConfig {
+func (sl *ServiceLocator) Compose() *ComposeConfig {
 	return opt.SetIfAbsent(&sl.cmp, func() *ComposeConfig {
-		fp := filepath.Join(paths.FindProjectRoot(), "docker", "docker-compose.yml")
+		fp := filepath.Join(paths.FindProjectRoot(), sl.cfg.ComposePath)
+
 		cmp, err := ReadComposeConfig(fp)
 		if err != nil {
 			log.Error("docker error", log.Err(err))
 			return nil
 		}
+
 		return cmp
 	})
+}
+
+func (sl *ServiceLocator) Locate(name string) *Service {
+	if s, ok := sl.m[name]; ok {
+		return s
+	}
+
+	svc := &Service{
+		Name: name,
+
+		Ports: make(map[int]int),
+
+		Compose: sl.Compose().Services[name],
+	}
+
+	if sl.Pss() != nil {
+		svc.Ps = check.IgnoreOk1(slices.FindElemFunc(sl.Pss(), func(p *Ps) bool {
+			return slices.Any(stru.TrimSpaceSplit(p.Names, ","), fnu.BindR1x1x1(MatchComposeName, name))
+		}))
+	}
+
+	if sl.Inspects() != nil {
+		svc.Inspect = check.IgnoreOk1(slices.FindElemFunc(sl.Inspects(), func(i *Inspect) bool {
+			return MatchComposeName(strings.TrimLeft(i.Name, "/"), name)
+		}))
+	}
+
+	canSee := func() bool {
+		ctx, cancel := context.WithTimeout(context.Background(), sl.cfg.Timeout)
+		defer cancel()
+
+		ips, err := net.DefaultResolver.LookupHost(ctx, name)
+		return err == nil && len(ips) > 0
+	}()
+
+	if canSee && svc.Compose != nil {
+		svc.Host = name
+		for _, p := range svc.Compose.Expose {
+			pn := check.Must1(strconv.Atoi(p))
+			svc.Ports[pn] = pn
+		}
+
+	} else if svc.Inspect != nil {
+		svc.Host = "localhost"
+		pbs := svc.Inspect.HostConfig.PortBindings
+		if pbs != nil {
+			for k, vs := range pbs {
+				kps := strings.Split(k, "/")
+				if len(kps) != 2 || kps[1] != "tcp" {
+					continue
+				}
+				kp := check.Must1(strconv.Atoi(kps[0]))
+				for _, v := range vs {
+					if v.HostPort == "" {
+						continue
+					}
+					vp := check.Must1(strconv.Atoi(v.HostPort))
+					svc.Ports[kp] = vp
+				}
+			}
+		}
+	}
+
+	return svc
 }
