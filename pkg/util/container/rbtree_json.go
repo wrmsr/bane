@@ -138,9 +138,9 @@ func (m *RbTreeMap[K, V]) UnmarshalJSON(b []byte) error {
 //
 
 func (m MutRbTreeMap[K, V]) MarshalJSON() ([]byte, error) {
-	return json.Marshal(m.RbTreeMap)
+	return json.Marshal(m.m)
 }
 
 func (m *MutRbTreeMap[K, V]) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &m.RbTreeMap)
+	return json.Unmarshal(b, &m.m)
 }

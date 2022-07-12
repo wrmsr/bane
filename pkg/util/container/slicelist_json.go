@@ -17,9 +17,9 @@ func (l *SliceList[T]) UnmarshalJSON(b []byte) error {
 //
 
 func (l MutSliceList[T]) MarshalJSON() ([]byte, error) {
-	return json.Marshal(l.s)
+	return json.Marshal(l.l.s)
 }
 
 func (l *MutSliceList[T]) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &l.s)
+	return json.Unmarshal(b, &l.l.s)
 }

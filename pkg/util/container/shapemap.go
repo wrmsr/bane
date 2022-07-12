@@ -127,20 +127,27 @@ func (m ShapeMap[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool {
 //
 
 type MutShapeMap[K comparable, V any] struct {
-	ShapeMap[K, V]
+	m ShapeMap[K, V]
 }
 
 func NewMutShapeMap[K comparable, V any](shape MapShape[K], vs its.Iterable[V]) MutShapeMap[K, V] {
-	return MutShapeMap[K, V]{NewShapeMap(shape, vs)}
+	return MutShapeMap[K, V]{m: NewShapeMap(shape, vs)}
 }
 
 var _ MutMap[int, string] = MutShapeMap[int, string]{}
 
 func (m MutShapeMap[K, V]) isMutable() {}
 
+func (m MutShapeMap[K, V]) Len() int                                  { return m.m.Len() }
+func (m MutShapeMap[K, V]) Contains(k K) bool                         { return m.m.Contains(k) }
+func (m MutShapeMap[K, V]) Get(k K) V                                 { return m.m.Get(k) }
+func (m MutShapeMap[K, V]) TryGet(k K) (V, bool)                      { return m.m.TryGet(k) }
+func (m MutShapeMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]]        { return m.m.Iterate() }
+func (m MutShapeMap[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool { return m.m.ForEach(fn) }
+
 func (m MutShapeMap[K, V]) Put(k K, v V) {
-	if i, ok := m.shape.m[k]; ok {
-		m.vs[i] = v
+	if i, ok := m.m.shape.m[k]; ok {
+		m.m.vs[i] = v
 		return
 	}
 	panic(KeyError[K]{k})

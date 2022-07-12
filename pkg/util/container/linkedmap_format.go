@@ -60,9 +60,9 @@ func (m LinkedMap[K, V]) String() string {
 //
 
 func (m MutLinkedMap[K, V]) String() string {
-	return m.string("mutOrdMap")
+	return m.m.string("mutOrdMap")
 }
 
 func (m MutLinkedMap[K, V]) Format(f fmt.State, c rune) {
-	m.format("mutOrdMap", f, c)
+	m.m.format("mutOrdMap", f, c)
 }

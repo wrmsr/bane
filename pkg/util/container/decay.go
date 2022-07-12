@@ -1,27 +1,22 @@
 package container
 
-import "fmt"
-
 func DecayList[T any](l MutList[T]) List[T] {
-	switch l := l.(type) {
-	case *MutSliceList[T]:
+	if l, ok := l.(Decay[List[T]]); ok {
 		return l.Decay()
 	}
-	panic(fmt.Errorf("unhandled type: %T", l))
+	return NewSliceList[T](l)
 }
 
-func DecaySet[T comparable](s MutSet[T]) Set[T] {
-	switch s := s.(type) {
-	case *MutStdSet[T]:
-		return s.Decay()
+func DecaySet[T comparable](l MutSet[T]) Set[T] {
+	if l, ok := l.(Decay[Set[T]]); ok {
+		return l.Decay()
 	}
-	panic(fmt.Errorf("unhandled type: %T", s))
+	return NewStdSet[T](l)
 }
 
-func DecayMap[K comparable, V any](m MutMap[K, V]) Map[K, V] {
-	switch m := m.(type) {
-	case *MutStdMap[K, V]:
-		return m.Decay()
+func DecayMap[K comparable, V any](l MutMap[K, V]) Map[K, V] {
+	if l, ok := l.(Decay[Map[K, V]]); ok {
+		return l.Decay()
 	}
-	panic(fmt.Errorf("unhandled type: %T", m))
+	return NewStdMap[K, V](l)
 }

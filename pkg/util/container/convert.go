@@ -11,7 +11,7 @@ type mapSet[K, V any] struct {
 	m Map[K, V]
 }
 
-func MapSet[K, V any](m Map[K, V]) Set[K] {
+func NewMapSet[K, V any](m Map[K, V]) Set[K] {
 	return mapSet[K, V]{m: m}
 }
 
@@ -42,7 +42,7 @@ type mutMapSet[K, V any] struct {
 	m MutMap[K, V]
 }
 
-func MutMapSet[K, V any](m MutMap[K, V]) MutSet[K] {
+func NewMutMapSet[K, V any](m MutMap[K, V]) MutSet[K] {
 	return &mutMapSet[K, V]{mapSet: mapSet[K, V]{m: m}, m: m}
 }
 
@@ -82,7 +82,7 @@ type setMap[K, V any] struct {
 	s Set[K]
 }
 
-func SetMap[K, V any](s Set[K]) Map[K, V] {
+func NewSetMap[K, V any](s Set[K]) Map[K, V] {
 	return setMap[K, V]{s: s}
 }
 
@@ -127,7 +127,7 @@ type mutSetMap[K, V any] struct {
 	s MutSet[K]
 }
 
-func MutSetMap[K, V any](s MutSet[K]) MutMap[K, V] {
+func NewMutSetMap[K, V any](s MutSet[K]) MutMap[K, V] {
 	return &mutSetMap[K, V]{setMap: setMap[K, V]{s: s}, s: s}
 }
 

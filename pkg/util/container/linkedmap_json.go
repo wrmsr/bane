@@ -47,9 +47,9 @@ func (m *LinkedMap[K, V]) UnmarshalJSON(b []byte) error {
 //
 
 func (m MutLinkedMap[K, V]) MarshalJSON() ([]byte, error) {
-	return json.Marshal(m.LinkedMap)
+	return json.Marshal(m.m)
 }
 
 func (m *MutLinkedMap[K, V]) UnmarshalJSON(b []byte) error {
-	return json.Unmarshal(b, &m.LinkedMap)
+	return json.Unmarshal(b, &m.m)
 }

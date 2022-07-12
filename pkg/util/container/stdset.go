@@ -59,11 +59,11 @@ func (s StdSet[T]) ForEach(fn func(T) bool) bool {
 //
 
 type MutStdSet[T comparable] struct {
-	StdSet[T]
+	s StdSet[T]
 }
 
 func NewMutStdSet[T comparable](it its.Iterable[T]) MutStdSet[T] {
-	return MutStdSet[T]{NewStdSet(it)}
+	return MutStdSet[T]{s: NewStdSet(it)}
 }
 
 func NewMutStdSetOf[T comparable](vs ...T) MutStdSet[T] {
@@ -72,29 +72,37 @@ func NewMutStdSetOf[T comparable](vs ...T) MutStdSet[T] {
 
 var _ MutSet[int] = MutStdSet[int]{}
 
-func (s MutStdSet[T]) isMutable()    {}
-func (s MutStdSet[T]) Decay() Set[T] { return s.StdSet }
+func (s MutStdSet[T]) isMutable() {}
+
+func (s MutStdSet[T]) Len() int                       { return s.s.Len() }
+func (s MutStdSet[T]) Contains(v T) bool              { return s.s.Contains(v) }
+func (s MutStdSet[T]) Iterate() its.Iterator[T]       { return s.s.Iterate() }
+func (s MutStdSet[T]) ForEach(fn func(v T) bool) bool { return s.s.ForEach(fn) }
 
 func (s MutStdSet[T]) Add(value T) {
-	s.m[value] = struct{}{}
+	s.s.m[value] = struct{}{}
 }
 
 func (s MutStdSet[T]) TryAdd(value T) bool {
 	if s.Contains(value) {
 		return false
 	}
-	s.m[value] = struct{}{}
+	s.s.m[value] = struct{}{}
 	return true
 }
 
 func (s MutStdSet[T]) Remove(value T) {
-	delete(s.m, value)
+	delete(s.s.m, value)
 }
 
 func (s MutStdSet[T]) TryRemove(value T) bool {
 	if s.Contains(value) {
 		return false
 	}
-	delete(s.m, value)
+	delete(s.s.m, value)
 	return true
 }
+
+var _ Decay[Set[int]] = &MutStdSet[int]{}
+
+func (s *MutStdSet[T]) Decay() Set[T] { return s.s }

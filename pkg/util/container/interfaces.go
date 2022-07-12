@@ -17,10 +17,6 @@ type Mutable interface {
 	isMutable()
 }
 
-//type Decay[T any] interface {
-//	Decay() T
-//}
-
 type Ordered[T any] interface {
 	isOrdered()
 
@@ -174,4 +170,10 @@ type PersistentMap[K, V any] interface {
 	With(k K, v V) PersistentMap[K, V]
 	Without(k K) PersistentMap[K, V]
 	Default(k K, v V) PersistentMap[K, V]
+}
+
+//
+
+type Decay[T any] interface {
+	Decay() T
 }

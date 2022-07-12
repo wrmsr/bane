@@ -118,28 +118,37 @@ func (m *LinkedMap[K, V]) filter(fn func(kv bt.Kv[K, V]) bool) {
 //
 
 type MutLinkedMap[K comparable, V any] struct {
-	LinkedMap[K, V]
+	m LinkedMap[K, V]
 }
 
 func NewMutLinkedMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) *MutLinkedMap[K, V] {
-	return &MutLinkedMap[K, V]{
-		LinkedMap: NewLinkedMap[K, V](it),
-	}
+	return &MutLinkedMap[K, V]{m: NewLinkedMap[K, V](it)}
 }
 
 var _ MutMap[int, any] = &MutLinkedMap[int, any]{}
 
-func (m *MutLinkedMap[K, V]) isMutable()       {}
-func (m *MutLinkedMap[K, V]) Decay() Map[K, V] { return m.LinkedMap }
+func (m *MutLinkedMap[K, V]) isMutable() {}
+func (m *MutLinkedMap[K, V]) isOrdered() {}
+
+func (m *MutLinkedMap[K, V]) Len() int                                 { return m.m.Len() }
+func (m *MutLinkedMap[K, V]) Contains(k K) bool                        { return m.m.Contains(k) }
+func (m *MutLinkedMap[K, V]) Get(k K) V                                { return m.m.Get(k) }
+func (m *MutLinkedMap[K, V]) TryGet(k K) (V, bool)                     { return m.m.TryGet(k) }
+func (m *MutLinkedMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]]       { return m.m.Iterate() }
+func (m *MutLinkedMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool { return m.m.ForEach(fn) }
 
 func (m *MutLinkedMap[K, V]) Put(k K, v V) {
-	m.put(k, v)
+	m.m.put(k, v)
 }
 
 func (m *MutLinkedMap[K, V]) Delete(k K) {
-	m.delete(k)
+	m.m.delete(k)
 }
 
 func (m *MutLinkedMap[K, V]) Default(k K, v V) bool {
-	return m.default_(k, v)
+	return m.m.default_(k, v)
 }
+
+var _ Decay[Map[int, string]] = &MutLinkedMap[int, string]{}
+
+func (m *MutLinkedMap[K, V]) Decay() Map[K, V] { return m.m }

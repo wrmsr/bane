@@ -60,11 +60,11 @@ func (m StdMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
 //
 
 type MutStdMap[K comparable, V any] struct {
-	StdMap[K, V]
+	m StdMap[K, V]
 }
 
 func NewMutStdMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) MutStdMap[K, V] {
-	return MutStdMap[K, V]{NewStdMap[K, V](it)}
+	return MutStdMap[K, V]{m: NewStdMap[K, V](it)}
 }
 
 func WrapMap[K comparable, V any](m map[K]V) MutMap[K, V] {
@@ -73,21 +73,31 @@ func WrapMap[K comparable, V any](m map[K]V) MutMap[K, V] {
 
 var _ MutMap[int, any] = MutStdMap[int, any]{}
 
-func (m MutStdMap[K, V]) isMutable()       {}
-func (m MutStdMap[K, V]) Decay() Map[K, V] { return m.StdMap }
+func (m MutStdMap[K, V]) isMutable() {}
+
+func (m MutStdMap[K, V]) Len() int                               { return m.m.Len() }
+func (m MutStdMap[K, V]) Contains(k K) bool                      { return m.m.Contains(k) }
+func (m MutStdMap[K, V]) Get(k K) V                              { return m.m.Get(k) }
+func (m MutStdMap[K, V]) TryGet(k K) (V, bool)                   { return m.m.TryGet(k) }
+func (m MutStdMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]]     { return m.m.Iterate() }
+func (m MutStdMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool { return m.m.ForEach(fn) }
 
 func (m MutStdMap[K, V]) Put(k K, v V) {
-	m.m[k] = v
+	m.m.m[k] = v
 }
 
 func (m MutStdMap[K, V]) Delete(k K) {
-	delete(m.m, k)
+	delete(m.m.m, k)
 }
 
 func (m MutStdMap[K, V]) Default(k K, v V) bool {
 	if m.Contains(k) {
 		return false
 	}
-	m.m[k] = v
+	m.m.m[k] = v
 	return true
 }
+
+var _ Decay[Map[int, string]] = MutStdMap[int, string]{}
+
+func (m MutStdMap[K, V]) Decay() Map[K, V] { return m.m }

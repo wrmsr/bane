@@ -7,28 +7,28 @@ import (
 )
 
 type LinkedList[T any] struct {
-	*list.List
+	list.List
 }
 
-func NewLinkedList[T any](it its.Iterable[T]) LinkedList[T] {
+func NewLinkedList[T any](it its.Iterable[T]) *LinkedList[T] {
 	l := list.New()
 	if it != nil {
 		for it := it.Iterate(); it.HasNext(); {
 			l.PushBack(it.Next())
 		}
 	}
-	return LinkedList[T]{List: l}
+	return &LinkedList[T]{List: *l}
 }
 
-var _ MutList[int] = LinkedList[int]{}
+var _ MutList[int] = &LinkedList[int]{}
 
-func (l LinkedList[T]) isMutable() {}
+func (l *LinkedList[T]) isMutable() {}
 
-func (l LinkedList[T]) Len() int {
+func (l *LinkedList[T]) Len() int {
 	return l.List.Len()
 }
 
-func (l LinkedList[T]) GetElement(i int) *list.Element {
+func (l *LinkedList[T]) GetElement(i int) *list.Element {
 	if i < 0 || i >= l.Len() {
 		panic(IndexError{Index: i})
 	}
@@ -39,7 +39,7 @@ func (l LinkedList[T]) GetElement(i int) *list.Element {
 	return n
 }
 
-func (l LinkedList[T]) Get(i int) T {
+func (l *LinkedList[T]) Get(i int) T {
 	return l.GetElement(i).Value.(T)
 }
 
@@ -63,11 +63,11 @@ func (i *linkedListIterator[T]) Next() T {
 	return v.(T)
 }
 
-func (l LinkedList[T]) Iterate() its.Iterator[T] {
+func (l *LinkedList[T]) Iterate() its.Iterator[T] {
 	return &linkedListIterator[T]{l.Front()}
 }
 
-func (l LinkedList[T]) ForEach(fn func(v T) bool) bool {
+func (l *LinkedList[T]) ForEach(fn func(v T) bool) bool {
 	for n := l.Front(); n != nil; n = n.Next() {
 		if !fn(n.Value.(T)) {
 			return false
@@ -76,10 +76,10 @@ func (l LinkedList[T]) ForEach(fn func(v T) bool) bool {
 	return true
 }
 
-func (l LinkedList[T]) Append(v T) {
+func (l *LinkedList[T]) Append(v T) {
 	l.List.PushBack(v)
 }
 
-func (l LinkedList[T]) Delete(i int) {
+func (l *LinkedList[T]) Delete(i int) {
 	l.List.Remove(l.GetElement(i))
 }

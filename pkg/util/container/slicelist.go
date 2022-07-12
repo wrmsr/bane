@@ -50,11 +50,11 @@ func (l SliceList[T]) ForEach(fn func(v T) bool) bool {
 //
 
 type MutSliceList[T any] struct {
-	SliceList[T]
+	l SliceList[T]
 }
 
 func NewSliceMutList[T any](it its.Iterable[T]) *MutSliceList[T] {
-	return &MutSliceList[T]{NewSliceList(it)}
+	return &MutSliceList[T]{l: NewSliceList(it)}
 }
 
 func NewMutSliceListOf[T any](vs ...T) MutList[T] {
@@ -67,13 +67,21 @@ func WrapSlice[T any](s []T) MutList[T] {
 
 var _ MutList[int] = &MutSliceList[int]{}
 
-func (l *MutSliceList[T]) isMutable()     {}
-func (l *MutSliceList[T]) Decay() List[T] { return l.SliceList }
+func (l *MutSliceList[T]) isMutable() {}
+
+func (l *MutSliceList[T]) Len() int                       { return l.l.Len() }
+func (l *MutSliceList[T]) Get(i int) T                    { return l.l.Get(i) }
+func (l *MutSliceList[T]) Iterate() its.Iterator[T]       { return l.l.Iterate() }
+func (l *MutSliceList[T]) ForEach(fn func(v T) bool) bool { return l.l.ForEach(fn) }
 
 func (l *MutSliceList[T]) Append(v T) {
-	l.s = append(l.s, v)
+	l.l.s = append(l.l.s, v)
 }
 
 func (l *MutSliceList[T]) Delete(i int) {
-	l.s = append(l.s[:i], l.s[i+1:]...)
+	l.l.s = append(l.l.s[:i], l.l.s[i+1:]...)
 }
+
+var _ Decay[List[int]] = &MutSliceList[int]{}
+
+func (l *MutSliceList[T]) Decay() List[T] { return l.l }
