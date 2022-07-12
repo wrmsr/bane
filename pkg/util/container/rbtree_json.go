@@ -76,6 +76,7 @@ func (m rbTreeMapImpl[K, V]) MarshalJSON() ([]byte, error) {
 }
 
 func (m *rbTreeMapImpl[K, V]) UnmarshalJSON(b []byte) error {
+	m.clear()
 	if len(b) < 1 {
 		return errors.New("empty")
 	}

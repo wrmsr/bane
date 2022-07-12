@@ -301,10 +301,22 @@ func TestRbTreeMapJson(t *testing.T) {
 	j := check.Must1(ju.MarshalString(m))
 	tu.AssertEqual(t, j, `{"10":"ten","11":"eleven","20":"twenty","30":"thirty"}`)
 
-	var m2 rbTreeMapImpl[int, string]
-	InitUnmarshal(&m2, bt.CmpLessImpl(bt.IntCmpImpl[int]()))
+	//var m2 rbTreeMapImpl[int, string]
+	//InitUnmarshal(&m2, bt.CmpLessImpl(bt.IntCmpImpl[int]()))
+
+	m2 := rbTreeMapImpl[int, string]{
+		t: RbTree{
+			Less: kvLessImpl[int, string](bt.CmpLessImpl(bt.IntCmpImpl[int]())),
+		},
+	}
+
 	tu.AssertNoErr(t, json.Unmarshal([]byte(j), &m2))
 	fmt.Println(m2)
+
+	tu.AssertEqual(t, m.Len(), m2.Len())
+
+	tu.AssertNoErr(t, json.Unmarshal([]byte(j), &m))
+	fmt.Println(m)
 
 	tu.AssertEqual(t, m.Len(), m2.Len())
 }
