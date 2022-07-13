@@ -22,7 +22,7 @@ var _ Marshaler = TimeMarshaler{}
 
 func (m TimeMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
 	if !rv.Type().AssignableTo(rfl.Time()) {
-		return nil, _unhandledType
+		return nil, unhandledType()
 	}
 
 	t := rv.Interface().(time.Time)
@@ -64,7 +64,7 @@ func (u TimeUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Valu
 		return rfl.Invalid(), fmt.Errorf("cannot parse time: %s", mv.v)
 
 	}
-	return rfl.Invalid(), _unhandledType
+	return rfl.Invalid(), unhandledType()
 }
 
 //

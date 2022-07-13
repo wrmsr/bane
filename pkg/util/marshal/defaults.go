@@ -10,6 +10,7 @@ func NewDefaultManager(reg *Registry) *Manager {
 	var mfs = []MarshalerFactory{
 		NewRegistryMarshalerFactory(),
 		NewPrimitiveMarshalerFactory(),
+		NewConvertUserPrimitiveMarshalerFactory(),
 		NewPointerMarshalerFactory(),
 		NewIndexMarshalerFactory(),
 		NewMapMarshalerFactory(),

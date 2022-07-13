@@ -35,7 +35,7 @@ func (m SwitchMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, e
 			return e.R.Marshal(ctx, rv)
 		}
 	}
-	return nil, _unhandledType
+	return nil, unhandledType()
 }
 
 //
@@ -66,5 +66,5 @@ func (m SwitchUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Va
 			return e.R.Unmarshal(ctx, mv)
 		}
 	}
-	return rfl.Invalid(), _unhandledType
+	return rfl.Invalid(), unhandledType()
 }

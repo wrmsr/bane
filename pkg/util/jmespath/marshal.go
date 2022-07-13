@@ -1,3 +1,5 @@
+/*
+ */
 package jmespath
 
 import (
@@ -28,4 +30,16 @@ var _ = msh.Register(rfl.TypeOf[Node](),
 	msh.SetImpl{Impl: rfl.TypeOf[Sequence](), Tag: "sequence"},
 	msh.SetImpl{Impl: rfl.TypeOf[Slice](), Tag: "slice"},
 	msh.SetImpl{Impl: rfl.TypeOf[String](), Tag: "string"},
+)
+
+var _ = msh.Register(rfl.TypeOf[CmpOp](),
+	msh.SetType{Marshaler: msh.NewEnumMarshaler[CmpOp](
+		map[CmpOp]string{
+			CmpEq: "=",
+			CmpNe: "!=",
+			CmpGt: ">",
+			CmpGe: ">=",
+			CmpLt: "<",
+			CmpLe: "<=",
+		})},
 )

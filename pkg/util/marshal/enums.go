@@ -25,7 +25,7 @@ func (m EnumMarshaler[T]) Marshal(ctx MarshalContext, rv reflect.Value) (Value, 
 	iv := rv.Interface()
 	it, ok := iv.(T)
 	if !ok {
-		return nil, _unhandledType
+		return nil, unhandledType()
 	}
 	mv, ok := m.m[it]
 	if !ok {
@@ -58,5 +58,5 @@ func (u EnumUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Valu
 		return v, nil
 
 	}
-	return rfl.Invalid(), _unhandledType
+	return rfl.Invalid(), unhandledType()
 }

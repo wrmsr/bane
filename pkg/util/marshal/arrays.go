@@ -97,7 +97,7 @@ func (u SliceUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Val
 		return rv, nil
 
 	}
-	return rfl.Invalid(), _unhandledType
+	return rfl.Invalid(), unhandledType()
 }
 
 //
@@ -131,7 +131,7 @@ func (u ArrayUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Val
 		return rv, nil
 
 	}
-	return rfl.Invalid(), _unhandledType
+	return rfl.Invalid(), unhandledType()
 }
 
 //

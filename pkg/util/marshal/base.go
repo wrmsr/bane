@@ -16,7 +16,11 @@ func (e UnhandledTypeError) Error() string {
 
 var _unhandledType = UnhandledTypeError{}
 
-func UnhandledType() UnhandledTypeError { return _unhandledType }
+func unhandledType() UnhandledTypeError {
+	return _unhandledType
+}
+
+func UnhandledType() UnhandledTypeError { return unhandledType() }
 
 ///
 
@@ -59,6 +63,10 @@ func (m FuncMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, err
 //
 
 type MarshalerFactory = Factory[Marshaler, MarshalContext, reflect.Type]
+
+func NewFuncMarshalerFactory(fn func(ctx MarshalContext, a reflect.Type) (Marshaler, error)) MarshalerFactory {
+	return NewFuncFactory[Marshaler, MarshalContext, reflect.Type](fn)
+}
 
 func NewTypeMapMarshalerFactory(m map[reflect.Type]Marshaler) MarshalerFactory {
 	return NewTypeMapFactory[Marshaler, MarshalContext](m)
@@ -135,6 +143,10 @@ func (u FuncUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Valu
 //
 
 type UnmarshalerFactory = Factory[Unmarshaler, UnmarshalContext, reflect.Type]
+
+func NewFuncUnmarshalerFactory(fn func(ctx UnmarshalContext, a reflect.Type) (Unmarshaler, error)) UnmarshalerFactory {
+	return NewFuncFactory[Unmarshaler, UnmarshalContext, reflect.Type](fn)
+}
 
 func NewTypeMapUnmarshalerFactory(m map[reflect.Type]Unmarshaler) UnmarshalerFactory {
 	return NewTypeMapFactory[Unmarshaler, UnmarshalContext](m)

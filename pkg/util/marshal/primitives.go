@@ -3,10 +3,11 @@ package marshal
 import (
 	"reflect"
 
+	"github.com/wrmsr/bane/pkg/util/maps"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
-//
+///
 
 var primitiveTypes = map[reflect.Type]reflect.Type{
 	rfl.TypeOf[int]():     rfl.TypeOf[int64](),
@@ -25,6 +26,14 @@ var primitiveTypes = map[reflect.Type]reflect.Type{
 	rfl.TypeOf[string]():  rfl.TypeOf[string](),
 }
 
+var primitiveKinds = (func() maps.Set[reflect.Kind] {
+	s := maps.MakeSet[reflect.Kind]()
+	for t := range primitiveTypes {
+		s.Add(t.Kind())
+	}
+	return s
+})()
+
 //
 
 type Primitive interface {
@@ -36,7 +45,7 @@ func (v Int) isPrimitive()    {}
 func (v Float) isPrimitive()  {}
 func (v String) isPrimitive() {}
 
-//
+//.
 
 type PrimitiveMarshaler struct{}
 
@@ -74,7 +83,7 @@ func (p PrimitiveMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value
 		return String{v: rv.String()}, nil
 
 	}
-	return nil, _unhandledType
+	return nil, unhandledType()
 }
 
 //
@@ -92,7 +101,7 @@ func NewPrimitiveMarshalerFactory() MarshalerFactory {
 	return primitiveMarshalerFactory
 }
 
-//
+///
 
 type PrimitiveUnmarshaler struct{}
 
@@ -122,7 +131,7 @@ func (p PrimitiveUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect
 		return reflect.ValueOf(mv.v), nil
 
 	}
-	return rfl.Invalid(), _unhandledType
+	return rfl.Invalid(), unhandledType()
 }
 
 //

@@ -40,7 +40,7 @@ func JsonEncode(w io.Writer, v Value) error {
 		return ju.EncodeString(w, v.v, false)
 
 	case Bytes:
-		return _unhandledType
+		return unhandledType()
 
 	case Array:
 		if _, err := w.Write([]byte{'['}); err != nil {
@@ -76,7 +76,7 @@ func JsonEncode(w io.Writer, v Value) error {
 					return err
 				}
 			} else {
-				return _unhandledType
+				return unhandledType()
 			}
 			if _, err := w.Write([]byte{':'}); err != nil {
 				return err
@@ -91,7 +91,7 @@ func JsonEncode(w io.Writer, v Value) error {
 		return nil
 
 	case Any:
-		return _unhandledType
+		return unhandledType()
 
 	}
 	panic("unreachable")
