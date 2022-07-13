@@ -43,3 +43,19 @@ func Returning1[T, R any](fn func(T), r R) func(T) R {
 		return r
 	}
 }
+
+func Drop1[T, R any](fn func() R) func(T) R {
+	return func(T) R { return fn() }
+}
+
+func Drop2[T, U, R any](fn func() R) func(T, U) R {
+	return func(t T, u U) R { return fn() }
+}
+
+func Drop2x1[T, U, R any](fn func(U) R) func(T, U) R {
+	return func(t T, u U) R { return fn(u) }
+}
+
+func DropR2x1[T, U, R any](fn func(T) R) func(T, U) R {
+	return func(t T, u U) R { return fn(t) }
+}

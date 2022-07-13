@@ -1,6 +1,7 @@
 package container
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -18,9 +19,9 @@ var (
 )
 
 func TestIntrusiveList(t *testing.T) {
-	al := NewIntrusiveList[ListThing](listThingAOps)
-	bl := NewIntrusiveList[ListThing](listThingAOps)
+	//al := NewIntrusiveList[ListThing](listThingAOps)
+	//bl := NewIntrusiveList[ListThing](listThingAOps)
 
-	tS := slices.Range[int](0, 10, 1)
-
+	ts := slices.Map(func(i int) *ListThing { return &ListThing{i: i} }, slices.Range1(0, 10))
+	fmt.Println(ts)
 }

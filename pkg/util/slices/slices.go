@@ -340,9 +340,13 @@ func PtrTo[T any](s []T, i int) *T {
 }
 
 func Range[T bt.Rational](start, stop, step T) []T {
-	var l []T
+	l := make([]T, 0, int((stop-start)/step))
 	for ; start < stop; start += step {
 		l = append(l, start)
 	}
 	return l
+}
+
+func Range1[T bt.Rational](start, stop T) []T {
+	return Range(start, stop, 1)
 }
