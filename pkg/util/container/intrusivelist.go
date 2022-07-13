@@ -1,6 +1,10 @@
 package container
 
-import "github.com/wrmsr/bane/pkg/util/check"
+import (
+	"fmt"
+
+	"github.com/wrmsr/bane/pkg/util/check"
+)
 
 //
 
@@ -136,10 +140,12 @@ func (l *IntrusiveList[T]) verify() {
 	var prev *T
 	for cur := l.head; cur != nil; prev, cur = cur, l.ops.getNode(cur).next {
 		cn := l.ops.getNode(cur)
+		fmt.Printf("%+v\n", cn)
 		check.Condition(cn.prev == prev)
 		i++
 	}
 	check.Condition(l.tail == prev)
 
 	check.Condition(i == l.l)
+	fmt.Println()
 }
