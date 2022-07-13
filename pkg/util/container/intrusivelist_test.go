@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
+	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
@@ -53,4 +55,98 @@ func TestIntrusiveList(t *testing.T) {
 	for c := al.head; c != nil; c = c.al.next {
 		fmt.Println(c)
 	}
+}
+
+type ilTest struct {
+	s string
+	i int
+	l IntrusiveListNode[ilTest]
+}
+
+func TestIntrusiveList2(t *testing.T) {
+	l := NewIntrusiveList[ilTest](NewIntrusiveListOps(func(p *ilTest) *IntrusiveListNode[ilTest] { return &p.l }))
+
+	checkList := func(es ...*ilTest) {
+		tu.AssertEqual(t, len(es), l.Len())
+		ls := its.Seq[*ilTest](l)
+		for i := range es {
+			tu.AssertEqual(t, es[i], ls[i])
+		}
+	}
+
+	checkList()
+
+	// Single element list
+	e := l.PushFront(&ilTest{s: "a"})
+	checkList(e)
+	l.MoveToFront(e)
+	checkList(e)
+	l.MoveToBack(e)
+	checkList(e)
+	l.Remove(e)
+	checkList()
+
+	// Bigger list
+	e2 := l.PushFront(&ilTest{i: 2})
+	e1 := l.PushFront(&ilTest{i: 1})
+	e3 := l.PushBack(&ilTest{i: 3})
+	e4 := l.PushBack(&ilTest{s: "banana"})
+	checkList(e1, e2, e3, e4)
+
+	l.Remove(e2)
+	checkList(e1, e3, e4)
+
+	l.MoveToFront(e3) // move from middle
+	checkList(e3, e1, e4)
+
+	l.MoveToFront(e1)
+	l.MoveToBack(e3) // move from middle
+	checkList(e1, e4, e3)
+
+	l.MoveToFront(e3) // move from back
+	checkList(e3, e1, e4)
+	l.MoveToFront(e3) // should be no-op
+	checkList(e3, e1, e4)
+
+	l.MoveToBack(e3) // move from front
+	checkList(e1, e4, e3)
+	l.MoveToBack(e3) // should be no-op
+	checkList(e1, e4, e3)
+
+	e2 = l.InsertBefore(&ilTest{i: 2}, e1) // insert before front
+	checkList(e2, e1, e4, e3)
+	l.Remove(e2)
+	e2 = l.InsertBefore(&ilTest{i: 2}, e4) // insert before middle
+	checkList(e1, e2, e4, e3)
+	l.Remove(e2)
+	e2 = l.InsertBefore(&ilTest{i: 2}, e3) // insert before back
+	checkList(e1, e4, e2, e3)
+	l.Remove(e2)
+
+	e2 = l.InsertAfter(&ilTest{i: 2}, e1) // insert after front
+	checkList(e1, e2, e4, e3)
+	l.Remove(e2)
+	e2 = l.InsertAfter(&ilTest{i: 2}, e4) // insert after middle
+	checkList(e1, e4, e2, e3)
+	l.Remove(e2)
+	e2 = l.InsertAfter(&ilTest{i: 2}, e3) // insert after back
+	checkList(e1, e4, e3, e2)
+	l.Remove(e2)
+
+	// Check standard iteration.
+	sum := 0
+	for e := l.Front(); e != nil; e = e.l.Next() {
+		sum += e.i
+	}
+	if sum != 4 {
+		t.Errorf("sum over l = %d, want 4", sum)
+	}
+
+	// Clear all elements by iterating
+	var next *ilTest
+	for e := l.Front(); e != nil; e = next {
+		next = e.l.Next()
+		l.Remove(e)
+	}
+	checkList()
 }
