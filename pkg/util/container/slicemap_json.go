@@ -11,7 +11,7 @@ import (
 
 //
 
-func (m LinkedMap[K, V]) MarshalJSON() ([]byte, error) {
+func (m SliceMap[K, V]) MarshalJSON() ([]byte, error) {
 	ro := make(ju.RawObject, len(m.s))
 	for i, kv := range m.s {
 		ks, err := ju.MarshalAsText(reflect.ValueOf(kv.K))
@@ -29,7 +29,7 @@ func (m LinkedMap[K, V]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(ro)
 }
 
-func (m *LinkedMap[K, V]) UnmarshalJSON(b []byte) error {
+func (m *SliceMap[K, V]) UnmarshalJSON(b []byte) error {
 	var ro ju.RawObject
 	if err := json.Unmarshal(b, &ro); err != nil {
 		return err
@@ -40,16 +40,16 @@ func (m *LinkedMap[K, V]) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	*m = NewLinkedMap[K, V](its.OfSlice(ret))
+	*m = NewSliceMap[K, V](its.OfSlice(ret))
 	return nil
 }
 
 //
 
-func (m MutLinkedMap[K, V]) MarshalJSON() ([]byte, error) {
+func (m MutSliceMap[K, V]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.m)
 }
 
-func (m *MutLinkedMap[K, V]) UnmarshalJSON(b []byte) error {
+func (m *MutSliceMap[K, V]) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &m.m)
 }

@@ -6,12 +6,12 @@ import (
 )
 
 type MapBuilder[K comparable, V any] struct {
-	m *LinkedMap[K, V]
+	m *SliceMap[K, V]
 }
 
 func NewOrderedMapBuilder[K comparable, V any]() *MapBuilder[K, V] {
 	return &MapBuilder[K, V]{
-		m: &LinkedMap[K, V]{
+		m: &SliceMap[K, V]{
 			m: make(map[K]int),
 		},
 	}

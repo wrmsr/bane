@@ -9,7 +9,7 @@ import (
 
 //
 
-func (m LinkedMap[K, V]) format(tn string, f fmt.State, c rune) {
+func (m SliceMap[K, V]) format(tn string, f fmt.State, c rune) {
 	iou.WriteStringDiscard(f, tn)
 	if f.Flag('#') {
 		iou.WriteStringDiscard(f, "{")
@@ -37,11 +37,11 @@ func (m LinkedMap[K, V]) format(tn string, f fmt.State, c rune) {
 	}
 }
 
-func (m LinkedMap[K, V]) Format(f fmt.State, c rune) {
+func (m SliceMap[K, V]) Format(f fmt.State, c rune) {
 	m.format("ordMap", f, c)
 }
 
-func (m LinkedMap[K, V]) string(tn string) string {
+func (m SliceMap[K, V]) string(tn string) string {
 	var sb strings.Builder
 	sb.WriteString("ordMap")
 	for i, kv := range m.s {
@@ -53,16 +53,16 @@ func (m LinkedMap[K, V]) string(tn string) string {
 	return sb.String()
 }
 
-func (m LinkedMap[K, V]) String() string {
+func (m SliceMap[K, V]) String() string {
 	return m.string("ordMap")
 }
 
 //
 
-func (m MutLinkedMap[K, V]) String() string {
+func (m MutSliceMap[K, V]) String() string {
 	return m.m.string("mutOrdMap")
 }
 
-func (m MutLinkedMap[K, V]) Format(f fmt.State, c rune) {
+func (m MutSliceMap[K, V]) Format(f fmt.State, c rune) {
 	m.m.format("mutOrdMap", f, c)
 }

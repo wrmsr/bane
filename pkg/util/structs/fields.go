@@ -47,8 +47,8 @@ func buildStructFields(root []*FieldInfo) StructFields {
 		rec(fi)
 	}
 
-	byName := ctr.NewMutLinkedMap[string, ctr.MutList[*FieldInfo]](nil)
-	byPath := ctr.NewMutLinkedMap[string, *FieldInfo](nil)
+	byName := ctr.NewMutSliceMap[string, ctr.MutList[*FieldInfo]](nil)
+	byPath := ctr.NewMutSliceMap[string, *FieldInfo](nil)
 	for _, fi := range all {
 		ctr.GetOrMake[string, ctr.MutList[*FieldInfo]](byName, fi.name.s, func() ctr.MutList[*FieldInfo] {
 			return ctr.NewSliceMutList[*FieldInfo](nil)
@@ -60,9 +60,9 @@ func buildStructFields(root []*FieldInfo) StructFields {
 	}
 
 	var flat []*FieldInfo
-	byFlat := ctr.NewMutLinkedMap[string, *FieldInfo](nil)
+	byFlat := ctr.NewMutSliceMap[string, *FieldInfo](nil)
 	var dupe []*FieldInfo
-	byDupe := ctr.NewMutLinkedMap[string, ctr.List[*FieldInfo]](nil)
+	byDupe := ctr.NewMutSliceMap[string, ctr.List[*FieldInfo]](nil)
 	byName.ForEach(func(kv bt.Kv[string, ctr.MutList[*FieldInfo]]) bool {
 		s := kv.V
 		if its.Any((*FieldInfo).Anonymous, s.(its.Iterable[*FieldInfo])) {
@@ -106,7 +106,7 @@ func buildStructFields(root []*FieldInfo) StructFields {
 		root: ctr.NewSliceList(its.OfSlice(root)),
 		all:  ctr.NewSliceList(its.OfSlice(all)),
 
-		byName: ctr.NewLinkedMap(its.MapValues[string, ctr.MutList[*FieldInfo], ctr.List[*FieldInfo]](byName, ctr.DecayList[*FieldInfo])),
+		byName: ctr.NewSliceMap(its.MapValues[string, ctr.MutList[*FieldInfo], ctr.List[*FieldInfo]](byName, ctr.DecayList[*FieldInfo])),
 		byPath: byPath,
 
 		flat:   ctr.NewSliceList(its.OfSlice(flat)),

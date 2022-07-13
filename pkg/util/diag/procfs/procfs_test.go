@@ -83,7 +83,7 @@ func TestProcStatus(t *testing.T) {
 		}
 		return opt.Just(bt.KvOf(strings.TrimSpace(k), v))
 	})
-	m := ctr.NewLinkedMap(kvs)
+	m := ctr.NewSliceMap(kvs)
 
 	fmt.Println(m)
 	tu.AssertDeepEqual(t, m.Get("Threads"), "1")
@@ -100,25 +100,25 @@ func TestProcNetNetstat(t *testing.T) {
 	s := procNetNetstatContent
 	lines := its.OfSlice(stru.TrimSpaceSplit(s, "\n"))
 
-	kvs := its.FlatMap(its.ChunkShared(lines, 2), func(ls []string) its.Iterable[bt.Kv[string, ctr.OrderedMap[string, string]]] {
+	kvs := its.FlatMap(its.ChunkShared(lines, 2), func(ls []string) its.Iterable[bt.Kv[string, ctr.SliceMap[string, string]]] {
 		if len(ls) != 2 {
-			return opt.None[bt.Kv[string, ctr.OrderedMap[string, string]]]()
+			return opt.None[bt.Kv[string, ctr.SliceMap[string, string]]]()
 		}
 
 		kt, kl, kok := stru.TrimSpaceCut(ls[0], ":")
 		vt, vl, vok := stru.TrimSpaceCut(ls[1], ":")
 		if !kok || !vok || kt != vt {
-			return opt.None[bt.Kv[string, ctr.OrderedMap[string, string]]]()
+			return opt.None[bt.Kv[string, ctr.SliceMap[string, string]]]()
 		}
 
 		kvs := its.Kvs(its.Zip[string, string](
 			its.OfSlice(stru.TrimSpaceSplit(kl, " ")),
 			its.OfSlice(stru.TrimSpaceSplit(vl, " ")),
 		))
-		m := ctr.NewLinkedMap(kvs)
-		return opt.Just(bt.KvOf[string, ctr.OrderedMap[string, string]](kt, m))
+		m := ctr.NewSliceMap(kvs)
+		return opt.Just(bt.KvOf[string, ctr.SliceMap[string, string]](kt, m))
 	})
-	m := ctr.NewLinkedMap(kvs)
+	m := ctr.NewSliceMap(kvs)
 
 	fmt.Println(m)
 	tu.AssertDeepEqual(t, m.Get("IpExt").Get("InBcastPkts"), "420")
