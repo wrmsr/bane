@@ -6,9 +6,10 @@ type IntrusiveListNode[T any] struct {
 	next, prev *T
 }
 
-type intrusiveListPair[T any] struct {
-	v *T
-	n *IntrusiveListNode[T]
+type intrusiveListRef[T any] struct {
+	e *T
+
+	next, prev **T
 }
 
 //
@@ -21,12 +22,13 @@ func NewIntrusiveListOps[T any](getNode func(*T) *IntrusiveListNode[T]) Intrusiv
 	return IntrusiveListOps[T]{getNode: getNode}
 }
 
-func (l IntrusiveListOps[T]) GetNode(e *T) *IntrusiveListNode[T] {
-	return l.getNode(e)
+func (o IntrusiveListOps[T]) GetNode(e *T) *IntrusiveListNode[T] {
+	return o.getNode(e)
 }
 
-func (l IntrusiveListOps[T]) pair(v *T) intrusiveListPair[T] {
-	return intrusiveListPair[T]{v: v, n: l.getNode(v)}
+func (o IntrusiveListOps[T]) getRef(e *T) intrusiveListRef[T] {
+	n := o.getNode(e)
+	return intrusiveListRef[T]{e: e, next: &n.next, prev: &n.prev}
 }
 
 //
@@ -34,7 +36,7 @@ func (l IntrusiveListOps[T]) pair(v *T) intrusiveListPair[T] {
 type IntrusiveList[T any] struct {
 	ops IntrusiveListOps[T]
 
-	root IntrusiveListNode[T]
+	head, tail *T
 
 	l int
 }
@@ -47,55 +49,57 @@ func (l *IntrusiveList[T]) Len() int {
 	return l.l
 }
 
-func (l *IntrusiveList[T]) insert(e, at intrusiveListPair[T]) {
-	e.n.prev = at.v
-	e.n.next = at.n.next
-	if e.n.prev != nil {
-		l.ops.getNode(e.n.prev).next = e.v
-	} else {
-
-	}
-	if e.n.next != nil {
-		l.ops.getNode(e.n.next).prev = e.v
-	}
+func (l *IntrusiveList[T]) root() intrusiveListRef[T] {
+	return intrusiveListRef[T]{next: &l.head, prev: &l.tail}
 }
 
-func (l *IntrusiveList[T]) remove(e intrusiveListPair[T]) {
-	if e.n.prev != nil {
-		l.ops.getNode(e.n.prev).next = e.n.next
+func (l *IntrusiveList[T]) next(r intrusiveListRef[T]) intrusiveListRef[T] {
+	if *r.next == nil {
+		return l.root()
 	}
-	if e.n.next != nil {
-		l.ops.getNode(e.n.next).prev = e.n.prev
-	}
-	e.n.next = nil
-	e.n.prev = nil
+	return l.ops.getRef(*r.next)
 }
 
-func (l *IntrusiveList[T]) move(e, at intrusiveListPair[T]) {
-	if e.n == at.n {
+func (l *IntrusiveList[T]) prev(r intrusiveListRef[T]) intrusiveListRef[T] {
+	if *r.prev == nil {
+		return l.root()
+	}
+	return l.ops.getRef(*r.prev)
+}
+
+func (l *IntrusiveList[T]) insert(e, at intrusiveListRef[T]) {
+	*e.prev = at.e
+	*e.next = *at.next
+	*l.prev(e).next = e.e
+	*l.next(e).prev = e.e
+	l.l++
+}
+
+func (l *IntrusiveList[T]) remove(e intrusiveListRef[T]) {
+	*l.prev(e).next = *e.next
+	*l.next(e).prev = *e.prev
+	*e.next = nil
+	*e.prev = nil
+	l.l--
+}
+
+func (l *IntrusiveList[T]) move(e, at intrusiveListRef[T]) {
+	if e.e == at.e {
 		return
 	}
-	if e.n.prev != nil {
-		l.ops.getNode(e.n.prev).next = e.n.next
-	}
-	if e.n.next != nil {
-		l.ops.getNode(e.n.next).prev = e.n.prev
-	}
+	*l.prev(e).next = *e.next
+	*l.next(e).prev = *e.prev
 
-	e.n.prev = at.v
-	e.n.next = at.n.next
-	if e.n.prev != nil {
-		l.ops.getNode(e.n.prev).next = e.v
-	}
-	if e.n.next != nil {
-		l.ops.getNode(e.n.next).prev = e.v
-	}
+	*e.prev = at.e
+	*e.next = *at.next
+	*l.prev(e).next = e.e
+	*l.next(e).prev = e.e
 }
 
 func (l *IntrusiveList[T]) PushFront(v *T) {
-	l.insert(l.ops.pair(v), intrusiveListPair[T]{n: &l.root})
+	l.insert(l.ops.getRef(v), l.root())
 }
 
-//func (l *IntrusiveList[T]) PushBack(v *T) {
-//	l.insert(v, l.tail, l.ops.pair(v))
-//}
+func (l *IntrusiveList[T]) PushBack(v *T) {
+	l.insert(l.ops.getRef(v), l.prev(l.root()))
+}
