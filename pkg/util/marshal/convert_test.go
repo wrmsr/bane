@@ -17,15 +17,6 @@ func TestConvertUnmarshal(t *testing.T) {
 	t2 := rfl.TypeOf[int]()
 	t3 := rfl.TypeOf[[]int]()
 
-	fmt.Println(t0)
-	fmt.Println(t1)
-	fmt.Println(t2)
-	fmt.Println(t3)
-
-	fmt.Println(t0.ConvertibleTo(t2))
-	fmt.Println(t2.ConvertibleTo(t0))
-	fmt.Println(t1.ConvertibleTo(t3))
-
 	v := []MyInt{1}
 
 	mv := check.Must1(Marshal(v))
