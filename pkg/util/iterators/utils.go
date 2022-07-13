@@ -31,6 +31,31 @@ func Apply[T any](fn func(v T), it Iterable[T]) {
 	}
 }
 
+func Len[T any](it Iterable[T]) int {
+	i := 0
+	for it := it.Iterate(); it.HasNext(); it.Next() {
+		i++
+	}
+	return i
+}
+
+func Nth[T any](it Iterable[T], n int) (T, bool) {
+	if n < 0 {
+		panic(n)
+	}
+	i := it.Iterate()
+	for ; ; n-- {
+		if !i.HasNext() {
+			var z T
+			return z, false
+		}
+		if n == 0 {
+			return i.Next(), true
+		}
+		i.Next()
+	}
+}
+
 //
 
 type NonUniqueError[T any] struct {

@@ -69,9 +69,13 @@ func TestIntrusiveList2(t *testing.T) {
 
 	checkList := func(es ...*ilTest) {
 		tu.AssertEqual(t, len(es), l.Len())
+		tu.AssertEqual(t, len(es), its.Len[*ilTest](l))
 		ls := its.Seq[*ilTest](l)
 		for i := range es {
 			tu.AssertEqual(t, es[i], ls[i])
+		}
+		if len(es) > 2 {
+			tu.AssertEqual(t, es[2], l.Get(2))
 		}
 	}
 

@@ -64,7 +64,7 @@ func NewIntrusiveList[T any](ops IntrusiveListOps[T]) *IntrusiveList[T] {
 	return &IntrusiveList[T]{o: ops}
 }
 
-func (l *IntrusiveList[T]) verify() {
+func (l IntrusiveList[T]) verify() {
 	if l.head == nil {
 		check.Condition(l.tail == nil)
 		check.Condition(l.l == 0)
@@ -86,15 +86,15 @@ func (l *IntrusiveList[T]) verify() {
 	fmt.Println()
 }
 
-func (l *IntrusiveList[T]) Len() int {
+func (l IntrusiveList[T]) Len() int {
 	return l.l
 }
 
-func (l *IntrusiveList[T]) Front() *T {
+func (l IntrusiveList[T]) Front() *T {
 	return l.head
 }
 
-func (l *IntrusiveList[T]) Back() *T {
+func (l IntrusiveList[T]) Back() *T {
 	return l.tail
 }
 
@@ -230,11 +230,11 @@ func (i *intrusiveListIterator[T]) Next() *T {
 	return r
 }
 
-func (l *IntrusiveList[T]) Iterate() its.Iterator[*T] {
+func (l IntrusiveList[T]) Iterate() its.Iterator[*T] {
 	return &intrusiveListIterator[T]{o: l.o, p: l.head}
 }
 
-func (l *IntrusiveList[T]) IterateFrom(e *T) its.Iterator[*T] {
+func (l IntrusiveList[T]) IterateFrom(e *T) its.Iterator[*T] {
 	return &intrusiveListIterator[T]{o: l.o, p: e}
 }
 
@@ -267,4 +267,35 @@ func (l *IntrusiveList[T]) ReverseIterate() its.Iterator[*T] {
 
 func (l *IntrusiveList[T]) ReverseIterateFrom(e *T) its.Iterator[*T] {
 	return &intrusiveListReverseIterator[T]{o: l.o, p: e}
+}
+
+//
+
+var _ List[*int] = IntrusiveList[int]{}
+
+func (l IntrusiveList[T]) Get(i int) *T {
+	return check.Ok1(its.Nth[*T](l, i))
+}
+
+func (l IntrusiveList[T]) ForEach(fn func(v *T) bool) bool {
+	for c := l.head; c != nil; c = l.o.getNode(c).next {
+		if !fn(c) {
+			return false
+		}
+	}
+	return true
+}
+
+//
+
+var _ MutList[*int] = &IntrusiveList[int]{}
+
+func (l *IntrusiveList[T]) isMutable() {}
+
+func (l *IntrusiveList[T]) Append(v *T) {
+	l.PushBack(v)
+}
+
+func (l *IntrusiveList[T]) Delete(i int) {
+	l.Remove(l.Get(i))
 }
