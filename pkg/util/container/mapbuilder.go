@@ -9,7 +9,7 @@ type MapBuilder[K comparable, V any] struct {
 	m *SliceMap[K, V]
 }
 
-func NewOrderedMapBuilder[K comparable, V any]() *MapBuilder[K, V] {
+func NewMapBuilder[K comparable, V any]() *MapBuilder[K, V] {
 	return &MapBuilder[K, V]{
 		m: &SliceMap[K, V]{
 			m: make(map[K]int),

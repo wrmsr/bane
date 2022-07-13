@@ -68,6 +68,20 @@ func (i *rangeIterator[T]) Next() T {
 	return c
 }
 
+var _ Iterable[int] = Range[int]{}
+
+func (r Range[T]) Iterate() Iterator[T] {
+	return &rangeIterator[T]{r: r}
+}
+
+//
+
+var _ AnyIterable = Range[int]{}
+
+func (r Range[T]) AnyIterate() Iterator[any] {
+	return &anyIterator[T]{it: r.Iterate()}
+}
+
 //
 
 var _ Traversable[int] = Range[int]{}

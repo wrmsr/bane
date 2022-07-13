@@ -11,7 +11,7 @@ import (
 )
 
 func TestReflectKvIterable(t *testing.T) {
-	m := ctr.NewOrderedMapBuilder[string, string]().
+	m := ctr.NewMapBuilder[string, string]().
 		Put("100", "one hundred").
 		Put("200", "two hundred").
 		Build()
@@ -28,7 +28,7 @@ func TestReflectKvIterable(t *testing.T) {
 }
 
 func TestAnyKvIterable(t *testing.T) {
-	m := ctr.NewOrderedMapBuilder[string, string]().
+	m := ctr.NewMapBuilder[string, string]().
 		Put("100", "one hundred").
 		Put("200", "two hundred").
 		Build()
@@ -45,7 +45,7 @@ func TestAnyKvIterable(t *testing.T) {
 }
 
 func benchmarkKvIterable(b *testing.B, impl Marshaler) {
-	mb := ctr.NewOrderedMapBuilder[int64, string]()
+	mb := ctr.NewMapBuilder[int64, string]()
 	for i := 0; i < 100; i++ {
 		mb.Put(int64(i), strconv.Itoa(i))
 	}

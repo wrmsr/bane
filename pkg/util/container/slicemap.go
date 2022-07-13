@@ -26,7 +26,7 @@ func NewSliceMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) SliceMap[K, 
 	return m
 }
 
-var _ SliceMap[int, any] = SliceMap[int, any]{}
+var _ OrderedMap[int, any] = SliceMap[int, any]{}
 
 func (m SliceMap[K, V]) isOrdered() {}
 
@@ -66,6 +66,26 @@ func (m SliceMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
 		}
 	}
 	return true
+}
+
+func (m SliceMap[K, V]) IterateFrom(k K) its.Iterator[bt.Kv[K, V]] {
+	i, ok := m.m[k]
+	if !ok {
+		return its.Empty[bt.Kv[K, V]]()
+	}
+	return its.OfSliceRange(m.s, bt.RangeOf(i, len(m.s), 1)).Iterate()
+}
+
+func (m SliceMap[K, V]) ReverseIterate() its.Iterator[bt.Kv[K, V]] {
+	return its.OfSliceRange(m.s, bt.RangeOf(len(m.s)-1, -1, -1)).Iterate()
+}
+
+func (m SliceMap[K, V]) ReverseIterateFrom(k K) its.Iterator[bt.Kv[K, V]] {
+	i, ok := m.m[k]
+	if !ok {
+		return its.Empty[bt.Kv[K, V]]()
+	}
+	return its.OfSliceRange(m.s, bt.RangeOf(i, -1, -1)).Iterate()
 }
 
 var _ its.AnyIterable = SliceMap[int, string]{}
@@ -125,7 +145,11 @@ func NewMutSliceMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) *MutSlice
 	return &MutSliceMap[K, V]{m: NewSliceMap[K, V](it)}
 }
 
-var _ MutMap[int, any] = &MutSliceMap[int, any]{}
+func (m *MutSliceMap[K, V]) All() []bt.Kv[K, V] {
+	return m.m.s
+}
+
+var _ MutOrderedMap[int, any] = &MutSliceMap[int, any]{}
 
 func (m *MutSliceMap[K, V]) isMutable() {}
 func (m *MutSliceMap[K, V]) isOrdered() {}
@@ -136,6 +160,12 @@ func (m *MutSliceMap[K, V]) Get(k K) V                                { return m
 func (m *MutSliceMap[K, V]) TryGet(k K) (V, bool)                     { return m.m.TryGet(k) }
 func (m *MutSliceMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]]       { return m.m.Iterate() }
 func (m *MutSliceMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool { return m.m.ForEach(fn) }
+
+func (m *MutSliceMap[K, V]) IterateFrom(k K) its.Iterator[bt.Kv[K, V]] { return m.m.IterateFrom(k) }
+func (m *MutSliceMap[K, V]) ReverseIterate() its.Iterator[bt.Kv[K, V]] { return m.m.ReverseIterate() }
+func (m *MutSliceMap[K, V]) ReverseIterateFrom(k K) its.Iterator[bt.Kv[K, V]] {
+	return m.m.ReverseIterateFrom(k)
+}
 
 func (m *MutSliceMap[K, V]) Put(k K, v V) {
 	m.m.put(k, v)
