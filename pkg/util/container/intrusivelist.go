@@ -23,8 +23,12 @@ func (l *IntrusiveListOps[T]) GetNode(e *T) *IntrusiveListNode[T] {
 func (l *IntrusiveListOps[T]) InsertNode(e *T, en *IntrusiveListNode[T], at *T, atn *IntrusiveListNode[T]) {
 	en.prev = at
 	en.next = atn.next
-	l.getNode(en.prev).next = e
-	l.getNode(en.next).prev = e
+	if en.prev != nil {
+		l.getNode(en.prev).next = e
+	}
+	if en.next != nil {
+		l.getNode(en.next).prev = e
+	}
 }
 
 func (l *IntrusiveListOps[T]) Insert(e, at *T) {
@@ -32,8 +36,12 @@ func (l *IntrusiveListOps[T]) Insert(e, at *T) {
 }
 
 func (l *IntrusiveListOps[T]) RemoveNode(en *IntrusiveListNode[T]) {
-	l.getNode(en.prev).next = en.next
-	l.getNode(en.next).prev = en.prev
+	if en.prev != nil {
+		l.getNode(en.prev).next = en.next
+	}
+	if en.next != nil {
+		l.getNode(en.next).prev = en.prev
+	}
 	en.next = nil
 	en.prev = nil
 }
@@ -46,13 +54,21 @@ func (l *IntrusiveListOps[T]) MoveNode(e *T, en *IntrusiveListNode[T], at *T, at
 	if en == atn {
 		return
 	}
-	l.getNode(en.prev).next = en.next
-	l.getNode(en.next).prev = en.prev
+	if en.prev != nil {
+		l.getNode(en.prev).next = en.next
+	}
+	if en.next != nil {
+		l.getNode(en.next).prev = en.prev
+	}
 
 	en.prev = at
 	en.next = atn.next
-	l.getNode(en.prev).next = e
-	l.getNode(en.next).prev = e
+	if en.prev != nil {
+		l.getNode(en.prev).next = e
+	}
+	if en.next != nil {
+		l.getNode(en.next).prev = e
+	}
 }
 
 func (l *IntrusiveListOps[T]) Move(e, at *T) {
