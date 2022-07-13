@@ -33,15 +33,26 @@ var _ = msh.Register(rfl.TypeOf[Node](),
 )
 
 var _ = msh.Register(rfl.TypeOf[CmpOp](),
-	msh.SetType{Marshaler: msh.NewEnumMarshaler[CmpOp](
-		map[CmpOp]string{
-			CmpEq: "=",
-			CmpNe: "!=",
-			CmpGt: ">",
-			CmpGe: ">=",
-			CmpLt: "<",
-			CmpLe: "<=",
-		})},
+	msh.SetType{
+		Marshaler: msh.NewEnumMarshaler[CmpOp](
+			map[CmpOp]string{
+				CmpEq: "=",
+				CmpNe: "!=",
+				CmpGt: ">",
+				CmpGe: ">=",
+				CmpLt: "<",
+				CmpLe: "<=",
+			}),
+		Unmarshaler: msh.NewEnumUnmarshaler(
+			map[string]any{
+				"=":  CmpEq,
+				"!=": CmpNe,
+				">":  CmpGt,
+				">=": CmpGe,
+				"<":  CmpLt,
+				"<=": CmpLe,
+			}),
+	},
 )
 
 var _ = msh.Register(rfl.TypeOf[Target](),

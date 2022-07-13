@@ -7,6 +7,7 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	"github.com/wrmsr/bane/pkg/util/jmespath/parser"
 	ju "github.com/wrmsr/bane/pkg/util/json"
 	msh "github.com/wrmsr/bane/pkg/util/marshal"
@@ -31,5 +32,8 @@ func TestParsing(t *testing.T) {
 
 	var v2 Node
 	check.Must(msh.Unmarshal(mv, &v2))
+
+	fmt.Println(root)
 	fmt.Println(v2)
+	tu.AssertDeepEqual(t, root, v2)
 }

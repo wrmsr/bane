@@ -10,7 +10,6 @@ func NewDefaultManager(reg *Registry) *Manager {
 	var mfs = []MarshalerFactory{
 		NewRegistryMarshalerFactory(),
 		NewPrimitiveMarshalerFactory(),
-		NewConvertUserPrimitiveMarshalerFactory(),
 		NewPointerMarshalerFactory(),
 		NewIndexMarshalerFactory(),
 		NewMapMarshalerFactory(),
@@ -19,6 +18,7 @@ func NewDefaultManager(reg *Registry) *Manager {
 		NewOptionalMarshalerFactory(),
 		NewRegistryPolymorphismMarshalerFactory(),
 		NewStructMarshalerFactory(sic),
+		NewConvertUserPrimitiveMarshalerFactory(),
 	}
 
 	mf := NewTypeCacheMarshalerFactory(
@@ -31,7 +31,6 @@ func NewDefaultManager(reg *Registry) *Manager {
 	var ufs = []UnmarshalerFactory{
 		NewRegistryUnmarshalerFactory(),
 		NewConvertPrimitiveUnmarshalerFactory(),
-		NewConvertUserPrimitiveUnmarshalerFactory(),
 		NewPointerUnmarshalerFactory(),
 		NewIndexUnmarshalerFactory(),
 		NewMapUnmarshalerFactory(),
@@ -40,6 +39,7 @@ func NewDefaultManager(reg *Registry) *Manager {
 		NewOptionalUnmarshalerFactory(),
 		NewRegistryPolymorphismUnmarshalerFactory(),
 		NewStructUnmarshalerFactory(sic),
+		NewConvertUserPrimitiveUnmarshalerFactory(),
 	}
 
 	uf := NewTypeCacheUnmarshalerFactory(
