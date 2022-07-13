@@ -6,6 +6,8 @@ type Traversable[T any] interface {
 	ForEach(fn func(v T) bool) bool
 }
 
+//
+
 func ForEach[T any](it Iterable[T], fn func(v T) bool) bool {
 	for it := it.Iterate(); it.HasNext(); {
 		if !fn(it.Next()) {

@@ -1,18 +1,6 @@
 package iterators
 
-//
-
-type Iterable[T any] interface {
-	Iterate() Iterator[T]
-}
-
-//
-
-type IteratorExhaustedError struct{}
-
-func (e IteratorExhaustedError) Error() string {
-	return "iterator exhausted"
-}
+import bt "github.com/wrmsr/bane/pkg/util/types"
 
 //
 
@@ -22,6 +10,14 @@ type Iterator[T any] interface {
 	HasNext() bool
 	Next() T
 }
+
+type Iterable[T any] interface {
+	Iterate() Iterator[T]
+}
+
+//
+
+type IteratorExhaustedError = bt.IteratorExhaustedError
 
 //
 
