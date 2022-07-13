@@ -234,6 +234,10 @@ func (l *IntrusiveList[T]) Iterate() its.Iterator[*T] {
 	return &intrusiveListIterator[T]{o: l.o, p: l.head}
 }
 
+func (l *IntrusiveList[T]) IterateFrom(e *T) its.Iterator[*T] {
+	return &intrusiveListIterator[T]{o: l.o, p: e}
+}
+
 //
 
 type intrusiveListReverseIterator[T any] struct {
@@ -253,11 +257,14 @@ func (i *intrusiveListReverseIterator[T]) HasNext() bool {
 
 func (i *intrusiveListReverseIterator[T]) Next() *T {
 	r := i.p
-	i.p = i.o.getNode(r).next
+	i.p = i.o.getNode(r).prev
 	return r
 }
 
 func (l *IntrusiveList[T]) ReverseIterate() its.Iterator[*T] {
+	return &intrusiveListReverseIterator[T]{o: l.o, p: l.tail}
+}
 
-	return &intrusiveListReverseIterator[T]{o: l.o, p: l.head}
+func (l *IntrusiveList[T]) ReverseIterateFrom(e *T) its.Iterator[*T] {
+	return &intrusiveListReverseIterator[T]{o: l.o, p: e}
 }

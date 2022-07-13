@@ -18,6 +18,30 @@ func (r Range[T]) Len() T {
 	return (r.Stop - r.Start) / r.Step
 }
 
+func (r Range[T]) HasNext() bool {
+	if r.Step >= 0 {
+		return r.Start < r.Stop
+	} else {
+		return r.Start > r.Stop
+	}
+}
+
+func (r Range[T]) Next() (Range[T], bool) {
+	if !r.HasNext() {
+		return Range[T]{}, false
+	}
+	r.Start += r.Step
+	return r, true
+}
+
+func (r Range[T]) Slice() []T {
+	l := make([]T, 0, int((r.Stop-r.Start)/r.Step))
+	for ; r.Start < r.Stop; r.Start += r.Step {
+		l = append(l, r.Start)
+	}
+	return l
+}
+
 //
 
 type rangeIterator[T Rational] struct {
@@ -31,20 +55,17 @@ func (i *rangeIterator[T]) Iterate() Iterator[T] {
 }
 
 func (i rangeIterator[T]) HasNext() bool {
-	if i.r.Step >= 0 {
-		return i.r.Start < i.r.Stop
-	} else {
-		return i.r.Start > i.r.Stop
-	}
+	return i.r.HasNext()
 }
 
 func (i *rangeIterator[T]) Next() T {
-	if !i.HasNext() {
+	c := i.r.Start
+	n, ok := i.r.Next()
+	if !ok {
 		panic(IteratorExhaustedError{})
 	}
-	n := i.r.Start
-	i.r.Start += i.r.Step
-	return n
+	i.r = n
+	return c
 }
 
 //

@@ -7,6 +7,7 @@ import (
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type ListThing struct {
@@ -25,7 +26,7 @@ func TestIntrusiveList(t *testing.T) {
 	//bl := NewIntrusiveList[ListThing](listThingAOps)
 	//_ = bl
 
-	ts := slices.Map(func(i int) *ListThing { return &ListThing{i: i} }, slices.Range1(0, 10))
+	ts := slices.Map(func(i int) *ListThing { return &ListThing{i: i} }, bt.RangeTo(10).Slice())
 	fmt.Println(ts)
 
 	al.verify()
