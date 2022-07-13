@@ -338,3 +338,11 @@ func Set[T any](s []T, i int, t T) {
 func PtrTo[T any](s []T, i int) *T {
 	return &s[i]
 }
+
+func Range[T bt.Rational](start, stop, step T) []T {
+	var l []T
+	for ; start < stop; start += step {
+		l = append(l, start)
+	}
+	return l
+}
