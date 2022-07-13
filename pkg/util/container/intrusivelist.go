@@ -75,14 +75,14 @@ func (l *IntrusiveList[T]) tailRef() intrusiveListRef[T] {
 
 func (l *IntrusiveList[T]) next(r intrusiveListRef[T]) intrusiveListRef[T] {
 	if *r.next == nil {
-		return l.headRef()
+		return l.tailRef()
 	}
 	return l.ops.getRef(*r.next)
 }
 
 func (l *IntrusiveList[T]) prev(r intrusiveListRef[T]) intrusiveListRef[T] {
 	if *r.prev == nil {
-		return l.tailRef()
+		return l.headRef()
 	}
 	return l.ops.getRef(*r.prev)
 }
