@@ -13,8 +13,8 @@ import (
 	msh "github.com/wrmsr/bane/pkg/util/marshal"
 )
 
-func TestParsing(t *testing.T) {
-	is := antlr.NewInputStream(testExpr)
+func testParse(s string) Node {
+	is := antlr.NewInputStream(s)
 	lexer := parser.NewJmespathLexer(is)
 	stream := antlr.NewCommonTokenStream(lexer, 0)
 
@@ -24,7 +24,11 @@ func TestParsing(t *testing.T) {
 	tree := p.SingleExpression()
 
 	v := &parseVisitor{}
-	root := tree.Accept(v).(Node)
+	return tree.Accept(v).(Node)
+}
+
+func TestParsing(t *testing.T) {
+	root := testParse(testExpr)
 	fmt.Printf("%+v\n", &root)
 
 	mv := check.Must1(msh.Marshal(&root))
@@ -36,4 +40,8 @@ func TestParsing(t *testing.T) {
 	fmt.Println(root)
 	fmt.Println(v2)
 	tu.AssertDeepEqual(t, root, v2)
+}
+
+func TestParsing2(t *testing.T) {
+
 }
