@@ -7,3 +7,4 @@
 - single mut lock, copy on write, update all at once
 - register warming types
 - case folding impl on ctxs
+- type-switched polymorphic - if only impls are a userstring and userint

@@ -28,4 +28,8 @@ func TestParsing(t *testing.T) {
 
 	mv := check.Must1(msh.Marshal(root))
 	fmt.Println(check.Must1(ju.MarshalPretty(mv)))
+
+	var v2 Node
+	check.Must(msh.Unmarshal(mv, &v2))
+	fmt.Println(v2)
 }

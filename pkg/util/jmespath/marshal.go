@@ -43,3 +43,8 @@ var _ = msh.Register(rfl.TypeOf[CmpOp](),
 			CmpLe: "<=",
 		})},
 )
+
+var _ = msh.Register(rfl.TypeOf[Target](),
+	msh.SetImpl{Impl: rfl.TypeOf[NumberTarget](), Tag: "number"},
+	msh.SetImpl{Impl: rfl.TypeOf[NameTarget](), Tag: "name"},
+)
