@@ -30,4 +30,9 @@ func TestIntrusiveList(t *testing.T) {
 
 	al.PushFront(ts[2])
 	bl.PushFront(ts[3])
+
+	//al.PushFront(ts[4])
+	//bl.PushFront(ts[5])
+
+	al.verify()
 }
