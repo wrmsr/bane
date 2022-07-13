@@ -33,10 +33,15 @@ func (m ConvertMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, 
 
 func NewConvertUserPrimitiveMarshalerFactory() MarshalerFactory {
 	return NewFuncMarshalerFactory(func(ctx MarshalContext, a reflect.Type) (Marshaler, error) {
-		if !primitiveKinds.Contains(a.Kind()) {
+		p, ok := primitiveKinds[a.Kind()]
+		if !ok {
 			return nil, nil
 		}
-		panic("foo")
+		m, err := ctx.Make(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		return NewConvertMarshaler(a, m), nil
 	})
 }
 
@@ -78,4 +83,20 @@ var convertPrimitiveUnmarshalerFactory = func() UnmarshalerFactory {
 
 func NewConvertPrimitiveUnmarshalerFactory() UnmarshalerFactory {
 	return convertPrimitiveUnmarshalerFactory
+}
+
+//
+
+func NewConvertUserPrimitiveUnmarshalerFactory() UnmarshalerFactory {
+	return NewFuncUnmarshalerFactory(func(ctx UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
+		p, ok := primitiveKinds[a.Kind()]
+		if !ok {
+			return nil, nil
+		}
+		m, err := ctx.Make(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		return NewConvertUnmarshaler(a, m), nil
+	})
 }

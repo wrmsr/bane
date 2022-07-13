@@ -31,6 +31,7 @@ func NewDefaultManager(reg *Registry) *Manager {
 	var ufs = []UnmarshalerFactory{
 		NewRegistryUnmarshalerFactory(),
 		NewConvertPrimitiveUnmarshalerFactory(),
+		NewConvertUserPrimitiveUnmarshalerFactory(),
 		NewPointerUnmarshalerFactory(),
 		NewIndexUnmarshalerFactory(),
 		NewMapUnmarshalerFactory(),

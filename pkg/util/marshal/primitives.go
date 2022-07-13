@@ -3,7 +3,6 @@ package marshal
 import (
 	"reflect"
 
-	"github.com/wrmsr/bane/pkg/util/maps"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
@@ -26,12 +25,12 @@ var primitiveTypes = map[reflect.Type]reflect.Type{
 	rfl.TypeOf[string]():  rfl.TypeOf[string](),
 }
 
-var primitiveKinds = (func() maps.Set[reflect.Kind] {
-	s := maps.MakeSet[reflect.Kind]()
+var primitiveKinds = (func() map[reflect.Kind]reflect.Type {
+	m := make(map[reflect.Kind]reflect.Type)
 	for t := range primitiveTypes {
-		s.Add(t.Kind())
+		m[t.Kind()] = t
 	}
-	return s
+	return m
 })()
 
 //

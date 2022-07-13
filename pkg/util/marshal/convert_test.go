@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
@@ -25,7 +26,14 @@ func TestConvertUnmarshal(t *testing.T) {
 	fmt.Println(t2.ConvertibleTo(t0))
 	fmt.Println(t1.ConvertibleTo(t3))
 
-	//fmt.Println(check.Must1(ju.MarshalString(MyInt(420))))
+	v := []MyInt{1}
 
-	_ = check.Must1(Marshal([]MyInt{1}))
+	mv := check.Must1(Marshal(v))
+	fmt.Println(mv)
+
+	var v2 []MyInt
+	check.Must(Unmarshal(mv, &v2))
+	fmt.Println(v2)
+
+	tu.AssertDeepEqual(t, v, v2)
 }
