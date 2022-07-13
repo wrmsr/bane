@@ -24,9 +24,9 @@ func TestParsing(t *testing.T) {
 
 	v := &parseVisitor{}
 	root := tree.Accept(v).(Node)
-	fmt.Printf("%+v\n", root)
+	fmt.Printf("%+v\n", &root)
 
-	mv := check.Must1(msh.Marshal(root))
+	mv := check.Must1(msh.Marshal(&root))
 	fmt.Println(check.Must1(ju.MarshalPretty(mv)))
 
 	var v2 Node
