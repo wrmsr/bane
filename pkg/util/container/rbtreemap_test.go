@@ -12,7 +12,7 @@ import (
 )
 
 func TestRbTreeMap(t *testing.T) {
-	m := NewMutRbTreeMap[int, string](bt.CmpLessImpl(bt.PrimitiveCmpImpl[int]()), nil)
+	m := NewMutRbTreeMap[int, string](bt.CmpLessImpl(bt.OrderedCmp[int]), nil)
 	m.Put(10, "ten")
 	m.Put(20, "twenty")
 	m.Put(30, "thirty")
@@ -28,7 +28,7 @@ func TestRbTreeMap(t *testing.T) {
 }
 
 func TestRbTreeMapJson(t *testing.T) {
-	m := NewMutRbTreeMap[int, string](bt.CmpLessImpl(bt.PrimitiveCmpImpl[int]()), nil)
+	m := NewMutRbTreeMap[int, string](bt.CmpLessImpl(bt.OrderedCmp[int]), nil)
 	m.Put(10, "ten")
 	m.Put(20, "twenty")
 	m.Put(30, "thirty")
@@ -41,7 +41,7 @@ func TestRbTreeMapJson(t *testing.T) {
 	//InitUnmarshal(&m2, bt.CmpLessImpl(bt.IntCmpImpl[int]()))
 
 	m2 := RbTreeMap[int, string]{
-		less: bt.CmpLessImpl(bt.PrimitiveCmpImpl[int]()),
+		less: bt.CmpLessImpl(bt.OrderedCmp[int]),
 	}
 
 	tu.AssertNoErr(t, json.Unmarshal([]byte(j), &m2))

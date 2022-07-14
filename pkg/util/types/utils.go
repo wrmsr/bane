@@ -13,3 +13,10 @@ func Zero[T any]() T {
 func PtrTo[T any](v T) *T {
 	return &v
 }
+
+func BoolNum[T Rational](b bool) T {
+	if b {
+		return 1
+	}
+	return 0
+}

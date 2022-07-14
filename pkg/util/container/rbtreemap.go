@@ -165,7 +165,7 @@ type PrimitiveRbTreeMap[K constraints.Ordered, V any] struct {
 }
 
 func NewPrimitiveRbTreeMap[K constraints.Ordered, V any](it its.Iterable[bt.Kv[K, V]]) PrimitiveRbTreeMap[K, V] {
-	return PrimitiveRbTreeMap[K, V]{m: NewRbTreeMap[K, V](bt.CmpLessImpl(bt.PrimitiveCmpImpl[K]()), it)}
+	return PrimitiveRbTreeMap[K, V]{m: NewRbTreeMap[K, V](bt.CmpLessImpl(bt.OrderedCmp[K]), it)}
 }
 
 var _ Map[int, string] = PrimitiveRbTreeMap[int, string]{}
@@ -187,7 +187,7 @@ type PrimitiveMutRbTreeMap[K constraints.Ordered, V any] struct {
 }
 
 func NewPrimitiveMutRbTreeMap[K constraints.Ordered, V any](it its.Iterable[bt.Kv[K, V]]) *PrimitiveMutRbTreeMap[K, V] {
-	return &PrimitiveMutRbTreeMap[K, V]{m: NewRbTreeMap[K, V](bt.CmpLessImpl(bt.PrimitiveCmpImpl[K]()), it)}
+	return &PrimitiveMutRbTreeMap[K, V]{m: NewRbTreeMap[K, V](bt.CmpLessImpl(bt.OrderedCmp[K]), it)}
 }
 
 var _ MutMap[int, string] = &PrimitiveMutRbTreeMap[int, string]{}
