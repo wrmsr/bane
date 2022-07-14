@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"reflect"
 	"sync"
 	"sync/atomic"
 )
@@ -54,6 +55,60 @@ func (p *SyncPool[T]) Put(x T) {
 
 //
 
+type LinkedPoolLink struct {
+	next, prev AnyLinkedPool
+}
+
+func (l LinkedPoolLink) Next() AnyLinkedPool { return l.next }
+func (l LinkedPoolLink) Prev() AnyLinkedPool { return l.prev }
+
+func (l *LinkedPoolLink) Link(p AnyLinkedPool) {
+	linkedPoolMtx.Lock()
+	defer linkedPoolMtx.Unlock()
+
+	l.prev = linkedPoolRoot
+	l.next = linkedPoolRoot.Link().next
+	l.prev.Link().next = p
+	l.next.Link().prev = p
+}
+
+func (l *LinkedPoolLink) Unlink() {
+	panic("implement me")
+}
+
+var (
+	linkedPoolMtx  sync.Mutex
+	linkedPoolRoot = (func() AnyLinkedPool {
+		r := &LinkedPool[any]{}
+		r.next = r
+		r.prev = r
+		return r
+	})()
+)
+
+type AnyLinkedPool interface {
+	Unwrap() any
+	Link() *LinkedPoolLink
+}
+
+type LinkedPool[T any] struct {
+	p Pool[T]
+
+	LinkedPoolLink
+}
+
+func NewLinkedPool[T any](p Pool[T]) *LinkedPool[T] {
+	r := &LinkedPool[T]{p: p}
+	return r
+}
+
+var _ AnyLinkedPool = &LinkedPool[int]{}
+
+func (p *LinkedPool[T]) Unwrap() any           { return p.p }
+func (p *LinkedPool[T]) Link() *LinkedPoolLink { return &p.LinkedPoolLink }
+
+//
+
 type StubPool[T any] struct {
 	New func() T
 }
@@ -67,6 +122,12 @@ func (p StubPool[T]) Get() T {
 func (p StubPool[T]) Put(x T) {}
 
 //
+
+type AnyDrainPool interface {
+	Type() reflect.Type
+	Stats() DrainPoolStats
+	Drain() int
+}
 
 type DrainPoolStats struct {
 	New, Put, Get, Drain int64
@@ -85,6 +146,13 @@ func NewDrainPool[T any](fn func() T) *DrainPool[T] {
 		return fn()
 	}
 	return p
+}
+
+var _ AnyDrainPool = &DrainPool[int]{}
+
+func (p *DrainPool[T]) Type() reflect.Type {
+	var z T
+	return reflect.TypeOf(z)
 }
 
 var _ Pool[int] = &DrainPool[int]{}

@@ -18,26 +18,6 @@ func (n IntrusiveListNode[T]) Prev() *T { return n.prev }
 
 //
 
-type intrusiveListRef[T any] struct {
-	e *T
-
-	next, prev **T
-}
-
-func (r intrusiveListRef[T]) setNext(e *T) {
-	if r.next != nil {
-		*r.next = e
-	}
-}
-
-func (r intrusiveListRef[T]) setPrev(e *T) {
-	if r.prev != nil {
-		*r.prev = e
-	}
-}
-
-//
-
 type IntrusiveListOps[T any] struct {
 	getNode func(*T) *IntrusiveListNode[T]
 }
@@ -98,6 +78,12 @@ func (l IntrusiveList[T]) Back() *T {
 	return l.tail
 }
 
+type intrusiveListRef[T any] struct {
+	e *T
+
+	next, prev **T
+}
+
 func (l *IntrusiveList[T]) ref(e *T) intrusiveListRef[T] {
 	n := l.o.getNode(e)
 	return intrusiveListRef[T]{e: e, next: &n.next, prev: &n.prev}
@@ -128,14 +114,14 @@ func (l *IntrusiveList[T]) prev(r intrusiveListRef[T]) intrusiveListRef[T] {
 func (l *IntrusiveList[T]) insert(e, at intrusiveListRef[T]) {
 	*e.prev = at.e
 	*e.next = *at.next
-	l.prev(e).setNext(e.e)
-	l.next(e).setPrev(e.e)
+	*l.prev(e).next = e.e
+	*l.next(e).prev = e.e
 	l.l++
 }
 
 func (l *IntrusiveList[T]) remove(e intrusiveListRef[T]) {
-	l.prev(e).setNext(*e.next)
-	l.next(e).setPrev(*e.prev)
+	*l.prev(e).next = *e.next
+	*l.next(e).prev = *e.prev
 	*e.next = nil
 	*e.prev = nil
 	l.l--
@@ -145,13 +131,13 @@ func (l *IntrusiveList[T]) move(e, at intrusiveListRef[T]) {
 	if e.e == at.e {
 		return
 	}
-	l.prev(e).setNext(*e.next)
-	l.next(e).setPrev(*e.prev)
+	*l.prev(e).next = *e.next
+	*l.next(e).prev = *e.prev
 
 	*e.prev = at.e
 	*e.next = *at.next
-	l.prev(e).setNext(e.e)
-	l.next(e).setPrev(e.e)
+	*l.prev(e).next = e.e
+	*l.next(e).prev = e.e
 }
 
 func (l *IntrusiveList[T]) Remove(e *T) *T {
