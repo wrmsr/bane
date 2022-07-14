@@ -1,177 +1,155 @@
 package jmespath
 
-import (
-	"fmt"
+/*
+class Evaluator(ta.Generic[T], dispatch.Class):
 
-	"github.com/wrmsr/bane/pkg/util/check"
-	ju "github.com/wrmsr/bane/pkg/util/json"
-	"github.com/wrmsr/bane/pkg/util/maps"
-	bt "github.com/wrmsr/bane/pkg/util/types"
-)
+    def __init__(self, runtime: Runtime[T]) -> None:
+        super().__init__()
 
-type ValueType int8
+        self._runtime = runtime
 
-const (
-	InvalidType ValueType = iota
-	NumberType
-	StringType
-	BooleanType
-	ArrayType
-	ObjectType
-	NullType
-)
+    __call__ = dispatch.property()
 
-//
+    def __call__(self, node: n.Node, obj: T) -> T:  # type: ignore  # noqa
+        raise TypeError(node)
 
-type Runtime[T any] interface {
-	IsTruthy(obj T) bool
-	GetType(obj T) ValueType
-	IsNull(obj T) bool
-	CreateNull() T
-	Compare(o CmpOp, left, right T) T
-	CreateArray(items []T) T
-	CreateObject(fields map[string]T) T
-	ToIterable(obj T) []T
-	InvokeFunction(name string, args []any) T
-	CreateBool(value bool) T
-	GetProperty(obj T, field string) T
-	ParseStr(s string) T
-	CreateStr(val string) T
-	GetNumVar(num int) T
-	GetNameVar(name string) T
-}
+    def __call__(self, node: n.And, obj: T) -> T:  # type: ignore  # noqa
+        left = self(node.left, obj)
+        if self._runtime.is_truthy(left):
+            return self(node.right, obj)
+        else:
+            return left
 
-//
+    def __call__(self, node: n.Compare, obj: T) -> T:  # type: ignore  # noqa
+        left = self(node.left, obj)
+        right = self(node.right, obj)
+        return self._runtime.compare(node.op, left, right)
 
-type SimpleRuntime struct{}
+    def __call__(self, node: n.CreateArray, obj: T) -> T:  # type: ignore  # noqa
+        if self._runtime.is_null(obj):
+            return obj
+        else:
+            return self._runtime.create_array([self(child, obj) for child in node.items])
 
-var _ Runtime[any] = SimpleRuntime{}
+    def __call__(self, node: n.CreateObject, obj: T) -> T:  # type: ignore  # noqa
+        if self._runtime.is_null(obj):
+            return obj
+        else:
+            return self._runtime.create_object({field: self(child, obj) for field, child in node.fields.items()})
 
-func (r SimpleRuntime) IsTruthy(obj any) bool {
-	switch r.GetType(obj) {
-	case NullType:
-		return false
-	case NumberType:
-		return true
-	case StringType:
-		return obj.(string) != ""
-	case BooleanType:
-		return obj.(bool)
-	case ArrayType:
-		return len(obj.([]any)) > 0
-	case ObjectType:
-		return len(obj.(map[string]any)) > 0
-	}
-	panic(fmt.Errorf("type error: %v", obj))
-}
+    def __call__(self, node: n.Current, obj: T) -> T:  # type: ignore  # noqa
+        return obj
 
-func (r SimpleRuntime) GetType(obj any) ValueType {
-	if obj == nil {
-		return NullType
-	}
-	switch obj.(type) {
-	case int64:
-		return NumberType
-	case float64:
-		return NumberType
-	case string:
-		return StringType
-	case bool:
-		return BooleanType
-	case []any:
-		return ArrayType
-	case map[string]any:
-		return ObjectType
-	}
-	panic(fmt.Errorf("type error: %v", obj))
-}
+    def __call__(self, node: n.ExpressionRef, obj: T) -> T:  # type: ignore  # noqa
+        return self(node.expr, obj)
 
-func (r SimpleRuntime) IsNull(obj any) bool {
-	return r.GetType(obj) == NullType
-}
+    def __call__(self, node: n.FlattenArray, obj: T) -> T:  # type: ignore  # noqa
+        if self._runtime.get_type(obj) == ValueType.ARRAY:
+            lst = []
+            for item in self._runtime.to_iterable(obj):
+                if self._runtime.get_type(item) == ValueType.ARRAY:
+                    lst.extend(self._runtime.to_iterable(item))
+                else:
+                    lst.append(item)
+            return lst
+        else:
+            return self._runtime.create_null()
 
-func (r SimpleRuntime) CreateNull() any {
-	return nil
-}
+    def __call__(self, node: n.FlattenObject, obj: T) -> T:  # type: ignore  # noqa
+        if self._runtime.get_type(obj) == ValueType.OBJECT:
+            return self._runtime.create_array(self._runtime.to_iterable(obj))
+        else:
+            return self._runtime.create_null()
 
-func (r SimpleRuntime) asFloat(o any) float64 {
-	switch o := o.(type) {
-	case bool:
-		return 1
-	case int64:
-		return float64(o)
-	case float64:
-		return o
-	}
-	panic(fmt.Errorf("type error: %v", o))
-}
+    def __call__(self, node: n.FunctionCall, obj: T) -> T:  # type: ignore  # noqa
+        args = []
+        for arg in node.args:
+            if isinstance(arg, n.ExpressionRef):
+                args.append(NodeArg(arg))
+            else:
+                args.append(ValueArg(self(arg, obj)))
+        return self._runtime.invoke_function(node.name, args)
 
-func (r SimpleRuntime) Compare(o CmpOp, left, right any) any {
-	lty := r.GetType(left)
-	rty := r.GetType(right)
-	if lty != rty {
-		return -1
-	}
-	switch lty {
-	case NullType:
-		return 0
-	case BooleanType:
-		return bt.BoolCmp(left.(bool), right.(bool))
-	case NumberType:
-		if bt.Is[int64](left) && bt.Is[int64](right) {
-			return bt.OrderedCmp(left.(int64), right.(int64))
-		}
-		return bt.OrderedCmp(r.asFloat(left), r.asFloat(right))
-	}
-	panic(fmt.Errorf("type error: %v, %v", left, right))
-}
+    def __call__(self, node: n.Index, obj: T) -> T:  # noqa
+        if self._runtime.get_type(obj) == ValueType.ARRAY:
+            items = self._runtime.to_iterable(obj)
+            i = node.value
+            if i < 0:
+                i = len(items) + 1
+            if 0 <= i < len(items):
+                return items[i]
+        return self._runtime.create_null()
 
-func (r SimpleRuntime) CreateArray(items []any) any {
-	return items
-}
+    def __call__(self, node: n.JsonLiteral, obj: T) -> T:  # type: ignore  # noqa
+        return self._runtime.parse_str(node.text)
 
-func (r SimpleRuntime) CreateObject(fields map[string]any) any {
-	return fields
-}
+    def __call__(self, node: n.Negate, obj: T) -> T:  # type: ignore  # noqa
+        return self._runtime.create_bool(self._runtime.is_truthy(self(node.item, obj)))
 
-func (r SimpleRuntime) ToIterable(obj any) []any {
-	switch obj := obj.(type) {
-	case []any:
-		return obj
-	case map[string]any:
-		return maps.Values(obj)
-	}
-	return nil
-}
+    def __call__(self, node: n.Or, obj: T) -> T:  # type: ignore  # noqa
+        left = self(node.left, obj)
+        if self._runtime.is_truthy(left):
+            return left
+        else:
+            return self(node.right, obj)
 
-func (r SimpleRuntime) InvokeFunction(name string, args []any) any {
-	panic("implement me")
-}
+    def __call__(self, node: n.Project, obj: T) -> T:  # type: ignore  # noqa
+        if self._runtime.get_type(obj) == ValueType.ARRAY:
+            items = [
+                oitem
+                for iitem in self._runtime.to_iterable(obj)
+                for oitem in [self(node.child, iitem)]
+                if not self._runtime.is_null(oitem)
+            ]
+            return self._runtime.create_array(items)
+        else:
+            return self._runtime.create_null()
 
-func (r SimpleRuntime) CreateBool(value bool) any {
-	return value
-}
+    def __call__(self, node: n.Property, obj: T) -> T:  # type: ignore  # noqa
+        return self._runtime.get_property(obj, node.name)
 
-func (r SimpleRuntime) GetProperty(obj any, field string) any {
-	switch obj := obj.(type) {
-	case map[string]any:
-		return obj
-	}
-	return nil
-}
+    def __call__(self, node: n.Selection, obj: T) -> T:  # type: ignore  # noqa
+        if self._runtime.get_type(obj) == ValueType.ARRAY:
+            items = [
+                item
+                for item in self._runtime.to_iterable(obj)
+                if self._runtime.is_truthy(node.child, item)
+            ]
+            return self._runtime.create_array(items)
+        else:
+            return self._runtime.create_null()
 
-func (r SimpleRuntime) ParseStr(s string) any {
-	return check.Must1(ju.UnmarshalAs[any]([]byte(s)))
-}
+    def __call__(self, node: n.Sequence, obj: T) -> T:  # type: ignore  # noqa
+        for child in node.items:
+            obj = self(child, obj)
+        return obj
 
-func (r SimpleRuntime) CreateStr(val string) any {
-	panic("implement me")
-}
+    def __call__(self, node: n.Slice, obj: T) -> T:  # type: ignore  # noqa
+        items = self._runtime.to_iterable(obj)
+        step = node.step or 1
+        rounding = (step + 1) if (step < 0) else (step - 1)
+        limit = -1 if (step < 0) else 0
+        start = node.start or limit
+        stop = node.stop or (-2**32 if step < 0 else 2**32)
+        begin = max(len(items) + start, 0) if (start < 0) else min(start, len(items) + limit)
+        end = max(len(items) + stop, limit) if (stop < 0) else min(stop, len(items))
+        steps = max(0, (end - begin + rounding) // step)
+        lst = []
+        i = 0
+        offset = begin
+        while i < steps:
+            lst.append(items[offset])
+            offset += step
+        return self._runtime.create_array(lst)
 
-func (r SimpleRuntime) GetNumVar(num int) any {
-	panic("implement me")
-}
+    def __call__(self, node: n.String, obj: T) -> T:  # type: ignore  # noqa
+        return self._runtime.create_str(node.value)
 
-func (r SimpleRuntime) GetNameVar(name string) any {
-	panic("implement me")
-}
+    def __call__(self, node: n.Parameter, obj: T) -> T:  # type: ignore  # noqa
+        if isinstance(node.target, n.Parameter.NameTarget):
+            return self._runtime.get_name_var(node.target.value)
+        elif isinstance(node.target, n.Parameter.NumberTarget):
+            return self._runtime.get_num_var(node.target.value)
+        else:
+            raise TypeError(node.target)
+*/
