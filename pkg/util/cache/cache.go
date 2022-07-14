@@ -5,7 +5,7 @@ import (
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
-	syncu "github.com/wrmsr/bane/pkg/util/sync"
+	"github.com/wrmsr/bane/pkg/util/sync/pools"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -61,7 +61,7 @@ type link struct {
 	hits int
 }
 
-var linkPool = syncu.NewDrainPool[*link](func() *link {
+var linkPool = pools.NewDrainPool[*link](func() *link {
 	return &link{}
 })
 

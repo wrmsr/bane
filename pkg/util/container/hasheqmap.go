@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
-	syncu "github.com/wrmsr/bane/pkg/util/sync"
+	"github.com/wrmsr/bane/pkg/util/sync/pools"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -22,7 +22,7 @@ func (n *hashEqMapNode) String() string {
 	return fmt.Sprintf("%16p{%16p %16p %16x} %v", n, n.next, n.prev, n.h, n.k)
 }
 
-var hashEqMapNodePool = syncu.NewDrainPool[*hashEqMapNode](func() *hashEqMapNode {
+var hashEqMapNodePool = pools.NewDrainPool[*hashEqMapNode](func() *hashEqMapNode {
 	return &hashEqMapNode{}
 })
 

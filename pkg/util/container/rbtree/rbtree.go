@@ -29,7 +29,7 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 package rbtree
 
 import (
-	syncu "github.com/wrmsr/bane/pkg/util/sync"
+	"github.com/wrmsr/bane/pkg/util/sync/pools"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -87,7 +87,7 @@ func (n *RbNode) max() *RbNode {
 	return n
 }
 
-var rbNodePool = syncu.NewDrainPool[*RbNode](func() *RbNode {
+var rbNodePool = pools.NewDrainPool[*RbNode](func() *RbNode {
 	return &RbNode{}
 })
 
