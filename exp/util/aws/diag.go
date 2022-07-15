@@ -91,7 +91,7 @@ func fillLocalMetadataStruct(ctx context.Context, s any, url string) error {
 	return nil
 }
 
-const LocalMetadataUrl = " http://169.254.169.254/latest/meta-data/"
+const LocalMetadataUrl = "http://169.254.169.254/latest/meta-data/"
 
 func GetLocalMetadata(ctx context.Context) (LocalMetadata, error) {
 	var m LocalMetadata
