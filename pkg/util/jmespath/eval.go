@@ -1,6 +1,11 @@
 package jmespath
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/wrmsr/bane/pkg/util/check"
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
 type Evaluator[T any] struct {
 	rt Runtime[T]
@@ -133,6 +138,62 @@ func (e Evaluator[T]) EvalProperty(node *Property, obj T) T {
 	return e.rt.GetProperty(obj, node.Name)
 }
 
+func (e Evaluator[T]) EvalSelection(node *Selection, obj T) T {
+	if e.rt.GetType(obj) != ArrayType {
+		return e.rt.CreateNull()
+	}
+	var items []T
+	for _, iitem := range e.rt.ToIterable(obj) {
+		oitem := e.Eval(node.Child, iitem)
+		if e.rt.IsTruthy(oitem) {
+			items = append(items, oitem)
+		}
+	}
+	return e.rt.CreateArray(items)
+}
+
+func (e Evaluator[T]) EvalSequence(node *Sequence, obj T) T {
+	for _, child := range node.Items {
+		obj = e.Eval(child, obj)
+	}
+	return obj
+}
+
+func (e Evaluator[T]) EvalSlice(node *Slice, obj T) T {
+	items := e.rt.ToIterable(obj)
+	step := node.Step.OrDefault(1)
+	check.Condition(step != 0)
+	rounding := bt.Choose(step < 0, step+1, step-1)
+	limit := bt.Choose(step < 0, -1, 0)
+	start := node.Start.OrDefault(limit)
+	stop := node.Stop.OrDefault(bt.Choose(step < 0, -0x100000000, 0x100000000))
+	begin := bt.Choose(start < 0, bt.Max(len(items)+start, 0), bt.Min(start, len(items)+limit))
+	end := bt.Choose(stop < 0, bt.Max(len(items)+stop, limit), bt.Min(stop, len(items)))
+	steps := bt.Max(0, (end-begin+rounding)/step)
+	var lst []T
+	i := 0
+	offset := begin
+	for i < steps {
+		lst = append(lst, items[offset])
+		offset += step
+	}
+	return e.rt.CreateArray(lst)
+}
+
+func (e Evaluator[T]) EvalString(node *String, obj T) T {
+	return e.rt.CreateStr(node.Value)
+}
+
+func (e Evaluator[T]) EvalParameter(node *Parameter, obj T) T {
+	if t, ok := node.Target.(NameTarget); ok {
+		return e.rt.GetNameVar(string(t))
+	}
+	if t, ok := node.Target.(NumberTarget); ok {
+		return e.rt.GetNumVar(int(t))
+	}
+	panic(node.Target)
+}
+
 func (e Evaluator[T]) Eval(node Node, obj T) T {
 	switch node := node.(type) {
 	case And:
@@ -165,53 +226,16 @@ func (e Evaluator[T]) Eval(node Node, obj T) T {
 		return e.EvalProject(&node, obj)
 	case Property:
 		return e.EvalProperty(&node, obj)
+	case Selection:
+		return e.EvalSelection(&node, obj)
+	case Sequence:
+		return e.EvalSequence(&node, obj)
+	case Slice:
+		return e.EvalSlice(&node, obj)
+	case String:
+		return e.EvalString(&node, obj)
+	case Parameter:
+		return e.EvalParameter(&node, obj)
 	}
 	panic(fmt.Errorf("unhandled node type: %#v", node))
 }
-
-/*
-   def __call__(self, node: n.Selection, obj: T) -> T:  # type: ignore  # noqa
-       if e.rt.get_type(obj) == ValueType.ARRAY:
-           items = [
-               item
-               for item in e.rt.to_iterable(obj)
-               if e.rt.is_truthy(node.child, item)
-           ]
-           return e.rt.create_array(items)
-       else:
-           return e.rt.create_null()
-
-   def __call__(self, node: n.Sequence, obj: T) -> T:  # type: ignore  # noqa
-       for child in node.items:
-           obj = self(child, obj)
-       return obj
-
-   def __call__(self, node: n.Slice, obj: T) -> T:  # type: ignore  # noqa
-       items = e.rt.to_iterable(obj)
-       step = node.step or 1
-       rounding = (step + 1) if (step < 0) else (step - 1)
-       limit = -1 if (step < 0) else 0
-       start = node.start or limit
-       stop = node.stop or (-2**32 if step < 0 else 2**32)
-       begin = max(len(items) + start, 0) if (start < 0) else min(start, len(items) + limit)
-       end = max(len(items) + stop, limit) if (stop < 0) else min(stop, len(items))
-       steps = max(0, (end - begin + rounding) // step)
-       lst = []
-       i = 0
-       offset = begin
-       while i < steps:
-           lst.append(items[offset])
-           offset += step
-       return e.rt.create_array(lst)
-
-   def __call__(self, node: n.String, obj: T) -> T:  # type: ignore  # noqa
-       return e.rt.create_str(node.value)
-
-   def __call__(self, node: n.Parameter, obj: T) -> T:  # type: ignore  # noqa
-       if isinstance(node.target, n.Parameter.NameTarget):
-           return e.rt.get_name_var(node.target.value)
-       elif isinstance(node.target, n.Parameter.NumberTarget):
-           return e.rt.get_num_var(node.target.value)
-       else:
-           raise TypeError(node.target)
-*/

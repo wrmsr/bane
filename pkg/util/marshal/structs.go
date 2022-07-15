@@ -4,10 +4,10 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/wrmsr/bane/pkg/util/coalesce"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	stu "github.com/wrmsr/bane/pkg/util/structs"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 ///
@@ -24,9 +24,9 @@ type SetField struct {
 
 func (ri SetField) Coalesce(sfs ...SetField) SetField {
 	for _, sf := range sfs {
-		ri.Name = coalesce.Cmp(sf.Name, ri.Name)
-		ri.Tag = coalesce.Cmp(sf.Tag, ri.Tag)
-		ri.Omit = coalesce.Cmp(sf.Omit, ri.Omit)
+		ri.Name = bt.Coalesce(sf.Name, ri.Name)
+		ri.Tag = bt.Coalesce(sf.Tag, ri.Tag)
+		ri.Omit = bt.Coalesce(sf.Omit, ri.Omit)
 		if sf.Marshaler != nil {
 			ri.Marshaler = sf.Marshaler
 		}

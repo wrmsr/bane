@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	mathu "github.com/wrmsr/bane/pkg/util/math"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -122,7 +122,7 @@ func (g *longGen) next() int64 {
 
 func (g *longGen) rand(lowValue, highValue int64) int64 {
 	g.next()
-	valueInRange := mathu.AbsInt64(g.seed) % (highValue - lowValue + 1)
+	valueInRange := bt.Abs(g.seed) % (highValue - lowValue + 1)
 	return lowValue + valueInRange
 }
 
