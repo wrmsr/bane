@@ -22,6 +22,10 @@ func Err(err error) Arg {
 	return Arg{Name: "error", Value: err}
 }
 
+func Recovery(r any) Arg {
+	return Arg{Name: "recovery", Value: r}
+}
+
 //
 
 type BaseLogger interface {
