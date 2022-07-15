@@ -3,7 +3,6 @@ package container
 import (
 	"reflect"
 
-	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -46,7 +45,7 @@ type List[T any] interface {
 	Get(i int) T
 
 	bt.Iterable[T]
-	its.Traversable[T]
+	bt.Traversable[T]
 }
 
 type MutList[T any] interface {
@@ -64,7 +63,7 @@ type Set[T any] interface {
 	Contains(v T) bool
 
 	bt.Iterable[T]
-	its.Traversable[T]
+	bt.Traversable[T]
 }
 
 type MutSet[T any] interface {
@@ -86,7 +85,7 @@ type Map[K, V any] interface {
 	TryGet(k K) (V, bool)
 
 	bt.Iterable[bt.Kv[K, V]]
-	its.Traversable[bt.Kv[K, V]]
+	bt.Traversable[bt.Kv[K, V]]
 }
 
 type MutMap[K, V any] interface {
@@ -146,7 +145,7 @@ type TypeMap[T any] interface {
 	TryGet(ty reflect.Type) (T, bool)
 
 	bt.Iterable[T]
-	its.Traversable[T]
+	bt.Traversable[T]
 }
 
 type MutTypeMap[T any] interface {

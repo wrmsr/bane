@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	its "github.com/wrmsr/bane/pkg/util/iterators"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -54,7 +54,7 @@ func As(k, p any) Binding {
 type Binder = func() Bindings
 
 type Bindings interface {
-	its.Traversable[Binding]
+	bt.Traversable[Binding]
 	isBindings()
 }
 

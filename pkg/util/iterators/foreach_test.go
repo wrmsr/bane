@@ -4,15 +4,16 @@ import (
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type CanForEachInt interface {
-	Traversable[int]
+	bt.Traversable[int]
 }
 
 type FooForEach struct{}
 
-var _ Traversable[int] = FooForEach{}
+var _ bt.Traversable[int] = FooForEach{}
 var _ CanForEachInt = FooForEach{}
 
 func (f FooForEach) ForEach(fn func(v int) bool) bool {

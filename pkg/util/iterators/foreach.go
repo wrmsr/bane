@@ -6,12 +6,6 @@ import (
 
 //
 
-type Traversable[T any] interface {
-	ForEach(fn func(v T) bool) bool
-}
-
-//
-
 func ForEach[T any](it bt.Iterable[T], fn func(v T) bool) bool {
 	for it := it.Iterate(); it.HasNext(); {
 		if !fn(it.Next()) {
@@ -21,14 +15,14 @@ func ForEach[T any](it bt.Iterable[T], fn func(v T) bool) bool {
 	return true
 }
 
-func ForAll[T any](tv Traversable[T], fn func(v T)) {
+func ForAll[T any](tv bt.Traversable[T], fn func(v T)) {
 	tv.ForEach(func(v T) bool {
 		fn(v)
 		return true
 	})
 }
 
-func SeqForEach[T any](t Traversable[T]) []T {
+func SeqForEach[T any](t bt.Traversable[T]) []T {
 	var s []T
 	t.ForEach(func(v T) bool {
 		s = append(s, v)
@@ -43,11 +37,11 @@ type traversableIterable[T any] struct {
 	bt.Iterable[T]
 }
 
-func AsTraversable[T any](it bt.Iterable[T]) Traversable[T] {
+func AsTraversable[T any](it bt.Iterable[T]) bt.Traversable[T] {
 	return traversableIterable[T]{it}
 }
 
-var _ Traversable[any] = traversableIterable[any]{}
+var _ bt.Traversable[any] = traversableIterable[any]{}
 
 func (t traversableIterable[T]) ForEach(fn func(v T) bool) bool {
 	return ForEach[T](t, fn)
@@ -59,7 +53,7 @@ type fnTraversable[T any] struct {
 	fn func(fn func(v T) bool) bool
 }
 
-var _ Traversable[any] = fnTraversable[any]{}
+var _ bt.Traversable[any] = fnTraversable[any]{}
 
 func (f fnTraversable[T]) ForEach(fn func(v T) bool) bool {
 	return f.fn(fn)
