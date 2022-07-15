@@ -7,6 +7,7 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/jmespath/parser"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
 )
 
 //
@@ -165,17 +166,7 @@ func (v *parseVisitor) VisitAndExpression(ctx *parser.AndExpressionContext) any 
 }
 
 func (v *parseVisitor) VisitMultiSelectHashExpression(ctx *parser.MultiSelectHashExpressionContext) any {
-	/*
-		dct := make(map[string]any)
-		   for i in range(len(ctx.keyvalExpr())):
-			   kvCtx = ctx.keyvalExpr(i)
-		       # FIXME: unquote?
-		       key = kvCtx.identifier().getText()
-		       value = self._nonChainingVisit(kvCtx.expression())
-		       dct[key] = value
-		   return self._createSequenceIfChained(n.CreateObject(dct))
-	*/
-	panic("fixme")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitWildcardExpression(ctx *parser.WildcardExpressionContext) any {
@@ -187,12 +178,11 @@ func (v *parseVisitor) VisitFunctionCallExpression(ctx *parser.FunctionCallExpre
 }
 
 func (v *parseVisitor) VisitMultiSelectListExpression(ctx *parser.MultiSelectListExpressionContext) any {
-	//var lst []Node
-	//for _, c := range ctx.ExpressionContext.GetChildren() {
-	//	lst = append(lst, v.nonChainingVisit(c.(antlr.ParseTree)).(Node))
-	//}
-	//return v.createSequenceIfChained(CreateArray{items: lst})
-	return v.VisitChildren(ctx)
+	var lst []Node
+	for _, c := range ctx.ExpressionContext.GetChildren() {
+		lst = append(lst, v.nonChainingVisit(c.(antlr.ParseTree)).(Node))
+	}
+	return v.createSequenceIfChained(CreateArray{Items: lst})
 }
 
 func (v *parseVisitor) VisitBracketedExpression(ctx *parser.BracketedExpressionContext) any {
@@ -230,7 +220,22 @@ func (v *parseVisitor) VisitBracketStar(ctx *parser.BracketStarContext) any {
 }
 
 func (v *parseVisitor) VisitBracketSlice(ctx *parser.BracketSliceContext) any {
-	return v.VisitChildren(ctx)
+	var start, stop, step opt.Optional[int]
+	sliceCtx := ctx.SliceNode().(*parser.SliceNodeContext)
+	if sliceCtx.GetSliceStart() != nil {
+		start = opt.Just(check.Must1(strconv.Atoi(sliceCtx.GetSliceStart().GetText())))
+	}
+	if sliceCtx.GetSliceStop() != nil {
+		stop = opt.Just(check.Must1(strconv.Atoi(sliceCtx.GetSliceStop().GetText())))
+	}
+	if sliceCtx.GetSliceStep() != nil {
+		step = opt.Just(check.Must1(strconv.Atoi(sliceCtx.GetSliceStep().GetText())))
+		if step.Value() == 0 {
+			panic("zero step")
+		}
+	}
+	v.chainedNode = v.createProjectionIfChained(Slice{Start: start, Stop: stop, Step: step})
+	return nil
 }
 
 func (v *parseVisitor) VisitBracketFlatten(ctx *parser.BracketFlattenContext) any {
@@ -251,7 +256,16 @@ func (v *parseVisitor) VisitMultiSelectList(ctx *parser.MultiSelectListContext) 
 }
 
 func (v *parseVisitor) VisitMultiSelectHash(ctx *parser.MultiSelectHashContext) any {
-	return v.VisitChildren(ctx)
+	dct := make(map[string]Node)
+	kvs := ctx.AllKeyvalExpr()
+	for _, kv := range kvs {
+		// FIXME: unquote?
+		kvCtx := kv.(*parser.KeyvalExprContext)
+		key := kvCtx.Identifier().GetText()
+		value := v.nonChainingVisit(kvCtx.Expression())
+		dct[key] = value
+	}
+	return v.createSequenceIfChained(CreateObject{Fields: dct})
 }
 
 func (v *parseVisitor) VisitKeyvalExpr(ctx *parser.KeyvalExprContext) any {
@@ -263,11 +277,11 @@ func (v *parseVisitor) VisitSliceNode(ctx *parser.SliceNodeContext) any {
 }
 
 func (v *parseVisitor) VisitNameParameter(ctx *parser.NameParameterContext) any {
-	return v.VisitChildren(ctx)
+	return Parameter{Target: NameTarget(ctx.NAME().GetText())}
 }
 
 func (v *parseVisitor) VisitNumberParameter(ctx *parser.NumberParameterContext) any {
-	return v.VisitChildren(ctx)
+	return Parameter{Target: NumberTarget(check.Must1(strconv.Atoi(ctx.INT().GetText())))}
 }
 
 func (v *parseVisitor) VisitFunctionExpression(ctx *parser.FunctionExpressionContext) any {
@@ -289,7 +303,8 @@ func (v *parseVisitor) VisitCurrentNode(ctx *parser.CurrentNodeContext) any {
 }
 
 func (v *parseVisitor) VisitExpressionType(ctx *parser.ExpressionTypeContext) any {
-	return v.VisitChildren(ctx)
+	expression := v.createSequenceIfChained(v.Visit(ctx.Expression()).(Node))
+	return ExprRef{Expr: expression}
 }
 
 func (v *parseVisitor) VisitLiteral(ctx *parser.LiteralContext) any {
