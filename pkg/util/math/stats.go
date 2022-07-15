@@ -6,6 +6,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/check"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -65,19 +66,19 @@ func (s Stats) Len() int { return len(s.data) }
 
 func (s *Stats) Min() float64 {
 	return opt.SetIfAbsent(&s.min, func() float64 {
-		return slices.Min(s.data)
+		return bt.Min(s.data...)
 	})
 }
 
 func (s *Stats) Max() float64 {
 	return opt.SetIfAbsent(&s.min, func() float64 {
-		return slices.Max(s.data)
+		return bt.Max(s.data...)
 	})
 }
 
 func (s *Stats) Sum() float64 {
 	return opt.SetIfAbsent(&s.sum, func() float64 {
-		return slices.Sum(s.data)
+		return bt.Sum(s.data...)
 	})
 }
 

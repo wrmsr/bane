@@ -1,9 +1,11 @@
 package slices
 
 import (
+	"fmt"
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func TestReverse(t *testing.T) {
@@ -28,4 +30,10 @@ func TestMakePrepend(t *testing.T) {
 	r := MakePrepend(s, 4, 5, 6)
 	tu.AssertDeepEqual(t, r, []int{4, 5, 6, 0, 1, 2, 3})
 	tu.AssertDeepEqual(t, s, []int{0, 1, 2, 3})
+}
+
+func TestReshape(t *testing.T) {
+	s := bt.RangeTo(10).Slice()
+	fmt.Println(Reshape(s, 1, 6, 2))
+	fmt.Println(Reshape(s, 6, 1, -2))
 }

@@ -13,7 +13,7 @@ func Min[T constraints.Ordered](vs ...T) T {
 	var r T
 	for i, v := range vs {
 		if i == 0 || v < r {
-			v = r
+			r = v
 		}
 	}
 	return r
@@ -23,8 +23,24 @@ func Max[T constraints.Ordered](vs ...T) T {
 	var r T
 	for i, v := range vs {
 		if i == 0 || v > r {
-			v = r
+			r = v
 		}
+	}
+	return r
+}
+
+func Sum[T Rational](vs ...T) T {
+	var r T
+	for _, v := range vs {
+		r += v
+	}
+	return r
+}
+
+func Prod[T Rational](vs ...T) T {
+	var r T
+	for _, v := range vs {
+		r *= v
 	}
 	return r
 }

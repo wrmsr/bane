@@ -14,12 +14,19 @@ func RangeTo[T Rational](stop T) Range[T] {
 	return Range[T]{Stop: stop, Step: 1}
 }
 
+func (r Range[T]) StepOrOne() T {
+	if r.Step == 0 {
+		return 1
+	}
+	return r.Step
+}
+
 func (r Range[T]) Len() T {
-	return (r.Stop - r.Start) / r.Step
+	return (r.Stop - r.Start) / r.StepOrOne()
 }
 
 func (r Range[T]) HasNext() bool {
-	if r.Step >= 0 {
+	if r.StepOrOne() >= 0 {
 		return r.Start < r.Stop
 	} else {
 		return r.Start > r.Stop
@@ -30,13 +37,13 @@ func (r Range[T]) Next() (Range[T], bool) {
 	if !r.HasNext() {
 		return Range[T]{}, false
 	}
-	r.Start += r.Step
+	r.Start += r.StepOrOne()
 	return r, true
 }
 
 func (r Range[T]) Slice() []T {
-	l := make([]T, 0, int((r.Stop-r.Start)/r.Step))
-	for ; r.Start < r.Stop; r.Start += r.Step {
+	l := make([]T, 0, int((r.Stop-r.Start)/r.StepOrOne()))
+	for ; r.Start < r.Stop; r.Start += r.StepOrOne() {
 		l = append(l, r.Start)
 	}
 	return l
@@ -87,7 +94,7 @@ func (r Range[T]) AnyIterate() Iterator[any] {
 var _ Traversable[int] = Range[int]{}
 
 func (r Range[T]) ForEach(fn func(T) bool) bool {
-	for i := r.Start; i < r.Stop; i += r.Step {
+	for i := r.Start; i < r.Stop; i += r.StepOrOne() {
 		if !fn(i) {
 			return false
 		}

@@ -3,133 +3,25 @@ package tensor
 import (
 	"fmt"
 	"math"
+	"math/rand"
 	"testing"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/platform"
+	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
 
-type Sz int64
-type Dim int64
-
-//
-
-type Shape []Dim
-
-func (sh Shape) Dim() Dim {
-	r := sh[0]
-	for _, c := range sh[1:] {
-		r *= c
-	}
-	return r
-}
-
-//
-
-type Orientation int8
-
-const (
-	RowMajor Orientation = iota
-	ColumnMajor
-)
-
-func (o Orientation) BuildStrides(shape Shape, width Sz) Strides {
-	switch o {
-	case RowMajor:
-		rem := int64(width)
-		for _, v := range shape {
-			rem *= int64(v)
-		}
-
-		if rem == 0 {
-			strides := make(Strides, len(shape))
-			for i := range strides {
-				strides[i] = width
-			}
-			return strides
-		}
-
-		strides := make(Strides, len(shape))
-		for i, v := range shape {
-			rem /= int64(v)
-			strides[i] = Sz(rem)
-		}
-		return strides
-
-	case ColumnMajor:
-		total := int64(width)
-		for _, v := range shape {
-			if v == 0 {
-				strides := make(Strides, len(shape))
-				for i := range strides {
-					strides[i] = Sz(total)
-				}
-				return strides
-			}
-		}
-
-		strides := make(Strides, len(shape))
-		for i, v := range shape {
-			strides[i] = Sz(total)
-			total *= int64(v)
-		}
-		return strides
-
-	}
-	panic("unknown orientation")
-}
-
-//
-
-type Strides []Sz
-
-func (st Strides) Offset(idxs ...Dim) Sz {
-	var ofs Sz
-	for i, idx := range idxs {
-		ofs += Sz(idx) * st[i]
-	}
-	return ofs
-}
-
-//
-
-type BaseTensor struct {
-	width  Sz
-	shape  Shape
-	orient Orientation
-
-	strides Strides
-}
-
-func NewBaseTensor(
-	width Sz,
-	shape Shape,
-	orient Orientation,
-) BaseTensor {
-	return BaseTensor{
-		width:  width,
-		shape:  shape,
-		orient: orient,
-
-		strides: orient.BuildStrides(shape, width),
-	}
-}
-
-func (t BaseTensor) Sz() Sz {
-	return t.strides[0] * t.width
-}
-
-//
-
-type HeapTensor struct {
+type BufferTensor struct {
 	BaseTensor
 
 	buf []byte
 }
 
-func NewHeapTensor(bt BaseTensor) HeapTensor {
-	return HeapTensor{
+func NewHeapTensor(bt BaseTensor) BufferTensor {
+	return BufferTensor{
 		BaseTensor: bt,
 
 		buf: make([]byte, bt.Sz()),
@@ -138,13 +30,9 @@ func NewHeapTensor(bt BaseTensor) HeapTensor {
 
 //
 
-func TestTensor(t *testing.T) {
+func TestBufferTensor(t *testing.T) {
 	tns := NewHeapTensor(
-		NewBaseTensor(
-			Sz(4),
-			Shape{4, 4, 4},
-			RowMajor,
-		),
+		NewBaseTensor(Sz(4), Shape{4, 4, 4}, RowMajor),
 	)
 
 	fmt.Println(tns)
@@ -173,4 +61,67 @@ func TestTensor(t *testing.T) {
 			}
 		}
 	}
+}
+
+//
+
+type Float32Tensor struct {
+	BaseTensor
+
+	s []float32
+
+	noGrad bool
+}
+
+func NewFloat32Tensor(sh Shape, s []float32) *Float32Tensor {
+	if s == nil {
+		s = make([]float32, sh.Dim())
+	} else {
+		check.Condition(Dim(len(s)) == sh.Dim())
+	}
+
+	return &Float32Tensor{
+		BaseTensor: NewBaseTensor(Sz(4), sh, RowMajor),
+
+		s: s,
+	}
+}
+
+func (t *Float32Tensor) Add(o *Float32Tensor) {
+	check.Condition(t.shape.Equals(o.shape))
+}
+
+func (t *Float32Tensor) Clone() *Float32Tensor {
+	return NewFloat32Tensor(t.shape, slices.Clone(t.s))
+}
+
+func (t *Float32Tensor) Dot(o *Float32Tensor) *Float32Tensor {
+	bs := bt.Prod(t.shape[0:-2]...)
+	groups := bt.Prod(o.shape[0:-2]...)
+}
+
+func RandFloat32Tensor(sh Shape) *Float32Tensor {
+	s := make([]float32, sh.Dim())
+	for i := range s {
+		s[i] = rand.Float32()
+	}
+	return NewFloat32Tensor(sh, s)
+}
+
+func TestFloat32Tensor(t *testing.T) {
+	//t := RandFloat32Tensor()
+
+	x_init := RandFloat32Tensor(Shape{1, 3})
+	//U_init := RandFloat32Tensor(Shape{3, 3})
+	//V_init := RandFloat32Tensor(Shape{3, 3})
+	W_init := RandFloat32Tensor(Shape{3, 3})
+	m_init := RandFloat32Tensor(Shape{1, 3})
+
+	x := x_init.Clone()
+	W := W_init.Clone()
+	m := m_init.Clone()
+	m.noGrad = true
+
+	out := x.Dot(W)
+	fmt.Println(out)
 }
