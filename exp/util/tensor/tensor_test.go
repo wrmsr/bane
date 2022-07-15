@@ -96,8 +96,33 @@ func (t *Float32Tensor) Clone() *Float32Tensor {
 }
 
 func (t *Float32Tensor) Dot(o *Float32Tensor) *Float32Tensor {
-	bs := bt.Prod(t.shape[0:-2]...)
-	groups := bt.Prod(o.shape[0:-2]...)
+	bs := bt.Prod[Dim](t.shape[0 : len(t.shape)-2]...)
+	groups := bt.Prod[Dim](o.shape[0 : len(t.shape)-2]...)
+	cin, cout := o.shape.At(-2), o.shape.At(-1)
+	outShapeT := slices.Join(t.shape[0:len(t.shape)-2], []Dim{cout, -1})
+	fmt.Println(bs)
+	fmt.Println(groups)
+	fmt.Println(cin)
+	fmt.Println(outShapeT)
+
+	var order Shape
+	if len(t.shape) > 1 {
+		order = slices.Join(bt.RangeTo[Dim](Dim(len(t.shape))-2).Slice(), []Dim{Dim(len(t.shape)) - 1, Dim(len(t.shape)) - 2})
+	} else {
+		order, outShapeT = Shape{0}, Shape{cout}
+	}
+
+	worder := slices.Join(bt.RangeTo[Dim](Dim(len(o.shape))-2).Slice(), []Dim{Dim(len(o.shape)) - 1, Dim(len(o.shape)) - 2})
+
+	/*
+	   cx = x.transpose(order=order).reshape(shape=(bs//groups, groups*cin, -1, 1))
+	   cw = w.transpose(order=worder).reshape(shape=(groups*cout, cin, 1, 1))
+	   return cx.conv2d(cw, groups=groups).reshape(shape=out_shape_t).transpose(order=order)
+	*/
+
+	fmt.Println(order)
+	fmt.Println(worder)
+	panic("foo")
 }
 
 func RandFloat32Tensor(sh Shape) *Float32Tensor {

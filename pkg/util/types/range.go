@@ -42,8 +42,9 @@ func (r Range[T]) Next() (Range[T], bool) {
 }
 
 func (r Range[T]) Slice() []T {
-	l := make([]T, 0, int((r.Stop-r.Start)/r.StepOrOne()))
-	for ; r.Start < r.Stop; r.Start += r.StepOrOne() {
+	step := r.StepOrOne()
+	l := make([]T, 0, int((r.Stop-r.Start)/step))
+	for ; r.Start < r.Stop; r.Start += step {
 		l = append(l, r.Start)
 	}
 	return l
@@ -94,7 +95,8 @@ func (r Range[T]) AnyIterate() Iterator[any] {
 var _ Traversable[int] = Range[int]{}
 
 func (r Range[T]) ForEach(fn func(T) bool) bool {
-	for i := r.Start; i < r.Stop; i += r.StepOrOne() {
+	step := r.StepOrOne()
+	for i := r.Start; i < r.Stop; i += step {
 		if !fn(i) {
 			return false
 		}

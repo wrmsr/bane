@@ -38,7 +38,7 @@ func Sum[T Rational](vs ...T) T {
 }
 
 func Prod[T Rational](vs ...T) T {
-	var r T
+	var r T = 1
 	for _, v := range vs {
 		r *= v
 	}

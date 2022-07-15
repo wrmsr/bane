@@ -1,7 +1,6 @@
 package slices
 
 import (
-	"fmt"
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
@@ -34,6 +33,8 @@ func TestMakePrepend(t *testing.T) {
 
 func TestReshape(t *testing.T) {
 	s := bt.RangeTo(10).Slice()
-	fmt.Println(Reshape(s, 1, 6, 2))
-	fmt.Println(Reshape(s, 6, 1, -2))
+	tu.AssertDeepEqual(t, Reshape(s, 1, 6, 2), []int{1, 3, 5})
+	tu.AssertDeepEqual(t, Reshape(s, 6, 1, -2), []int{6, 4, 2})
+	tu.AssertDeepEqual(t, Reshape(s, 3, -1, 3), []int{3, 6})
+	tu.AssertDeepEqual(t, Reshape(s, -2, 2, -3), []int{8, 5})
 }

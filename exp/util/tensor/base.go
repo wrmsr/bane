@@ -19,6 +19,13 @@ func (sh Shape) Dim() Dim {
 	return r
 }
 
+func (sh Shape) At(i int) Dim {
+	if i < 0 {
+		return sh[len(sh)+i]
+	}
+	return sh[i]
+}
+
 func (sh Shape) Equals(o Shape) bool {
 	return slices.Equal(sh, o)
 }
