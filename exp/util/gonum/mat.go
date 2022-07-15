@@ -1,4 +1,4 @@
-package grad
+package gonum
 
 type Tensor struct {
 }

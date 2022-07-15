@@ -1,4 +1,4 @@
-package grad
+package gonum
 
 import (
 	"fmt"
