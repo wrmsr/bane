@@ -69,7 +69,7 @@ const (
 func (o CmpOp) String() string {
 	switch o {
 	case CmpEq:
-		return "="
+		return "=="
 	case CmpNe:
 		return "!="
 	case CmpGt:
@@ -86,7 +86,7 @@ func (o CmpOp) String() string {
 
 func ParseCmpOp(s string) CmpOp {
 	switch s {
-	case "=":
+	case "==":
 		return CmpEq
 	case "!=":
 		return CmpNe
@@ -243,5 +243,5 @@ type Slice struct {
 
 type String struct {
 	leaf
-	Value Node
+	Value string
 }

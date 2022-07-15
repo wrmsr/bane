@@ -1,8 +1,11 @@
 package jmespath
 
 import (
+	"strconv"
+
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/jmespath/parser"
 )
 
@@ -92,7 +95,9 @@ func (v *parseVisitor) VisitSingleExpression(ctx *parser.SingleExpressionContext
 }
 
 func (v *parseVisitor) VisitPipeExpression(ctx *parser.PipeExpressionContext) any {
-	return v.VisitChildren(ctx)
+	right := v.Visit(ctx.Expression(1)).(Node)
+	left := v.Visit(ctx.Expression(0)).(Node)
+	return Sequence{Items: []Node{left, right}}
 }
 
 func (v *parseVisitor) VisitParameterExpression(ctx *parser.ParameterExpressionContext) any {
@@ -100,15 +105,16 @@ func (v *parseVisitor) VisitParameterExpression(ctx *parser.ParameterExpressionC
 }
 
 func (v *parseVisitor) VisitIdentifierExpression(ctx *parser.IdentifierExpressionContext) any {
-	return v.VisitChildren(ctx)
+	return v.Visit(ctx.Identifier())
 }
 
 func (v *parseVisitor) VisitNotExpression(ctx *parser.NotExpressionContext) any {
-	return v.VisitChildren(ctx)
+	return Negate{Item: v.Visit(ctx.Expression()).(Node)}
 }
 
 func (v *parseVisitor) VisitRawStringExpression(ctx *parser.RawStringExpressionContext) any {
-	return v.VisitChildren(ctx)
+	// FIXME: shared escaping with tree (core.util.StringEscaping) - really, in tok.util for java/sql?
+	return String{Value: ctx.RAW_STRING().GetText()}
 }
 
 func (v *parseVisitor) VisitComparisonExpression(ctx *parser.ComparisonExpressionContext) any {
@@ -120,19 +126,31 @@ func (v *parseVisitor) VisitComparisonExpression(ctx *parser.ComparisonExpressio
 }
 
 func (v *parseVisitor) VisitParenExpression(ctx *parser.ParenExpressionContext) any {
-	return v.VisitChildren(ctx)
+	return v.createSequenceIfChained(v.nonChainingVisit(ctx.Expression()))
 }
 
 func (v *parseVisitor) VisitBracketExpression(ctx *parser.BracketExpressionContext) any {
-	return v.VisitChildren(ctx)
+	result := v.Visit(ctx.BracketSpecifier())
+	if result == nil {
+		result = v.chainedNode
+		v.chainedNode = nil
+	}
+	return result
 }
 
 func (v *parseVisitor) VisitOrExpression(ctx *parser.OrExpressionContext) any {
-	return v.VisitChildren(ctx)
+	left := v.nonChainingVisit(ctx.Expression(0))
+	right := v.nonChainingVisit(ctx.Expression(1))
+	return v.createSequenceIfChained(Or{Left: left, Right: right})
 }
 
 func (v *parseVisitor) VisitCurrentNodeExpression(ctx *parser.CurrentNodeExpressionContext) any {
-	return v.VisitChildren(ctx)
+	if v.chainedNode == nil {
+		return Current{}
+	}
+	result := v.chainedNode
+	v.chainedNode = nil
+	return result
 }
 
 func (v *parseVisitor) VisitChainExpression(ctx *parser.ChainExpressionContext) any {
@@ -141,15 +159,27 @@ func (v *parseVisitor) VisitChainExpression(ctx *parser.ChainExpressionContext) 
 }
 
 func (v *parseVisitor) VisitAndExpression(ctx *parser.AndExpressionContext) any {
-	return v.VisitChildren(ctx)
+	left := v.nonChainingVisit(ctx.Expression(0))
+	right := v.nonChainingVisit(ctx.Expression(1))
+	return v.createSequenceIfChained(And{Left: left, Right: right})
 }
 
 func (v *parseVisitor) VisitMultiSelectHashExpression(ctx *parser.MultiSelectHashExpressionContext) any {
-	return v.VisitChildren(ctx)
+	/*
+		dct := make(map[string]any)
+		   for i in range(len(ctx.keyvalExpr())):
+			   kvCtx = ctx.keyvalExpr(i)
+		       # FIXME: unquote?
+		       key = kvCtx.identifier().getText()
+		       value = self._nonChainingVisit(kvCtx.expression())
+		       dct[key] = value
+		   return self._createSequenceIfChained(n.CreateObject(dct))
+	*/
+	panic("fixme")
 }
 
 func (v *parseVisitor) VisitWildcardExpression(ctx *parser.WildcardExpressionContext) any {
-	return v.VisitChildren(ctx)
+	return v.Visit(ctx.Wildcard())
 }
 
 func (v *parseVisitor) VisitFunctionCallExpression(ctx *parser.FunctionCallExpressionContext) any {
@@ -185,11 +215,18 @@ func (v *parseVisitor) VisitWildcard(ctx *parser.WildcardContext) any {
 }
 
 func (v *parseVisitor) VisitBracketIndex(ctx *parser.BracketIndexContext) any {
-	return v.VisitChildren(ctx)
+	index := check.Must1(strconv.Atoi(ctx.SIGNED_INT().GetText()))
+	v.chainedNode = v.createSequenceIfChained(Index{Value: index})
+	return nil
 }
 
 func (v *parseVisitor) VisitBracketStar(ctx *parser.BracketStarContext) any {
-	return v.VisitChildren(ctx)
+	projection := v.chainedNode
+	if projection == nil {
+		projection = Current{}
+	}
+	v.chainedNode = Project{Child: projection}
+	return nil
 }
 
 func (v *parseVisitor) VisitBracketSlice(ctx *parser.BracketSliceContext) any {
@@ -234,7 +271,13 @@ func (v *parseVisitor) VisitNumberParameter(ctx *parser.NumberParameterContext) 
 }
 
 func (v *parseVisitor) VisitFunctionExpression(ctx *parser.FunctionExpressionContext) any {
-	return v.VisitChildren(ctx)
+	name := ctx.NAME().GetText()
+	fas := ctx.AllFunctionArg()
+	args := make([]Node, len(fas))
+	for i, a := range fas {
+		args[i] = v.nonChainingVisit(a).(Node)
+	}
+	return v.createSequenceIfChained(Call{Name: name, Args: args})
 }
 
 func (v *parseVisitor) VisitFunctionArg(ctx *parser.FunctionArgContext) any {
