@@ -76,6 +76,12 @@ func (l *LinkedList[T]) ForEach(fn func(v T) bool) bool {
 	return true
 }
 
+func (l *LinkedList[T]) Put(i int, v T) {
+	at := l.GetElement(i)
+	l.InsertBefore(v, at)
+	l.Remove(at)
+}
+
 func (l *LinkedList[T]) Append(v T) {
 	l.List.PushBack(v)
 }

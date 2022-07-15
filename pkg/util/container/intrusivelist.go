@@ -279,6 +279,12 @@ var _ MutList[*int] = &IntrusiveList[int]{}
 
 func (l *IntrusiveList[T]) isMutable() {}
 
+func (l *IntrusiveList[T]) Put(i int, v *T) {
+	at := l.Get(i)
+	l.InsertBefore(v, at)
+	l.Remove(at)
+}
+
 func (l *IntrusiveList[T]) Append(v *T) {
 	l.PushBack(v)
 }

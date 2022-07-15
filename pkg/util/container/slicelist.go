@@ -75,6 +75,10 @@ func (l *MutSliceList[T]) Get(i int) T                    { return l.l.Get(i) }
 func (l *MutSliceList[T]) Iterate() bt.Iterator[T]        { return l.l.Iterate() }
 func (l *MutSliceList[T]) ForEach(fn func(v T) bool) bool { return l.l.ForEach(fn) }
 
+func (l *MutSliceList[T]) Put(i int, v T) {
+	l.l.s[i] = v
+}
+
 func (l *MutSliceList[T]) Append(v T) {
 	l.l.s = append(l.l.s, v)
 }

@@ -52,6 +52,7 @@ type MutList[T any] interface {
 	List[T]
 	Mutable
 
+	Put(i int, v T)
 	Append(v T)
 	Delete(i int)
 }

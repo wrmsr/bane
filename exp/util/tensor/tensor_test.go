@@ -159,11 +159,11 @@ func TestFloat32Tensor(t *testing.T) {
 	//U_init := RandFloat32Tensor(Shape{3, 3})
 	//V_init := RandFloat32Tensor(Shape{3, 3})
 	W_init := RandFloat32Tensor(Shape{3, 3})
-	m_init := RandFloat32Tensor(Shape{1, 3})
+	//m_init := RandFloat32Tensor(Shape{1, 3})
 
 	x := x_init.Clone()
 	W := W_init.Clone()
-	m := m_init.Clone()
+	//m := m_init.Clone()
 
 	out := x.Dot(W)
 	fmt.Println(out)
