@@ -314,8 +314,11 @@ func (v *parseVisitor) VisitLiteral(ctx *parser.LiteralContext) any {
 }
 
 func (v *parseVisitor) VisitIdentifier(ctx *parser.IdentifierContext) any {
-	// FIXME: unquote
-	return v.createSequenceIfChained(Property{Name: ctx.GetText()})
+	s := ctx.GetText()
+	if s[0] == '"' {
+		s = s[1 : len(s)-1]
+	}
+	return v.createSequenceIfChained(Property{Name: s})
 }
 
 func (v *parseVisitor) VisitJsonObject(ctx *parser.JsonObjectContext) any {

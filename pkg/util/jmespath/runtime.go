@@ -148,7 +148,7 @@ func (r SimpleRuntime) CreateBool(value bool) any {
 func (r SimpleRuntime) GetProperty(obj any, field string) any {
 	switch obj := obj.(type) {
 	case map[string]any:
-		return obj
+		return obj[field]
 	}
 	return nil
 }

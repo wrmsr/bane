@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -133,6 +134,12 @@ func TestParsing2(t *testing.T) {
 					fmt.Println(tc.Expression)
 					root := testParse(tc.Expression)
 					fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&root)))))
+					o := Evaluator[any]{rt: SimpleRuntime{}}.Eval(root, ti.Given)
+					fmt.Println(o)
+					if !reflect.DeepEqual(o, tc.Result) {
+						Evaluator[any]{rt: SimpleRuntime{}}.Eval(root, ti.Given)
+						tu.AssertDeepEqual(t, o, tc.Result)
+					}
 				}
 			}
 		}
