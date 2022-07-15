@@ -211,7 +211,7 @@ func (v *parseVisitor) VisitChainedExpression(ctx *parser.ChainedExpressionConte
 }
 
 func (v *parseVisitor) VisitWildcard(ctx *parser.WildcardContext) any {
-	return v.VisitChildren(ctx)
+	return v.createProjectionIfChained(FlattenObject{})
 }
 
 func (v *parseVisitor) VisitBracketIndex(ctx *parser.BracketIndexContext) any {
@@ -234,7 +234,7 @@ func (v *parseVisitor) VisitBracketSlice(ctx *parser.BracketSliceContext) any {
 }
 
 func (v *parseVisitor) VisitBracketFlatten(ctx *parser.BracketFlattenContext) any {
-	return v.VisitChildren(ctx)
+	return v.createProjectionIfChained(FlattenArray{})
 }
 
 func (v *parseVisitor) VisitSelect(ctx *parser.SelectContext) any {

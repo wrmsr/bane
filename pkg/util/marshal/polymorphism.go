@@ -19,6 +19,14 @@ type SetImpl struct {
 
 func (ri SetImpl) isRegistryItem() {}
 
+func SetImplOf[T any](tag string, alt ...string) SetImpl {
+	return SetImpl{
+		Impl: rfl.TypeOf[T](),
+		Tag:  tag,
+		Alt:  alt,
+	}
+}
+
 ///
 
 type Polymorphism struct {

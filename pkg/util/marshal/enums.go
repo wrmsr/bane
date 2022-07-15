@@ -9,7 +9,7 @@ import (
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
-//
+///
 
 type EnumMarshaler[T comparable] struct {
 	m map[T]Value
@@ -59,4 +59,17 @@ func (u EnumUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Valu
 
 	}
 	return rfl.Invalid(), unhandledType()
+}
+
+///
+
+func SetEnumTypes[T comparable](m map[T]string) SetType {
+	i := make(map[string]any, len(m))
+	for k, v := range m {
+		i[v] = k
+	}
+	return SetType{
+		Marshaler:   NewEnumMarshaler[T](m),
+		Unmarshaler: NewEnumUnmarshaler[T](i),
+	}
 }
