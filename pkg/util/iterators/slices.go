@@ -37,7 +37,7 @@ func (i *sliceIterator[T]) Next() T {
 	c := i.r.Start
 	n, ok := i.r.Next()
 	if !ok {
-		panic(IteratorExhaustedError{})
+		panic(bt.IteratorExhaustedError{})
 	}
 	v := i.s[c]
 	i.r = n

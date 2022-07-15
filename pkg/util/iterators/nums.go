@@ -62,7 +62,7 @@ func (i rangeIterator) HasNext() bool {
 
 func (i *rangeIterator) Next() int {
 	if !i.HasNext() {
-		panic(IteratorExhaustedError{})
+		panic(bt.IteratorExhaustedError{})
 	}
 	n := i.n
 	i.n += i.step

@@ -75,7 +75,7 @@ func (i *filterIterator[T]) HasNext() bool {
 func (i *filterIterator[T]) Next() T {
 	if !i.p {
 		if !i.HasNext() {
-			panic(IteratorExhaustedError{})
+			panic(bt.IteratorExhaustedError{})
 		}
 	}
 	v := i.v
@@ -237,7 +237,7 @@ func (i *flattenIterator[T]) HasNext() bool {
 
 func (i *flattenIterator[T]) Next() T {
 	if !i.HasNext() {
-		panic(IteratorExhaustedError{})
+		panic(bt.IteratorExhaustedError{})
 	}
 	return i.ci.Next()
 }

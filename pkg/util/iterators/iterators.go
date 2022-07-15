@@ -1,7 +1,5 @@
 package iterators
 
-import bt "github.com/wrmsr/bane/pkg/util/types"
-
 //
 
 type Iterator[T any] interface {
@@ -14,10 +12,6 @@ type Iterator[T any] interface {
 type Iterable[T any] interface {
 	Iterate() Iterator[T]
 }
-
-//
-
-type IteratorExhaustedError = bt.IteratorExhaustedError
 
 //
 

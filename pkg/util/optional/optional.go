@@ -1,7 +1,6 @@
 package optional
 
 import (
-	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -94,16 +93,36 @@ func (o Optional[T]) Replace(v any) Interface {
 
 //
 
-var _ its.Iterable[any] = Optional[any]{}
-
-func (o Optional[T]) Iterate() its.Iterator[T] {
-	if o.Present() {
-		return its.Of[T](o.Value()).Iterate()
-	}
-	return its.Of[T]().Iterate()
+type optionalIterator[T any] struct {
+	o Optional[T]
 }
 
-var _ its.Traversable[any] = Optional[any]{}
+var _ bt.Iterator[any] = &optionalIterator[any]{}
+
+func (i *optionalIterator[T]) Iterate() bt.Iterator[T] {
+	return i
+}
+
+func (i *optionalIterator[T]) HasNext() bool {
+	return i.o.Present()
+}
+
+func (i *optionalIterator[T]) Next() T {
+	if !i.o.Present() {
+		panic(bt.IteratorExhaustedError{})
+	}
+	v := i.o.Value()
+	i.o = None[T]()
+	return v
+}
+
+var _ bt.Iterable[any] = Optional[any]{}
+
+func (o Optional[T]) Iterate() bt.Iterator[T] {
+	return &optionalIterator[T]{o: o}
+}
+
+var _ bt.Traversable[any] = Optional[any]{}
 
 func (o Optional[T]) ForEach(fn func(v T) bool) bool {
 	if o.Present() {
