@@ -69,8 +69,6 @@ type Float32Tensor struct {
 	BaseTensor
 
 	s []float32
-
-	noGrad bool
 }
 
 func NewFloat32Tensor(sh Shape, s []float32) *Float32Tensor {
@@ -87,12 +85,33 @@ func NewFloat32Tensor(sh Shape, s []float32) *Float32Tensor {
 	}
 }
 
-func (t *Float32Tensor) Add(o *Float32Tensor) {
-	check.Condition(t.shape.Equals(o.shape))
-}
+//func (t *Float32Tensor) Add(o *Float32Tensor) {
+//	check.Condition(t.shape.Equals(o.shape))
+//}
 
 func (t *Float32Tensor) Clone() *Float32Tensor {
 	return NewFloat32Tensor(t.shape, slices.Clone(t.s))
+}
+
+//
+
+type Op interface {
+	isOp()
+}
+
+type LoadOp struct{ t *Float32Tensor }
+
+func (o LoadOp) isOp() {}
+
+//
+
+type LazyTensor struct {
+	BaseTensor
+
+	data *LazyTensor
+	op   Op
+
+	noGrad bool
 }
 
 func (t *Float32Tensor) Dot(o *Float32Tensor) *Float32Tensor {
@@ -145,7 +164,6 @@ func TestFloat32Tensor(t *testing.T) {
 	x := x_init.Clone()
 	W := W_init.Clone()
 	m := m_init.Clone()
-	m.noGrad = true
 
 	out := x.Dot(W)
 	fmt.Println(out)
