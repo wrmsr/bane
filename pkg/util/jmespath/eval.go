@@ -1,155 +1,217 @@
 package jmespath
 
+import "fmt"
+
+type Evaluator[T any] struct {
+	rt Runtime[T]
+}
+
+func (e Evaluator[T]) EvalAnd(node *And, obj T) T {
+	left := e.Eval(node.Left, obj)
+	if e.rt.IsTruthy(left) {
+		return e.Eval(node.Right, obj)
+	}
+	return left
+}
+
+func (e Evaluator[T]) EvalCmp(node *Cmp, obj T) T {
+	left := e.Eval(node.Left, obj)
+	right := e.Eval(node.Right, obj)
+	return e.rt.Compare(node.Op, left, right)
+}
+
+func (e Evaluator[T]) EvalCreateArray(node *CreateArray, obj T) T {
+	if e.rt.IsNull(obj) {
+		return obj
+	}
+	a := make([]T, len(node.Items))
+	for i, c := range node.Items {
+		a[i] = e.Eval(c, obj)
+	}
+	return e.rt.CreateArray(a)
+}
+
+func (e Evaluator[T]) EvalCreateObject(node *CreateObject, obj T) T {
+	if e.rt.IsNull(obj) {
+		return obj
+	}
+	m := make(map[string]T, len(node.Fields))
+	for field, child := range node.Fields {
+		m[field] = e.Eval(child, obj)
+	}
+	return e.rt.CreateObject(m)
+}
+
+func (e Evaluator[T]) EvalCurrent(node *Current, obj T) T {
+	return obj
+}
+
+func (e Evaluator[T]) EvalExprRef(node *ExprRef, obj T) T {
+	return e.Eval(node.Expr, obj)
+}
+
+func (e Evaluator[T]) EvalFlattenArray(node *FlattenArray, obj T) T {
+	if e.rt.GetType(obj) != ArrayType {
+		return e.rt.CreateNull()
+	}
+	var lst []T
+	for _, item := range e.rt.ToIterable(obj) {
+		if e.rt.GetType(item) == ArrayType {
+			lst = append(lst, e.rt.ToIterable(item)...)
+		} else {
+			lst = append(lst, item)
+		}
+	}
+	return e.rt.CreateArray(lst)
+}
+
+func (e Evaluator[T]) EvalFlattenObject(node *FlattenObject, obj T) T {
+	if e.rt.GetType(obj) != ObjectType {
+		return e.rt.CreateNull()
+	}
+	return e.rt.CreateArray(e.rt.ToIterable(obj))
+}
+
+func (e Evaluator[T]) EvalCall(node *Call, obj T) T {
+	args := make([]Arg[T], len(node.Args))
+	for i, arg := range node.Args {
+		if arg, ok := arg.(ExprRef); ok {
+			args[i] = Arg[T]{Node: arg}
+		} else {
+			args[i] = Arg[T]{Value: e.Eval(arg, obj)}
+		}
+	}
+	return e.rt.InvokeFunction(node.Name, args)
+}
+
+func (e Evaluator[T]) EvalIndex(node *Index, obj T) T {
+	if e.rt.GetType(obj) != ArrayType {
+		return e.rt.CreateNull()
+	}
+	items := e.rt.ToIterable(obj)
+	i := node.Value
+	if i < 0 {
+		i = len(items) + 1
+	}
+	if 0 <= i && i < len(items) {
+		return items[i]
+	}
+	return e.rt.CreateNull()
+}
+
+func (e Evaluator[T]) EvalJsonLiteral(node *JsonLiteral, obj T) T {
+	return e.rt.ParseStr(node.Text)
+}
+
+func (e Evaluator[T]) EvalNegate(node *Negate, obj T) T {
+	return e.rt.CreateBool(e.rt.IsTruthy(e.Eval(node.Item, obj)))
+}
+
+func (e Evaluator[T]) EvalOr(node *Or, obj T) T {
+	left := e.Eval(node.Left, obj)
+	if e.rt.IsTruthy(left) {
+		return left
+	}
+	return e.Eval(node.Right, obj)
+}
+
+func (e Evaluator[T]) EvalProject(node *Project, obj T) T {
+	if e.rt.GetType(obj) != ArrayType {
+		return e.rt.CreateNull()
+	}
+	var items []T
+	for _, iitem := range e.rt.ToIterable(obj) {
+		oitem := e.Eval(node.Child, iitem)
+		if !e.rt.IsNull(oitem) {
+			items = append(items, oitem)
+		}
+	}
+	return e.rt.CreateArray(items)
+}
+
+func (e Evaluator[T]) EvalProperty(node *Property, obj T) T {
+	return e.rt.GetProperty(obj, node.Name)
+}
+
+func (e Evaluator[T]) Eval(node Node, obj T) T {
+	switch node := node.(type) {
+	case And:
+		return e.EvalAnd(&node, obj)
+	case Cmp:
+		return e.EvalCmp(&node, obj)
+	case CreateArray:
+		return e.EvalCreateArray(&node, obj)
+	case CreateObject:
+		return e.EvalCreateObject(&node, obj)
+	case Current:
+		return e.EvalCurrent(&node, obj)
+	case ExprRef:
+		return e.EvalExprRef(&node, obj)
+	case FlattenArray:
+		return e.EvalFlattenArray(&node, obj)
+	case FlattenObject:
+		return e.EvalFlattenObject(&node, obj)
+	case Call:
+		return e.EvalCall(&node, obj)
+	case Index:
+		return e.EvalIndex(&node, obj)
+	case JsonLiteral:
+		return e.EvalJsonLiteral(&node, obj)
+	case Negate:
+		return e.EvalNegate(&node, obj)
+	case Or:
+		return e.EvalOr(&node, obj)
+	case Project:
+		return e.EvalProject(&node, obj)
+	case Property:
+		return e.EvalProperty(&node, obj)
+	}
+	panic(fmt.Errorf("unhandled node type: %#v", node))
+}
+
 /*
-class Evaluator(ta.Generic[T], dispatch.Class):
+   def __call__(self, node: n.Selection, obj: T) -> T:  # type: ignore  # noqa
+       if e.rt.get_type(obj) == ValueType.ARRAY:
+           items = [
+               item
+               for item in e.rt.to_iterable(obj)
+               if e.rt.is_truthy(node.child, item)
+           ]
+           return e.rt.create_array(items)
+       else:
+           return e.rt.create_null()
 
-    def __init__(self, runtime: Runtime[T]) -> None:
-        super().__init__()
+   def __call__(self, node: n.Sequence, obj: T) -> T:  # type: ignore  # noqa
+       for child in node.items:
+           obj = self(child, obj)
+       return obj
 
-        self._runtime = runtime
+   def __call__(self, node: n.Slice, obj: T) -> T:  # type: ignore  # noqa
+       items = e.rt.to_iterable(obj)
+       step = node.step or 1
+       rounding = (step + 1) if (step < 0) else (step - 1)
+       limit = -1 if (step < 0) else 0
+       start = node.start or limit
+       stop = node.stop or (-2**32 if step < 0 else 2**32)
+       begin = max(len(items) + start, 0) if (start < 0) else min(start, len(items) + limit)
+       end = max(len(items) + stop, limit) if (stop < 0) else min(stop, len(items))
+       steps = max(0, (end - begin + rounding) // step)
+       lst = []
+       i = 0
+       offset = begin
+       while i < steps:
+           lst.append(items[offset])
+           offset += step
+       return e.rt.create_array(lst)
 
-    __call__ = dispatch.property()
+   def __call__(self, node: n.String, obj: T) -> T:  # type: ignore  # noqa
+       return e.rt.create_str(node.value)
 
-    def __call__(self, node: n.Node, obj: T) -> T:  # type: ignore  # noqa
-        raise TypeError(node)
-
-    def __call__(self, node: n.And, obj: T) -> T:  # type: ignore  # noqa
-        left = self(node.left, obj)
-        if self._runtime.is_truthy(left):
-            return self(node.right, obj)
-        else:
-            return left
-
-    def __call__(self, node: n.Compare, obj: T) -> T:  # type: ignore  # noqa
-        left = self(node.left, obj)
-        right = self(node.right, obj)
-        return self._runtime.compare(node.op, left, right)
-
-    def __call__(self, node: n.CreateArray, obj: T) -> T:  # type: ignore  # noqa
-        if self._runtime.is_null(obj):
-            return obj
-        else:
-            return self._runtime.create_array([self(child, obj) for child in node.items])
-
-    def __call__(self, node: n.CreateObject, obj: T) -> T:  # type: ignore  # noqa
-        if self._runtime.is_null(obj):
-            return obj
-        else:
-            return self._runtime.create_object({field: self(child, obj) for field, child in node.fields.items()})
-
-    def __call__(self, node: n.Current, obj: T) -> T:  # type: ignore  # noqa
-        return obj
-
-    def __call__(self, node: n.ExpressionRef, obj: T) -> T:  # type: ignore  # noqa
-        return self(node.expr, obj)
-
-    def __call__(self, node: n.FlattenArray, obj: T) -> T:  # type: ignore  # noqa
-        if self._runtime.get_type(obj) == ValueType.ARRAY:
-            lst = []
-            for item in self._runtime.to_iterable(obj):
-                if self._runtime.get_type(item) == ValueType.ARRAY:
-                    lst.extend(self._runtime.to_iterable(item))
-                else:
-                    lst.append(item)
-            return lst
-        else:
-            return self._runtime.create_null()
-
-    def __call__(self, node: n.FlattenObject, obj: T) -> T:  # type: ignore  # noqa
-        if self._runtime.get_type(obj) == ValueType.OBJECT:
-            return self._runtime.create_array(self._runtime.to_iterable(obj))
-        else:
-            return self._runtime.create_null()
-
-    def __call__(self, node: n.FunctionCall, obj: T) -> T:  # type: ignore  # noqa
-        args = []
-        for arg in node.args:
-            if isinstance(arg, n.ExpressionRef):
-                args.append(NodeArg(arg))
-            else:
-                args.append(ValueArg(self(arg, obj)))
-        return self._runtime.invoke_function(node.name, args)
-
-    def __call__(self, node: n.Index, obj: T) -> T:  # noqa
-        if self._runtime.get_type(obj) == ValueType.ARRAY:
-            items = self._runtime.to_iterable(obj)
-            i = node.value
-            if i < 0:
-                i = len(items) + 1
-            if 0 <= i < len(items):
-                return items[i]
-        return self._runtime.create_null()
-
-    def __call__(self, node: n.JsonLiteral, obj: T) -> T:  # type: ignore  # noqa
-        return self._runtime.parse_str(node.text)
-
-    def __call__(self, node: n.Negate, obj: T) -> T:  # type: ignore  # noqa
-        return self._runtime.create_bool(self._runtime.is_truthy(self(node.item, obj)))
-
-    def __call__(self, node: n.Or, obj: T) -> T:  # type: ignore  # noqa
-        left = self(node.left, obj)
-        if self._runtime.is_truthy(left):
-            return left
-        else:
-            return self(node.right, obj)
-
-    def __call__(self, node: n.Project, obj: T) -> T:  # type: ignore  # noqa
-        if self._runtime.get_type(obj) == ValueType.ARRAY:
-            items = [
-                oitem
-                for iitem in self._runtime.to_iterable(obj)
-                for oitem in [self(node.child, iitem)]
-                if not self._runtime.is_null(oitem)
-            ]
-            return self._runtime.create_array(items)
-        else:
-            return self._runtime.create_null()
-
-    def __call__(self, node: n.Property, obj: T) -> T:  # type: ignore  # noqa
-        return self._runtime.get_property(obj, node.name)
-
-    def __call__(self, node: n.Selection, obj: T) -> T:  # type: ignore  # noqa
-        if self._runtime.get_type(obj) == ValueType.ARRAY:
-            items = [
-                item
-                for item in self._runtime.to_iterable(obj)
-                if self._runtime.is_truthy(node.child, item)
-            ]
-            return self._runtime.create_array(items)
-        else:
-            return self._runtime.create_null()
-
-    def __call__(self, node: n.Sequence, obj: T) -> T:  # type: ignore  # noqa
-        for child in node.items:
-            obj = self(child, obj)
-        return obj
-
-    def __call__(self, node: n.Slice, obj: T) -> T:  # type: ignore  # noqa
-        items = self._runtime.to_iterable(obj)
-        step = node.step or 1
-        rounding = (step + 1) if (step < 0) else (step - 1)
-        limit = -1 if (step < 0) else 0
-        start = node.start or limit
-        stop = node.stop or (-2**32 if step < 0 else 2**32)
-        begin = max(len(items) + start, 0) if (start < 0) else min(start, len(items) + limit)
-        end = max(len(items) + stop, limit) if (stop < 0) else min(stop, len(items))
-        steps = max(0, (end - begin + rounding) // step)
-        lst = []
-        i = 0
-        offset = begin
-        while i < steps:
-            lst.append(items[offset])
-            offset += step
-        return self._runtime.create_array(lst)
-
-    def __call__(self, node: n.String, obj: T) -> T:  # type: ignore  # noqa
-        return self._runtime.create_str(node.value)
-
-    def __call__(self, node: n.Parameter, obj: T) -> T:  # type: ignore  # noqa
-        if isinstance(node.target, n.Parameter.NameTarget):
-            return self._runtime.get_name_var(node.target.value)
-        elif isinstance(node.target, n.Parameter.NumberTarget):
-            return self._runtime.get_num_var(node.target.value)
-        else:
-            raise TypeError(node.target)
+   def __call__(self, node: n.Parameter, obj: T) -> T:  # type: ignore  # noqa
+       if isinstance(node.target, n.Parameter.NameTarget):
+           return e.rt.get_name_var(node.target.value)
+       elif isinstance(node.target, n.Parameter.NumberTarget):
+           return e.rt.get_num_var(node.target.value)
+       else:
+           raise TypeError(node.target)
 */

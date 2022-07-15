@@ -9,6 +9,13 @@ import (
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
+//
+
+type Arg[T any] struct {
+	Node  Node
+	Value T
+}
+
 type Runtime[T any] interface {
 	IsTruthy(obj T) bool
 	GetType(obj T) ValueType
@@ -18,7 +25,7 @@ type Runtime[T any] interface {
 	CreateArray(items []T) T
 	CreateObject(fields map[string]T) T
 	ToIterable(obj T) []T
-	InvokeFunction(name string, args []any) T
+	InvokeFunction(name string, args []Arg[T]) T
 	CreateBool(value bool) T
 	GetProperty(obj T, field string) T
 	ParseStr(s string) T
@@ -130,7 +137,7 @@ func (r SimpleRuntime) ToIterable(obj any) []any {
 	return nil
 }
 
-func (r SimpleRuntime) InvokeFunction(name string, args []any) any {
+func (r SimpleRuntime) InvokeFunction(name string, args []Arg[any]) any {
 	panic("implement me")
 }
 
