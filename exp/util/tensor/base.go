@@ -4,8 +4,7 @@ import "github.com/wrmsr/bane/pkg/util/slices"
 
 //
 
-type Sz int64
-type Dim int64
+type Dim = int64
 
 //
 
@@ -32,95 +31,90 @@ func (sh Shape) Equals(o Shape) bool {
 
 //
 
-type Orientation int8
-
-const (
-	RowMajor Orientation = iota
-	ColumnMajor
-)
-
-func (o Orientation) BuildStrides(shape Shape, width Sz) Strides {
-	switch o {
-	case RowMajor:
-		rem := int64(width)
-		for _, v := range shape {
-			rem *= int64(v)
-		}
-
-		if rem == 0 {
-			strides := make(Strides, len(shape))
-			for i := range strides {
-				strides[i] = width
-			}
-			return strides
-		}
-
-		strides := make(Strides, len(shape))
-		for i, v := range shape {
-			rem /= int64(v)
-			strides[i] = Sz(rem)
-		}
-		return strides
-
-	case ColumnMajor:
-		total := int64(width)
-		for _, v := range shape {
-			if v == 0 {
-				strides := make(Strides, len(shape))
-				for i := range strides {
-					strides[i] = Sz(total)
-				}
-				return strides
-			}
-		}
-
-		strides := make(Strides, len(shape))
-		for i, v := range shape {
-			strides[i] = Sz(total)
-			total *= int64(v)
-		}
-		return strides
-
+func BuildStrides(shape Shape, width Dim) Strides {
+	rem := int64(width)
+	for _, v := range shape {
+		rem *= int64(v)
 	}
-	panic("unknown orientation")
+
+	if rem == 0 {
+		strides := make(Strides, len(shape))
+		for i := range strides {
+			strides[i] = width
+		}
+		return strides
+	}
+
+	strides := make(Strides, len(shape))
+	for i, v := range shape {
+		rem /= int64(v)
+		strides[i] = Dim(rem)
+	}
+	return strides
 }
 
 //
 
-type Strides []Sz
+type Strides []Dim
 
-func (st Strides) Offset(idxs ...Dim) Sz {
-	var ofs Sz
+func (st Strides) Offset(idxs ...Dim) Dim {
+	var ofs Dim
 	for i, idx := range idxs {
-		ofs += Sz(idx) * st[i]
+		ofs += idx * st[i]
 	}
 	return ofs
 }
 
 //
 
+type ShapeStride struct {
+	Shape, Stride Dim
+}
+
+type View struct {
+	shape   Shape
+	strides Strides
+	offset  Dim
+
+	viewStrides []ShapeStride
+}
+
+func NewView(shape Shape, strides Strides, offset Dim) View {
+	vs := []ShapeStride{{shape[0], strides[1]}}
+	for i := 1; i < len(shape); i++ {
+		if (strides[i] != 0 && vs[len(vs)-1].Stride/strides[i] == shape[i]) || (strides[i] == 0 && vs[len(vs)-1].Stride == 0) {
+			vs[len(vs)-1] = ShapeStride{vs[len(vs)-1].Shape * shape[i], strides[i]}
+		} else {
+			vs = append(vs, ShapeStride{shape[i], strides[i]})
+		}
+	}
+	return View{
+		shape:       shape,
+		strides:     strides,
+		offset:      offset,
+		viewStrides: vs,
+	}
+}
+
+//
+
 type BaseTensor struct {
-	width  Sz
-	shape  Shape
-	orient Orientation
+	width Dim
+	shape Shape
 
 	strides Strides
 }
 
 func NewBaseTensor(
-	width Sz,
 	shape Shape,
-	orient Orientation,
 ) BaseTensor {
 	return BaseTensor{
-		width:  width,
-		shape:  shape,
-		orient: orient,
+		shape: shape,
 
-		strides: orient.BuildStrides(shape, width),
+		strides: BuildStrides(shape, 1),
 	}
 }
 
-func (t BaseTensor) Sz() Sz {
+func (t BaseTensor) Sz() Dim {
 	return t.strides[0] * t.width
 }

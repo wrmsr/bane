@@ -2,12 +2,10 @@ package tensor
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	"github.com/wrmsr/bane/pkg/util/platform"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -30,38 +28,38 @@ func NewHeapTensor(bt BaseTensor) BufferTensor {
 
 //
 
-func TestBufferTensor(t *testing.T) {
-	tns := NewHeapTensor(
-		NewBaseTensor(Sz(4), Shape{4, 4, 4}, RowMajor),
-	)
-
-	fmt.Println(tns)
-
-	fmt.Println(tns.strides.Offset(1, 3))
-	fmt.Println(tns.strides.Offset(2))
-	fmt.Println(tns.strides.Offset(2, 3))
-	fmt.Println(tns.strides.Offset(2, 3, 0))
-	fmt.Println(tns.strides.Offset(2, 3, 1))
-	fmt.Println(tns.strides.Offset(3, 3, 3))
-
-	for i := int64(0); i < int64(tns.Sz()); i += int64(tns.width) {
-		b := make([]byte, tns.width)
-		platform.NativeEndian().PutUint32(b, math.Float32bits(float32(i)))
-		copy(tns.buf[i:i+int64(tns.width)], b)
-	}
-
-	fmt.Println(tns.buf)
-
-	for i := Dim(0); i < tns.shape[0]; i++ {
-		for j := Dim(0); j < tns.shape[1]; j++ {
-			for k := Dim(0); k < tns.shape[2]; k++ {
-				ofs := tns.strides.Offset(i, j, k)
-				f := math.Float32frombits(platform.NativeEndian().Uint32(tns.buf[ofs : ofs+tns.width]))
-				fmt.Printf("%2d %2d %2d %3d %12f\n", i, j, k, ofs, f)
-			}
-		}
-	}
-}
+//func TestBufferTensor(t *testing.T) {
+//	tns := NewHeapTensor(
+//		NewBaseTensor(Sz(4), Shape{4, 4, 4}, RowMajor),
+//	)
+//
+//	fmt.Println(tns)
+//
+//	fmt.Println(tns.strides.Offset(1, 3))
+//	fmt.Println(tns.strides.Offset(2))
+//	fmt.Println(tns.strides.Offset(2, 3))
+//	fmt.Println(tns.strides.Offset(2, 3, 0))
+//	fmt.Println(tns.strides.Offset(2, 3, 1))
+//	fmt.Println(tns.strides.Offset(3, 3, 3))
+//
+//	for i := int64(0); i < int64(tns.Sz()); i += int64(tns.width) {
+//		b := make([]byte, tns.width)
+//		platform.NativeEndian().PutUint32(b, math.Float32bits(float32(i)))
+//		copy(tns.buf[i:i+int64(tns.width)], b)
+//	}
+//
+//	fmt.Println(tns.buf)
+//
+//	for i := Dim(0); i < tns.shape[0]; i++ {
+//		for j := Dim(0); j < tns.shape[1]; j++ {
+//			for k := Dim(0); k < tns.shape[2]; k++ {
+//				ofs := tns.strides.Offset(i, j, k)
+//				f := math.Float32frombits(platform.NativeEndian().Uint32(tns.buf[ofs : ofs+tns.width]))
+//				fmt.Printf("%2d %2d %2d %3d %12f\n", i, j, k, ofs, f)
+//			}
+//		}
+//	}
+//}
 
 //
 
@@ -79,7 +77,7 @@ func NewFloat32Tensor(sh Shape, s []float32) *Float32Tensor {
 	}
 
 	return &Float32Tensor{
-		BaseTensor: NewBaseTensor(Sz(4), sh, RowMajor),
+		BaseTensor: NewBaseTensor(sh),
 
 		s: s,
 	}
@@ -99,9 +97,17 @@ type Op interface {
 	isOp()
 }
 
+//
+
 type LoadOp struct{ t *Float32Tensor }
 
 func (o LoadOp) isOp() {}
+
+//
+
+type ReshapeOp struct{ sh Shape }
+
+func (o ReshapeOp) isOp() {}
 
 //
 
