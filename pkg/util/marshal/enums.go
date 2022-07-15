@@ -70,6 +70,6 @@ func SetEnumTypes[T comparable](m map[T]string) SetType {
 	}
 	return SetType{
 		Marshaler:   NewEnumMarshaler[T](m),
-		Unmarshaler: NewEnumUnmarshaler[T](i),
+		Unmarshaler: NewEnumUnmarshaler(i),
 	}
 }
