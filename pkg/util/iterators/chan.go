@@ -4,6 +4,7 @@ import (
 	"context"
 
 	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -14,25 +15,25 @@ type chanIterator[T any] struct {
 	nxt  opt.Optional[T]
 }
 
-func OfChan[T any](ch <-chan T) Iterable[T] {
-	return Factory[T](func() Iterator[T] {
+func OfChan[T any](ch <-chan T) bt.Iterable[T] {
+	return Factory[T](func() bt.Iterator[T] {
 		return &chanIterator[T]{ch: ch}
 	}, ch)
 }
 
-func OfChanDone[T any](ch <-chan T, done <-chan struct{}) Iterable[T] {
-	return Factory[T](func() Iterator[T] {
+func OfChanDone[T any](ch <-chan T, done <-chan struct{}) bt.Iterable[T] {
+	return Factory[T](func() bt.Iterator[T] {
 		return &chanIterator[T]{ch: ch, done: done}
 	}, ch)
 }
 
-func OfChanContext[T any](ctx context.Context, ch <-chan T) Iterable[T] {
+func OfChanContext[T any](ctx context.Context, ch <-chan T) bt.Iterable[T] {
 	return OfChanDone[T](ch, ctx.Done())
 }
 
-var _ Iterator[int] = &chanIterator[int]{}
+var _ bt.Iterator[int] = &chanIterator[int]{}
 
-func (i *chanIterator[T]) Iterate() Iterator[T] {
+func (i *chanIterator[T]) Iterate() bt.Iterator[T] {
 	return i
 }
 
@@ -64,7 +65,7 @@ func (i *chanIterator[T]) Next() T {
 
 //
 
-func ToChanDone[T any](it Iterable[T], done <-chan struct{}) <-chan T {
+func ToChanDone[T any](it bt.Iterable[T], done <-chan struct{}) <-chan T {
 	ch := make(chan T)
 	go func() {
 		defer close(ch)

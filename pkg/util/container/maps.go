@@ -5,11 +5,11 @@ import (
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
-func Keys[K, V any](m Map[K, V]) its.Iterable[K] {
+func Keys[K, V any](m Map[K, V]) bt.Iterable[K] {
 	return its.Keys[K, V](m)
 }
 
-func Values[K, V any](m Map[K, V]) its.Iterable[V] {
+func Values[K, V any](m Map[K, V]) bt.Iterable[V] {
 	return its.Values[K, V](m)
 }
 

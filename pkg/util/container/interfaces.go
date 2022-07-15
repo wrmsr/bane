@@ -20,23 +20,23 @@ type Mutable interface {
 type Ordered[T any] interface {
 	isOrdered()
 
-	its.Iterable[T]
+	bt.Iterable[T]
 }
 
 type Persistent[T any] interface {
 	isPersistent()
 
-	its.Iterable[T]
+	bt.Iterable[T]
 }
 
 type Sorted[A, I any] interface {
 	isSorted()
 
-	its.Iterable[I]
-	ReverseIterate() its.Iterator[I]
+	bt.Iterable[I]
+	ReverseIterate() bt.Iterator[I]
 
-	IterateFrom(a A) its.Iterator[I]
-	ReverseIterateFrom(a A) its.Iterator[I]
+	IterateFrom(a A) bt.Iterator[I]
+	ReverseIterateFrom(a A) bt.Iterator[I]
 }
 
 //
@@ -45,7 +45,7 @@ type List[T any] interface {
 	Len() int
 	Get(i int) T
 
-	its.Iterable[T]
+	bt.Iterable[T]
 	its.Traversable[T]
 }
 
@@ -63,7 +63,7 @@ type Set[T any] interface {
 	Len() int
 	Contains(v T) bool
 
-	its.Iterable[T]
+	bt.Iterable[T]
 	its.Traversable[T]
 }
 
@@ -85,7 +85,7 @@ type Map[K, V any] interface {
 	Get(k K) V
 	TryGet(k K) (V, bool)
 
-	its.Iterable[bt.Kv[K, V]]
+	bt.Iterable[bt.Kv[K, V]]
 	its.Traversable[bt.Kv[K, V]]
 }
 
@@ -145,7 +145,7 @@ type TypeMap[T any] interface {
 	Get(ty reflect.Type) T
 	TryGet(ty reflect.Type) (T, bool)
 
-	its.Iterable[T]
+	bt.Iterable[T]
 	its.Traversable[T]
 }
 

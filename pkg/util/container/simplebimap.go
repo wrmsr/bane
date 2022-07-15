@@ -1,7 +1,6 @@
 package container
 
 import (
-	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -12,7 +11,7 @@ type SimpleBiMap[K, V comparable] struct {
 	i Map[V, K]
 }
 
-func initBiMap[K, V comparable](it its.Iterable[bt.Kv[K, V]]) (map[K]V, map[V]K) {
+func initBiMap[K, V comparable](it bt.Iterable[bt.Kv[K, V]]) (map[K]V, map[V]K) {
 	m := make(map[K]V)
 	i := make(map[V]K)
 	if it != nil {
@@ -25,7 +24,7 @@ func initBiMap[K, V comparable](it its.Iterable[bt.Kv[K, V]]) (map[K]V, map[V]K)
 	return m, i
 }
 
-func NewSimpleBiMap[K, V comparable](it its.Iterable[bt.Kv[K, V]]) SimpleBiMap[K, V] {
+func NewSimpleBiMap[K, V comparable](it bt.Iterable[bt.Kv[K, V]]) SimpleBiMap[K, V] {
 	m, i := initBiMap(it)
 	return SimpleBiMap[K, V]{Map: StdMap[K, V]{m: m}, i: StdMap[V, K]{i}}
 }
@@ -44,7 +43,7 @@ type MutSimpleBiMap[K, V comparable] struct {
 	i MutMap[V, K]
 }
 
-func NewMutSimpleBiMap[K, V comparable](it its.Iterable[bt.Kv[K, V]]) MutSimpleBiMap[K, V] {
+func NewMutSimpleBiMap[K, V comparable](it bt.Iterable[bt.Kv[K, V]]) MutSimpleBiMap[K, V] {
 	m, i := initBiMap(it)
 	return MutSimpleBiMap[K, V]{m: MutStdMap[K, V]{StdMap[K, V]{m: m}}, i: MutStdMap[V, K]{StdMap[V, K]{i}}}
 }
@@ -57,7 +56,7 @@ func (m MutSimpleBiMap[K, V]) Len() int                                  { retur
 func (m MutSimpleBiMap[K, V]) Contains(k K) bool                         { return m.m.Contains(k) }
 func (m MutSimpleBiMap[K, V]) Get(k K) V                                 { return m.m.Get(k) }
 func (m MutSimpleBiMap[K, V]) TryGet(k K) (V, bool)                      { return m.m.TryGet(k) }
-func (m MutSimpleBiMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]]        { return m.m.Iterate() }
+func (m MutSimpleBiMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]]         { return m.m.Iterate() }
 func (m MutSimpleBiMap[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool { return m.m.ForEach(fn) }
 
 func (m MutSimpleBiMap[K, V]) Put(k K, v V) {

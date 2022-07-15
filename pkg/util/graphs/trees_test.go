@@ -7,6 +7,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/check"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 ///
@@ -50,7 +51,7 @@ func (c *Sub) Children() []Calc { return []Calc{c.L, c.R} }
 ///
 
 func TestTrees(t *testing.T) {
-	walk := func(n Calc) its.Iterable[Calc] {
+	walk := func(n Calc) bt.Iterable[Calc] {
 		switch n := n.(type) {
 		case *Num:
 			return its.Of[Calc]()

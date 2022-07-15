@@ -1,7 +1,6 @@
 package container
 
 import (
-	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -22,7 +21,7 @@ func (b *MapBuilder[K, V]) Put(k K, v V) *MapBuilder[K, V] {
 	return b
 }
 
-func (b *MapBuilder[K, V]) Update(it its.Iterable[bt.Kv[K, V]]) *MapBuilder[K, V] {
+func (b *MapBuilder[K, V]) Update(it bt.Iterable[bt.Kv[K, V]]) *MapBuilder[K, V] {
 	if it != nil {
 		for it := it.Iterate(); it.HasNext(); {
 			kv := it.Next()

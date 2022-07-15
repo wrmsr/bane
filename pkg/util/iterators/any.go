@@ -1,9 +1,13 @@
 package iterators
 
+import (
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
+
 type AnyIterable interface {
-	AnyIterate() Iterator[any]
+	AnyIterate() bt.Iterator[any]
 }
 
-func AsAny[T any](it Iterable[T]) Iterable[any] {
+func AsAny[T any](it bt.Iterable[T]) bt.Iterable[any] {
 	return Map(it, func(e T) any { return e })
 }

@@ -3,7 +3,6 @@ package sql
 import (
 	"reflect"
 
-	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -73,9 +72,9 @@ func (ri *RowsIterator) Close() error {
 	return ri.b.Close()
 }
 
-var _ its.Iterator[bt.Result[Row]] = &RowsIterator{}
+var _ bt.Iterator[bt.Result[Row]] = &RowsIterator{}
 
-func (ri *RowsIterator) Iterate() its.Iterator[bt.Result[Row]] {
+func (ri *RowsIterator) Iterate() bt.Iterator[bt.Result[Row]] {
 	return ri
 }
 
@@ -109,7 +108,7 @@ func (ri *RowsIterator) Next() bt.Result[Row] {
 		ri.HasNext()
 	}
 	if ri.st == riDone {
-		panic(its.IteratorExhaustedError{})
+		panic(bt.IteratorExhaustedError{})
 	} else if ri.st != riLoaded {
 		panic("internal state error")
 	}

@@ -10,6 +10,7 @@ import (
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -48,7 +49,7 @@ func (tdl textDistsLoader) LoadDists(buf string) textDists {
 	return tdl.loadDists(lines.Iterate())
 }
 
-func (tdl textDistsLoader) loadDists(lines its.Iterator[string]) textDists {
+func (tdl textDistsLoader) loadDists(lines bt.Iterator[string]) textDists {
 	dists := make(textDists)
 
 	for lines.HasNext() {
@@ -69,7 +70,7 @@ func (tdl textDistsLoader) loadDists(lines its.Iterator[string]) textDists {
 	return dists
 }
 
-func (tdl textDistsLoader) loadDist(lines its.Iterator[string], name string) *textDist {
+func (tdl textDistsLoader) loadDist(lines bt.Iterator[string], name string) *textDist {
 	count := -1
 	members := ctr.NewMutSliceMap[string, int](nil)
 	for lines.HasNext() {

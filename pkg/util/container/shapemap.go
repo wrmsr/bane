@@ -14,7 +14,7 @@ type MapShape[K comparable] struct {
 	m  map[K]int
 }
 
-func NewMapShape[K comparable](ks its.Iterable[K]) MapShape[K] {
+func NewMapShape[K comparable](ks bt.Iterable[K]) MapShape[K] {
 	var s []K
 	m := make(map[K]int)
 	i := 0
@@ -44,7 +44,7 @@ func (s MapShape[K]) Contains(k K) bool {
 	return ok
 }
 
-func (s MapShape[K]) Iterate() its.Iterator[K] {
+func (s MapShape[K]) Iterate() bt.Iterator[K] {
 	return its.OfSlice(s.ks).Iterate()
 }
 
@@ -64,7 +64,7 @@ type ShapeMap[K comparable, V any] struct {
 	vs    []V
 }
 
-func NewShapeMap[K comparable, V any](shape MapShape[K], vs its.Iterable[V]) ShapeMap[K, V] {
+func NewShapeMap[K comparable, V any](shape MapShape[K], vs bt.Iterable[V]) ShapeMap[K, V] {
 	s := make([]V, 0, shape.Len())
 	if vs != nil {
 		i := 0
@@ -109,7 +109,7 @@ func (m ShapeMap[K, V]) TryGet(k K) (V, bool) {
 	return z, false
 }
 
-func (m ShapeMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m ShapeMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
 	return its.Map(its.Range(0, m.shape.Len(), 1), func(i int) bt.Kv[K, V] {
 		return bt.KvOf(m.shape.ks[i], m.vs[i])
 	}).Iterate()
@@ -130,7 +130,7 @@ type MutShapeMap[K comparable, V any] struct {
 	m ShapeMap[K, V]
 }
 
-func NewMutShapeMap[K comparable, V any](shape MapShape[K], vs its.Iterable[V]) MutShapeMap[K, V] {
+func NewMutShapeMap[K comparable, V any](shape MapShape[K], vs bt.Iterable[V]) MutShapeMap[K, V] {
 	return MutShapeMap[K, V]{m: NewShapeMap(shape, vs)}
 }
 
@@ -142,7 +142,7 @@ func (m MutShapeMap[K, V]) Len() int                                  { return m
 func (m MutShapeMap[K, V]) Contains(k K) bool                         { return m.m.Contains(k) }
 func (m MutShapeMap[K, V]) Get(k K) V                                 { return m.m.Get(k) }
 func (m MutShapeMap[K, V]) TryGet(k K) (V, bool)                      { return m.m.TryGet(k) }
-func (m MutShapeMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]]        { return m.m.Iterate() }
+func (m MutShapeMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]]         { return m.m.Iterate() }
 func (m MutShapeMap[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool { return m.m.ForEach(fn) }
 
 func (m MutShapeMap[K, V]) Put(k K, v V) {

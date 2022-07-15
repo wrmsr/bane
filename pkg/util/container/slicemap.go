@@ -13,7 +13,7 @@ type SliceMap[K comparable, V any] struct {
 	m map[K]int
 }
 
-func NewSliceMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) SliceMap[K, V] {
+func NewSliceMap[K comparable, V any](it bt.Iterable[bt.Kv[K, V]]) SliceMap[K, V] {
 	m := SliceMap[K, V]{
 		m: make(map[K]int),
 	}
@@ -55,7 +55,7 @@ func (m SliceMap[K, V]) TryGet(k K) (V, bool) {
 	return m.s[i].V, true
 }
 
-func (m SliceMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m SliceMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
 	return its.OfSlice(m.s).Iterate()
 }
 
@@ -68,7 +68,7 @@ func (m SliceMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
 	return true
 }
 
-func (m SliceMap[K, V]) IterateFrom(k K) its.Iterator[bt.Kv[K, V]] {
+func (m SliceMap[K, V]) IterateFrom(k K) bt.Iterator[bt.Kv[K, V]] {
 	i, ok := m.m[k]
 	if !ok {
 		return its.Empty[bt.Kv[K, V]]()
@@ -76,11 +76,11 @@ func (m SliceMap[K, V]) IterateFrom(k K) its.Iterator[bt.Kv[K, V]] {
 	return its.OfSliceRange(m.s, bt.RangeOf(i, len(m.s), 1)).Iterate()
 }
 
-func (m SliceMap[K, V]) ReverseIterate() its.Iterator[bt.Kv[K, V]] {
+func (m SliceMap[K, V]) ReverseIterate() bt.Iterator[bt.Kv[K, V]] {
 	return its.OfSliceRange(m.s, bt.RangeOf(len(m.s)-1, -1, -1)).Iterate()
 }
 
-func (m SliceMap[K, V]) ReverseIterateFrom(k K) its.Iterator[bt.Kv[K, V]] {
+func (m SliceMap[K, V]) ReverseIterateFrom(k K) bt.Iterator[bt.Kv[K, V]] {
 	i, ok := m.m[k]
 	if !ok {
 		return its.Empty[bt.Kv[K, V]]()
@@ -90,7 +90,7 @@ func (m SliceMap[K, V]) ReverseIterateFrom(k K) its.Iterator[bt.Kv[K, V]] {
 
 var _ its.AnyIterable = SliceMap[int, string]{}
 
-func (m SliceMap[K, V]) AnyIterate() its.Iterator[any] {
+func (m SliceMap[K, V]) AnyIterate() bt.Iterator[any] {
 	return its.AsAny[bt.Kv[K, V]](m).Iterate()
 }
 
@@ -141,7 +141,7 @@ type MutSliceMap[K comparable, V any] struct {
 	m SliceMap[K, V]
 }
 
-func NewMutSliceMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) *MutSliceMap[K, V] {
+func NewMutSliceMap[K comparable, V any](it bt.Iterable[bt.Kv[K, V]]) *MutSliceMap[K, V] {
 	return &MutSliceMap[K, V]{m: NewSliceMap[K, V](it)}
 }
 
@@ -158,12 +158,12 @@ func (m *MutSliceMap[K, V]) Len() int                                 { return m
 func (m *MutSliceMap[K, V]) Contains(k K) bool                        { return m.m.Contains(k) }
 func (m *MutSliceMap[K, V]) Get(k K) V                                { return m.m.Get(k) }
 func (m *MutSliceMap[K, V]) TryGet(k K) (V, bool)                     { return m.m.TryGet(k) }
-func (m *MutSliceMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]]       { return m.m.Iterate() }
+func (m *MutSliceMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]]        { return m.m.Iterate() }
 func (m *MutSliceMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool { return m.m.ForEach(fn) }
 
-func (m *MutSliceMap[K, V]) IterateFrom(k K) its.Iterator[bt.Kv[K, V]] { return m.m.IterateFrom(k) }
-func (m *MutSliceMap[K, V]) ReverseIterate() its.Iterator[bt.Kv[K, V]] { return m.m.ReverseIterate() }
-func (m *MutSliceMap[K, V]) ReverseIterateFrom(k K) its.Iterator[bt.Kv[K, V]] {
+func (m *MutSliceMap[K, V]) IterateFrom(k K) bt.Iterator[bt.Kv[K, V]] { return m.m.IterateFrom(k) }
+func (m *MutSliceMap[K, V]) ReverseIterate() bt.Iterator[bt.Kv[K, V]] { return m.m.ReverseIterate() }
+func (m *MutSliceMap[K, V]) ReverseIterateFrom(k K) bt.Iterator[bt.Kv[K, V]] {
 	return m.m.ReverseIterateFrom(k)
 }
 

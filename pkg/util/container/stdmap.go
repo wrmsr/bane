@@ -11,7 +11,7 @@ type StdMap[K comparable, V any] struct {
 	m map[K]V
 }
 
-func NewStdMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) StdMap[K, V] {
+func NewStdMap[K comparable, V any](it bt.Iterable[bt.Kv[K, V]]) StdMap[K, V] {
 	m := make(map[K]V)
 	if it != nil {
 		for it := it.Iterate(); it.HasNext(); {
@@ -44,7 +44,7 @@ func (m StdMap[K, V]) TryGet(k K) (V, bool) {
 	return v, ok
 }
 
-func (m StdMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m StdMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
 	return its.OfMap[K, V](m.m).Iterate()
 }
 
@@ -63,7 +63,7 @@ type MutStdMap[K comparable, V any] struct {
 	m StdMap[K, V]
 }
 
-func NewMutStdMap[K comparable, V any](it its.Iterable[bt.Kv[K, V]]) MutStdMap[K, V] {
+func NewMutStdMap[K comparable, V any](it bt.Iterable[bt.Kv[K, V]]) MutStdMap[K, V] {
 	return MutStdMap[K, V]{m: NewStdMap[K, V](it)}
 }
 
@@ -79,7 +79,7 @@ func (m MutStdMap[K, V]) Len() int                               { return m.m.Le
 func (m MutStdMap[K, V]) Contains(k K) bool                      { return m.m.Contains(k) }
 func (m MutStdMap[K, V]) Get(k K) V                              { return m.m.Get(k) }
 func (m MutStdMap[K, V]) TryGet(k K) (V, bool)                   { return m.m.TryGet(k) }
-func (m MutStdMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]]     { return m.m.Iterate() }
+func (m MutStdMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]]      { return m.m.Iterate() }
 func (m MutStdMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool { return m.m.ForEach(fn) }
 
 func (m MutStdMap[K, V]) Put(k K, v V) {

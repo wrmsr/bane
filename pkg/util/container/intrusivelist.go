@@ -5,6 +5,7 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -200,9 +201,9 @@ type intrusiveListIterator[T any] struct {
 	p *T
 }
 
-var _ its.Iterator[*int] = &intrusiveListIterator[int]{}
+var _ bt.Iterator[*int] = &intrusiveListIterator[int]{}
 
-func (i *intrusiveListIterator[T]) Iterate() its.Iterator[*T] {
+func (i *intrusiveListIterator[T]) Iterate() bt.Iterator[*T] {
 	return i
 }
 
@@ -216,11 +217,11 @@ func (i *intrusiveListIterator[T]) Next() *T {
 	return r
 }
 
-func (l IntrusiveList[T]) Iterate() its.Iterator[*T] {
+func (l IntrusiveList[T]) Iterate() bt.Iterator[*T] {
 	return &intrusiveListIterator[T]{o: l.o, p: l.head}
 }
 
-func (l IntrusiveList[T]) IterateFrom(e *T) its.Iterator[*T] {
+func (l IntrusiveList[T]) IterateFrom(e *T) bt.Iterator[*T] {
 	return &intrusiveListIterator[T]{o: l.o, p: e}
 }
 
@@ -231,9 +232,9 @@ type intrusiveListReverseIterator[T any] struct {
 	p *T
 }
 
-var _ its.Iterator[*int] = &intrusiveListReverseIterator[int]{}
+var _ bt.Iterator[*int] = &intrusiveListReverseIterator[int]{}
 
-func (i *intrusiveListReverseIterator[T]) Iterate() its.Iterator[*T] {
+func (i *intrusiveListReverseIterator[T]) Iterate() bt.Iterator[*T] {
 	return i
 }
 
@@ -247,11 +248,11 @@ func (i *intrusiveListReverseIterator[T]) Next() *T {
 	return r
 }
 
-func (l *IntrusiveList[T]) ReverseIterate() its.Iterator[*T] {
+func (l *IntrusiveList[T]) ReverseIterate() bt.Iterator[*T] {
 	return &intrusiveListReverseIterator[T]{o: l.o, p: l.tail}
 }
 
-func (l *IntrusiveList[T]) ReverseIterateFrom(e *T) its.Iterator[*T] {
+func (l *IntrusiveList[T]) ReverseIterateFrom(e *T) bt.Iterator[*T] {
 	return &intrusiveListReverseIterator[T]{o: l.o, p: e}
 }
 

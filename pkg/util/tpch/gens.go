@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func calculateRowCount(scaleBase int, scaleFactor float32, part int, partCount int) int {
@@ -109,7 +110,7 @@ const regionCommentAverageLength = 72
 func generateRegions(
 	textDists textDists,
 	textPool *textPool,
-) its.Iterable[map[string]any] {
+) bt.Iterable[map[string]any] {
 	if textDists == nil {
 		textDists = getTextDists()
 	}

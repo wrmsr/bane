@@ -76,7 +76,7 @@ func TestProcStatus(t *testing.T) {
 	s := procStatusContent
 
 	lines := its.OfSlice(stru.TrimSpaceSplit(s, "\n"))
-	kvs := its.FlatMap(lines, func(l string) its.Iterable[bt.Kv[string, string]] {
+	kvs := its.FlatMap(lines, func(l string) bt.Iterable[bt.Kv[string, string]] {
 		k, v, ok := stru.TrimSpaceCut(l, ":")
 		if !ok {
 			return opt.None[bt.Kv[string, string]]()
@@ -100,7 +100,7 @@ func TestProcNetNetstat(t *testing.T) {
 	s := procNetNetstatContent
 	lines := its.OfSlice(stru.TrimSpaceSplit(s, "\n"))
 
-	kvs := its.FlatMap(its.ChunkShared(lines, 2), func(ls []string) its.Iterable[bt.Kv[string, ctr.SliceMap[string, string]]] {
+	kvs := its.FlatMap(its.ChunkShared(lines, 2), func(ls []string) bt.Iterable[bt.Kv[string, ctr.SliceMap[string, string]]] {
 		if len(ls) != 2 {
 			return opt.None[bt.Kv[string, ctr.SliceMap[string, string]]]()
 		}

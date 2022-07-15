@@ -1,18 +1,20 @@
 package iterators
 
+import bt "github.com/wrmsr/bane/pkg/util/types"
+
 //
 
 type countIterator struct {
 	n int
 }
 
-func Count() Iterable[int] {
-	return Factory(func() Iterator[int] { return &countIterator{} }, nil)
+func Count() bt.Iterable[int] {
+	return Factory(func() bt.Iterator[int] { return &countIterator{} }, nil)
 }
 
-var _ Iterator[int] = &countIterator{}
+var _ bt.Iterator[int] = &countIterator{}
 
-func (i *countIterator) Iterate() Iterator[int] {
+func (i *countIterator) Iterate() bt.Iterator[int] {
 	return i
 }
 
@@ -32,8 +34,8 @@ type rangeIterator struct {
 	n, stop, step int
 }
 
-func Range(start, stop, step int) Iterable[int] {
-	return Factory(func() Iterator[int] {
+func Range(start, stop, step int) bt.Iterable[int] {
+	return Factory(func() bt.Iterator[int] {
 		return &rangeIterator{
 			n:    start,
 			stop: stop,
@@ -42,13 +44,13 @@ func Range(start, stop, step int) Iterable[int] {
 	}, nil)
 }
 
-func Range1(start, stop int) Iterable[int] {
+func Range1(start, stop int) bt.Iterable[int] {
 	return Range(start, stop, 1)
 }
 
-var _ Iterator[int] = &rangeIterator{}
+var _ bt.Iterator[int] = &rangeIterator{}
 
-func (i *rangeIterator) Iterate() Iterator[int] {
+func (i *rangeIterator) Iterate() bt.Iterator[int] {
 	return i
 }
 

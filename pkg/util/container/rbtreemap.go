@@ -4,7 +4,6 @@ import (
 	"golang.org/x/exp/constraints"
 
 	"github.com/wrmsr/bane/pkg/util/container/rbtree"
-	its "github.com/wrmsr/bane/pkg/util/iterators"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -22,7 +21,7 @@ func kvLessImpl[K, V any](less bt.LessImpl[K]) bt.LessImpl[any] {
 	}
 }
 
-func NewRbTreeMap[K, V any](less bt.LessImpl[K], it its.Iterable[bt.Kv[K, V]]) RbTreeMap[K, V] {
+func NewRbTreeMap[K, V any](less bt.LessImpl[K], it bt.Iterable[bt.Kv[K, V]]) RbTreeMap[K, V] {
 	if less == nil {
 		panic("must provide less impl")
 	}
@@ -69,9 +68,9 @@ type rbTreeMapIterator[K, V any] struct {
 	i rbtree.RbIter
 }
 
-var _ its.Iterator[bt.Kv[int, string]] = &rbTreeMapIterator[int, string]{}
+var _ bt.Iterator[bt.Kv[int, string]] = &rbTreeMapIterator[int, string]{}
 
-func (i *rbTreeMapIterator[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (i *rbTreeMapIterator[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
 	return i
 }
 
@@ -85,7 +84,7 @@ func (i *rbTreeMapIterator[K, V]) Next() bt.Kv[K, V] {
 	return kv
 }
 
-func (m RbTreeMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m RbTreeMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
 	return &rbTreeMapIterator[K, V]{i: rbtree.RbIterAt(m.t.Min())}
 }
 
@@ -127,7 +126,7 @@ type MutRbTreeMap[K, V any] struct {
 	m RbTreeMap[K, V]
 }
 
-func NewMutRbTreeMap[K, V any](less bt.LessImpl[K], it its.Iterable[bt.Kv[K, V]]) *MutRbTreeMap[K, V] {
+func NewMutRbTreeMap[K, V any](less bt.LessImpl[K], it bt.Iterable[bt.Kv[K, V]]) *MutRbTreeMap[K, V] {
 	return &MutRbTreeMap[K, V]{m: NewRbTreeMap[K, V](less, it)}
 }
 
@@ -139,7 +138,7 @@ func (m *MutRbTreeMap[K, V]) Len() int                                 { return 
 func (m *MutRbTreeMap[K, V]) Contains(k K) bool                        { return m.m.Contains(k) }
 func (m *MutRbTreeMap[K, V]) Get(k K) V                                { return m.m.Get(k) }
 func (m *MutRbTreeMap[K, V]) TryGet(k K) (V, bool)                     { return m.m.TryGet(k) }
-func (m *MutRbTreeMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]]       { return m.m.Iterate() }
+func (m *MutRbTreeMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]]        { return m.m.Iterate() }
 func (m *MutRbTreeMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool { return m.m.ForEach(fn) }
 
 func (m *MutRbTreeMap[K, V]) Put(k K, v V) {
@@ -164,17 +163,17 @@ type PrimitiveRbTreeMap[K constraints.Ordered, V any] struct {
 	m RbTreeMap[K, V]
 }
 
-func NewPrimitiveRbTreeMap[K constraints.Ordered, V any](it its.Iterable[bt.Kv[K, V]]) PrimitiveRbTreeMap[K, V] {
+func NewPrimitiveRbTreeMap[K constraints.Ordered, V any](it bt.Iterable[bt.Kv[K, V]]) PrimitiveRbTreeMap[K, V] {
 	return PrimitiveRbTreeMap[K, V]{m: NewRbTreeMap[K, V](bt.CmpLessImpl(bt.OrderedCmp[K]), it)}
 }
 
 var _ Map[int, string] = PrimitiveRbTreeMap[int, string]{}
 
-func (m PrimitiveRbTreeMap[K, V]) Len() int                           { return m.m.Len() }
-func (m PrimitiveRbTreeMap[K, V]) Contains(k K) bool                  { return m.m.Contains(k) }
-func (m PrimitiveRbTreeMap[K, V]) Get(k K) V                          { return m.m.Get(k) }
-func (m PrimitiveRbTreeMap[K, V]) TryGet(k K) (V, bool)               { return m.m.TryGet(k) }
-func (m PrimitiveRbTreeMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] { return m.m.Iterate() }
+func (m PrimitiveRbTreeMap[K, V]) Len() int                          { return m.m.Len() }
+func (m PrimitiveRbTreeMap[K, V]) Contains(k K) bool                 { return m.m.Contains(k) }
+func (m PrimitiveRbTreeMap[K, V]) Get(k K) V                         { return m.m.Get(k) }
+func (m PrimitiveRbTreeMap[K, V]) TryGet(k K) (V, bool)              { return m.m.TryGet(k) }
+func (m PrimitiveRbTreeMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] { return m.m.Iterate() }
 
 func (m PrimitiveRbTreeMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 	return m.m.ForEach(fn)
@@ -186,7 +185,7 @@ type PrimitiveMutRbTreeMap[K constraints.Ordered, V any] struct {
 	m RbTreeMap[K, V]
 }
 
-func NewPrimitiveMutRbTreeMap[K constraints.Ordered, V any](it its.Iterable[bt.Kv[K, V]]) *PrimitiveMutRbTreeMap[K, V] {
+func NewPrimitiveMutRbTreeMap[K constraints.Ordered, V any](it bt.Iterable[bt.Kv[K, V]]) *PrimitiveMutRbTreeMap[K, V] {
 	return &PrimitiveMutRbTreeMap[K, V]{m: NewRbTreeMap[K, V](bt.CmpLessImpl(bt.OrderedCmp[K]), it)}
 }
 
@@ -194,11 +193,11 @@ var _ MutMap[int, string] = &PrimitiveMutRbTreeMap[int, string]{}
 
 func (m *PrimitiveMutRbTreeMap[K, V]) isMutable() {}
 
-func (m *PrimitiveMutRbTreeMap[K, V]) Len() int                           { return m.m.Len() }
-func (m *PrimitiveMutRbTreeMap[K, V]) Contains(k K) bool                  { return m.m.Contains(k) }
-func (m *PrimitiveMutRbTreeMap[K, V]) Get(k K) V                          { return m.m.Get(k) }
-func (m *PrimitiveMutRbTreeMap[K, V]) TryGet(k K) (V, bool)               { return m.m.TryGet(k) }
-func (m *PrimitiveMutRbTreeMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] { return m.m.Iterate() }
+func (m *PrimitiveMutRbTreeMap[K, V]) Len() int                          { return m.m.Len() }
+func (m *PrimitiveMutRbTreeMap[K, V]) Contains(k K) bool                 { return m.m.Contains(k) }
+func (m *PrimitiveMutRbTreeMap[K, V]) Get(k K) V                         { return m.m.Get(k) }
+func (m *PrimitiveMutRbTreeMap[K, V]) TryGet(k K) (V, bool)              { return m.m.TryGet(k) }
+func (m *PrimitiveMutRbTreeMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] { return m.m.Iterate() }
 
 func (m *PrimitiveMutRbTreeMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 	return m.m.ForEach(fn)

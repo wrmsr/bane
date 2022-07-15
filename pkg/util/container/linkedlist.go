@@ -3,14 +3,14 @@ package container
 import (
 	"container/list"
 
-	its "github.com/wrmsr/bane/pkg/util/iterators"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type LinkedList[T any] struct {
 	list.List
 }
 
-func NewLinkedList[T any](it its.Iterable[T]) *LinkedList[T] {
+func NewLinkedList[T any](it bt.Iterable[T]) *LinkedList[T] {
 	l := list.New()
 	if it != nil {
 		for it := it.Iterate(); it.HasNext(); {
@@ -47,9 +47,9 @@ type linkedListIterator[T any] struct {
 	e *list.Element
 }
 
-var _ its.Iterator[any] = &linkedListIterator[any]{}
+var _ bt.Iterator[any] = &linkedListIterator[any]{}
 
-func (i *linkedListIterator[T]) Iterate() its.Iterator[T] {
+func (i *linkedListIterator[T]) Iterate() bt.Iterator[T] {
 	return i
 }
 
@@ -63,7 +63,7 @@ func (i *linkedListIterator[T]) Next() T {
 	return v.(T)
 }
 
-func (l *LinkedList[T]) Iterate() its.Iterator[T] {
+func (l *LinkedList[T]) Iterate() bt.Iterator[T] {
 	return &linkedListIterator[T]{l.Front()}
 }
 

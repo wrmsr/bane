@@ -9,21 +9,21 @@ import (
 //
 
 type mapIterator[F, T any] struct {
-	it Iterator[F]
+	it bt.Iterator[F]
 	fn func(f F) T
 }
 
-func Map[F, T any](it Iterable[F], fn func(f F) T) Iterable[T] {
+func Map[F, T any](it bt.Iterable[F], fn func(f F) T) bt.Iterable[T] {
 	check.NotNil(it)
-	return Factory(func() Iterator[T] {
+	return Factory(func() bt.Iterator[T] {
 		return &mapIterator[F, T]{it: it.Iterate(), fn: fn}
 	}, it)
 
 }
 
-var _ Iterator[string] = &mapIterator[int, string]{}
+var _ bt.Iterator[string] = &mapIterator[int, string]{}
 
-func (i *mapIterator[F, T]) Iterate() Iterator[T] {
+func (i *mapIterator[F, T]) Iterate() bt.Iterator[T] {
 	return i
 }
 
@@ -38,23 +38,23 @@ func (i *mapIterator[F, T]) Next() T {
 //
 
 type filterIterator[T any] struct {
-	it Iterator[T]
+	it bt.Iterator[T]
 	fn func(f T) bool
 
 	p bool
 	v T
 }
 
-func Filter[T any](it Iterable[T], fn func(v T) bool) Iterable[T] {
+func Filter[T any](it bt.Iterable[T], fn func(v T) bool) bt.Iterable[T] {
 	check.NotNil(it)
-	return Factory(func() Iterator[T] {
+	return Factory(func() bt.Iterator[T] {
 		return &filterIterator[T]{it: it.Iterate(), fn: fn}
 	}, it)
 }
 
-var _ Iterator[int] = &filterIterator[int]{}
+var _ bt.Iterator[int] = &filterIterator[int]{}
 
-func (i *filterIterator[T]) Iterate() Iterator[T] {
+func (i *filterIterator[T]) Iterate() bt.Iterator[T] {
 	return i
 }
 
@@ -88,19 +88,19 @@ func (i *filterIterator[T]) Next() T {
 //
 
 type enumerateIterator[T any] struct {
-	i Iterator[T]
+	i bt.Iterator[T]
 	c int
 }
 
-func Enumerate[T any](it Iterable[T]) Iterable[bt.Kv[int, T]] {
-	return Factory(func() Iterator[bt.Kv[int, T]] {
+func Enumerate[T any](it bt.Iterable[T]) bt.Iterable[bt.Kv[int, T]] {
+	return Factory(func() bt.Iterator[bt.Kv[int, T]] {
 		return &enumerateIterator[T]{i: it.Iterate()}
 	}, it)
 }
 
-var _ Iterator[bt.Kv[int, any]] = &enumerateIterator[any]{}
+var _ bt.Iterator[bt.Kv[int, any]] = &enumerateIterator[any]{}
 
-func (i *enumerateIterator[T]) Iterate() Iterator[bt.Kv[int, T]] {
+func (i *enumerateIterator[T]) Iterate() bt.Iterator[bt.Kv[int, T]] {
 	return i
 }
 
@@ -117,19 +117,19 @@ func (i *enumerateIterator[T]) Next() bt.Kv[int, T] {
 //
 
 type zipIterator[L, R any] struct {
-	l Iterator[L]
-	r Iterator[R]
+	l bt.Iterator[L]
+	r bt.Iterator[R]
 }
 
-func Zip[L, R any](l Iterable[L], r Iterable[R]) Iterable[bt.Pair[L, R]] {
-	return Factory(func() Iterator[bt.Pair[L, R]] {
+func Zip[L, R any](l bt.Iterable[L], r bt.Iterable[R]) bt.Iterable[bt.Pair[L, R]] {
+	return Factory(func() bt.Iterator[bt.Pair[L, R]] {
 		return &zipIterator[L, R]{l: l.Iterate(), r: r.Iterate()}
 	}, bt.PairOf(l, r))
 }
 
-var _ Iterator[bt.Pair[int, string]] = &zipIterator[int, string]{}
+var _ bt.Iterator[bt.Pair[int, string]] = &zipIterator[int, string]{}
 
-func (i *zipIterator[L, R]) Iterate() Iterator[bt.Pair[L, R]] {
+func (i *zipIterator[L, R]) Iterate() bt.Iterator[bt.Pair[L, R]] {
 	return i
 }
 
@@ -143,7 +143,7 @@ func (i *zipIterator[L, R]) Next() bt.Pair[L, R] {
 
 //
 
-func Kvs[K comparable, V any](it Iterable[bt.Pair[K, V]]) Iterable[bt.Kv[K, V]] {
+func Kvs[K comparable, V any](it bt.Iterable[bt.Pair[K, V]]) bt.Iterable[bt.Kv[K, V]] {
 	return Map(it, func(p bt.Pair[K, V]) bt.Kv[K, V] {
 		return bt.KvOf(p.L, p.R)
 	})
@@ -152,20 +152,20 @@ func Kvs[K comparable, V any](it Iterable[bt.Pair[K, V]]) Iterable[bt.Kv[K, V]] 
 //
 
 type chunkSharedIterator[T any] struct {
-	i Iterator[T]
+	i bt.Iterator[T]
 	n int
 	s []T
 }
 
-func ChunkShared[T any](it Iterable[T], n int) Iterable[[]T] {
-	return Factory(func() Iterator[[]T] {
+func ChunkShared[T any](it bt.Iterable[T], n int) bt.Iterable[[]T] {
+	return Factory(func() bt.Iterator[[]T] {
 		return &chunkSharedIterator[T]{i: it.Iterate(), n: n}
 	}, it)
 }
 
-var _ Iterator[[]any] = &chunkSharedIterator[any]{}
+var _ bt.Iterator[[]any] = &chunkSharedIterator[any]{}
 
-func (i *chunkSharedIterator[T]) Iterate() Iterator[[]T] {
+func (i *chunkSharedIterator[T]) Iterate() bt.Iterator[[]T] {
 	return i
 }
 
@@ -189,28 +189,28 @@ func (i *chunkSharedIterator[T]) Next() []T {
 
 //
 
-func Chunk[T any](it Iterable[T], n int) Iterable[[]T] {
+func Chunk[T any](it bt.Iterable[T], n int) bt.Iterable[[]T] {
 	return Map(ChunkShared(it, n), func(s []T) []T { return slices.Clone(s) })
 }
 
 //
 
 type flattenIterator[T any] struct {
-	it Iterator[Iterable[T]]
-	ci Iterator[T]
+	it bt.Iterator[bt.Iterable[T]]
+	ci bt.Iterator[T]
 }
 
-func Flatten[T any](it Iterable[Iterable[T]]) Iterable[T] {
-	return Factory(func() Iterator[T] {
+func Flatten[T any](it bt.Iterable[bt.Iterable[T]]) bt.Iterable[T] {
+	return Factory(func() bt.Iterator[T] {
 		return &flattenIterator[T]{
 			it: it.Iterate(),
 		}
 	}, it)
 }
 
-var _ Iterator[int] = &flattenIterator[int]{}
+var _ bt.Iterator[int] = &flattenIterator[int]{}
 
-func (i *flattenIterator[T]) Iterate() Iterator[T] {
+func (i *flattenIterator[T]) Iterate() bt.Iterator[T] {
 	return i
 }
 
@@ -244,10 +244,10 @@ func (i *flattenIterator[T]) Next() T {
 
 //
 
-func FlatMap[F, T any](it Iterable[F], fn func(f F) Iterable[T]) Iterable[T] {
+func FlatMap[F, T any](it bt.Iterable[F], fn func(f F) bt.Iterable[T]) bt.Iterable[T] {
 	return Flatten(Map(it, fn))
 }
 
-func FlatSliceMap[F, T any](it Iterable[F], fn func(f F) []T) Iterable[T] {
-	return Flatten(Map(Map(it, fn), func(s []T) Iterable[T] { return OfSlice(s) }))
+func FlatSliceMap[F, T any](it bt.Iterable[F], fn func(f F) []T) bt.Iterable[T] {
+	return Flatten(Map(Map(it, fn), func(s []T) bt.Iterable[T] { return OfSlice(s) }))
 }

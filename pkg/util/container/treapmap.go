@@ -2,7 +2,6 @@ package container
 
 import (
 	"github.com/wrmsr/bane/pkg/util/container/treap"
-	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rndu "github.com/wrmsr/bane/pkg/util/rand"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -62,7 +61,7 @@ func (m TreapMap[K, V]) TryGet(k K) (V, bool) {
 	return n.Value.V, true
 }
 
-func (m TreapMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m TreapMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
 	panic("implement me")
 }
 

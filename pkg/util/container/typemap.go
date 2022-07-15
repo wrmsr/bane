@@ -4,6 +4,7 @@ import (
 	"reflect"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -12,7 +13,7 @@ type typeMapImpl[T any] struct {
 	m map[reflect.Type]T
 }
 
-func newTypeMapImpl[T any](it its.Iterable[T]) typeMapImpl[T] {
+func newTypeMapImpl[T any](it bt.Iterable[T]) typeMapImpl[T] {
 	m := make(map[reflect.Type]T)
 	if it != nil {
 		for it := it.Iterate(); it.HasNext(); {
@@ -23,7 +24,7 @@ func newTypeMapImpl[T any](it its.Iterable[T]) typeMapImpl[T] {
 	return typeMapImpl[T]{m: m}
 }
 
-func NewTypeMap[T any](it its.Iterable[T]) TypeMap[T] {
+func NewTypeMap[T any](it bt.Iterable[T]) TypeMap[T] {
 	return newTypeMapImpl(it)
 }
 
@@ -48,7 +49,7 @@ func (m typeMapImpl[T]) TryGet(ty reflect.Type) (T, bool) {
 	return v, ok
 }
 
-func (m typeMapImpl[T]) Iterate() its.Iterator[T] {
+func (m typeMapImpl[T]) Iterate() bt.Iterator[T] {
 	vs := make([]T, len(m.m))
 	i := 0
 	for _, v := range m.m {
@@ -73,7 +74,7 @@ type mutTypeMapImpl[T any] struct {
 	typeMapImpl[T]
 }
 
-func NewMutTypeMap[T any](it its.Iterable[T]) MutTypeMap[T] {
+func NewMutTypeMap[T any](it bt.Iterable[T]) MutTypeMap[T] {
 	return mutTypeMapImpl[T]{newTypeMapImpl(it)}
 }
 

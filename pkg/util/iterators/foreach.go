@@ -1,5 +1,9 @@
 package iterators
 
+import (
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
+
 //
 
 type Traversable[T any] interface {
@@ -8,7 +12,7 @@ type Traversable[T any] interface {
 
 //
 
-func ForEach[T any](it Iterable[T], fn func(v T) bool) bool {
+func ForEach[T any](it bt.Iterable[T], fn func(v T) bool) bool {
 	for it := it.Iterate(); it.HasNext(); {
 		if !fn(it.Next()) {
 			return false
@@ -36,10 +40,10 @@ func SeqForEach[T any](t Traversable[T]) []T {
 //
 
 type traversableIterable[T any] struct {
-	Iterable[T]
+	bt.Iterable[T]
 }
 
-func AsTraversable[T any](it Iterable[T]) Traversable[T] {
+func AsTraversable[T any](it bt.Iterable[T]) Traversable[T] {
 	return traversableIterable[T]{it}
 }
 

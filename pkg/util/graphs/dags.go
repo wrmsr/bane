@@ -23,8 +23,8 @@ func SliceEdges[T comparable](m map[T][]T) ctr.Map[T, ctr.Set[T]] {
 	return ctr.NewStdMap(its.OfMap(maps.MapValues(func(s []T) ctr.Set[T] { return ctr.NewStdSet(its.OfSlice(s)) }, m)))
 }
 
-func ItEdges[T comparable](it its.Iterable[bt.Kv[T, its.Iterable[T]]]) ctr.Map[T, ctr.Set[T]] {
-	return ctr.NewStdMap[T, ctr.Set[T]](its.MapValues(it, func(i its.Iterable[T]) ctr.Set[T] { return ctr.NewStdSet(i) }))
+func ItEdges[T comparable](it bt.Iterable[bt.Kv[T, bt.Iterable[T]]]) ctr.Map[T, ctr.Set[T]] {
+	return ctr.NewStdMap[T, ctr.Set[T]](its.MapValues(it, func(i bt.Iterable[T]) ctr.Set[T] { return ctr.NewStdSet(i) }))
 }
 
 func NewDag[T comparable](inputSetsByOutput ctr.Map[T, ctr.Set[T]]) *Dag[T] {
@@ -61,7 +61,7 @@ func (d *Dag[T]) OutputSetsByOutput() ctr.Map[T, ctr.Set[T]] {
 	})
 }
 
-func (d *Dag[T]) Subdag(targets its.Iterable[T], ignored its.Iterable[T]) *Subdag[T] {
+func (d *Dag[T]) Subdag(targets bt.Iterable[T], ignored bt.Iterable[T]) *Subdag[T] {
 	return &Subdag[T]{
 		dag: d,
 
@@ -70,7 +70,7 @@ func (d *Dag[T]) Subdag(targets its.Iterable[T], ignored its.Iterable[T]) *Subda
 	}
 }
 
-func TraverseLinks[T comparable](data ctr.Map[T, ctr.Set[T]], keys its.Iterable[T]) ctr.Set[T] {
+func TraverseLinks[T comparable](data ctr.Map[T, ctr.Set[T]], keys bt.Iterable[T]) ctr.Set[T] {
 	keySet := ctr.NewStdSet(keys)
 	todoSet := ctr.NewMutStdSet[T](keySet)
 	seenSet := ctr.NewMutStdSet[T](nil)

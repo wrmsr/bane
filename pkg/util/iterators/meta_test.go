@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func TestMap(t *testing.T) {
@@ -15,7 +16,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestFlatten(t *testing.T) {
-	tu.AssertDeepEqual(t, Take[int](Flatten(Map(Count(), func(i int) Iterable[int] { return Of[int](i, i*2) })), 7), []int{0, 0, 1, 2, 2, 4, 3})
+	tu.AssertDeepEqual(t, Take[int](Flatten(Map(Count(), func(i int) bt.Iterable[int] { return Of[int](i, i*2) })), 7), []int{0, 0, 1, 2, 2, 4, 3})
 }
 
 func TestChunk(t *testing.T) {

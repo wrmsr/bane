@@ -65,7 +65,7 @@ func buildStructFields(root []*FieldInfo) StructFields {
 	byDupe := ctr.NewMutSliceMap[string, ctr.List[*FieldInfo]](nil)
 	byName.ForEach(func(kv bt.Kv[string, ctr.MutList[*FieldInfo]]) bool {
 		s := kv.V
-		if its.Any((*FieldInfo).Anonymous, s.(its.Iterable[*FieldInfo])) {
+		if its.Any((*FieldInfo).Anonymous, s.(bt.Iterable[*FieldInfo])) {
 			if s.Len() != 1 {
 				panic(fmt.Errorf("anonymous field name collision: %s", s.Get(0).Name()))
 			}

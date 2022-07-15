@@ -11,7 +11,7 @@ type StdSet[T comparable] struct {
 	m map[T]struct{}
 }
 
-func NewStdSet[T comparable](it its.Iterable[T]) StdSet[T] {
+func NewStdSet[T comparable](it bt.Iterable[T]) StdSet[T] {
 	s := StdSet[T]{
 		m: make(map[T]struct{}),
 	}
@@ -38,7 +38,7 @@ func (s StdSet[T]) Contains(t T) bool {
 	return ok
 }
 
-func (s StdSet[T]) Iterate() its.Iterator[T] {
+func (s StdSet[T]) Iterate() bt.Iterator[T] {
 	return its.Map(
 		its.OfMap(s.m),
 		func(kv bt.Kv[T, struct{}]) T {
@@ -62,7 +62,7 @@ type MutStdSet[T comparable] struct {
 	s StdSet[T]
 }
 
-func NewMutStdSet[T comparable](it its.Iterable[T]) MutStdSet[T] {
+func NewMutStdSet[T comparable](it bt.Iterable[T]) MutStdSet[T] {
 	return MutStdSet[T]{s: NewStdSet(it)}
 }
 
@@ -76,7 +76,7 @@ func (s MutStdSet[T]) isMutable() {}
 
 func (s MutStdSet[T]) Len() int                       { return s.s.Len() }
 func (s MutStdSet[T]) Contains(v T) bool              { return s.s.Contains(v) }
-func (s MutStdSet[T]) Iterate() its.Iterator[T]       { return s.s.Iterate() }
+func (s MutStdSet[T]) Iterate() bt.Iterator[T]        { return s.s.Iterate() }
 func (s MutStdSet[T]) ForEach(fn func(v T) bool) bool { return s.s.ForEach(fn) }
 
 func (s MutStdSet[T]) Add(value T) {

@@ -432,6 +432,6 @@ func (c *Cache[K]) ForEach(fn func(bt.Kv[K, any]) bool) bool {
 
 var _ ctr.Map[int, any] = &Cache[int]{}
 
-func (c *Cache[K]) Iterate() its.Iterator[bt.Kv[K, any]] {
+func (c *Cache[K]) Iterate() bt.Iterator[bt.Kv[K, any]] {
 	return its.OfSlice(its.SeqForEach[bt.Kv[K, any]](c)).Iterate()
 }

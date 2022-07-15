@@ -1,5 +1,7 @@
 package iterators
 
+import bt "github.com/wrmsr/bane/pkg/util/types"
+
 //
 
 type PeekIterable[T any] interface {
@@ -20,17 +22,17 @@ func (f peekFactoryIterable[T]) Iterate() PeekIterator[T] {
 //
 
 type PeekIterator[T any] interface {
-	Iterator[T]
+	bt.Iterator[T]
 	Peek() T
 }
 
 type peekIterator[T any] struct {
-	it Iterator[T]
+	it bt.Iterator[T]
 	pv T
 	pb bool
 }
 
-func Peek[T any](it Iterable[T]) PeekIterable[T] {
+func Peek[T any](it bt.Iterable[T]) PeekIterable[T] {
 	return peekFactoryIterable[T]{
 		fn: func() PeekIterator[T] {
 			return &peekIterator[T]{it: it.Iterate()}
@@ -41,7 +43,7 @@ func Peek[T any](it Iterable[T]) PeekIterable[T] {
 
 var _ PeekIterator[any] = &peekIterator[any]{}
 
-func (i *peekIterator[T]) Iterate() Iterator[T] {
+func (i *peekIterator[T]) Iterate() bt.Iterator[T] {
 	return i
 }
 

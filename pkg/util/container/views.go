@@ -21,7 +21,7 @@ var _ List[string] = ListView[int, string]{}
 func (l ListView[F, T]) Len() int    { return l.l.Len() }
 func (l ListView[F, T]) Get(i int) T { return l.fn(l.l.Get(i)) }
 
-func (l ListView[F, T]) Iterate() its.Iterator[T] {
+func (l ListView[F, T]) Iterate() bt.Iterator[T] {
 	return its.Map[F, T](l.l, l.fn).Iterate()
 }
 
@@ -45,7 +45,7 @@ var _ Set[string] = SetView[int, string]{}
 func (s SetView[F, T]) Len() int          { return s.s.Len() }
 func (s SetView[F, T]) Contains(v T) bool { return s.s.Contains(s.bfn.Flip().Call(v)) }
 
-func (s SetView[F, T]) Iterate() its.Iterator[T] {
+func (s SetView[F, T]) Iterate() bt.Iterator[T] {
 	return its.Map[F, T](s.s, s.bfn.Call).Iterate()
 }
 
@@ -79,7 +79,7 @@ func (m MapView[K, VF, VT]) TryGet(k K) (VT, bool) {
 	return z, false
 }
 
-func (m MapView[K, VF, VT]) Iterate() its.Iterator[bt.Kv[K, VT]] {
+func (m MapView[K, VF, VT]) Iterate() bt.Iterator[bt.Kv[K, VT]] {
 	return its.MapValues[K, VF, VT](m.m, m.fn).Iterate()
 }
 

@@ -7,25 +7,25 @@ type sliceIterator[T any] struct {
 	r bt.Range[int]
 }
 
-func OfSlice[T any](s []T) Iterable[T] {
-	return Factory[T](func() Iterator[T] {
+func OfSlice[T any](s []T) bt.Iterable[T] {
+	return Factory[T](func() bt.Iterator[T] {
 		return &sliceIterator[T]{s: s, r: bt.RangeTo(len(s))}
 	}, s)
 }
 
-func Of[T any](vs ...T) Iterable[T] {
+func Of[T any](vs ...T) bt.Iterable[T] {
 	return &sliceIterator[T]{s: vs, r: bt.RangeTo(len(vs))}
 }
 
-func OfSliceRange[T any](s []T, r bt.Range[int]) Iterable[T] {
-	return Factory[T](func() Iterator[T] {
+func OfSliceRange[T any](s []T, r bt.Range[int]) bt.Iterable[T] {
+	return Factory[T](func() bt.Iterator[T] {
 		return &sliceIterator[T]{s: s, r: r}
 	}, s)
 }
 
-var _ Iterator[any] = &sliceIterator[any]{}
+var _ bt.Iterator[any] = &sliceIterator[any]{}
 
-func (i *sliceIterator[T]) Iterate() Iterator[T] {
+func (i *sliceIterator[T]) Iterate() bt.Iterator[T] {
 	return i
 }
 

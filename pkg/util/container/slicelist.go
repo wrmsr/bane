@@ -2,6 +2,7 @@ package container
 
 import (
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -10,7 +11,7 @@ type SliceList[T any] struct {
 	s []T
 }
 
-func NewSliceList[T any](it its.Iterable[T]) SliceList[T] {
+func NewSliceList[T any](it bt.Iterable[T]) SliceList[T] {
 	s := SliceList[T]{}
 	if it != nil {
 		for it := it.Iterate(); it.HasNext(); {
@@ -34,7 +35,7 @@ func (l SliceList[T]) Get(i int) T {
 	return l.s[i]
 }
 
-func (l SliceList[T]) Iterate() its.Iterator[T] {
+func (l SliceList[T]) Iterate() bt.Iterator[T] {
 	return its.OfSlice(l.s).Iterate()
 }
 
@@ -53,7 +54,7 @@ type MutSliceList[T any] struct {
 	l SliceList[T]
 }
 
-func NewSliceMutList[T any](it its.Iterable[T]) *MutSliceList[T] {
+func NewSliceMutList[T any](it bt.Iterable[T]) *MutSliceList[T] {
 	return &MutSliceList[T]{l: NewSliceList(it)}
 }
 
@@ -71,7 +72,7 @@ func (l *MutSliceList[T]) isMutable() {}
 
 func (l *MutSliceList[T]) Len() int                       { return l.l.Len() }
 func (l *MutSliceList[T]) Get(i int) T                    { return l.l.Get(i) }
-func (l *MutSliceList[T]) Iterate() its.Iterator[T]       { return l.l.Iterate() }
+func (l *MutSliceList[T]) Iterate() bt.Iterator[T]        { return l.l.Iterate() }
 func (l *MutSliceList[T]) ForEach(fn func(v T) bool) bool { return l.l.ForEach(fn) }
 
 func (l *MutSliceList[T]) Append(v T) {

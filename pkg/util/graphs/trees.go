@@ -32,7 +32,7 @@ func (e UnknownNodeError[T]) Error() string { return fmt.Sprintf("unknown node: 
 
 type Tree[T any] struct {
 	root T
-	walk func(T) its.Iterable[T]
+	walk func(T) bt.Iterable[T]
 	he   bt.HashEqImpl[T]
 
 	nodes   ctr.List[T]
@@ -47,7 +47,7 @@ type Tree[T any] struct {
 	nodeSetsByType opt.Optional[map[reflect.Type]ctr.Set[T]]
 }
 
-func NewTree[T any](root T, walk func(T) its.Iterable[T], he bt.HashEqImpl[T]) (*Tree[T], error) {
+func NewTree[T any](root T, walk func(T) bt.Iterable[T], he bt.HashEqImpl[T]) (*Tree[T], error) {
 	t := &Tree[T]{
 		root: root,
 		walk: walk,
@@ -107,8 +107,8 @@ func NewTree[T any](root T, walk func(T) its.Iterable[T], he bt.HashEqImpl[T]) (
 	return t, nil
 }
 
-func (t Tree[T]) Root() T                       { return t.root }
-func (t Tree[T]) Walk() func(T) its.Iterable[T] { return t.walk }
+func (t Tree[T]) Root() T                      { return t.root }
+func (t Tree[T]) Walk() func(T) bt.Iterable[T] { return t.walk }
 
 func (t Tree[T]) Nodes() ctr.List[T]  { return t.nodes }
 func (t Tree[T]) NodeSet() ctr.Set[T] { return t.nodeSet }

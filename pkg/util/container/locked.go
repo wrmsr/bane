@@ -58,7 +58,7 @@ func (m *LockedMap[K, V]) TryGet(k K) (V, bool) {
 	return m.m.TryGet(k)
 }
 
-func (m *LockedMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m *LockedMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 

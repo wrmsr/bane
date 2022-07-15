@@ -25,7 +25,7 @@ func (s mapSet[K, V]) Contains(k K) bool {
 	return s.m.Contains(k)
 }
 
-func (s mapSet[K, V]) Iterate() its.Iterator[K] {
+func (s mapSet[K, V]) Iterate() bt.Iterator[K] {
 	return its.Keys[K, V](s.m).Iterate()
 }
 
@@ -106,7 +106,7 @@ func (m setMap[K, V]) TryGet(k K) (V, bool) {
 	return z, m.s.Contains(k)
 }
 
-func (m setMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m setMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
 	return its.Map[K, bt.Kv[K, V]](m.s, func(k K) bt.Kv[K, V] {
 		var z V
 		return bt.KvOf(k, z)

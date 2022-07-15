@@ -37,7 +37,7 @@ type HashEqMap[K, V any] struct {
 	l int
 }
 
-func NewHashEqMap[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) HashEqMap[K, V] {
+func NewHashEqMap[K, V any](he bt.HashEqImpl[K], it bt.Iterable[bt.Kv[K, V]]) HashEqMap[K, V] {
 	m := HashEqMap[K, V]{
 		he: he,
 		m:  make(map[uintptr]*hashEqMapNode),
@@ -89,9 +89,9 @@ type hashEqMapIterator[K, V any] struct {
 	n *hashEqMapNode
 }
 
-var _ its.Iterator[bt.Kv[int, string]] = &hashEqMapIterator[int, string]{}
+var _ bt.Iterator[bt.Kv[int, string]] = &hashEqMapIterator[int, string]{}
 
-func (i *hashEqMapIterator[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (i *hashEqMapIterator[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
 	return i
 }
 
@@ -105,7 +105,7 @@ func (i *hashEqMapIterator[K, V]) Next() bt.Kv[K, V] {
 	return kv
 }
 
-func (m HashEqMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]] {
+func (m HashEqMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
 	return &hashEqMapIterator[K, V]{m.head}
 }
 
@@ -247,7 +247,7 @@ type MutHashEqMap[K, V any] struct {
 	m HashEqMap[K, V]
 }
 
-func NewMutHashEqMap[K, V any](he bt.HashEqImpl[K], it its.Iterable[bt.Kv[K, V]]) *MutHashEqMap[K, V] {
+func NewMutHashEqMap[K, V any](he bt.HashEqImpl[K], it bt.Iterable[bt.Kv[K, V]]) *MutHashEqMap[K, V] {
 	return &MutHashEqMap[K, V]{m: NewHashEqMap[K, V](he, it)}
 }
 
@@ -259,7 +259,7 @@ func (m *MutHashEqMap[K, V]) Len() int                                 { return 
 func (m *MutHashEqMap[K, V]) Contains(k K) bool                        { return m.m.Contains(k) }
 func (m *MutHashEqMap[K, V]) Get(k K) V                                { return m.m.Get(k) }
 func (m *MutHashEqMap[K, V]) TryGet(k K) (V, bool)                     { return m.m.TryGet(k) }
-func (m *MutHashEqMap[K, V]) Iterate() its.Iterator[bt.Kv[K, V]]       { return m.m.Iterate() }
+func (m *MutHashEqMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]]        { return m.m.Iterate() }
 func (m *MutHashEqMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool { return m.m.ForEach(fn) }
 
 func (m *MutHashEqMap[K, V]) Put(k K, v V) {
@@ -280,16 +280,16 @@ func (m *MutHashEqMap[K, V]) Decay() Map[K, V] { return m.m }
 
 //
 
-func NewHashEqSet[K any](he bt.HashEqImpl[K], it its.Iterable[K]) Set[K] {
-	var kvs its.Iterable[bt.Kv[K, struct{}]]
+func NewHashEqSet[K any](he bt.HashEqImpl[K], it bt.Iterable[K]) Set[K] {
+	var kvs bt.Iterable[bt.Kv[K, struct{}]]
 	if it != nil {
 		kvs = its.StubKvs(it)
 	}
 	return NewMapSet[K, struct{}](NewHashEqMap[K, struct{}](he, kvs))
 }
 
-func NewMutHashEqSet[K any](he bt.HashEqImpl[K], it its.Iterable[K]) MutSet[K] {
-	var kvs its.Iterable[bt.Kv[K, struct{}]]
+func NewMutHashEqSet[K any](he bt.HashEqImpl[K], it bt.Iterable[K]) MutSet[K] {
+	var kvs bt.Iterable[bt.Kv[K, struct{}]]
 	if it != nil {
 		kvs = its.StubKvs(it)
 	}
