@@ -70,7 +70,7 @@ func (v *parseVisitor) Visit(tree antlr.ParseTree) any {
 }
 
 func (v *parseVisitor) VisitChildren(node antlr.RuleNode) any {
-	var result any = v.defaultResult()
+	var result = v.defaultResult()
 	for i := 0; i < node.GetChildCount(); i++ {
 		child := node.GetChild(i)
 		if pt, ok := child.(antlr.ParseTree); ok {
