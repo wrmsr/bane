@@ -39,7 +39,7 @@ func jsonParserInit() {
 		"", "", "", "", "", "", "", "", "", "", "STRING", "NUMBER", "WS",
 	}
 	staticData.ruleNames = []string{
-		"json", "obj", "pair", "array", "value",
+		"json", "object", "pair", "array", "value",
 	}
 	staticData.predictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
@@ -120,11 +120,11 @@ const (
 
 // JsonParser rules.
 const (
-	JsonParserRULE_json  = 0
-	JsonParserRULE_obj   = 1
-	JsonParserRULE_pair  = 2
-	JsonParserRULE_array = 3
-	JsonParserRULE_value = 4
+	JsonParserRULE_json   = 0
+	JsonParserRULE_object = 1
+	JsonParserRULE_pair   = 2
+	JsonParserRULE_array  = 3
+	JsonParserRULE_value  = 4
 )
 
 // IJsonContext is an interface to support dynamic dispatch.
@@ -243,45 +243,45 @@ func (p *JsonParser) Json() (localctx IJsonContext) {
 	return localctx
 }
 
-// IObjContext is an interface to support dynamic dispatch.
-type IObjContext interface {
+// IObjectContext is an interface to support dynamic dispatch.
+type IObjectContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
-	// IsObjContext differentiates from other interfaces.
-	IsObjContext()
+	// IsObjectContext differentiates from other interfaces.
+	IsObjectContext()
 }
 
-type ObjContext struct {
+type ObjectContext struct {
 	*antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyObjContext() *ObjContext {
-	var p = new(ObjContext)
+func NewEmptyObjectContext() *ObjectContext {
+	var p = new(ObjectContext)
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = JsonParserRULE_obj
+	p.RuleIndex = JsonParserRULE_object
 	return p
 }
 
-func (*ObjContext) IsObjContext() {}
+func (*ObjectContext) IsObjectContext() {}
 
-func NewObjContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ObjContext {
-	var p = new(ObjContext)
+func NewObjectContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ObjectContext {
+	var p = new(ObjectContext)
 
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = JsonParserRULE_obj
+	p.RuleIndex = JsonParserRULE_object
 
 	return p
 }
 
-func (s *ObjContext) GetParser() antlr.Parser { return s.parser }
+func (s *ObjectContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *ObjContext) AllPair() []IPairContext {
+func (s *ObjectContext) AllPair() []IPairContext {
 	children := s.GetChildren()
 	len := 0
 	for _, ctx := range children {
@@ -302,7 +302,7 @@ func (s *ObjContext) AllPair() []IPairContext {
 	return tst
 }
 
-func (s *ObjContext) Pair(i int) IPairContext {
+func (s *ObjectContext) Pair(i int) IPairContext {
 	var t antlr.RuleContext
 	j := 0
 	for _, ctx := range s.GetChildren() {
@@ -322,42 +322,42 @@ func (s *ObjContext) Pair(i int) IPairContext {
 	return t.(IPairContext)
 }
 
-func (s *ObjContext) GetRuleContext() antlr.RuleContext {
+func (s *ObjectContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *ObjContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *ObjectContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *ObjContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *ObjectContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(JsonListener); ok {
-		listenerT.EnterObj(s)
+		listenerT.EnterObject(s)
 	}
 }
 
-func (s *ObjContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *ObjectContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(JsonListener); ok {
-		listenerT.ExitObj(s)
+		listenerT.ExitObject(s)
 	}
 }
 
-func (s *ObjContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ObjectContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 	switch t := visitor.(type) {
 	case JsonVisitor:
-		return t.VisitObj(s)
+		return t.VisitObject(s)
 
 	default:
 		return t.VisitChildren(s)
 	}
 }
 
-func (p *JsonParser) Obj() (localctx IObjContext) {
+func (p *JsonParser) Object() (localctx IObjectContext) {
 	this := p
 	_ = this
 
-	localctx = NewObjContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 2, JsonParserRULE_obj)
+	localctx = NewObjectContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 2, JsonParserRULE_object)
 	var _la int
 
 	defer func() {
@@ -787,10 +787,10 @@ func (s *ValueContext) NUMBER() antlr.TerminalNode {
 	return s.GetToken(JsonParserNUMBER, 0)
 }
 
-func (s *ValueContext) Obj() IObjContext {
+func (s *ValueContext) Object() IObjectContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IObjContext); ok {
+		if _, ok := ctx.(IObjectContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -800,7 +800,7 @@ func (s *ValueContext) Obj() IObjContext {
 		return nil
 	}
 
-	return t.(IObjContext)
+	return t.(IObjectContext)
 }
 
 func (s *ValueContext) Array() IArrayContext {
@@ -894,7 +894,7 @@ func (p *JsonParser) Value() (localctx IValueContext) {
 		p.EnterOuterAlt(localctx, 3)
 		{
 			p.SetState(48)
-			p.Obj()
+			p.Object()
 		}
 
 	case JsonParserT__4:

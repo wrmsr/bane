@@ -12,7 +12,7 @@ func (v *BaseJsonVisitor) VisitJson(ctx *JsonContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJsonVisitor) VisitObj(ctx *ObjContext) interface{} {
+func (v *BaseJsonVisitor) VisitObject(ctx *ObjectContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

@@ -27,11 +27,11 @@ func (s *BaseJsonListener) EnterJson(ctx *JsonContext) {}
 // ExitJson is called when production json is exited.
 func (s *BaseJsonListener) ExitJson(ctx *JsonContext) {}
 
-// EnterObj is called when production obj is entered.
-func (s *BaseJsonListener) EnterObj(ctx *ObjContext) {}
+// EnterObject is called when production object is entered.
+func (s *BaseJsonListener) EnterObject(ctx *ObjectContext) {}
 
-// ExitObj is called when production obj is exited.
-func (s *BaseJsonListener) ExitObj(ctx *ObjContext) {}
+// ExitObject is called when production object is exited.
+func (s *BaseJsonListener) ExitObject(ctx *ObjectContext) {}
 
 // EnterPair is called when production pair is entered.
 func (s *BaseJsonListener) EnterPair(ctx *PairContext) {}

@@ -11,8 +11,8 @@ type JsonVisitor interface {
 	// Visit a parse tree produced by JsonParser#json.
 	VisitJson(ctx *JsonContext) interface{}
 
-	// Visit a parse tree produced by JsonParser#obj.
-	VisitObj(ctx *ObjContext) interface{}
+	// Visit a parse tree produced by JsonParser#object.
+	VisitObject(ctx *ObjectContext) interface{}
 
 	// Visit a parse tree produced by JsonParser#pair.
 	VisitPair(ctx *PairContext) interface{}

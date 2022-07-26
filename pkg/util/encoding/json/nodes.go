@@ -14,9 +14,11 @@ func (n node) isNode() {}
 
 //
 
-type Obj struct {
+type Pair = bt.Kv[string, Node]
+
+type Object struct {
 	node
-	Kvs []bt.Kv[string, Node]
+	Pairs []Pair
 }
 
 //

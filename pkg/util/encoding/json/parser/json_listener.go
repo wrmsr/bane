@@ -11,8 +11,8 @@ type JsonListener interface {
 	// EnterJson is called when entering the json production.
 	EnterJson(c *JsonContext)
 
-	// EnterObj is called when entering the obj production.
-	EnterObj(c *ObjContext)
+	// EnterObject is called when entering the object production.
+	EnterObject(c *ObjectContext)
 
 	// EnterPair is called when entering the pair production.
 	EnterPair(c *PairContext)
@@ -26,8 +26,8 @@ type JsonListener interface {
 	// ExitJson is called when exiting the json production.
 	ExitJson(c *JsonContext)
 
-	// ExitObj is called when exiting the obj production.
-	ExitObj(c *ObjContext)
+	// ExitObject is called when exiting the object production.
+	ExitObject(c *ObjectContext)
 
 	// ExitPair is called when exiting the pair production.
 	ExitPair(c *PairContext)

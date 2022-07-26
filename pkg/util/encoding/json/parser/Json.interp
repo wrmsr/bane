@@ -30,7 +30,7 @@ WS
 
 rule names:
 json
-obj
+object
 pair
 array
 value
