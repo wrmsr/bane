@@ -9,6 +9,7 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/go/gen"
+	tyu "github.com/wrmsr/bane/pkg/util/go/types"
 	"github.com/wrmsr/bane/pkg/util/maps"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
@@ -23,19 +24,17 @@ import (
 func CollectTypeNames(ps *def.PackageSpec) maps.Set[rtu.ParsedName] {
 	ret := maps.MakeSet[rtu.ParsedName]()
 
-	var doType func(ty TypeRef)
-	doType = func(tr TypeRef) {
-		ret.Add(tr.Parse())
-		for _, a := range tr.Args {
+	var doType func(ty tyu.Spec)
+	doType = func(ty tyu.Spec) {
+		ret.Add(ty.Parse())
+		for _, a := range ty.Args {
 			doType(a)
 		}
 	}
 
 	doField := func(fs *def.FieldSpec) {
 		if fs.Type() != nil {
-			if tr, ok := fs.Type().(TypeRef); ok {
-				doType(tr)
-			}
+			doType(tyu.SpecOf(fs.Type()))
 		}
 	}
 
@@ -50,7 +49,7 @@ func CollectTypeNames(ps *def.PackageSpec) maps.Set[rtu.ParsedName] {
 	}
 
 	doEnum := func(es *def.EnumSpec) {
-		doType(es.Ty().(TypeRef))
+		doType(tyu.SpecOf(es.Ty()))
 	}
 
 	for _, es := range ps.Enums() {
@@ -138,9 +137,9 @@ func (ti *typeImporter) imports() []gg.Import {
 
 func (ti *typeImporter) importedType(ty any) gg.Type {
 	var sb strings.Builder
-	var rec func(tr TypeRef)
-	rec = func(tr TypeRef) {
-		pn := tr.Parse()
+	var rec func(ty tyu.Spec)
+	rec = func(ty tyu.Spec) {
+		pn := ty.Parse()
 		if pn.Pkg != "" && pn.Pkg != ti.ps.Name() {
 			in, ok := ti.imps[pn.Pkg]
 			if !ok {
@@ -155,9 +154,9 @@ func (ti *typeImporter) importedType(ty any) gg.Type {
 			sb.WriteString(pn.Obj)
 		}
 
-		if len(tr.Args) > 0 {
+		if len(ty.Args) > 0 {
 			sb.WriteString("[")
-			for i, a := range tr.Args {
+			for i, a := range ty.Args {
 				if i > 0 {
 					sb.WriteString(", ")
 				}
@@ -166,6 +165,6 @@ func (ti *typeImporter) importedType(ty any) gg.Type {
 			sb.WriteString("]")
 		}
 	}
-	rec(ty.(TypeRef))
+	rec(tyu.SpecOf(ty))
 	return gg.NewNameType(gg.NewIdent(sb.String()))
 }

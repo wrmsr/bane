@@ -34,19 +34,22 @@ func typeNameString(tn *types.TypeName) string {
 	return sb.String()
 }
 
-func SpecOf(o any) (tr Spec) {
+func SpecOf(o any) (s Spec) {
 	switch o := o.(type) {
 
+	case Spec:
+		s = o
+
 	case *types.Basic:
-		tr.Origin = o
-		tr.Name = o.String()
+		s.Origin = o
+		s.Name = o.String()
 
 	case *types.Named:
-		tr.Origin = o
-		tr.Name = typeNameString(o.Obj())
+		s.Origin = o
+		s.Name = typeNameString(o.Obj())
 		if ta := o.TypeArgs(); ta != nil {
 			for i := 0; i < ta.Len(); i++ {
-				tr.Args = append(tr.Args, SpecOf(ta.At(i)))
+				s.Args = append(s.Args, SpecOf(ta.At(i)))
 			}
 		}
 

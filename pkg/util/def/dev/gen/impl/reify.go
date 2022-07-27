@@ -60,14 +60,14 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		opts := make([]def.FieldOpt, len(call.Args)-1)
 
 		hasTyOpt := false
-		var dflTy opt.Optional[TypeRef]
+		var dflTy opt.Optional[any]
 		for i, arg := range call.Args[1:] {
 			o := ReifyDef(arg, ti).(def.FieldOpt)
 			if _, ok := o.(def.TypeOpt); ok {
 				hasTyOpt = true
 			}
 			if o, ok := o.(def.DefaultOpt); ok {
-				dflTy = opt.Just(o.Ty.(TypeRef))
+				dflTy = opt.Just(o.Ty)
 			}
 			opts[i] = o
 		}
