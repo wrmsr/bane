@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -8,5 +9,7 @@ import (
 )
 
 func TestImpl(t *testing.T) {
-	pr := filepath.Join(paths.FindProjectRoot(), "pkg/util/def/dev/test")
+	cwd := filepath.Join(paths.FindProjectRoot(), "pkg/util/def/dev/test")
+	s := Run(cwd)
+	fmt.Println(s)
 }
