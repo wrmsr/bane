@@ -116,3 +116,12 @@ func Meta(value any) MetaOpt {
 		Value: value,
 	}
 }
+
+//
+
+type EnumOpt interface {
+	isEnumOpt()
+}
+
+type EnumDef struct {
+}
