@@ -3,8 +3,7 @@
 package impl
 
 import (
-	"context"
-	"time"
+	"go/format"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/def"
@@ -32,8 +31,5 @@ func Run(cwd string) string {
 	ps := def.NewPackageSpec(pkg.ID, pkgDefs)
 	s := NewFileGen(pps.Mod, pkg, ps).Gen()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
-	defer cancel()
-
-	return FormatCode(ctx, s)
+	return string(check.Must1(format.Source([]byte(s))))
 }
