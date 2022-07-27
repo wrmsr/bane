@@ -2,6 +2,8 @@ package strings
 
 import (
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -14,12 +16,18 @@ func ToCamel(s string) string {
 }
 
 func ToSnake(s string) string {
-	//uppers := IndexAllFunc(s, unicode.IsUpper)
 	var sb strings.Builder
-	//for i := 1; i < len(uppers); i++ {
-	//	sb.WriteString("_")
-	//	sb.WriteString(s[])
-	//}
-	//return '_'.join([name[l:r].lower() for l, r in zip([None] + uppers, uppers + [None])]).strip('_')  # type: ignore
+	for i := 0; i < len(s); {
+		r, n := utf8.DecodeRuneInString(s[i:])
+		if unicode.IsUpper(r) {
+			if i > 0 {
+				sb.WriteRune('_')
+			}
+			sb.WriteRune(unicode.ToLower(r))
+		} else {
+			sb.WriteRune(r)
+		}
+		i += n
+	}
 	return sb.String()
 }

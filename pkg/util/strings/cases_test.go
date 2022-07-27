@@ -10,5 +10,5 @@ func TestToCamel(t *testing.T) {
 }
 
 func TestToSnake(t *testing.T) {
-	fmt.Println(ToCamel("FooBarBaz"))
+	fmt.Println(ToSnake("FooBarBaz"))
 }
