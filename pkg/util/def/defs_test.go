@@ -11,6 +11,16 @@ var _ = Struct("Foo",
 
 //
 
+type MyEnum int8
+
+const (
+	InvalidMyEnum MyEnum = iota
+	FooMyEnum
+	BarMyEnum
+)
+
+//
+
 func TestMockup(t *testing.T) {
 
 }

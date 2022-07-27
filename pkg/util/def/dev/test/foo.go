@@ -1,7 +1,5 @@
 //go:build !nodev
 
-//go:generate go run github.com/wrmsr/bane/pkg/util/def/dev/gen
-
 package test
 
 import (
@@ -37,7 +35,6 @@ func (f *Foo) _def_init_barf() {
 func (f *Foo) _def_lazy_Things() []int {
 	return []int{1, 2, 3}
 }
-
 func foof(s string, a ...any) {
 	fmt.Printf(s, a...)
 }
