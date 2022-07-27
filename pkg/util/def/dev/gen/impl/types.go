@@ -99,6 +99,14 @@ func CollectTypeNames(ps *def.PackageSpec) maps.Set[rtu.ParsedName] {
 		doStruct(ss)
 	}
 
+	doEnum := func(es *def.EnumSpec) {
+		doType(es.Ty().(TypeRef))
+	}
+
+	for _, es := range ps.Enums() {
+		doEnum(es)
+	}
+
 	return ret
 }
 

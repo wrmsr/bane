@@ -50,6 +50,7 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		for i, arg := range call.Args[1:] {
 			opts[i] = ReifyDef(arg, ti).(def.StructOpt)
 		}
+
 		return def.StructDef{
 			Name: reifyIdentStr(call.Args[0]),
 			Opts: opts,
@@ -128,6 +129,28 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		return def.MetaOpt{
 			Value: call.Args[0],
 		}
+
+	case "Enum":
+		var opts []def.EnumOpt
+		if len(call.Args) > 0 {
+			opts = make([]def.EnumOpt, len(call.Args))
+			for i, arg := range call.Args[1:] {
+				opts[i] = ReifyDef(arg, ti).(def.EnumOpt)
+			}
+		}
+
+		idx := call.Fun.(*ast.IndexExpr)
+		sel := idx.X.(*ast.SelectorExpr)
+		inst := ti.Instances[sel.Sel]
+		if inst.TypeArgs.Len() != 1 {
+			panic(call)
+		}
+
+		return def.EnumDef{
+			Ty:   typeRef(inst.TypeArgs.At(0)),
+			Opts: opts,
+		}
+
 	}
 
 	panic(fmt.Errorf("unhandled type: %T", node))

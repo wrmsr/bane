@@ -168,9 +168,14 @@ type EnumSpec struct {
 	opts []EnumOpt
 }
 
+func (e EnumSpec) Ty() any         { return e.ty }
+func (e EnumSpec) Defs() []EnumDef { return e.defs }
+func (e EnumSpec) Opts() []EnumOpt { return e.opts }
+
 func NewEnumSpec(ty any, defs []EnumDef) *EnumSpec {
 	es := &EnumSpec{
-		ty: ty,
+		ty:   ty,
+		defs: defs,
 	}
 
 	return es
@@ -184,6 +189,9 @@ type PackageSpec struct {
 
 	structs       []*StructSpec
 	structsByName map[string]*StructSpec
+
+	enums     []*EnumSpec
+	enumsByTy map[any]*EnumSpec
 }
 
 func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
@@ -194,6 +202,8 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 
 	var sns []string
 	sdm := make(map[string][]StructDef)
+	var ets []any
+	edm := make(map[any][]EnumDef)
 
 	for _, d := range defs {
 		switch d := d.(type) {
@@ -203,6 +213,12 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 				sns = append(sns, d.Name)
 			}
 			sdm[d.Name] = append(sdm[d.Name], d)
+
+		case EnumDef:
+			if _, ok := edm[d.Ty]; !ok {
+				ets = append(ets, d.Ty)
+			}
+			edm[d.Ty] = append(edm[d.Ty], d)
 
 		default:
 			panic(RegistryError{fmt.Errorf("%T", d)})
@@ -216,10 +232,18 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 		ps.structsByName[sn] = ss
 	}
 
+	ps.enumsByTy = make(map[any]*EnumSpec, len(edm))
+	for _, et := range ets {
+		es := NewEnumSpec(et, edm[et])
+		ps.enums = append(ps.enums, es)
+		ps.enumsByTy[et] = es
+	}
+
 	return ps
 }
 
-func (ps PackageSpec) Name() string           { return ps.name }
+func (ps PackageSpec) Name() string { return ps.name }
+
 func (ps PackageSpec) Structs() []*StructSpec { return ps.structs }
 
 func (ps PackageSpec) Struct(name string) *StructSpec {
@@ -227,4 +251,13 @@ func (ps PackageSpec) Struct(name string) *StructSpec {
 		return ss
 	}
 	panic(SpecError{fmt.Errorf("struct not found :%s", name)})
+}
+
+func (ps PackageSpec) Enums() []*EnumSpec { return ps.enums }
+
+func (ps PackageSpec) Enum(ty any) *EnumSpec {
+	if ss, ok := ps.enumsByTy[ty]; ok {
+		return ss
+	}
+	panic(SpecError{fmt.Errorf("enum not found :%s", ty)})
 }
