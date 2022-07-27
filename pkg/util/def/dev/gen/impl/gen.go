@@ -9,7 +9,7 @@ import (
 	"golang.org/x/tools/go/packages"
 
 	"github.com/wrmsr/bane/pkg/util/def"
-	gg "github.com/wrmsr/bane/pkg/util/gogen"
+	gg "github.com/wrmsr/bane/pkg/util/go/gen"
 	iou "github.com/wrmsr/bane/pkg/util/io"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"

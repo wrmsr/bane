@@ -1,4 +1,4 @@
-package gogen
+package gen
 
 import opt "github.com/wrmsr/bane/pkg/util/optional"
 

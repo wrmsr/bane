@@ -4,12 +4,11 @@ package impl
 
 import (
 	"fmt"
-	"go/types"
 	"strconv"
 	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/def"
-	gg "github.com/wrmsr/bane/pkg/util/gogen"
+	gg "github.com/wrmsr/bane/pkg/util/go/gen"
 	"github.com/wrmsr/bane/pkg/util/maps"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
@@ -18,55 +17,6 @@ import (
 )
 
 //
-
-type TypeRef struct {
-	Name string
-	Args []TypeRef
-
-	Origin types.Type
-}
-
-func (tr TypeRef) String() string {
-	return tr.Origin.String()
-}
-
-func (tr TypeRef) Parse() rtu.ParsedName {
-	return rtu.ParseName(tr.Name)
-}
-
-func typeNameString(tn *types.TypeName) string {
-	var sb strings.Builder
-	var s string
-	s = tn.Pkg().Path()
-	if s != "" {
-		sb.WriteString(s)
-		sb.WriteByte('.')
-	}
-	sb.WriteString(tn.Name())
-	return sb.String()
-}
-
-func typeRef(o any) (tr TypeRef) {
-	switch o := o.(type) {
-
-	case *types.Basic:
-		tr.Origin = o
-		tr.Name = o.String()
-
-	case *types.Named:
-		tr.Origin = o
-		tr.Name = typeNameString(o.Obj())
-		if ta := o.TypeArgs(); ta != nil {
-			for i := 0; i < ta.Len(); i++ {
-				tr.Args = append(tr.Args, typeRef(ta.At(i)))
-			}
-		}
-
-	default:
-		panic(o)
-	}
-	return
-}
 
 //
 

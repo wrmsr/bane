@@ -1,4 +1,4 @@
-package gogen
+package gen
 
 import (
 	"github.com/wrmsr/bane/pkg/util/check"

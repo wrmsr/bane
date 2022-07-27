@@ -97,7 +97,7 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		}
 
 		return def.TypeOpt{
-			Ty: typeRef(inst.TypeArgs.At(0)),
+			Ty: inst.TypeArgs.At(0),
 		}
 
 	case "Default":
@@ -109,7 +109,7 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		ty := ti.Types[val]
 		return def.DefaultOpt{
 			Val: val,
-			Ty:  typeRef(ty.Type),
+			Ty:  ty.Type,
 		}
 
 	case "Init":
@@ -147,7 +147,7 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		}
 
 		return def.EnumDef{
-			Ty:   typeRef(inst.TypeArgs.At(0)),
+			Ty:   inst.TypeArgs.At(0),
 			Opts: opts,
 		}
 
