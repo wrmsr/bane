@@ -5,7 +5,6 @@ import (
 	"reflect"
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 )
 
 //
@@ -163,6 +162,22 @@ func (ss StructSpec) Field(name string) *FieldSpec {
 
 //
 
+type EnumSpec struct {
+	ty   any
+	defs []EnumDef
+	opts []EnumOpt
+}
+
+func NewEnumSpec(ty any, defs []EnumDef) *EnumSpec {
+	es := &EnumSpec{
+		ty: ty,
+	}
+
+	return es
+}
+
+//
+
 type PackageSpec struct {
 	name string
 	defs []PackageDef
@@ -179,7 +194,6 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 
 	var sns []string
 	sdm := make(map[string][]StructDef)
-	var ex opt.Optional[X_packageExpect]
 
 	for _, d := range defs {
 		switch d := d.(type) {
@@ -189,10 +203,6 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 				sns = append(sns, d.Name)
 			}
 			sdm[d.Name] = append(sdm[d.Name], d)
-
-		case X_packageExpect:
-			ex.IfPresent(func() { panic(RegistryError{fmt.Errorf("duplicate expect: %s", name)}) })
-			ex = opt.Just(d)
 
 		default:
 			panic(RegistryError{fmt.Errorf("%T", d)})
@@ -204,10 +214,6 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 		ss := NewStructSpec(sn, sdm[sn])
 		ps.structs = append(ps.structs, ss)
 		ps.structsByName[sn] = ss
-	}
-
-	if ex.Present() {
-		ex.Value().check(ps)
 	}
 
 	return ps

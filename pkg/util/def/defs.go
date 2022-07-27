@@ -124,4 +124,16 @@ type EnumOpt interface {
 }
 
 type EnumDef struct {
+	Ty   any
+	Opts []EnumOpt
+}
+
+func (ed EnumDef) isPackageDef() {}
+
+func Enum[T any](opts ...EnumOpt) any {
+	var z T
+	return addPackageDef(globalRegistry, getCallingPackage(), EnumDef{
+		Ty:   reflect.TypeOf(z),
+		Opts: opts,
+	})
 }

@@ -2,18 +2,14 @@
 
 package test
 
-//type MyEnum int8
-//
-//const (
-//	InvalidMyEnum MyEnum = iota
-//	FooMyEnum
-//	BarMyEnum
-//)
+import "github.com/wrmsr/bane/pkg/util/def"
 
-type MyEnum interface {
-	isMyEnum()
-}
+var _ = def.Enum[MyEnum]()
 
-type FooMyEnum struct{}
+type MyEnum int8
 
-type BarMyEnum struct{}
+const (
+	InvalidMyEnum MyEnum = iota
+	FooMyEnum
+	BarMyEnum
+)
