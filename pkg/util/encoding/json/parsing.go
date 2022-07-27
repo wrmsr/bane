@@ -5,7 +5,9 @@ import (
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/encoding/json/parser"
+	ju "github.com/wrmsr/bane/pkg/util/json"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -72,12 +74,8 @@ func (v *parseVisitor) VisitObject(ctx *parser.ObjectContext) any {
 	return Object{Pairs: ps}
 }
 
-func chompQuotes(s string) string {
-	return s[1 : len(s)-1]
-}
-
 func (v *parseVisitor) VisitPair(ctx *parser.PairContext) any {
-	return bt.KvOf(chompQuotes(ctx.STRING().GetText()), v.Visit(ctx.Value()).(Node))
+	return bt.KvOf(check.Ok1(ju.Unquote([]byte(ctx.STRING().GetText()))), v.Visit(ctx.Value()).(Node))
 }
 
 func (v *parseVisitor) VisitArray(ctx *parser.ArrayContext) any {
@@ -93,10 +91,10 @@ func (v *parseVisitor) VisitArray(ctx *parser.ArrayContext) any {
 
 func (v *parseVisitor) VisitValue(ctx *parser.ValueContext) any {
 	if s := ctx.STRING(); s != nil {
-		return String{S: chompQuotes(s.GetText())}
+		return String{S: check.Ok1(ju.Unquote([]byte(s.GetText())))}
 	}
 	if n := ctx.NUMBER(); n != nil {
-		return Number{S: chompQuotes(n.GetText())}
+		return Number{S: n.GetText()}
 	}
 	if o := ctx.Object(); o != nil {
 		return v.Visit(ctx.Object())
