@@ -120,6 +120,26 @@ type LazyTensor struct {
 	noGrad bool
 }
 
+func (t LazyTensor) NoGrad() bool { return t.noGrad }
+
+type FunctionContext struct {
+	parents []LazyTensor
+	noGrad  bool
+
+	saved []LazyTensor
+}
+
+func NewFunctionContext(parents ...LazyTensor) FunctionContext {
+	return FunctionContext{
+		parents: parents,
+		noGrad:  slices.All(parents, LazyTensor.NoGrad),
+	}
+}
+
+func Permute(x LazyTensor, order []int) (LazyTensor, FunctionContext) {
+
+}
+
 func (t *Float32Tensor) Dot(o *Float32Tensor) *Float32Tensor {
 	bs := bt.Prod[Dim](t.shape[0 : len(t.shape)-2]...)
 	groups := bt.Prod[Dim](o.shape[0 : len(t.shape)-2]...)

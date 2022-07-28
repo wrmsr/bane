@@ -47,7 +47,7 @@ func FindLast[T comparable](s []T, v T) (int, bool) {
 	return -1, false
 }
 
-func FindFunc[T comparable](s []T, fn func(v T) bool) (int, bool) {
+func FindFunc[T any](s []T, fn func(T) bool) (int, bool) {
 	for i, c := range s {
 		if fn(c) {
 			return i, true
@@ -56,7 +56,7 @@ func FindFunc[T comparable](s []T, fn func(v T) bool) (int, bool) {
 	return -1, false
 }
 
-func FindElemFunc[T comparable](s []T, fn func(v T) bool) (T, bool) {
+func FindElemFunc[T any](s []T, fn func(T) bool) (T, bool) {
 	for _, c := range s {
 		if fn(c) {
 			return c, true
@@ -66,7 +66,7 @@ func FindElemFunc[T comparable](s []T, fn func(v T) bool) (T, bool) {
 	return z, false
 }
 
-func FindFuncLast[T comparable](s []T, fn func(v T) bool) (int, bool) {
+func FindFuncLast[T any](s []T, fn func(T) bool) (int, bool) {
 	for i := len(s) - 1; i >= 0; i-- {
 		if fn(s[i]) {
 			return i, true
@@ -75,12 +75,12 @@ func FindFuncLast[T comparable](s []T, fn func(v T) bool) (int, bool) {
 	return -1, false
 }
 
-func Any[T comparable](s []T, fn func(v T) bool) bool {
+func Any[T any](s []T, fn func(T) bool) bool {
 	_, ok := FindFunc(s, fn)
 	return ok
 }
 
-func All[T comparable](s []T, fn func(v T) bool) bool {
+func All[T any](s []T, fn func(T) bool) bool {
 	for _, c := range s {
 		if !fn(c) {
 			return false
