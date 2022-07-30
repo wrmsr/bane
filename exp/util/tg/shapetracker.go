@@ -143,8 +143,12 @@ func (st *ShapeTracker) Shape() Shape     { return st.views[len(st.views)-1].sha
 func (st *ShapeTracker) Strides() Strides { return st.views[len(st.views)-1].strides }
 func (st *ShapeTracker) Offset() Dim      { return st.views[len(st.views)-1].offset }
 
+func (st *ShapeTracker) Contiguous() bool {
+	return len(st.views) == 1 && st.views[len(st.views)-1].Contiguous()
+}
+
 func (st *ShapeTracker) Permute(axis ...Dim) {
-	// assert all([isinstance(x, int) and x >= 0 and x < len(self.shape) for x in axis])
+	// assert all([x < len(self.shape) for x in axis])
 	// assert len(set(axis)) == len(axis) and len(axis) == len(self.shape)
 	// self.views[-1] = View([self.shape[a] for a in axis], [self.strides[a] for a in axis], self.offset)
 }

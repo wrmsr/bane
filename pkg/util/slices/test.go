@@ -64,3 +64,23 @@ func Contains[T comparable](s []T, v T) bool {
 	_, ok := Find(s, v)
 	return ok
 }
+
+func Count[T comparable](s []T, v T) int {
+	c := 0
+	for _, e := range s {
+		if e == v {
+			c++
+		}
+	}
+	return c
+}
+
+func CountFunc[T comparable](s []T, fn func(T) bool) int {
+	c := 0
+	for _, e := range s {
+		if fn(e) {
+			c++
+		}
+	}
+	return c
+}
