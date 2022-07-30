@@ -2,8 +2,10 @@ package tg
 
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/maps"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -148,26 +150,58 @@ func (st *ShapeTracker) Contiguous() bool {
 }
 
 func (st *ShapeTracker) Permute(axis ...Dim) {
-	// assert all([x < len(self.shape) for x in axis])
-	// assert len(set(axis)) == len(axis) and len(axis) == len(self.shape)
-	// self.views[-1] = View([self.shape[a] for a in axis], [self.strides[a] for a in axis], self.offset)
+	shape := st.Shape()
+	strides := st.Strides()
+
+	check.Condition(slices.All(axis, func(x Dim) bool { return x < Dim(len(shape)) }))
+	check.Condition(len(maps.MakeSetOf(axis)) == len(axis))
+	check.Condition(len(axis) == len(shape))
+
+	st.views[len(st.views)-1] = NewView(
+		slices.Map(func(a Dim) Dim { return shape[a] }, axis),
+		slices.Map(func(a Dim) Dim { return strides[a] }, axis),
+		st.Offset(),
+	)
 }
 
 func (st *ShapeTracker) Reshape(newShape Shape) {
-	// assert prod(self.shape) == prod(new_shape)
-	// if self.shape == new_shape:
-	//     return
+	shape := st.Shape()
+	strides := st.Strides()
+	check.Condition(bt.Prod[Dim](shape...) == bt.Prod[Dim](newShape...))
+	if slices.Equal(shape, newShape) {
+		return
+	}
 
-	// # check if this is adding or removing 1s (only)
-	// if tuple([x for x in self.shape if x != 1]) == tuple([x for x in new_shape if x != 1]):
-	//     old_strides = [y for x, y in zip(self.shape, self.strides) if x != 1]
-	//     new_strides = [0 if x == 1 else old_strides.pop(0) for x in new_shape]
-	//     self.views[-1] = View(new_shape, new_strides, self.offset)
-	//     return
+	// Check if this is adding or removing 1s (only)
+	if slices.Equal(
+		slices.Filter(func(x Dim) bool { return x != 1 }, shape),
+		slices.Filter(func(x Dim) bool { return x != 1 }, newShape)) {
+		var oldStrides Strides
+		for i, x := range shape {
+			if x != 1 {
+				oldStrides = append(oldStrides, strides[i])
+			}
+		}
 
-	// view = View(new_shape, strides_for_shape(new_shape))
-	// if self.contiguous:
-	//     self.views[-1] = view  # NOTE: if it's contiguous it can't have an offset
-	// else:
-	//     self.views.append(view)
+		var newStrides Strides
+		j := 0
+		for _, x := range newShape {
+			if x == 1 {
+				newStrides = append(newStrides, x)
+			} else {
+				newStrides = append(newStrides, oldStrides[j])
+				j++
+			}
+		}
+
+		st.views[len(st.views)-1] = NewView(newShape, newStrides, st.Offset())
+		return
+	}
+
+	newView := NewView(newShape, StridesForShape(newShape), 0)
+	if st.Contiguous() {
+		st.views[len(st.views)-1] = newView // NOTE: If it's contiguous it can't have an offset
+	} else {
+		st.views = append(st.views, newView)
+	}
 }

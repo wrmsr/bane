@@ -13,10 +13,10 @@ func TestStridesForShape(t *testing.T) {
 }
 
 func TestReshapeAdd1s(t *testing.T) {
-	// self.st = ShapeTracker((4, 4))
-	// self.st.permute(1, 0)
-	// self.st.reshape(1, 4, 1, 4, 1)
-	// assert not self.st.contiguous
-	// self.st.permute(0, 3, 2, 1, 4)
-	// assert self.st.contiguous
+	st := NewShapeTracker(Shape{4, 4})
+	st.Permute(1, 0)
+	st.Reshape(Shape{1, 4, 1, 4, 1})
+	tu.AssertEqual(t, st.Contiguous(), false)
+	st.Permute(0, 3, 2, 1, 4)
+	tu.AssertEqual(t, st.Contiguous(), true)
 }
