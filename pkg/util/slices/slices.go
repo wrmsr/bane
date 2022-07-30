@@ -95,7 +95,7 @@ func IndexMap[T, R any](fn func(i int, t T) R, s []T) []R {
 	return r
 }
 
-func ZipMap[T, U, R any](fn func(t T, u U) R, ts []T, us []U) []R {
+func ZipMap2[T, U, R any](fn func(t T, u U) R, ts []T, us []U) []R {
 	l := len(ts)
 	if len(us) < l {
 		l = len(us)
@@ -103,6 +103,21 @@ func ZipMap[T, U, R any](fn func(t T, u U) R, ts []T, us []U) []R {
 	r := make([]R, l)
 	for i := 0; i < l; i++ {
 		r[i] = fn(ts[i], us[i])
+	}
+	return r
+}
+
+func ZipMap3[T, U, V, R any](fn func(t T, u U, v V) R, ts []T, us []U, vs []V) []R {
+	l := len(ts)
+	if len(us) < l {
+		l = len(us)
+	}
+	if len(vs) < l {
+		l = len(vs)
+	}
+	r := make([]R, l)
+	for i := 0; i < l; i++ {
+		r[i] = fn(ts[i], us[i], vs[i])
 	}
 	return r
 }
@@ -196,6 +211,14 @@ func Interleave[T any](s []T, e T) []T {
 			r = append(r, e)
 		}
 		r = append(r, c)
+	}
+	return r
+}
+
+func Reduce[T any](fn func(l, r T) T, d T, s []T) T {
+	r := d
+	for _, v := range s {
+		r = fn(r, v)
 	}
 	return r
 }

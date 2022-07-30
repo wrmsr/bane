@@ -209,3 +209,14 @@ func (st *ShapeTracker) Reshape(newShape Shape) {
 		st.views = append(st.views, newView)
 	}
 }
+
+func (st *ShapeTracker) Stride(mul ...Dim) {
+	shape := st.Shape()
+	strides := st.Strides()
+	newStrides := slices.ZipMap2(bt.Mul[Dim], strides, mul)
+	newShape := slices.ZipMap2(func(s, m Dim) Dim { return (s + (bt.Abs(m) - 1)) / bt.Abs(m) }, shape, mul)
+	newOffset := bt.Sum[Dim](
+		slices.ZipMap3(func(s, z, m Dim) Dim { return bt.Choose(m < 0, (s-1)*z, 0) }, shape, strides, mul)...,
+	) + st.Offset()
+	st.views[len(st.views)-1] = NewView(newShape, newStrides, newOffset)
+}

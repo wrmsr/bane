@@ -65,3 +65,11 @@ func TestWork2(t *testing.T) {
 	fmt.Println(st.views)
 	tu.AssertEqual(t, st.Contiguous(), true)
 }
+
+func TestDoubleStride(t *testing.T) {
+	st := NewShapeTracker(Shape{7, 4})
+	st.Stride(1, 2)
+	st.Stride(2, 1)
+	tu.AssertDeepEqual(t, st.Shape(), Shape{4, 2})
+	tu.AssertDeepEqual(t, st.Strides(), Strides{8, 2})
+}
