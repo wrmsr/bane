@@ -71,34 +71,38 @@ type ShapeStride struct {
 	Shape, Stride Dim
 }
 
+func ToShapeStrides(shape Shape, strides Strides) []ShapeStride {
+	ss := []ShapeStride{{shape[0], strides[0]}}
+	for i := 1; i < len(shape); i++ {
+		if (strides[i] != 0 && ss[len(ss)-1].Stride/strides[i] == shape[i]) || (strides[i] == 0 && ss[len(ss)-1].Stride == 0) {
+			ss[len(ss)-1] = ShapeStride{ss[len(ss)-1].Shape * shape[i], strides[i]}
+		} else {
+			ss = append(ss, ShapeStride{shape[i], strides[i]})
+		}
+	}
+	return ss
+}
+
 type View struct {
 	shape   Shape
 	strides Strides
 	offset  Dim
 
-	viewStrides []ShapeStride
+	shapeStrides []ShapeStride
 
-	shapeStrides opt.Optional[Strides]
-	contiguous   opt.Optional[bool]
+	baseStrides opt.Optional[Strides]
+	contiguous  opt.Optional[bool]
 }
 
 func NewView(shape Shape, strides Strides, offset Dim) View {
 	check.Equal(len(shape), len(strides))
 
-	vs := []ShapeStride{{shape[0], strides[1]}}
-	for i := 1; i < len(shape); i++ {
-		if (strides[i] != 0 && vs[len(vs)-1].Stride/strides[i] == shape[i]) || (strides[i] == 0 && vs[len(vs)-1].Stride == 0) {
-			vs[len(vs)-1] = ShapeStride{vs[len(vs)-1].Shape * shape[i], strides[i]}
-		} else {
-			vs = append(vs, ShapeStride{shape[i], strides[i]})
-		}
-	}
-
 	return View{
-		shape:       shape,
-		strides:     strides,
-		offset:      offset,
-		viewStrides: vs,
+		shape:   shape,
+		strides: strides,
+		offset:  offset,
+
+		shapeStrides: ToShapeStrides(shape, strides),
 	}
 }
 
@@ -106,10 +110,10 @@ func (v View) Shape() Shape     { return v.shape }
 func (v View) Strides() Strides { return v.strides }
 func (v View) Offset() Dim      { return v.offset }
 
-func (v View) ViewStrides() []ShapeStride { return v.viewStrides }
+func (v View) ShapeStrides() []ShapeStride { return v.shapeStrides }
 
-func (v *View) ShapeStrides() Strides {
-	return opt.SetIfAbsent(&v.shapeStrides, func() Strides {
+func (v *View) BaseStrides() Strides {
+	return opt.SetIfAbsent(&v.baseStrides, func() Strides {
 		return StridesForShape(v.shape)
 	})
 }
@@ -119,7 +123,7 @@ func (v *View) Contiguous() bool {
 		if v.offset == 0 {
 			return false
 		}
-		shapeStrides := v.ShapeStrides()
+		shapeStrides := v.BaseStrides()
 		for i := 0; i < len(v.shape); i++ {
 			if !(v.strides[i] == shapeStrides[i] || v.shape[i] == 1) {
 				return false
