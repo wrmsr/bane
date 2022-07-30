@@ -29,71 +29,6 @@ func Join[T any](ss ...[]T) []T {
 	return r
 }
 
-func Find[T comparable](s []T, v T) (int, bool) {
-	for i, c := range s {
-		if c == v {
-			return i, true
-		}
-	}
-	return -1, false
-}
-
-func FindLast[T comparable](s []T, v T) (int, bool) {
-	for i := len(s) - 1; i >= 0; i-- {
-		if s[i] == v {
-			return i, true
-		}
-	}
-	return -1, false
-}
-
-func FindFunc[T any](s []T, fn func(T) bool) (int, bool) {
-	for i, c := range s {
-		if fn(c) {
-			return i, true
-		}
-	}
-	return -1, false
-}
-
-func FindElemFunc[T any](s []T, fn func(T) bool) (T, bool) {
-	for _, c := range s {
-		if fn(c) {
-			return c, true
-		}
-	}
-	var z T
-	return z, false
-}
-
-func FindFuncLast[T any](s []T, fn func(T) bool) (int, bool) {
-	for i := len(s) - 1; i >= 0; i-- {
-		if fn(s[i]) {
-			return i, true
-		}
-	}
-	return -1, false
-}
-
-func Any[T any](s []T, fn func(T) bool) bool {
-	_, ok := FindFunc(s, fn)
-	return ok
-}
-
-func All[T any](s []T, fn func(T) bool) bool {
-	for _, c := range s {
-		if !fn(c) {
-			return false
-		}
-	}
-	return true
-}
-
-func Contains[T comparable](s []T, v T) bool {
-	_, ok := Find(s, v)
-	return ok
-}
-
 func Reverse[T any](s []T) []T {
 	x := len(s)
 	mx := x / 2
@@ -287,56 +222,6 @@ func KvsOf[K, V any](o ...any) []bt.Kv[K, V] {
 	r := make([]bt.Kv[K, V], n)
 	for i, j := 0, 0; i < n; i, j = i+1, j+2 {
 		r[i] = bt.KvOf(o[j].(K), o[j+1].(V))
-	}
-	return r
-}
-
-func Reshape[T any](s []T, start, stop, step int) []T {
-	if step == 0 {
-		panic("zero step")
-	}
-
-	l := len(s)
-
-	ci := func(i int) int {
-		if i < 0 {
-			i += l
-			if i < 0 {
-				i = 0
-			}
-		}
-		if i > l {
-			return l
-		}
-		return i
-	}
-	start = ci(start)
-	stop = ci(stop)
-
-	if step == 1 {
-		return s[start:stop]
-	}
-
-	rnd := 0
-	if step < 0 {
-		rnd = step + 1
-	} else {
-		rnd = step - 1
-	}
-	rl := (stop - start + rnd) / step
-	if rl < 1 {
-		return nil
-	}
-
-	r := make([]T, rl)
-	if step > 0 {
-		for i, j := start, 0; i < stop; i, j = i+step, j+1 {
-			r[j] = s[i]
-		}
-	} else {
-		for i, j := start, 0; i > stop; i, j = i+step, j+1 {
-			r[j] = s[i]
-		}
 	}
 	return r
 }

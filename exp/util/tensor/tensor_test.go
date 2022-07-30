@@ -137,7 +137,7 @@ func NewFunctionContext(parents ...LazyTensor) FunctionContext {
 }
 
 func Permute(x LazyTensor, order []int) (LazyTensor, FunctionContext) {
-
+	panic("no")
 }
 
 func (t *Float32Tensor) Dot(o *Float32Tensor) *Float32Tensor {

@@ -19,7 +19,7 @@ require (
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	golang.org/x/text v0.3.7
-	golang.org/x/tools v0.1.11
+	golang.org/x/tools v0.1.12
 	gonum.org/v1/gonum v0.11.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -45,5 +45,5 @@ require (
 	github.com/jackc/puddle v1.2.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/sys v0.0.0-20220730100132-1609e554cd39 // indirect
 )
