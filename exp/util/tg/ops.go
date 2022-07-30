@@ -149,3 +149,21 @@ func (o Op) Type() OpType {
 	}
 	panic(o)
 }
+
+//
+
+type Lazy interface {
+	isLazy()
+}
+
+//
+
+type LazyOp struct {
+	op  Op
+	src []Lazy
+	arg any
+}
+
+func (o LazyOp) isLazy() {}
+
+//
