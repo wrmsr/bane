@@ -120,7 +120,7 @@ func (v *View) BaseStrides() Strides {
 
 func (v *View) Contiguous() bool {
 	return opt.SetIfAbsent(&v.contiguous, func() bool {
-		if v.offset == 0 {
+		if v.offset != 0 {
 			return false
 		}
 		shapeStrides := v.BaseStrides()
@@ -191,7 +191,7 @@ func (st *ShapeTracker) Reshape(newShape Shape) {
 		j := 0
 		for _, x := range newShape {
 			if x == 1 {
-				newStrides = append(newStrides, x)
+				newStrides = append(newStrides, 0)
 			} else {
 				newStrides = append(newStrides, oldStrides[j])
 				j++
