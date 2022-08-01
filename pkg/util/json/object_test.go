@@ -34,7 +34,7 @@ func TestRawObject(t *testing.T) {
 	o := check.Must1(MakeRawObject(kvs))
 	fmt.Println(o)
 
-	kvs2 := check.Must1(UnmarshalRawObject[int, string](o))
+	kvs2 := check.Must1(UnmarshalRawObjectFields[int, string](o))
 	fmt.Println(kvs2)
 
 	tu.AssertDeepEqual(t, kvs, kvs2)

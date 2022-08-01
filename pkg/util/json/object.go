@@ -169,7 +169,7 @@ func MakeRawObject[K, V any](kvs []bt.Kv[K, V]) (RawObject, error) {
 	return o, nil
 }
 
-func UnmarshalRawObject[K, V any](o RawObject) ([]bt.Kv[K, V], error) {
+func UnmarshalRawObjectFields[K, V any](o RawObject) ([]bt.Kv[K, V], error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -197,4 +197,13 @@ func UnmarshalRawObject[K, V any](o RawObject) ([]bt.Kv[K, V], error) {
 	}
 
 	return r, nil
+}
+
+func UnmarshalObjectFields[K, V any](b []byte) ([]bt.Kv[K, V], error) {
+	var ro RawObject
+	if err := json.Unmarshal(b, &ro); err != nil {
+		return nil, err
+	}
+
+	return UnmarshalRawObjectFields[K, V](ro)
 }
