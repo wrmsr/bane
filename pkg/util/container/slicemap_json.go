@@ -10,7 +10,7 @@ import (
 //
 
 func (m SliceMap[K, V]) MarshalJSON() ([]byte, error) {
-	return mapMarshalJson[K, V](m)
+	return MapMarshalJson[K, V](m)
 }
 
 func (m *SliceMap[K, V]) UnmarshalJSON(b []byte) error {

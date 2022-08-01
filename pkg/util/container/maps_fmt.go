@@ -10,15 +10,15 @@ import (
 
 //
 
-type mapFormatter struct {
+type MapFormatter struct {
 	f fmt.State
 }
 
-func (mf mapFormatter) WriteString(s string) {
+func (mf MapFormatter) WriteString(s string) {
 	iou.WriteStringDiscard(mf.f, s)
 }
 
-func (mf mapFormatter) WriteBegin() {
+func (mf MapFormatter) WriteBegin() {
 	if mf.f.Flag('#') {
 		mf.WriteString("{")
 	} else {
@@ -26,7 +26,7 @@ func (mf mapFormatter) WriteBegin() {
 	}
 }
 
-func (mf mapFormatter) WriteEntry(i int, k, v any) {
+func (mf MapFormatter) WriteEntry(i int, k, v any) {
 	if i > 0 {
 		if mf.f.Flag('#') {
 			mf.WriteString(", ")
@@ -41,7 +41,7 @@ func (mf mapFormatter) WriteEntry(i int, k, v any) {
 	}
 }
 
-func (mf mapFormatter) WriteEnd() {
+func (mf MapFormatter) WriteEnd() {
 	if mf.f.Flag('#') {
 		mf.WriteString("}")
 	} else {
@@ -49,8 +49,8 @@ func (mf mapFormatter) WriteEnd() {
 	}
 }
 
-func mapFormat[K, V any](f fmt.State, m Map[K, V]) {
-	mf := mapFormatter{f: f}
+func MapFormat[K, V any](f fmt.State, m Map[K, V]) {
+	mf := MapFormatter{f: f}
 	mf.WriteBegin()
 	i := 0
 	m.ForEach(func(kv bt.Kv[K, V]) bool {
@@ -63,27 +63,27 @@ func mapFormat[K, V any](f fmt.State, m Map[K, V]) {
 
 //
 
-type mapStringer struct {
+type MapStringer struct {
 	sb *strings.Builder
 }
 
-func (ms mapStringer) WriteBegin() {
+func (ms MapStringer) WriteBegin() {
 	ms.sb.WriteString("[")
 }
 
-func (ms mapStringer) WriteEnd() {
+func (ms MapStringer) WriteEnd() {
 	ms.sb.WriteString("]")
 }
 
-func (ms mapStringer) WriteEntry(i int, k, v any) {
+func (ms MapStringer) WriteEntry(i int, k, v any) {
 	if i > 0 {
 		ms.sb.WriteRune(' ')
 	}
 	iou.FprintfDiscard(ms.sb, "%v:%v", k, v)
 }
 
-func mapString[K, V any](sb *strings.Builder, m Map[K, V]) {
-	ms := mapStringer{sb: sb}
+func MapString[K, V any](sb *strings.Builder, m Map[K, V]) {
+	ms := MapStringer{sb: sb}
 	ms.WriteBegin()
 	i := 0
 	m.ForEach(func(kv bt.Kv[K, V]) bool {

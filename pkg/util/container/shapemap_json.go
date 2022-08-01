@@ -7,7 +7,7 @@ import (
 //
 
 func (m ShapeMap[K, V]) MarshalJSON() ([]byte, error) {
-	return mapMarshalJson[K, V](m)
+	return MapMarshalJson[K, V](m)
 }
 
 //

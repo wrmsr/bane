@@ -10,7 +10,7 @@ import (
 
 //
 
-func mapMarshalJson[K, V any](m Map[K, V]) ([]byte, error) {
+func MapMarshalJson[K, V any](m Map[K, V]) ([]byte, error) {
 	ro := make(ju.RawObject, m.Len())
 
 	var err error
