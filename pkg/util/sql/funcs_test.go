@@ -22,4 +22,5 @@ func TestAll(t *testing.T) {
 
 	db := sqa.NewStdDb(sdb)
 	_ = db
+
 }

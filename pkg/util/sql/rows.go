@@ -87,7 +87,7 @@ func (rr RowReader) Read() (Row, error) {
 	if err := rr.r.Scan(rr.dvs...); err != nil {
 		return Row{}, err
 	}
-	return Row{m: ctr.NewShapeMap[string, any](rr.shape, its.OfSlice(rr.dvs))}, nil
+	return Row{m: ctr.NewShapeMapFromSlice[string, any](rr.shape, rr.dvs)}, nil
 }
 
 //
@@ -95,6 +95,8 @@ func (rr RowReader) Read() (Row, error) {
 type Row struct {
 	m ctr.ShapeMap[string, any]
 }
+
+func (r Row) Clone() Row { return Row{m: r.m.Clone()} }
 
 var _ ctr.Map[string, any] = Row{}
 
@@ -133,21 +135,24 @@ const (
 )
 
 type RowsIterator struct {
-	b  sqb.Rows
+	br sqb.Rows
 	st riState
-	e  error
+	rr RowReader
+
+	e error
+	r Row
 }
 
 func Iter(b sqb.Rows) *RowsIterator {
-	return &RowsIterator{b: b}
+	return &RowsIterator{br: b}
 }
 
 func (ri *RowsIterator) Columns() ([]sqb.Column, error) {
-	return ri.b.Columns()
+	return ri.br.Columns()
 }
 
 func (ri *RowsIterator) Close() error {
-	return ri.b.Close()
+	return ri.br.Close()
 }
 
 var _ bt.Iterator[bt.Result[Row]] = &RowsIterator{}
@@ -160,24 +165,44 @@ func (ri *RowsIterator) HasNext() bool {
 	if ri.st == riDone {
 		return false
 	}
+
 	if ri.st == riNew {
-		if err := ri.b.Err(); err != nil {
+		if err := ri.br.Err(); err != nil {
 			ri.e = err
 			ri.st = riLoaded
 			return true
 		}
-	}
-	if ri.st != riLoaded {
-		if ri.b.Next() {
-			ri.st = riLoaded
-		} else {
-			ri.st = riDone
-		}
-		if err := ri.b.Err(); err != nil {
+
+		rr, err := NewRowReader(ri.br)
+		if err != nil {
 			ri.e = err
 			ri.st = riLoaded
+			return true
 		}
+		ri.rr = rr
 	}
+
+	if ri.st != riLoaded {
+		if !ri.br.Next() {
+			ri.st = riDone
+			return false
+		}
+		ri.st = riLoaded
+
+		if err := ri.br.Err(); err != nil {
+			ri.e = err
+			return true
+		}
+
+		r, err := ri.rr.Read()
+		if err != nil {
+			ri.e = err
+			return true
+		}
+
+		ri.r = r
+	}
+
 	return ri.st == riLoaded
 }
 
@@ -185,15 +210,20 @@ func (ri *RowsIterator) Next() bt.Result[Row] {
 	if ri.st == riReady {
 		ri.HasNext()
 	}
+
 	if ri.st == riDone {
 		panic(bt.IteratorExhaustedError{})
 	} else if ri.st != riLoaded {
 		panic("internal state error")
 	}
+
 	if ri.e != nil {
 		ri.st = riDone
 		return bt.Err[Row](ri.e)
 	}
+
+	r := ri.r
+	ri.r = Row{}
 	ri.st = riReady
-	return bt.Ok(Row{})
+	return bt.Ok(r)
 }

@@ -35,18 +35,18 @@ func Exec(ctx context.Context, o sqb.Querier, objs ...any) error {
 	return err
 }
 
-func All() ([]Row, error) {
+func All(ctx context.Context, o sqb.Querier, objs ...any) ([]Row, error) {
 	panic("implement me")
 }
 
-func First() (Row, error) {
+func First(ctx context.Context, o sqb.Querier, objs ...any) (Row, error) {
 	panic("implement me")
 }
 
-func One() (Row, error) {
+func One(ctx context.Context, o sqb.Querier, objs ...any) (Row, error) {
 	panic("implement me")
 }
 
-func Scalar() (any, error) {
+func Scalar(ctx context.Context, o sqb.Querier, objs ...any) (any, error) {
 	panic("implement me")
 }

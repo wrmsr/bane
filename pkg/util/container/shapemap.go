@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
+	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -80,6 +81,20 @@ func NewShapeMap[K comparable, V any](shape MapShape[K], vs bt.Iterable[V]) Shap
 		shape: shape,
 		vs:    s,
 	}
+}
+
+func NewShapeMapFromSlice[K comparable, V any](shape MapShape[K], s []V) ShapeMap[K, V] {
+	if len(s) != shape.Len() {
+		panic(errors.New("length mismatch"))
+	}
+	return ShapeMap[K, V]{
+		shape: shape,
+		vs:    s,
+	}
+}
+
+func (m ShapeMap[K, V]) Clone() ShapeMap[K, V] {
+	return ShapeMap[K, V]{shape: m.shape, vs: slices.Clone(m.vs)}
 }
 
 func (m ShapeMap[K, V]) Shape() MapShape[K] {
