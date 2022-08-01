@@ -2,10 +2,15 @@ package log
 
 import (
 	"fmt"
+	"io"
+	"strconv"
 	"strings"
 	"time"
 
+	iou "github.com/wrmsr/bane/pkg/util/io"
 	ju "github.com/wrmsr/bane/pkg/util/json"
+	rtu "github.com/wrmsr/bane/pkg/util/runtime"
+	stru "github.com/wrmsr/bane/pkg/util/strings"
 	tiu "github.com/wrmsr/bane/pkg/util/time"
 )
 
@@ -21,24 +26,70 @@ type Formatter interface {
 
 //
 
-type TextFormatter struct{}
+func WriteStackFrame(b io.StringWriter, sf rtu.StackFrame) (n int) {
+	_ = iou.WriteStringAdd(b, " ", &n)
+	_, fn, ok := stru.LastCut(sf.File, "/")
+	if ok {
+		_ = iou.WriteStringAdd(b, fn, &n)
+		_ = iou.WriteStringAdd(b, ":", &n)
+		_ = iou.WriteStringAdd(b, strconv.Itoa(sf.Line), &n)
+	}
+	_ = iou.WriteStringAdd(b, ":", &n)
+	_ = iou.WriteStringAdd(b, sf.ParsedName().Obj, &n)
+	return
+}
+
+func FormatStackFrame(sf rtu.StackFrame) string {
+	var b strings.Builder
+	WriteStackFrame(&b, sf)
+	return b.String()
+}
+
+//
+
+type TextFormatter struct {
+	prefix string
+	suffix string
+
+	noTime bool
+
+	callerWidth int
+}
+
+func NewTextFormatter() TextFormatter {
+	return TextFormatter{
+		suffix: "\n",
+
+		callerWidth: 36,
+	}
+}
 
 var _ Formatter = TextFormatter{}
 
 func (f TextFormatter) FormatLine(line Line) (string, error) {
 	var b strings.Builder
 
-	b.WriteString(line.Time.Format(defaultTimeFormat))
+	if f.prefix != "" {
+		b.WriteString(f.prefix)
+	}
 
-	b.WriteString(" ")
+	if !f.noTime {
+		b.WriteString(line.Time.Format(defaultTimeFormat))
+		b.WriteString(" ")
+	}
+
 	b.WriteString(line.Level.String())
+
+	sf := line.GetStackFrame(1)
+	sfl := WriteStackFrame(&b, sf)
+	for i := sfl; i < f.callerWidth; i++ {
+		b.WriteRune(' ')
+	}
 
 	if line.Message != "" {
 		b.WriteString(" ")
 		b.WriteString(line.Message)
 	}
-
-	fmt.Printf("%+v\n", line.GetStackFrame(1))
 
 	for _, a := range line.Args {
 		n := a.ArgName()
@@ -53,6 +104,10 @@ func (f TextFormatter) FormatLine(line Line) (string, error) {
 		b.WriteString(fmt.Sprintf("%v", a.ArgValue()))
 	}
 
+	if f.suffix != "" {
+		b.WriteString(f.suffix)
+	}
+
 	return b.String(), nil
 }
 
@@ -63,18 +118,25 @@ type JsonFormatter struct{}
 var _ Formatter = JsonFormatter{}
 
 type jsonLine struct {
-	Time    time.Time      `json:"time"`
-	Level   Level          `json:"level"`
-	Message string         `json:"message,omitempty"`
-	Args    map[string]any `json:"args,omitempty"`
+	Time  time.Time `json:"time"`
+	Level Level     `json:"level"`
+	At    string    `json:"at"`
+
+	Message string `json:"message,omitempty"`
+
+	Args map[string]any `json:"args,omitempty"`
 }
 
 func (f JsonFormatter) FormatLine(line Line) (string, error) {
 	jl := jsonLine{
-		Time:    line.Time,
-		Level:   line.Level,
+		Time:  line.Time,
+		Level: line.Level,
+
 		Message: line.Message,
 	}
+
+	sf := line.GetStackFrame(1)
+	jl.At = FormatStackFrame(sf)
 
 	// FIXME: ordmap
 	if len(line.Args) > 0 {

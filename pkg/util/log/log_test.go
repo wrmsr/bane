@@ -14,6 +14,7 @@ func (s *someStruct) foo() {
 
 func TestLog(t *testing.T) {
 	Info("hi")
+
 	s := someStruct{i: 420}
 	s.foo()
 

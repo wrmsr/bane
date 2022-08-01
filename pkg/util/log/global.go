@@ -3,6 +3,7 @@ package log
 import (
 	"errors"
 	"fmt"
+	"os"
 	"sync"
 	"sync/atomic"
 )
@@ -17,8 +18,8 @@ var (
 func newDefaultLogger() Logger {
 	return NewLogger(
 		NewLineLogger(
-			TextFormatter{},
-			StdWriter{},
+			NewTextFormatter(),
+			NewIoWriter(os.Stderr),
 		),
 	)
 }

@@ -53,14 +53,14 @@ type DiscardStringWriter interface {
 }
 
 type discardStringWriter struct {
-	w StringWriter
+	w io.StringWriter
 }
 
 func (w discardStringWriter) WriteString(s string) {
 	Discard(w.w.WriteString(s))
 }
 
-func NewDiscardStringWriter(w StringWriter) DiscardStringWriter {
+func NewDiscardStringWriter(w io.StringWriter) DiscardStringWriter {
 	return discardStringWriter{w}
 }
 

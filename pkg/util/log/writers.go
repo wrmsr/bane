@@ -1,16 +1,28 @@
 package log
 
-import "log"
+import (
+	"io"
+)
+
+//
 
 type Writer interface {
 	Write(s string) error
 }
 
-type StdWriter struct{}
+//
 
-var _ Writer = StdWriter{}
+type IoWriter struct {
+	w io.StringWriter
+}
 
-func (w StdWriter) Write(s string) error {
-	log.Print(s)
+func NewIoWriter(w io.StringWriter) IoWriter {
+	return IoWriter{w: w}
+}
+
+var _ Writer = IoWriter{}
+
+func (w IoWriter) Write(s string) error {
+	_, _ = w.w.WriteString(s)
 	return nil
 }
