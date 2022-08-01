@@ -35,10 +35,14 @@ func TestPolymorphism(t *testing.T) {
 		},
 	}
 
-	p := NewPolymorphism(rfl.TypeOf[PolyI](),
-		SetImpl{Impl: rfl.TypeOf[PolyA](), Tag: "a"},
-		SetImpl{Impl: rfl.TypeOf[PolyB](), Tag: "b"},
-		SetImpl{Impl: rfl.TypeOf[PolyC](), Tag: "c"},
+	p := NewPolymorphism(
+		rfl.TypeOf[PolyI](),
+		[]SetImpl{
+			{Impl: rfl.TypeOf[PolyA](), Tag: "a"},
+			{Impl: rfl.TypeOf[PolyB](), Tag: "b"},
+			{Impl: rfl.TypeOf[PolyC](), Tag: "c"},
+		},
+		nil,
 	)
 
 	sic := stu.NewStructInfoCache()

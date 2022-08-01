@@ -30,8 +30,10 @@ func (f TextFormatter) FormatLine(line Line) (string, error) {
 	b.WriteString(line.Time.Format(defaultTimeFormat))
 	b.WriteString(" ")
 	b.WriteString(line.Level.String())
-	b.WriteString(" ")
-	b.WriteString(line.Message)
+	if line.Message != "" {
+		b.WriteString(" ")
+		b.WriteString(line.Message)
+	}
 	for _, a := range line.Args {
 		b.WriteString(" ")
 		b.WriteString(a.Name)
@@ -50,7 +52,7 @@ var _ Formatter = JsonFormatter{}
 type jsonLine struct {
 	Time    time.Time      `json:"time"`
 	Level   Level          `json:"level"`
-	Message string         `json:"message"`
+	Message string         `json:"message,omitempty"`
 	Args    map[string]any `json:"args,omitempty"`
 }
 

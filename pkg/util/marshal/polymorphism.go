@@ -6,7 +6,6 @@ import (
 
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	"github.com/wrmsr/bane/pkg/util/slices"
-	stru "github.com/wrmsr/bane/pkg/util/strings"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -44,7 +43,10 @@ type Polymorphism struct {
 	tm map[string]*SetImpl
 }
 
-func NewPolymorphism(ty reflect.Type, es ...SetImpl) *Polymorphism {
+func NewPolymorphism(ty reflect.Type, es []SetImpl, naming Naming) *Polymorphism {
+	if naming == nil {
+		naming = NopNaming()
+	}
 	im := make(map[reflect.Type]*SetImpl, len(es))
 	tm := make(map[string]*SetImpl, len(es))
 	for i := range es {
@@ -57,7 +59,7 @@ func NewPolymorphism(ty reflect.Type, es ...SetImpl) *Polymorphism {
 		}
 		im[e.Impl] = e
 		if e.Tag == "" {
-			e.Tag = stru.ToSnake(e.Impl.Name())
+			e.Tag = naming.Name(e.Impl.Name())
 		}
 		if _, ok := tm[e.Tag]; ok {
 			panic(fmt.Errorf("duplicate tag: %s", e.Tag))
@@ -150,7 +152,7 @@ func buildRegistryPolymorphism(r *Registry, ty reflect.Type) *Polymorphism {
 	if len(ris) < 1 {
 		return nil
 	}
-	return NewPolymorphism(ty, slices.Map(func(ri RegistryItem) SetImpl { return ri.(SetImpl) }, ris)...)
+	return NewPolymorphism(ty, slices.Map(func(ri RegistryItem) SetImpl { return ri.(SetImpl) }, ris), nil)
 }
 
 func NewRegistryPolymorphismMarshalerFactory() MarshalerFactory {

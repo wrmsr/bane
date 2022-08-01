@@ -48,3 +48,11 @@ func CoalesceR[T comparable](vs ...T) T {
 	}
 	return z
 }
+
+func Identity[T any]() func(T) T {
+	return func(v T) T { return v }
+}
+
+func Const[T any](v T) func() T {
+	return func() T { return v }
+}

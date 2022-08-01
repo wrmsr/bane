@@ -6,11 +6,11 @@ import (
 )
 
 var _ = msh.Register(rfl.TypeOf[Node](),
-	msh.SetImplOf[Object]("obj"),
-	msh.SetImplOf[Array]("array"),
-	msh.SetImplOf[String]("string"),
-	msh.SetImplOf[Number]("number"),
-	msh.SetImplOf[True]("true"),
-	msh.SetImplOf[False]("false"),
-	msh.SetImplOf[Null]("null"),
+	msh.SetImplOf[Object](),
+	msh.SetImplOf[Array](),
+	msh.SetImplOf[String](),
+	msh.SetImplOf[Number](),
+	msh.SetImplOf[True](),
+	msh.SetImplOf[False](),
+	msh.SetImplOf[Null](),
 )
