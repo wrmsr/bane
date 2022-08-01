@@ -17,6 +17,8 @@ type baseLoggerImpl struct {
 	ll LineLogger
 
 	clock func() time.Time
+
+	stackOffset int
 }
 
 var _ BaseLogger = baseLoggerImpl{}
@@ -28,7 +30,7 @@ func (l baseLoggerImpl) now() time.Time {
 	return time.Now()
 }
 
-const defaultStackOffset = 3
+const baseStackOffset = 3
 
 func (l baseLoggerImpl) Log(lvl Level, msg string, args ...Arg) {
 	line := Line{
@@ -38,7 +40,7 @@ func (l baseLoggerImpl) Log(lvl Level, msg string, args ...Arg) {
 		Message: msg,
 		Args:    args,
 
-		StackOffset: defaultStackOffset,
+		StackOffset: baseStackOffset + l.stackOffset,
 	}
 
 	err := l.ll.LogLine(line)
@@ -80,9 +82,10 @@ type loggerImpl struct {
 }
 
 func NewLogger(ll LineLogger) Logger {
+	check.NotNil(ll)
 	return loggerImpl{
 		BaseLogger: baseLoggerImpl{
-			ll: check.NotNil(ll).(LineLogger),
+			ll: ll,
 		},
 	}
 }

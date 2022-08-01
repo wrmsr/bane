@@ -16,4 +16,7 @@ func TestLog(t *testing.T) {
 	Info("hi")
 	s := someStruct{i: 420}
 	s.foo()
+
+	l := newDefaultLogger()
+	l.Info("hi")
 }

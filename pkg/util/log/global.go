@@ -1,12 +1,18 @@
 package log
 
 import (
+	"errors"
 	"fmt"
-
-	au "github.com/wrmsr/bane/pkg/util/atomic"
+	"sync"
+	"sync/atomic"
 )
 
 //
+
+var (
+	globalMutex  sync.Mutex
+	globalLogger atomic.Value
+)
 
 func newDefaultLogger() Logger {
 	return NewLogger(
@@ -17,53 +23,106 @@ func newDefaultLogger() Logger {
 	)
 }
 
-var _global = au.NewLazy(newDefaultLogger)
+func Global() Logger {
+	l := globalLogger.Load()
+	if l != nil {
+		return l.(Logger)
+	}
 
-func global() Logger {
-	return _global.Get()
+	globalMutex.Lock()
+	defer globalMutex.Unlock()
+
+	l = globalLogger.Load()
+	if l != nil {
+		return l.(Logger)
+	}
+
+	l = newDefaultLogger()
+	globalLogger.Store(l)
+
+	return l.(Logger)
+}
+
+func SetGlobal(l Logger) {
+	if l == nil {
+		panic(errors.New("cannot be nil"))
+	}
+
+	globalMutex.Lock()
+	defer globalMutex.Unlock()
+
+	globalLogger.Store(l)
 }
 
 //
 
-func Log(lvl Level, msg string, args ...Arg) { global().Log(lvl, msg, args...) }
+func Log(lvl Level, msg string, args ...Arg) { Global().Log(lvl, msg, args...) }
 
-func Debug(msg string, args ...Arg) { global().Debug(msg, args...) }
-func Info(msg string, args ...Arg)  { global().Info(msg, args...) }
-func Warn(msg string, args ...Arg)  { global().Warn(msg, args...) }
-func Error(msg string, args ...Arg) { global().Error(msg, args...) }
+func Debug(msg string, args ...Arg) { Global().Log(DebugLevel, msg, args...) }
+func Info(msg string, args ...Arg)  { Global().Log(InfoLevel, msg, args...) }
+func Warn(msg string, args ...Arg)  { Global().Log(WarnLevel, msg, args...) }
+func Error(msg string, args ...Arg) { Global().Log(ErrorLevel, msg, args...) }
 
 func Panic(msg any, args ...Arg) {
 	if msg, ok := msg.(string); ok {
-		global().Panic(msg, args...)
+		Global().Log(PanicLevel, msg, args...)
 		return
 	}
-	global().Panic(fmt.Sprint(msg), args...)
+	Global().Log(PanicLevel, fmt.Sprint(msg), args...)
 }
 
 func Fatal(msg any, args ...Arg) {
 	if msg, ok := msg.(string); ok {
-		global().Fatal(msg, args...)
+		Global().Log(FatalLevel, msg, args...)
 		return
 	}
-	global().Fatal(fmt.Sprint(msg), args...)
+	Global().Log(FatalLevel, fmt.Sprint(msg), args...)
 }
 
-func IfError(err error, args ...Arg) { global().IfError(err, args...) }
-func IfPanic(err error, args ...Arg) { global().IfError(err, args...) }
-func IfFatal(err error, args ...Arg) { global().IfError(err, args...) }
+func IfError(err error, args ...Arg) {
+	if err != nil {
+		Global().Log(ErrorLevel, "error", append(args, E(err))...)
+	}
+}
 
-func OrError(fn func() error, args ...Arg) { global().OrError(fn, args...) }
-func OrPanic(fn func() error, args ...Arg) { global().OrError(fn, args...) }
-func OrFatal(fn func() error, args ...Arg) { global().OrError(fn, args...) }
+func IfPanic(err error, args ...Arg) {
+	if err != nil {
+		Global().Log(PanicLevel, "error", append(args, E(err))...)
+	}
+}
+
+func IfFatal(err error, args ...Arg) {
+	if err != nil {
+		Global().Log(FatalLevel, "error", append(args, E(err))...)
+	}
+}
+
+func OrError(fn func() error, args ...Arg) {
+	if err := fn(); err != nil {
+		Global().Log(ErrorLevel, "error", append(args, E(err))...)
+	}
+}
+
+func OrPanic(fn func() error, args ...Arg) {
+	if err := fn(); err != nil {
+		Global().Log(PanicLevel, "error", append(args, E(err))...)
+	}
+}
+
+func OrFatal(fn func() error, args ...Arg) {
+	if err := fn(); err != nil {
+		Global().Log(FatalLevel, "error", append(args, E(err))...)
+	}
+}
 
 //
 
-func Print(v ...any)                 { Info(fmt.Sprint(v...)) }
-func Printf(format string, v ...any) { Info(fmt.Sprintf(format, v...)) }
-func Println(v ...any)               { Info(fmt.Sprintln(v...)) }
+func Print(v ...any)                 { Global().Log(InfoLevel, fmt.Sprint(v...)) }
+func Printf(format string, v ...any) { Global().Log(InfoLevel, fmt.Sprintf(format, v...)) }
+func Println(v ...any)               { Global().Log(InfoLevel, fmt.Sprintln(v...)) }
 
-func Fatalf(format string, v ...any) { Fatal(fmt.Sprintf(format, v...)) }
-func Fatalln(v ...any)               { Fatal(fmt.Sprintln(v...)) }
+func Fatalf(format string, v ...any) { Global().Log(FatalLevel, fmt.Sprintf(format, v...)) }
+func Fatalln(v ...any)               { Global().Log(FatalLevel, fmt.Sprintln(v...)) }
 
-func Panicf(format string, v ...any) { Panic(fmt.Sprintf(format, v...)) }
-func Panicln(v ...any)               { Panic(fmt.Sprintln(v...)) }
+func Panicf(format string, v ...any) { Global().Log(PanicLevel, fmt.Sprintf(format, v...)) }
+func Panicln(v ...any)               { Global().Log(PanicLevel, fmt.Sprintln(v...)) }
