@@ -43,6 +43,9 @@ func MakeAnyColumns(names ...string) []sqb.Column {
 type Row struct {
 }
 
+type RowReader struct {
+}
+
 //
 
 type riState int8

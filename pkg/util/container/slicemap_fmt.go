@@ -11,30 +11,12 @@ import (
 
 func (m SliceMap[K, V]) format(tn string, f fmt.State, c rune) {
 	iou.WriteStringDiscard(f, tn)
-	if f.Flag('#') {
-		iou.WriteStringDiscard(f, "{")
-	} else {
-		iou.WriteStringDiscard(f, "[")
-	}
+	mf := mapFormatter{f: f}
+	mf.WriteBegin()
 	for i, kv := range m.s {
-		if i > 0 {
-			if f.Flag('#') {
-				iou.WriteStringDiscard(f, ", ")
-			} else {
-				iou.WriteStringDiscard(f, " ")
-			}
-		}
-		if f.Flag('#') {
-			iou.FprintfDiscard(f, "%#v:%#v", kv.K, kv.V)
-		} else {
-			iou.FprintfDiscard(f, "%v:%v", kv.K, kv.V)
-		}
+		mf.WriteEntry(i, kv.K, kv.V)
 	}
-	if f.Flag('#') {
-		iou.WriteStringDiscard(f, "}")
-	} else {
-		iou.WriteStringDiscard(f, "]")
-	}
+	mf.WriteEnd()
 }
 
 func (m SliceMap[K, V]) Format(f fmt.State, c rune) {
@@ -43,13 +25,13 @@ func (m SliceMap[K, V]) Format(f fmt.State, c rune) {
 
 func (m SliceMap[K, V]) string(tn string) string {
 	var sb strings.Builder
-	sb.WriteString("ordMap")
+	sb.WriteString(tn)
+	ms := mapStringer{sb: &sb}
+	ms.WriteBegin()
 	for i, kv := range m.s {
-		if i > 0 {
-			sb.WriteRune(' ')
-		}
-		iou.FprintfDiscard(&sb, "%v:%v", kv.K, kv.V)
+		ms.WriteEntry(i, kv.K, kv.V)
 	}
+	ms.WriteEnd()
 	return sb.String()
 }
 
