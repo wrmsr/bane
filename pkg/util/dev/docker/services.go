@@ -71,7 +71,7 @@ func (sl *ServiceLocator) Pss() Pss {
 
 		pss, err := CliPs(ctx)
 		if err != nil {
-			log.Error("docker error", log.Err(err))
+			log.Error("docker error", log.E(err))
 			return nil
 		}
 
@@ -88,7 +88,7 @@ func (sl *ServiceLocator) Inspects() Inspects {
 
 		ins, err := CliInspect(ctx, pss.Ids())
 		if err != nil {
-			log.Error("docker error", log.Err(err))
+			log.Error("docker error", log.E(err))
 			return nil
 		}
 
@@ -102,7 +102,7 @@ func (sl *ServiceLocator) Compose() *ComposeConfig {
 
 		cmp, err := ReadComposeConfig(fp)
 		if err != nil {
-			log.Error("docker error", log.Err(err))
+			log.Error("docker error", log.E(err))
 			return nil
 		}
 

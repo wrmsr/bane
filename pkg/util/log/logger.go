@@ -1,30 +1,13 @@
 package log
 
 import (
+	"fmt"
 	"os"
 	"time"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 )
-
-//
-
-type Arg struct {
-	Name  string
-	Value any
-}
-
-func A(name string, value any) Arg {
-	return Arg{Name: name, Value: value}
-}
-
-func Err(err error) Arg {
-	return Arg{Name: "error", Value: err}
-}
-
-func Recovery(r any) Arg {
-	return Arg{Name: "recovery", Value: r}
-}
 
 //
 
@@ -55,6 +38,9 @@ func (l baseLoggerImpl) Log(lvl Level, msg string, args ...Arg) {
 		Message: msg,
 		Args:    args,
 	}
+
+	st := rtu.GetStackTrace(1, 3)[0]
+	fmt.Printf("%+v\n", st)
 
 	err := l.ll.LogLine(line)
 	if err != nil {
@@ -113,36 +99,36 @@ func (l loggerImpl) Fatal(msg string, args ...Arg) { l.Log(FatalLevel, msg, args
 
 func (l loggerImpl) IfError(err error, args ...Arg) {
 	if err != nil {
-		l.Log(ErrorLevel, "error", append(args, Err(err))...)
+		l.Log(ErrorLevel, "error", append(args, E(err))...)
 	}
 }
 
 func (l loggerImpl) IfPanic(err error, args ...Arg) {
 	if err != nil {
-		l.Log(PanicLevel, "error", append(args, Err(err))...)
+		l.Log(PanicLevel, "error", append(args, E(err))...)
 	}
 }
 
 func (l loggerImpl) IfFatal(err error, args ...Arg) {
 	if err != nil {
-		l.Log(FatalLevel, "error", append(args, Err(err))...)
+		l.Log(FatalLevel, "error", append(args, E(err))...)
 	}
 }
 
 func (l loggerImpl) OrError(fn func() error, args ...Arg) {
 	if err := fn(); err != nil {
-		l.Log(ErrorLevel, "error", append(args, Err(err))...)
+		l.Log(ErrorLevel, "error", append(args, E(err))...)
 	}
 }
 
 func (l loggerImpl) OrPanic(fn func() error, args ...Arg) {
 	if err := fn(); err != nil {
-		l.Log(PanicLevel, "error", append(args, Err(err))...)
+		l.Log(PanicLevel, "error", append(args, E(err))...)
 	}
 }
 
 func (l loggerImpl) OrFatal(fn func() error, args ...Arg) {
 	if err := fn(); err != nil {
-		l.Log(FatalLevel, "error", append(args, Err(err))...)
+		l.Log(FatalLevel, "error", append(args, E(err))...)
 	}
 }

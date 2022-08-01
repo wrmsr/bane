@@ -35,10 +35,14 @@ func (f TextFormatter) FormatLine(line Line) (string, error) {
 		b.WriteString(line.Message)
 	}
 	for _, a := range line.Args {
+		n := a.ArgName()
+		if n == "" {
+			continue
+		}
 		b.WriteString(" ")
-		b.WriteString(a.Name)
+		b.WriteString(n)
 		b.WriteString("=")
-		b.WriteString(fmt.Sprintf("%v", a.Value))
+		b.WriteString(fmt.Sprintf("%v", a.ArgValue()))
 	}
 	return b.String(), nil
 }
@@ -67,7 +71,11 @@ func (f JsonFormatter) FormatLine(line Line) (string, error) {
 	if len(line.Args) > 0 {
 		m := make(map[string]any, len(line.Args))
 		for _, a := range line.Args {
-			m[a.Name] = a.Value
+			n := a.ArgName()
+			if n == "" {
+				continue
+			}
+			m[n] = a.ArgValue()
 		}
 		jl.Args = m
 	}

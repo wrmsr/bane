@@ -35,7 +35,7 @@ func (s *Server) handle(c net.Conn) {
 
 	defer func() {
 		if r := recover(); nil != r {
-			log.Error("Recovered from telnet handler", log.Recovery(r))
+			log.Error("Recovered from telnet handler", log.P(r))
 		}
 	}()
 
