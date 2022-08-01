@@ -1,12 +1,10 @@
 package log
 
 import (
-	"fmt"
 	"os"
 	"time"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 )
 
 //
@@ -30,6 +28,8 @@ func (l baseLoggerImpl) now() time.Time {
 	return time.Now()
 }
 
+const defaultStackOffset = 3
+
 func (l baseLoggerImpl) Log(lvl Level, msg string, args ...Arg) {
 	line := Line{
 		Time:  l.now(),
@@ -37,10 +37,9 @@ func (l baseLoggerImpl) Log(lvl Level, msg string, args ...Arg) {
 
 		Message: msg,
 		Args:    args,
-	}
 
-	st := rtu.GetStackTrace(1, 3)[0]
-	fmt.Printf("%+v\n", st)
+		StackOffset: defaultStackOffset,
+	}
 
 	err := l.ll.LogLine(line)
 	if err != nil {

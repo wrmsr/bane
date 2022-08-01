@@ -27,23 +27,32 @@ var _ Formatter = TextFormatter{}
 
 func (f TextFormatter) FormatLine(line Line) (string, error) {
 	var b strings.Builder
+
 	b.WriteString(line.Time.Format(defaultTimeFormat))
+
 	b.WriteString(" ")
 	b.WriteString(line.Level.String())
+
 	if line.Message != "" {
 		b.WriteString(" ")
 		b.WriteString(line.Message)
 	}
+
+	fmt.Printf("%+v\n", line.GetStackFrame(1))
+
 	for _, a := range line.Args {
 		n := a.ArgName()
 		if n == "" {
 			continue
 		}
+
 		b.WriteString(" ")
 		b.WriteString(n)
+
 		b.WriteString("=")
 		b.WriteString(fmt.Sprintf("%v", a.ArgValue()))
 	}
+
 	return b.String(), nil
 }
 

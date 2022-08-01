@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 )
 
 type Line struct {
@@ -14,6 +15,21 @@ type Line struct {
 	Args    []Arg
 
 	StackOffset int
+}
+
+func (l Line) AddStackOffset(n int) Line {
+	l.StackOffset += n
+	return l
+}
+
+func (l Line) GetStackFrame(ofs int) rtu.StackFrame {
+	so := l.StackOffset + ofs + 1
+	for _, a := range l.Args {
+		if a, ok := a.(StackOffset); ok {
+			so += a.Num
+		}
+	}
+	return rtu.GetStackFrame(so)
 }
 
 type LineLogger interface {
@@ -38,7 +54,7 @@ func NewLineLogger(
 var _ LineLogger = lineLoggerImpl{}
 
 func (l lineLoggerImpl) LogLine(line Line) error {
-	s, err := l.f.FormatLine(line)
+	s, err := l.f.FormatLine(line.AddStackOffset(1))
 	if err != nil {
 		return err
 	}

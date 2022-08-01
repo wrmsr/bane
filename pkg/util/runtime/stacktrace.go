@@ -12,6 +12,22 @@ type StackFrame struct {
 	Line int
 }
 
+func GetStackFrame(ofs int) StackFrame {
+	var pcs [1]uintptr
+	_ = runtime.Callers(
+		ofs+2,
+		pcs[:],
+	)
+	frs := runtime.CallersFrames(pcs[:])
+	fr, _ := frs.Next()
+	return StackFrame{
+		Pc:   fr.PC,
+		File: fr.File,
+		Line: fr.Line,
+		Name: fr.Function,
+	}
+}
+
 func GetStackTrace(n, ofs int) []StackFrame {
 	pcs := make([]uintptr, n)
 	nf := runtime.Callers(
@@ -37,6 +53,6 @@ func GetStackTrace(n, ofs int) []StackFrame {
 }
 
 func GetCaller(ofs int) ParsedName {
-	sf := GetStackTrace(1, ofs+1)[0]
+	sf := GetStackFrame(ofs + 1)
 	return ParseName(sf.Name)
 }
