@@ -6,6 +6,7 @@ import (
 
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	stru "github.com/wrmsr/bane/pkg/util/strings"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -19,7 +20,13 @@ type SetImpl struct {
 
 func (ri SetImpl) isRegistryItem() {}
 
-func SetImplOf[T any](tag string, alt ...string) SetImpl {
+func SetImplOf[T any](tags ...string) SetImpl {
+	var tag string
+	var alt []string
+	if len(tags) > 0 {
+		tag = tags[0]
+		alt = tags[1:]
+	}
 	return SetImpl{
 		Impl: rfl.TypeOf[T](),
 		Tag:  tag,
@@ -42,10 +49,16 @@ func NewPolymorphism(ty reflect.Type, es ...SetImpl) *Polymorphism {
 	tm := make(map[string]*SetImpl, len(es))
 	for i := range es {
 		e := &es[i]
+		if !e.Impl.AssignableTo(ty) {
+			panic(fmt.Errorf("not assignable: %s -> %s", e.Impl, ty))
+		}
 		if _, ok := im[e.Impl]; ok {
 			panic(fmt.Errorf("duplicate impl: %s", e.Impl))
 		}
 		im[e.Impl] = e
+		if e.Tag == "" {
+			e.Tag = stru.ToSnake(e.Impl.Name())
+		}
 		if _, ok := tm[e.Tag]; ok {
 			panic(fmt.Errorf("duplicate tag: %s", e.Tag))
 		}
