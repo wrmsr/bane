@@ -30,7 +30,7 @@ func (l baseLoggerImpl) now() time.Time {
 	return time.Now()
 }
 
-const baseStackOffset = 3
+const baseStackOffset = 2
 
 func (l baseLoggerImpl) Log(lvl Level, msg string, args ...Arg) {
 	line := Line{
