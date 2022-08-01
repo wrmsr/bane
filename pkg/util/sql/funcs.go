@@ -3,6 +3,7 @@ package sql
 import (
 	"context"
 
+	eu "github.com/wrmsr/bane/pkg/util/errors"
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -35,8 +36,32 @@ func Exec(ctx context.Context, o sqb.Querier, objs ...any) error {
 	return err
 }
 
-func All(ctx context.Context, o sqb.Querier, objs ...any) ([]Row, error) {
-	panic("implement me")
+func Iter(ctx context.Context, o sqb.Querier, objs ...any) (*RowsIterator, error) {
+	r, err := Query(ctx, o, objs...)
+	if err != nil {
+		return nil, err
+	}
+	return IterRows(r), nil
+}
+
+func All(ctx context.Context, o sqb.Querier, objs ...any) (s []Row, err error) {
+	ri, err := Iter(ctx, o, objs...)
+	if err != nil {
+		return nil, err
+	}
+	defer eu.AppendInvoke(&err, eu.Close(ri))
+
+	s = make([]Row, 0, 16)
+	for ri.HasNext() {
+		rr := ri.Next()
+		if rr.Err != nil {
+			s = nil
+			err = rr.Err
+			return
+		}
+		s = append(s, rr.Val.Clone())
+	}
+	return
 }
 
 func First(ctx context.Context, o sqb.Querier, objs ...any) (Row, error) {

@@ -12,6 +12,7 @@ func FormatMysqlDsn(dsn sqb.Dsn) string {
 	if dsn.User != "" {
 		b.WriteString(dsn.User)
 		if dsn.Pass.Value() != "" {
+			b.WriteString(":")
 			b.WriteString(dsn.Pass.Value())
 		}
 		b.WriteString("@")

@@ -37,7 +37,7 @@ func Tag(o, tag any) Key {
 
 func (k Key) String() string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("Key{ty: %s", k.ty.Name()))
+	sb.WriteString(fmt.Sprintf("Key{ty: %s", k.ty))
 	if k.arr {
 		sb.WriteString(", arr: true")
 	}

@@ -43,7 +43,7 @@ func (e UnboundKeyError) Error() string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("unbound key: %+v", e.Key))
 	if e.Src != nil {
-		sb.WriteString(fmt.Sprintf(" from src: %v", e.Src))
+		sb.WriteString(fmt.Sprintf(" from src: %s", e.Src))
 	}
 	return sb.String()
 }

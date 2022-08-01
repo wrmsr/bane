@@ -73,7 +73,7 @@ func TestMysql(t *testing.T) {
 	//}
 	//check.Must(r.Err())
 
-	for ri := Iter(r); ri.HasNext(); {
+	for ri := IterRows(r); ri.HasNext(); {
 		re := ri.Next()
 		check.Must(re.Err)
 		fmt.Println(re.Val)

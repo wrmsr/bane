@@ -1,7 +1,9 @@
 package sql
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -23,4 +25,6 @@ func TestAll(t *testing.T) {
 	db := sqa.NewStdDb(sdb)
 	_ = db
 
+	ctx := context.Background()
+	fmt.Println(check.Must1(All(ctx, db, "select version() union select 'foo'")))
 }

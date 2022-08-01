@@ -11,13 +11,24 @@ import (
 	"time"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/dev"
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
 	fnu "github.com/wrmsr/bane/pkg/util/funcs"
+	inj "github.com/wrmsr/bane/pkg/util/inject"
 	"github.com/wrmsr/bane/pkg/util/log"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
 )
+
+//
+
+var _ = dev.Register(func() inj.Bindings {
+	return inj.Bind(
+		inj.Singleton(DefaultServiceLocatorConfig),
+		inj.Singleton(NewServiceLocator),
+	)
+})
 
 //
 

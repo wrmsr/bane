@@ -25,7 +25,7 @@ var _ = dev.Register(func() inj.Bindings {
 				Port: svc.Ports[3306],
 
 				User: svc.Compose.Environment["MYSQL_USER"],
-				Pass: stru.SecretOf(svc.Compose.Environment["MYSQL_PASS"]),
+				Pass: stru.SecretOf(svc.Compose.Environment["MYSQL_PASSWORD"]),
 			})
 		})),
 

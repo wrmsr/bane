@@ -143,8 +143,8 @@ type RowsIterator struct {
 	r Row
 }
 
-func Iter(b sqb.Rows) *RowsIterator {
-	return &RowsIterator{br: b}
+func IterRows(br sqb.Rows) *RowsIterator {
+	return &RowsIterator{br: br}
 }
 
 func (ri *RowsIterator) Columns() ([]sqb.Column, error) {
