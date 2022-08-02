@@ -1,6 +1,11 @@
 package types
 
-import "golang.org/x/exp/constraints"
+import (
+	"fmt"
+	"reflect"
+
+	"golang.org/x/exp/constraints"
+)
 
 //
 
@@ -26,6 +31,10 @@ func MethodCmpImpl[T Comparer[T]]() CmpImpl[T] {
 	return T.Compare
 }
 
+func CmpAs[F, T any](impl CmpImpl[T]) func(l, r F) CmpResult {
+	return func(l, r F) CmpResult { return impl(As[F, T](l), As[F, T](r)) }
+}
+
 func OrderedCmp[T constraints.Ordered](l, r T) CmpResult {
 	if l < r {
 		return CmpLesser
@@ -34,10 +43,6 @@ func OrderedCmp[T constraints.Ordered](l, r T) CmpResult {
 		return CmpGreater
 	}
 	return CmpEqual
-}
-
-func OrderedCmpAs[F any, T constraints.Ordered]() func(l, r F) CmpResult {
-	return func(l, r F) CmpResult { return OrderedCmp(As[F, T](l), As[F, T](r)) }
 }
 
 func BoolCmp(l, r bool) CmpResult {
@@ -54,50 +59,51 @@ func DefaultCmpImpl[T any]() CmpImpl[T] {
 	}
 
 	if CanAssign[T, int]() {
-		return OrderedCmpAs[T, int]()
+		return CmpAs[T, int](OrderedCmp[int])
 	}
 	if CanAssign[T, int8]() {
-		return OrderedCmpAs[T, int8]()
+		return CmpAs[T, int8](OrderedCmp[int8])
 	}
 	if CanAssign[T, int16]() {
-		return OrderedCmpAs[T, int16]()
+		return CmpAs[T, int16](OrderedCmp[int16])
 	}
 	if CanAssign[T, int32]() {
-		return OrderedCmpAs[T, int32]()
+		return CmpAs[T, int32](OrderedCmp[int32])
 	}
 	if CanAssign[T, int64]() {
-		return OrderedCmpAs[T, int64]()
+		return CmpAs[T, int64](OrderedCmp[int64])
 	}
 
 	if CanAssign[T, uint]() {
-		return OrderedCmpAs[T, uint]()
+		return CmpAs[T, uint](OrderedCmp[uint])
 	}
 	if CanAssign[T, uint8]() {
-		return OrderedCmpAs[T, uint8]()
+		return CmpAs[T, uint8](OrderedCmp[uint8])
 	}
 	if CanAssign[T, uint16]() {
-		return OrderedCmpAs[T, uint16]()
+		return CmpAs[T, uint16](OrderedCmp[uint16])
 	}
 	if CanAssign[T, uint32]() {
-		return OrderedCmpAs[T, uint32]()
+		return CmpAs[T, uint32](OrderedCmp[uint32])
 	}
 	if CanAssign[T, uint64]() {
-		return OrderedCmpAs[T, uint64]()
+		return CmpAs[T, uint64](OrderedCmp[uint64])
 	}
 	if CanAssign[T, uintptr]() {
-		return OrderedCmpAs[T, uintptr]()
+		return CmpAs[T, uintptr](OrderedCmp[uintptr])
 	}
 
 	if CanAssign[T, float32]() {
-		return OrderedCmpAs[T, float32]()
+		return CmpAs[T, float32](OrderedCmp[float32])
 	}
 	if CanAssign[T, float64]() {
-		return OrderedCmpAs[T, float64]()
+		return CmpAs[T, float64](OrderedCmp[float64])
 	}
 
 	if CanAssign[T, string]() {
-		return OrderedCmpAs[T, string]()
+		return CmpAs[T, string](OrderedCmp[string])
 	}
 
-	panic("no default Cmp")
+	var z T
+	panic(fmt.Errorf("no default Cmp for %s", reflect.TypeOf(z)))
 }
