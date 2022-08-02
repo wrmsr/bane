@@ -32,15 +32,15 @@ type HashEqImpl[T any] struct {
 	Eq   EqImpl[T]
 }
 
+func HashEqOf[T any](hash HashImpl[T], eq EqImpl[T]) HashEqImpl[T] {
+	return HashEqImpl[T]{Hash: hash, Eq: eq}
+}
+
 func MethodHashEqImpl[T HashEq[T]]() HashEqImpl[T] {
 	return HashEqImpl[T]{
 		Hash: T.Hash,
 		Eq:   T.Equals,
 	}
-}
-
-func HashEqOf[T any](hash HashImpl[T], eq EqImpl[T]) HashEqImpl[T] {
-	return HashEqImpl[T]{Hash: hash, Eq: eq}
 }
 
 func IntHashEq[T constraints.Integer]() HashEqImpl[T] {

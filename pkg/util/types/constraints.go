@@ -3,7 +3,7 @@ package types
 import "golang.org/x/exp/constraints"
 
 type Equality interface {
-	constraints.Integer | string
+	bool | constraints.Integer | string
 }
 
 type Rational interface {
