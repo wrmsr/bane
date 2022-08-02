@@ -4,6 +4,7 @@ import (
 	"context"
 
 	eu "github.com/wrmsr/bane/pkg/util/errors"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -64,14 +65,66 @@ func All(ctx context.Context, o sqb.Querier, objs ...any) (s []Row, err error) {
 	return
 }
 
+func maybe(ctx context.Context, o sqb.Querier, objs []any, onlyOne bool) (opt.Optional[Row], error) {
+	ri, err := Iter(ctx, o, objs...)
+	if err != nil {
+		return opt.None[Row](), err
+	}
+	defer eu.AppendInvoke(&err, eu.Close(ri))
+
+	if !ri.HasNext() {
+		return opt.None[Row](), nil
+	}
+
+	re := ri.Next()
+	if re.Err != nil {
+		return opt.None[Row](), re.Err
+	}
+
+	if onlyOne && ri.HasNext() {
+		return opt.None[Row](), MultipleFoundError{}
+	}
+
+	return opt.Just(re.Val), nil
+}
+
+func MaybeFirst(ctx context.Context, o sqb.Querier, objs ...any) (opt.Optional[Row], error) {
+	return maybe(ctx, o, objs, false)
+}
+
+func MaybeOne(ctx context.Context, o sqb.Querier, objs ...any) (opt.Optional[Row], error) {
+	return maybe(ctx, o, objs, true)
+}
+
+func unwrapMaybe(ro opt.Optional[Row], err error) (Row, error) {
+	if err != nil {
+		return Row{}, err
+	}
+	if !ro.Present() {
+		return Row{}, NotFoundError{}
+	}
+	return ro.Value(), nil
+}
+
 func First(ctx context.Context, o sqb.Querier, objs ...any) (Row, error) {
-	panic("implement me")
+	return unwrapMaybe(maybe(ctx, o, objs, false))
 }
 
 func One(ctx context.Context, o sqb.Querier, objs ...any) (Row, error) {
-	panic("implement me")
+	return unwrapMaybe(maybe(ctx, o, objs, true))
 }
 
 func Scalar(ctx context.Context, o sqb.Querier, objs ...any) (any, error) {
-	panic("implement me")
+	r, err := One(ctx, o, objs...)
+	if err != nil {
+		return nil, err
+	}
+
+	if r.Len() < 1 {
+		return nil, NotEnoughValuesError{}
+	}
+	if r.Len() > 1 {
+		return nil, TooManyValuesError{}
+	}
+	return r.Value(0), nil
 }

@@ -27,4 +27,6 @@ func TestAll(t *testing.T) {
 
 	ctx := context.Background()
 	fmt.Println(check.Must1(All(ctx, db, "select version() union select 'foo'")))
+
+	fmt.Println(check.Must1(Scalar(ctx, db, "select 420")))
 }

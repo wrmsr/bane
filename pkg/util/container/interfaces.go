@@ -112,12 +112,12 @@ type MutOrderedMap[K, V any] interface {
 
 //
 
-type SyncedMap[K, V any] interface {
+type SyncMap[K, V any] interface {
 	Map[K, V]
 	Sync
 }
 
-type SyncedMutMap[K, V any] interface {
+type SyncMutMap[K, V any] interface {
 	MutMap[K, V]
 	Sync
 }

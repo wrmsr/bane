@@ -28,7 +28,7 @@ func NewLockedMap[K, V any](m Map[K, V]) *LockedMap[K, V] {
 	return &LockedMap[K, V]{m: m}
 }
 
-var _ SyncedMap[int, string] = &LockedMap[int, string]{}
+var _ SyncMap[int, string] = &LockedMap[int, string]{}
 
 func (m *LockedMap[K, V]) Len() int {
 	m.mtx.Lock()
@@ -83,7 +83,7 @@ func NewLockedMutMap[K, V any](m MutMap[K, V]) *LockedMutMap[K, V] {
 	return &LockedMutMap[K, V]{LockedMap: LockedMap[K, V]{m: m}, m: m}
 }
 
-var _ SyncedMutMap[int, string] = &LockedMutMap[int, string]{}
+var _ SyncMutMap[int, string] = &LockedMutMap[int, string]{}
 
 func (m *LockedMutMap[K, V]) isMutable() {}
 

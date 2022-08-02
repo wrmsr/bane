@@ -93,12 +93,13 @@ func NewShapeMapFromSlice[K comparable, V any](shape MapShape[K], s []V) ShapeMa
 	}
 }
 
+func (m ShapeMap[K, V]) Shape() MapShape[K] { return m.shape }
+
+func (m ShapeMap[K, V]) Values() []V   { return slices.Clone(m.vs) }
+func (m ShapeMap[K, V]) Value(i int) V { return m.vs[i] }
+
 func (m ShapeMap[K, V]) Clone() ShapeMap[K, V] {
 	return ShapeMap[K, V]{shape: m.shape, vs: slices.Clone(m.vs)}
-}
-
-func (m ShapeMap[K, V]) Shape() MapShape[K] {
-	return m.shape
 }
 
 var _ Map[int, string] = ShapeMap[int, string]{}
@@ -148,6 +149,11 @@ type MutShapeMap[K comparable, V any] struct {
 func NewMutShapeMap[K comparable, V any](shape MapShape[K], vs bt.Iterable[V]) MutShapeMap[K, V] {
 	return MutShapeMap[K, V]{m: NewShapeMap(shape, vs)}
 }
+
+func (m MutShapeMap[K, V]) Shape() MapShape[K] { return m.m.shape }
+
+func (m MutShapeMap[K, V]) Values() []V    { return m.m.vs }
+func (m MutShapeMap[K, V]) Value(i int) *V { return &m.m.vs[i] }
 
 var _ MutMap[int, string] = MutShapeMap[int, string]{}
 
