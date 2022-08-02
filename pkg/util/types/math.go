@@ -29,6 +29,16 @@ func Max[T constraints.Ordered](vs ...T) T {
 	return r
 }
 
+func Clamp[T constraints.Ordered](v, lo, hi T) T {
+	if v < lo {
+		v = lo
+	}
+	if v > hi {
+		v = hi
+	}
+	return v
+}
+
 func Sum[T Rational](vs ...T) T {
 	var r T
 	for _, v := range vs {

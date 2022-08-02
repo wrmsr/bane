@@ -2,11 +2,11 @@ package types
 
 import "golang.org/x/exp/constraints"
 
-func Eq[T Equality](l, r T) bool {
+func Eq[T comparable](l, r T) bool {
 	return l == r
 }
 
-func Ne[T Equality](l, r T) bool {
+func Ne[T comparable](l, r T) bool {
 	return l != r
 }
 

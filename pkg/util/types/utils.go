@@ -72,3 +72,9 @@ func Identity[T any]() func(T) T {
 func Const[T any](v T) func() T {
 	return func() T { return v }
 }
+
+func CloneSlice[T any](s []T) []T {
+	r := make([]T, len(s))
+	copy(r, s)
+	return r
+}

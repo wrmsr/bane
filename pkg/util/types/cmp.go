@@ -7,7 +7,7 @@ import "golang.org/x/exp/constraints"
 type CmpResult int8
 
 const (
-	CmpLess    = -1
+	CmpLesser  = -1
 	CmpEqual   = 0
 	CmpGreater = 1
 )
@@ -28,7 +28,7 @@ func MethodCmpImpl[T Comparer[T]]() CmpImpl[T] {
 
 func OrderedCmp[T constraints.Ordered](l, r T) CmpResult {
 	if l < r {
-		return CmpLess
+		return CmpLesser
 	}
 	if r > l {
 		return CmpGreater
