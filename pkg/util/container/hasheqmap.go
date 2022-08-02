@@ -38,10 +38,7 @@ type HashEqMap[K, V any] struct {
 }
 
 func NewHashEqMap[K, V any](he bt.HashEqImpl[K], it bt.Iterable[bt.Kv[K, V]]) HashEqMap[K, V] {
-	m := HashEqMap[K, V]{
-		he: he,
-		m:  make(map[uintptr]*hashEqMapNode),
-	}
+	m := HashEqMap[K, V]{he: he}
 	if it != nil {
 		for it := it.Iterate(); it.HasNext(); {
 			c := it.Next()
@@ -118,7 +115,13 @@ func (m HashEqMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 	return true
 }
 
+func (m *HashEqMap[K, V]) lazyInit() {
+
+}
+
 func (m *HashEqMap[K, V]) put(k K, v V) {
+	m.lazyInit()
+
 	h := m.he.Hash(k)
 	if n := m.getNode(k, h); n != nil {
 		n.v = v
@@ -188,6 +191,10 @@ func (m *HashEqMap[K, V]) print() {
 }
 
 func (m *HashEqMap[K, V]) delete(k K) {
+	if m.m == nil {
+		return
+	}
+
 	h := m.he.Hash(k)
 	n := m.getNode(k, h)
 	if n == nil {
@@ -223,6 +230,8 @@ func (m *HashEqMap[K, V]) delete(k K) {
 }
 
 func (m *HashEqMap[K, V]) default_(k K, v V) bool {
+	m.lazyInit()
+
 	if _, ok := m.TryGet(k); ok {
 		return false
 	}
@@ -231,6 +240,10 @@ func (m *HashEqMap[K, V]) default_(k K, v V) bool {
 }
 
 func (m *HashEqMap[K, V]) clear() {
+	if m.m == nil {
+		return
+	}
+
 	for cur := m.head; cur != nil; cur = cur.next {
 		*cur = hashEqMapNode{}
 		hashEqMapNodePool.Put(cur)

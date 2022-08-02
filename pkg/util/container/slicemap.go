@@ -14,9 +14,7 @@ type SliceMap[K comparable, V any] struct {
 }
 
 func NewSliceMap[K comparable, V any](it bt.Iterable[bt.Kv[K, V]]) SliceMap[K, V] {
-	m := SliceMap[K, V]{
-		m: make(map[K]int),
-	}
+	m := SliceMap[K, V]{}
 	if it != nil {
 		for it := it.Iterate(); it.HasNext(); {
 			c := it.Next()
@@ -31,15 +29,25 @@ var _ OrderedMap[int, any] = SliceMap[int, any]{}
 func (m SliceMap[K, V]) isOrdered() {}
 
 func (m SliceMap[K, V]) Len() int {
+	if m.m == nil {
+		return 0
+	}
 	return len(m.s)
 }
 
 func (m SliceMap[K, V]) Contains(k K) bool {
+	if m.m == nil {
+		return false
+	}
 	_, ok := m.m[k]
 	return ok
 }
 
 func (m SliceMap[K, V]) Get(k K) V {
+	if m.m == nil {
+		var z V
+		return z
+	}
 	i, ok := m.m[k]
 	if !ok {
 		return bt.Zero[V]()
@@ -48,6 +56,10 @@ func (m SliceMap[K, V]) Get(k K) V {
 }
 
 func (m SliceMap[K, V]) TryGet(k K) (V, bool) {
+	if m.m == nil {
+		var z V
+		return z, false
+	}
 	i, ok := m.m[k]
 	if !ok {
 		return bt.Zero[V](), false
@@ -56,10 +68,16 @@ func (m SliceMap[K, V]) TryGet(k K) (V, bool) {
 }
 
 func (m SliceMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
+	if m.m == nil {
+		return its.Empty[bt.Kv[K, V]]().Iterate()
+	}
 	return its.OfSlice(m.s).Iterate()
 }
 
 func (m SliceMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
+	if m.m == nil {
+		return true
+	}
 	for _, kv := range m.s {
 		if !fn(kv) {
 			return false
@@ -69,6 +87,9 @@ func (m SliceMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
 }
 
 func (m SliceMap[K, V]) IterateFrom(k K) bt.Iterator[bt.Kv[K, V]] {
+	if m.m == nil {
+		return its.Empty[bt.Kv[K, V]]().Iterate()
+	}
 	i, ok := m.m[k]
 	if !ok {
 		return its.Empty[bt.Kv[K, V]]().Iterate()
@@ -77,10 +98,16 @@ func (m SliceMap[K, V]) IterateFrom(k K) bt.Iterator[bt.Kv[K, V]] {
 }
 
 func (m SliceMap[K, V]) ReverseIterate() bt.Iterator[bt.Kv[K, V]] {
+	if m.m == nil {
+		return its.Empty[bt.Kv[K, V]]().Iterate()
+	}
 	return its.OfSliceRange(m.s, bt.RangeOf(len(m.s)-1, -1, -1)).Iterate()
 }
 
 func (m SliceMap[K, V]) ReverseIterateFrom(k K) bt.Iterator[bt.Kv[K, V]] {
+	if m.m == nil {
+		return its.Empty[bt.Kv[K, V]]().Iterate()
+	}
 	i, ok := m.m[k]
 	if !ok {
 		return its.Empty[bt.Kv[K, V]]().Iterate()
@@ -91,10 +118,20 @@ func (m SliceMap[K, V]) ReverseIterateFrom(k K) bt.Iterator[bt.Kv[K, V]] {
 var _ its.AnyIterable = SliceMap[int, string]{}
 
 func (m SliceMap[K, V]) AnyIterate() bt.Iterator[any] {
+	if m.m == nil {
+		return its.Empty[any]().Iterate()
+	}
 	return its.AsAny[bt.Kv[K, V]](m).Iterate()
 }
 
+func (m *SliceMap[K, V]) lazyInit() {
+	if m.m == nil {
+		m.m = make(map[K]int)
+	}
+}
+
 func (m *SliceMap[K, V]) put(k K, v V) {
+	m.lazyInit()
 	i, ok := m.m[k]
 	if ok {
 		m.s[i].V = v
@@ -105,6 +142,7 @@ func (m *SliceMap[K, V]) put(k K, v V) {
 }
 
 func (m *SliceMap[K, V]) delete(k K) {
+	m.lazyInit()
 	i, ok := m.m[k]
 	if !ok {
 		return
@@ -114,6 +152,7 @@ func (m *SliceMap[K, V]) delete(k K) {
 }
 
 func (m *SliceMap[K, V]) default_(k K, v V) bool {
+	m.lazyInit()
 	_, ok := m.m[k]
 	if !ok {
 		return false
@@ -124,6 +163,7 @@ func (m *SliceMap[K, V]) default_(k K, v V) bool {
 }
 
 func (m *SliceMap[K, V]) filter(fn func(kv bt.Kv[K, V]) bool) {
+	m.lazyInit()
 	for i := 0; i < len(m.s); {
 		kv := m.s[i]
 		if !fn(kv) {
