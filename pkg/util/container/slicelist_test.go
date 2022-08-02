@@ -6,7 +6,7 @@ import (
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 )
 
-func TestList(t *testing.T) {
+func TestSliceList(t *testing.T) {
 	l := NewMutSliceListOf("zero", "one", "two", "three")
 	tu.AssertEqual(t, l.Get(0), "zero")
 	tu.AssertEqual(t, l.Get(1), "one")
@@ -17,4 +17,11 @@ func TestList(t *testing.T) {
 	l.Delete(2)
 	tu.AssertEqual(t, l.Get(2), "three")
 	tu.AssertEqual(t, l.Len(), 3)
+}
+
+func TestSliceListLazy(t *testing.T) {
+	var l MutSliceList[int]
+	tu.AssertEqual(t, l.Len(), 0)
+	l.Append(420)
+	tu.AssertEqual(t, l.Get(0), 420)
 }

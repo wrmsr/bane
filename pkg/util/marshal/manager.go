@@ -24,7 +24,7 @@ func (m *Manager) MarshalRfl(rv reflect.Value, o ...MarshalOpt) (Value, error) {
 	ty := rv.Type()
 	mc := MarshalContext{
 		Make: m.mf.Make,
-		Opts: ctr.NewTypeMap(its.OfSlice(o)),
+		Opts: ctr.NewStdTypeMap(its.OfSlice(o)),
 		Reg:  m.reg,
 	}
 	mi, err := m.mf.Make(mc, ty)
@@ -41,7 +41,7 @@ func (m *Manager) Marshal(v any, o ...MarshalOpt) (Value, error) {
 func (m *Manager) UnmarshalRfl(mv Value, ty reflect.Type, o ...UnmarshalOpt) (reflect.Value, error) {
 	uc := UnmarshalContext{
 		Make: m.uf.Make,
-		Opts: ctr.NewTypeMap(its.OfSlice(o)),
+		Opts: ctr.NewStdTypeMap(its.OfSlice(o)),
 		Reg:  m.reg,
 	}
 	ui, err := m.uf.Make(uc, ty)

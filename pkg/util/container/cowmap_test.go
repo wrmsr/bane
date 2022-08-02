@@ -1,6 +1,7 @@
 package container
 
 import (
+	"fmt"
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
@@ -11,4 +12,5 @@ func TestCowMap(t *testing.T) {
 	tu.AssertEqual(t, m.Contains(420), false)
 	m.Put(420, "four twenty")
 	tu.AssertEqual(t, m.Get(420), "four twenty")
+	fmt.Println(&m)
 }

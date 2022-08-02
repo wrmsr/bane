@@ -9,7 +9,7 @@ import (
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
-func TestMap(t *testing.T) {
+func TestStdMap(t *testing.T) {
 	m := NewMutStdMap[int, string](nil)
 	m.Put(10, "ten")
 	m.Put(20, "twenty")
@@ -23,6 +23,14 @@ func TestMap(t *testing.T) {
 
 	m.Delete(20)
 	tu.AssertEqual(t, m.Contains(20), false)
+}
+
+func TestStdMapLazy(t *testing.T) {
+	var m MutStdMap[int, string]
+	tu.AssertEqual(t, m.Len(), 0)
+	tu.AssertEqual(t, m.Contains(420), false)
+	m.Put(420, "four twenty")
+	tu.AssertEqual(t, m.Get(420), "four twenty")
 }
 
 //func TestMapReflect(t *testing.T) {
