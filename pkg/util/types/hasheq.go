@@ -67,3 +67,10 @@ func StrHashEq() HashEqImpl[string] {
 		Eq:   Eq[string],
 	}
 }
+
+//func DefaultHashEqImpl[T any]() HashEqImpl[T] {
+//	if CanAssign[T, HashEq[T]]() {
+//		return ???
+//	}
+//	panic("no default HashEq")
+//}

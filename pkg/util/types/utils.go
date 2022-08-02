@@ -5,6 +5,16 @@ func Is[I any](v any) bool {
 	return ok
 }
 
+func CanAssign[F, T any]() bool {
+	var z F
+	var a any
+	a = z
+	if _, ok := a.(T); ok {
+		return true
+	}
+	return false
+}
+
 func Zero[T any]() T {
 	var z T
 	return z
