@@ -52,7 +52,7 @@ func HashEqAs[F, T any](impl HashEqImpl[T]) HashEqImpl[F] {
 
 func BoolHashEq() HashEqImpl[bool] {
 	return HashEqImpl[bool]{
-		Hash: func(i bool) uintptr { return uintptr(BoolNum[uintptr](i)) },
+		Hash: func(i bool) uintptr { return BoolNum[uintptr](i) },
 		Eq:   func(l, r bool) bool { return l == r },
 	}
 }
