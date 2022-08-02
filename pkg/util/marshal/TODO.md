@@ -19,8 +19,7 @@
     - bools to int/uint (true = 1, false = 0)
     - strings to int/uint (base implied by prefix)
     - int to bool (true if value != 0)
-    - string to bool (accepts: 1, t, T, TRUE, true, True, 0, f, F,
-      FALSE, false, False. Anything else is an error)
+    - string to bool (accepts: 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, False. Anything else is an error)
     - empty array = empty map and vice versa
     - negative numbers to overflowed uint values (base 10)
     - slice of maps to a merged map
