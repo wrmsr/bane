@@ -1,6 +1,7 @@
 package tg
 
 import (
+	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -10,8 +11,6 @@ import (
 type Func interface {
 	Forward(bs []*LazyBuffer) *LazyBuffer
 	Backward(g *LazyBuffer) []*LazyBuffer
-
-	isFunc()
 }
 
 //
@@ -44,4 +43,19 @@ func Apply(fn Func, parents []*Tensor) *Tensor {
 		ret.ctx = ctx
 	}
 	return ret
+}
+
+//
+
+type AddFunc struct{}
+
+var _ Func = AddFunc{}
+
+func (a AddFunc) Forward(bs []*LazyBuffer) *LazyBuffer {
+	check.Condition(len(bs) == 2)
+	return bs[0].BinaryOp(AddOp, bs[1])
+}
+
+func (a AddFunc) Backward(g *LazyBuffer) []*LazyBuffer {
+	panic("nyi")
 }
