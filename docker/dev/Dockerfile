@@ -75,7 +75,7 @@ RUN ( \
     apt-get update && \
     apt-get install -y \
     \
-        openjdk-17-jdk \
+        openjdk-18-jdk \
     \
 )
 
@@ -89,7 +89,7 @@ RUN ( \
 ## go
 
 RUN ( \
-    GO_VERSION="1.18.4" && \
+    GO_VERSION="1.19" && \
     mkdir /build && cd /build && \
     if [ "$(uname -m)" = "aarch64" ] ; then GO_ARCH="arm64" ; else GO_ARCH="amd64" ; fi && \
     GO_FILE="go$GO_VERSION.linux-$GO_ARCH.tar.gz" && \

@@ -27,7 +27,10 @@ func NewCowListOf[T any](vs ...T) *CowList[T] {
 }
 
 func (l *CowList[T]) get() []T {
-	return l.r.Load().([]T)
+	if r := l.r.Load(); r != nil {
+		return r.([]T)
+	}
+	return nil
 }
 
 var _ SyncMutList[int] = &CowList[int]{}

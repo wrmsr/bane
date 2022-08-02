@@ -71,7 +71,7 @@ func (m SliceMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
 func (m SliceMap[K, V]) IterateFrom(k K) bt.Iterator[bt.Kv[K, V]] {
 	i, ok := m.m[k]
 	if !ok {
-		return its.Empty[bt.Kv[K, V]]()
+		return its.Empty[bt.Kv[K, V]]().Iterate()
 	}
 	return its.OfSliceRange(m.s, bt.RangeOf(i, len(m.s), 1)).Iterate()
 }
@@ -83,7 +83,7 @@ func (m SliceMap[K, V]) ReverseIterate() bt.Iterator[bt.Kv[K, V]] {
 func (m SliceMap[K, V]) ReverseIterateFrom(k K) bt.Iterator[bt.Kv[K, V]] {
 	i, ok := m.m[k]
 	if !ok {
-		return its.Empty[bt.Kv[K, V]]()
+		return its.Empty[bt.Kv[K, V]]().Iterate()
 	}
 	return its.OfSliceRange(m.s, bt.RangeOf(i, -1, -1)).Iterate()
 }

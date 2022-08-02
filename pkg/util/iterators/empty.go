@@ -6,7 +6,7 @@ import (
 
 type emptyIterator[T any] struct{}
 
-func Empty[T any]() bt.Iterator[T] {
+func Empty[T any]() bt.Iterable[T] {
 	return emptyIterator[T]{}
 }
 

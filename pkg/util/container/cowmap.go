@@ -17,20 +17,23 @@ type CowMap[K comparable, V any] struct {
 }
 
 func NewCowMap[K comparable, V any](it bt.Iterable[bt.Kv[K, V]]) *CowMap[K, V] {
-	m := make(map[K]V)
+	cm := &CowMap[K, V]{}
 	if it != nil {
+		m := make(map[K]V)
 		for it := it.Iterate(); it.HasNext(); {
 			c := it.Next()
 			m[c.K] = c.V
 		}
+		cm.r.Store(m)
 	}
-	cm := &CowMap[K, V]{}
-	cm.r.Store(m)
 	return cm
 }
 
 func (m *CowMap[K, V]) get() map[K]V {
-	return m.r.Load().(map[K]V)
+	if r := m.r.Load(); r != nil {
+		return r.(map[K]V)
+	}
+	return nil
 }
 
 var _ SyncMutMap[int, any] = &CowMap[int, any]{}
@@ -39,29 +42,55 @@ func (m *CowMap[K, V]) isMut()  {}
 func (m *CowMap[K, V]) isSync() {}
 
 func (m *CowMap[K, V]) Len() int {
-	return len(m.get())
+	r := m.get()
+	if r == nil {
+		return 0
+	}
+	return len(r)
 }
 
 func (m *CowMap[K, V]) Contains(k K) bool {
-	_, ok := m.get()[k]
+	r := m.get()
+	if r == nil {
+		return false
+	}
+	_, ok := r[k]
 	return ok
 }
 
 func (m *CowMap[K, V]) Get(k K) V {
-	return m.get()[k]
+	r := m.get()
+	if r == nil {
+		var z V
+		return z
+	}
+	return r[k]
 }
 
 func (m *CowMap[K, V]) TryGet(k K) (V, bool) {
-	v, ok := m.get()[k]
+	r := m.get()
+	if r == nil {
+		var z V
+		return z, false
+	}
+	v, ok := r[k]
 	return v, ok
 }
 
 func (m *CowMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
-	return its.OfMap[K, V](m.get()).Iterate()
+	r := m.get()
+	if r == nil {
+		return its.Empty[bt.Kv[K, V]]().Iterate()
+	}
+	return its.OfMap[K, V](r).Iterate()
 }
 
 func (m *CowMap[K, V]) ForEach(fn func(bt.Kv[K, V]) bool) bool {
-	for k, v := range m.get() {
+	r := m.get()
+	if r == nil {
+		return true
+	}
+	for k, v := range r {
 		if !fn(bt.KvOf(k, v)) {
 			return false
 		}
@@ -73,7 +102,11 @@ func (m *CowMap[K, V]) mut(fn func(map[K]V)) {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
-	nm := maps.Clone(m.get())
+	r := m.get()
+	if r == nil {
+		r = make(map[K]V)
+	}
+	nm := maps.Clone(r)
 	fn(nm)
 	m.r.Store(nm)
 }
