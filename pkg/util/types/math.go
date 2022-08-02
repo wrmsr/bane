@@ -54,3 +54,11 @@ func Prod[T Rational](vs ...T) T {
 	}
 	return r
 }
+
+func Pow2Ceil[T constraints.Integer](num T) T {
+	power := T(1)
+	for power < num {
+		power *= 2
+	}
+	return power
+}

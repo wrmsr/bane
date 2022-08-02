@@ -26,32 +26,40 @@ func NewCowListOf[T any](vs ...T) *CowList[T] {
 	return NewCowList(its.Of(vs...))
 }
 
-func (l *CowList[T]) get() []T {
-	if r := l.r.Load(); r != nil {
+func (m *CowList[T]) get() []T {
+	if r := m.r.Load(); r != nil {
 		return r.([]T)
 	}
 	return nil
 }
 
+func (m *CowList[T]) Clone() *CowList[T] {
+	r := &CowList[T]{}
+	if v := m.r.Load(); v != nil {
+		r.r.Store(v)
+	}
+	return r
+}
+
 var _ SyncMutList[int] = &CowList[int]{}
 
-func (l *CowList[T]) isMut()  {}
-func (l *CowList[T]) isSync() {}
+func (m *CowList[T]) isMut()  {}
+func (m *CowList[T]) isSync() {}
 
-func (l *CowList[T]) Len() int {
-	return len(l.get())
+func (m *CowList[T]) Len() int {
+	return len(m.get())
 }
 
-func (l *CowList[T]) Get(i int) T {
-	return l.get()[i]
+func (m *CowList[T]) Get(i int) T {
+	return m.get()[i]
 }
 
-func (l *CowList[T]) Iterate() bt.Iterator[T] {
-	return its.OfSlice(l.get()).Iterate()
+func (m *CowList[T]) Iterate() bt.Iterator[T] {
+	return its.OfSlice(m.get()).Iterate()
 }
 
-func (l *CowList[T]) ForEach(fn func(v T) bool) bool {
-	for _, v := range l.get() {
+func (m *CowList[T]) ForEach(fn func(v T) bool) bool {
+	for _, v := range m.get() {
 		if !fn(v) {
 			return false
 		}
@@ -59,28 +67,28 @@ func (l *CowList[T]) ForEach(fn func(v T) bool) bool {
 	return true
 }
 
-func (l *CowList[T]) mut(fn func([]T) []T) {
-	l.mtx.Lock()
-	defer l.mtx.Unlock()
+func (m *CowList[T]) mut(fn func([]T) []T) {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
 
-	l.r.Store(fn(slices.Clone(l.get())))
+	m.r.Store(fn(slices.Clone(m.get())))
 }
 
-func (l *CowList[T]) Put(i int, v T) {
-	l.mut(func(s []T) []T {
+func (m *CowList[T]) Put(i int, v T) {
+	m.mut(func(s []T) []T {
 		s[i] = v
 		return s
 	})
 }
 
-func (l *CowList[T]) Append(v T) {
-	l.mut(func(s []T) []T {
+func (m *CowList[T]) Append(v T) {
+	m.mut(func(s []T) []T {
 		return append(s, v)
 	})
 }
 
-func (l *CowList[T]) Delete(i int) {
-	l.mut(func(s []T) []T {
+func (m *CowList[T]) Delete(i int) {
+	m.mut(func(s []T) []T {
 		return append(s[:i], s[i+1:]...)
 	})
 }

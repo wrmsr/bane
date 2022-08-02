@@ -36,6 +36,14 @@ func (m *CowMap[K, V]) get() map[K]V {
 	return nil
 }
 
+func (m *CowMap[K, V]) Clone() *CowMap[K, V] {
+	r := &CowMap[K, V]{}
+	if v := m.r.Load(); v != nil {
+		r.r.Store(v)
+	}
+	return r
+}
+
 var _ SyncMutMap[int, any] = &CowMap[int, any]{}
 
 func (m *CowMap[K, V]) isMut()  {}
