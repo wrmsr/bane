@@ -27,16 +27,6 @@
     - single values are converted to slices if required. Each element is weakly decoded. For example: "4" can become []int{4} if the target type is an int slice.
   - Squash - Squash will squash embedded structs.  A squash tag may also be added to an individual struct field using a tag.  For example: type Parent struct { Child `mapstructure:",squash"` }
   - Metadata - Metadata is the struct that will contain extra metadata about the decoding. If this is nil, then no metadata will be tracked.
-
-// The tag name that mapstructure reads for field names. This
-// defaults to "mapstructure"
-TagName string
-
-// IgnoreUntaggedFields ignores all struct fields without explicit
-// TagName, comparable to `mapstructure:"-"` as default behaviour.
-IgnoreUntaggedFields bool
-
-// MatchName is the function used to match the map key to the struct
-// field name or tag. Defaults to `strings.EqualFold`. This can be used
-// to implement case-sensitive tag values, support snake casing, etc.
-MatchName func(mapKey, fieldName string) bool
+  - TagName - The tag name that mapstructure reads for field names. This defaults to "mapstructure"
+  - IgnoreUntaggedFields - IgnoreUntaggedFields ignores all struct fields without explicit TagName, comparable to `mapstructure:"-"` as default behaviour.
+  - MatchName - MatchName is the function used to match the map key to the struct field name or tag. Defaults to `strings.EqualFold`. This can be used to implement case-sensitive tag values, support snake casing, etc.
