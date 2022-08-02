@@ -6,11 +6,14 @@ import (
 
 //
 
-type Querier = sqb.Querier
+type Column = sqb.Column
+type Columns = sqb.Columns
 
 //
 
-type Column = sqb.Column
+type Querier = sqb.Querier
+
+//
 
 type Rows = sqb.Rows
 

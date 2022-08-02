@@ -15,7 +15,7 @@ type PgxRows struct {
 	sqb.BaseRows
 
 	r  pgx.Rows
-	cs []sqb.Column
+	cs *sqb.Columns
 }
 
 func newPgxRows(r pgx.Rows) *PgxRows {
@@ -26,21 +26,27 @@ func newPgxRows(r pgx.Rows) *PgxRows {
 
 var _ sqb.Rows = &PgxRows{}
 
-func (r *PgxRows) Columns() ([]sqb.Column, error) {
+func (r *PgxRows) Columns() (*sqb.Columns, error) {
 	if r.cs == nil {
 		fis := r.r.FieldDescriptions()
-		cs := make([]sqb.Column, len(fis))
+		s := make([]sqb.Column, len(fis))
 		for i, fi := range fis {
 			// FIXME:
 			//fi.DataTypeOID
-			cs[i] = sqb.Column{
+			s[i] = sqb.Column{
 				Name: string(fi.Name),
 				//DbType: ct.DatabaseTypeName(),
 				//Type:   ct.ScanType(),
 			}
 		}
+
+		cs, err := sqb.ColumnsOf(s...)
+		if err != nil {
+			return nil, err
+		}
 		r.cs = cs
 	}
+
 	return r.cs, nil
 }
 

@@ -27,7 +27,7 @@ func IterRows(br sqb.Rows) *RowsIterator {
 	return &RowsIterator{br: br}
 }
 
-func (ri *RowsIterator) Columns() ([]sqb.Column, error) {
+func (ri *RowsIterator) Columns() (*sqb.Columns, error) {
 	return ri.br.Columns()
 }
 

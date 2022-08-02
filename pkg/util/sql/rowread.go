@@ -3,19 +3,18 @@ package sql
 import (
 	"reflect"
 
-	ctr "github.com/wrmsr/bane/pkg/util/container"
-	its "github.com/wrmsr/bane/pkg/util/iterators"
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type RowReader struct {
 	r sqb.Rows
 
+	cs *sqb.Columns
+
 	vvs []reflect.Value
 	dvs []any
 	vs  []any
-
-	shape ctr.MapShape[string]
 }
 
 func NewRowReader(r sqb.Rows) (RowReader, error) {
@@ -24,29 +23,31 @@ func NewRowReader(r sqb.Rows) (RowReader, error) {
 		return RowReader{}, err
 	}
 
-	vvs := make([]reflect.Value, len(cs))
-	dvs := make([]any, len(cs))
-	for i, c := range cs {
-		sv := reflect.New(c.Type)
+	vvs := make([]reflect.Value, cs.Len())
+	dvs := make([]any, cs.Len())
+	cns := make([]string, cs.Len())
+	i := 0
+	cs.ForEach(func(kv bt.Kv[string, sqb.Column]) bool {
+		sv := reflect.New(kv.V.Type)
 		vvs[i] = sv.Elem()
 		dvs[i] = sv.Interface()
-	}
-
-	cns := make([]string, len(cs))
-	for i, c := range cs {
-		cns[i] = c.Name
-	}
+		cns[i] = kv.V.Name
+		i++
+		return true
+	})
 
 	return RowReader{
 		r: r,
 
+		cs: cs,
+
 		vvs: vvs,
 		dvs: dvs,
-		vs:  make([]any, len(cs)),
-
-		shape: ctr.NewMapShape(its.OfSlice(cns)),
+		vs:  make([]any, cs.Len()),
 	}, nil
 }
+
+func (rr RowReader) Columns() *sqb.Columns { return rr.cs }
 
 func (rr RowReader) Read() (Row, error) {
 	if err := rr.r.Scan(rr.dvs...); err != nil {
@@ -59,5 +60,5 @@ func (rr RowReader) Read() (Row, error) {
 	for i, vv := range rr.vvs {
 		rr.vs[i] = vv.Interface()
 	}
-	return Row{m: ctr.NewShapeMapFromSlice[string, any](rr.shape, rr.vs)}, nil
+	return Row{cs: rr.cs, vs: rr.vs}, nil
 }

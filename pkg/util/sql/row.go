@@ -7,48 +7,82 @@ import (
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	iou "github.com/wrmsr/bane/pkg/util/io"
+	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type Row struct {
-	m ctr.ShapeMap[string, any]
+	cs *sqb.Columns
+	vs []any
 }
 
-func (r Row) Values() []any   { return r.m.Values() }
-func (r Row) Value(i int) any { return r.m.Value(i) }
+func (r Row) Columns() *sqb.Columns { return r.cs }
+
+func (r Row) Values() []any   { return slices.Clone(r.vs) }
+func (r Row) Value(i int) any { return r.vs[i] }
 
 func (r Row) Clone() Row {
-	vs := r.m.Values()
+	vs := slices.Clone(r.vs)
 	for i, v := range vs {
 		if v, ok := v.(sql.RawBytes); ok {
 			vs[i] = slices.Clone(v)
 		}
 	}
-	return Row{m: ctr.NewShapeMapFromSlice[string, any](r.m.Shape(), vs)}
+	return Row{cs: r.cs, vs: vs}
 }
 
 var _ ctr.Map[string, any] = Row{}
 
-func (r Row) Len() int                                         { return r.m.Len() }
-func (r Row) Contains(k string) bool                           { return r.m.Contains(k) }
-func (r Row) Get(k string) any                                 { return r.m.Get(k) }
-func (r Row) TryGet(k string) (any, bool)                      { return r.m.TryGet(k) }
-func (r Row) Iterate() bt.Iterator[bt.Kv[string, any]]         { return r.m.Iterate() }
-func (r Row) ForEach(fn func(kv bt.Kv[string, any]) bool) bool { return r.m.ForEach(fn) }
+func (r Row) Len() int {
+	return len(r.vs)
+}
+
+func (r Row) Contains(k string) bool {
+	return r.cs.Contains(k)
+}
+
+func (r Row) Get(k string) any {
+	v, _ := r.TryGet(k)
+	return v
+}
+
+func (r Row) TryGet(k string) (any, bool) {
+	i, ok := r.cs.Index(k)
+	if !ok {
+		return nil, false
+	}
+	return r.vs[i], true
+}
+
+func (r Row) Iterate() bt.Iterator[bt.Kv[string, any]] {
+	return its.Map(its.Range(0, len(r.vs), 1), func(i int) bt.Kv[string, any] {
+		return bt.KvOf(r.cs.At(i).Name, r.vs[i])
+	}).Iterate()
+}
+
+func (r Row) ForEach(fn func(kv bt.Kv[string, any]) bool) bool {
+	for i, v := range r.vs {
+		if !fn(bt.KvOf(r.cs.At(i).Name, v)) {
+			return false
+		}
+	}
+	return true
+}
 
 func (r Row) MarshalJSON() ([]byte, error) {
-	return r.m.MarshalJSON()
+	return ctr.MapMarshalJson[string, any](r)
 }
 
 func (r Row) Format(f fmt.State, c rune) {
 	iou.WriteStringDiscard(f, "row")
-	ctr.MapFormat[string, any](f, r.m)
+	ctr.MapFormat[string, any](f, r)
 }
 
 func (r Row) string(tn string) string {
 	var sb strings.Builder
 	sb.WriteString(tn)
-	ctr.MapString[string, any](&sb, r.m)
+	ctr.MapString[string, any](&sb, r)
 	return sb.String()
 }

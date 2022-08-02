@@ -7,20 +7,6 @@ import (
 
 //
 
-type QueryMode int8
-
-const (
-	QueryQuery QueryMode = iota
-	ExecQuery
-)
-
-type Query struct {
-	Ctx  context.Context
-	Mode QueryMode
-	Text string
-	Args []any
-}
-
 type Querier interface {
 	Adapter() Adapter
 	Query(qry Query) (Rows, error)
@@ -30,14 +16,8 @@ type Querier interface {
 
 //
 
-type Column struct {
-	Name   string
-	DbType string
-	Type   reflect.Type
-}
-
 type Rows interface {
-	Columns() ([]Column, error)
+	Columns() (*Columns, error)
 
 	Next() bool
 	Scan(dest ...any) error

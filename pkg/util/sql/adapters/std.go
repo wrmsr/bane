@@ -13,7 +13,7 @@ type StdRows struct {
 	sqb.BaseRows
 
 	r  *sql.Rows
-	cs []sqb.Column
+	cs *sqb.Columns
 }
 
 func newStdRows(r *sql.Rows) *StdRows {
@@ -24,27 +24,35 @@ func newStdRows(r *sql.Rows) *StdRows {
 
 var _ sqb.Rows = &StdRows{}
 
-func (r *StdRows) Columns() ([]sqb.Column, error) {
+func (r *StdRows) Columns() (*sqb.Columns, error) {
 	if r.cs == nil {
 		cns, err := r.r.Columns()
 		if err != nil {
 			return nil, err
 		}
+
 		cts, err := r.r.ColumnTypes()
 		if err != nil {
 			return nil, err
 		}
-		cs := make([]sqb.Column, len(cns))
+
+		s := make([]sqb.Column, len(cns))
 		for i, cn := range cns {
 			ct := cts[i]
-			cs[i] = sqb.Column{
+			s[i] = sqb.Column{
 				Name:   cn,
 				DbType: ct.DatabaseTypeName(),
 				Type:   ct.ScanType(),
 			}
 		}
+
+		cs, err := sqb.ColumnsOf(s...)
+		if err != nil {
+			return nil, err
+		}
 		r.cs = cs
 	}
+
 	return r.cs, nil
 }
 
