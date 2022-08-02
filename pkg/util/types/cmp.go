@@ -22,6 +22,10 @@ type Comparer[T any] interface {
 
 type CmpImpl[T any] func(l, r T) CmpResult
 
+func MethodCmpImpl[T Comparer[T]]() CmpImpl[T] {
+	return T.Compare
+}
+
 func OrderedCmp[T constraints.Ordered](l, r T) CmpResult {
 	if l < r {
 		return CmpLess

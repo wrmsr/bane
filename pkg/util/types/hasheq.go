@@ -1,6 +1,11 @@
 package types
 
-import "golang.org/x/exp/constraints"
+import (
+	"encoding/binary"
+	"hash/fnv"
+
+	"golang.org/x/exp/constraints"
+)
 
 //
 
@@ -27,6 +32,13 @@ type HashEqImpl[T any] struct {
 	Eq   EqImpl[T]
 }
 
+func MethodHashEqImpl[T HashEq[T]]() HashEqImpl[T] {
+	return HashEqImpl[T]{
+		Hash: T.Hash,
+		Eq:   T.Equals,
+	}
+}
+
 func HashEqOf[T any](hash HashImpl[T], eq EqImpl[T]) HashEqImpl[T] {
 	return HashEqImpl[T]{Hash: hash, Eq: eq}
 }
@@ -35,5 +47,23 @@ func IntHashEq[T constraints.Integer]() HashEqImpl[T] {
 	return HashEqImpl[T]{
 		Hash: func(i T) uintptr { return uintptr(i) },
 		Eq:   func(l, r T) bool { return l == r },
+	}
+}
+
+func HashStr(s string) uintptr {
+	h := fnv.New64a()
+	var ub [4]byte
+	u := ub[:]
+	for _, b := range s {
+		binary.LittleEndian.PutUint32(u, uint32(b))
+		_, _ = h.Write(u)
+	}
+	return uintptr(h.Sum64())
+}
+
+func StrHashEq() HashEqImpl[string] {
+	return HashEqImpl[string]{
+		Hash: HashStr,
+		Eq:   Eq[string],
 	}
 }
