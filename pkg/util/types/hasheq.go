@@ -68,9 +68,12 @@ func StrHashEq() HashEqImpl[string] {
 	}
 }
 
-//func DefaultHashEqImpl[T any]() HashEqImpl[T] {
-//	if CanAssign[T, HashEq[T]]() {
-//		return ???
-//	}
-//	panic("no default HashEq")
-//}
+func DefaultHashEqImpl[T any]() HashEqImpl[T] {
+	if !CanAssign[T, HashEq[T]]() {
+		panic("no default HashEq")
+	}
+	return HashEqImpl[T]{
+		Hash: func(i T) uintptr { return As[T, Hasher](i).Hash() },
+		Eq:   func(l, r T) bool { return As[T, Equaler[T]](l).Equals(r) },
+	}
+}

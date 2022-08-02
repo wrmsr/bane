@@ -15,6 +15,12 @@ func CanAssign[F, T any]() bool {
 	return false
 }
 
+func As[F, T any](f F) T {
+	var a any
+	a = f
+	return a.(T)
+}
+
 func Zero[T any]() T {
 	var z T
 	return z

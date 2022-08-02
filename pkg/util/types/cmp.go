@@ -39,3 +39,10 @@ func OrderedCmp[T constraints.Ordered](l, r T) CmpResult {
 func BoolCmp(l, r bool) CmpResult {
 	return OrderedCmp(BoolNum[int](l), BoolNum[int](r))
 }
+
+func DefaultCmpImpl[T any]() CmpImpl[T] {
+	if !CanAssign[T, Comparer[T]]() {
+		panic("no default Cmp")
+	}
+	return func(l, r T) CmpResult { return As[T, Comparer[T]](l).Compare(r) }
+}
