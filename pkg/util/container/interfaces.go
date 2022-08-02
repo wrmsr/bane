@@ -12,8 +12,8 @@ type Sync interface {
 	isSync()
 }
 
-type Mutable interface {
-	isMutable()
+type Mut interface {
+	isMut()
 }
 
 type Ordered[T any] interface {
@@ -50,11 +50,23 @@ type List[T any] interface {
 
 type MutList[T any] interface {
 	List[T]
-	Mutable
+	Mut
 
 	Put(i int, v T)
 	Append(v T)
 	Delete(i int)
+}
+
+//
+
+type SyncList[T any] interface {
+	List[T]
+	Sync
+}
+
+type SyncMutList[T any] interface {
+	MutList[T]
+	Sync
 }
 
 //
@@ -69,7 +81,7 @@ type Set[T any] interface {
 
 type MutSet[T any] interface {
 	Set[T]
-	Mutable
+	Mut
 
 	Add(v T)
 	TryAdd(v T) bool
@@ -91,7 +103,7 @@ type Map[K, V any] interface {
 
 type MutMap[K, V any] interface {
 	Map[K, V]
-	Mutable
+	Mut
 
 	Put(k K, v V)
 	Delete(k K)
@@ -151,7 +163,7 @@ type TypeMap[T any] interface {
 
 type MutTypeMap[T any] interface {
 	TypeMap[T]
-	Mutable
+	Mut
 
 	Put(v T)
 	Delete(ty reflect.Type)
@@ -172,7 +184,7 @@ type PersistentMap[K, V any] interface {
 //
 
 type Decay[T any] interface {
-	Mutable
+	Mut
 
 	Decay() T
 }

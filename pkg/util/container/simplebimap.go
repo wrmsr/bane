@@ -50,7 +50,7 @@ func NewMutSimpleBiMap[K, V comparable](it bt.Iterable[bt.Kv[K, V]]) MutSimpleBi
 
 var _ MutBiMap[int, string] = MutSimpleBiMap[int, string]{}
 
-func (m MutSimpleBiMap[K, V]) isMutable() {}
+func (m MutSimpleBiMap[K, V]) isMut() {}
 
 func (m MutSimpleBiMap[K, V]) Len() int                                  { return m.m.Len() }
 func (m MutSimpleBiMap[K, V]) Contains(k K) bool                         { return m.m.Contains(k) }

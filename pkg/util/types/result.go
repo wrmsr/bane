@@ -7,6 +7,11 @@ type Result[T any] struct {
 	Err error
 }
 
+func (r Result[T]) GetVal() T     { return r.Val }
+func (r Result[T]) GetErr() error { return r.Err }
+
+func (r Result[T]) Unpack() (T, error) { return r.Val, r.Err }
+
 func Ok[T any](val T) Result[T] {
 	return Result[T]{Val: val}
 }

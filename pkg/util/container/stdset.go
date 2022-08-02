@@ -72,7 +72,7 @@ func NewMutStdSetOf[T comparable](vs ...T) MutStdSet[T] {
 
 var _ MutSet[int] = MutStdSet[int]{}
 
-func (s MutStdSet[T]) isMutable() {}
+func (s MutStdSet[T]) isMut() {}
 
 func (s MutStdSet[T]) Len() int                       { return s.s.Len() }
 func (s MutStdSet[T]) Contains(v T) bool              { return s.s.Contains(v) }

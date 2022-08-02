@@ -21,7 +21,7 @@ func NewSliceList[T any](it bt.Iterable[T]) SliceList[T] {
 	return s
 }
 
-func NewSliceListOf[T any](vs ...T) List[T] {
+func NewSliceListOf[T any](vs ...T) SliceList[T] {
 	return NewSliceList(its.Of(vs...))
 }
 
@@ -58,7 +58,7 @@ func NewSliceMutList[T any](it bt.Iterable[T]) *MutSliceList[T] {
 	return &MutSliceList[T]{l: NewSliceList(it)}
 }
 
-func NewMutSliceListOf[T any](vs ...T) MutList[T] {
+func NewMutSliceListOf[T any](vs ...T) *MutSliceList[T] {
 	return NewSliceMutList(its.Of(vs...))
 }
 
@@ -68,7 +68,7 @@ func WrapSlice[T any](s []T) MutList[T] {
 
 var _ MutList[int] = &MutSliceList[int]{}
 
-func (l *MutSliceList[T]) isMutable() {}
+func (l *MutSliceList[T]) isMut() {}
 
 func (l *MutSliceList[T]) Len() int                       { return l.l.Len() }
 func (l *MutSliceList[T]) Get(i int) T                    { return l.l.Get(i) }

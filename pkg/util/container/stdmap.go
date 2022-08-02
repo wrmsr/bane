@@ -73,7 +73,7 @@ func WrapMap[K comparable, V any](m map[K]V) MutMap[K, V] {
 
 var _ MutMap[int, any] = MutStdMap[int, any]{}
 
-func (m MutStdMap[K, V]) isMutable() {}
+func (m MutStdMap[K, V]) isMut() {}
 
 func (m MutStdMap[K, V]) Len() int                               { return m.m.Len() }
 func (m MutStdMap[K, V]) Contains(k K) bool                      { return m.m.Contains(k) }

@@ -151,7 +151,7 @@ func (m *MutSliceMap[K, V]) All() []bt.Kv[K, V] {
 
 var _ MutOrderedMap[int, any] = &MutSliceMap[int, any]{}
 
-func (m *MutSliceMap[K, V]) isMutable() {}
+func (m *MutSliceMap[K, V]) isMut()     {}
 func (m *MutSliceMap[K, V]) isOrdered() {}
 
 func (m *MutSliceMap[K, V]) Len() int                                 { return m.m.Len() }

@@ -277,7 +277,7 @@ func (l IntrusiveList[T]) ForEach(fn func(v *T) bool) bool {
 
 var _ MutList[*int] = &IntrusiveList[int]{}
 
-func (l *IntrusiveList[T]) isMutable() {}
+func (l *IntrusiveList[T]) isMut() {}
 
 func (l *IntrusiveList[T]) Put(i int, v *T) {
 	at := l.Get(i)

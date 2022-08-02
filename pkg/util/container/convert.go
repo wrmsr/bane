@@ -48,7 +48,7 @@ func NewMutMapSet[K, V any](m MutMap[K, V]) MutSet[K] {
 
 var _ MutSet[int] = &mutMapSet[int, any]{}
 
-func (s *mutMapSet[K, V]) isMutable() {}
+func (s *mutMapSet[K, V]) isMut() {}
 
 func (s *mutMapSet[K, V]) Add(k K) {
 	var z V
@@ -133,7 +133,7 @@ func NewMutSetMap[K, V any](s MutSet[K]) MutMap[K, V] {
 
 var _ MutMap[int, string] = &mutSetMap[int, string]{}
 
-func (s *mutSetMap[K, V]) isMutable() {}
+func (s *mutSetMap[K, V]) isMut() {}
 
 func (s *mutSetMap[K, V]) Put(k K, v V) {
 	s.s.Add(k)

@@ -253,7 +253,7 @@ func NewMutHashEqMap[K, V any](he bt.HashEqImpl[K], it bt.Iterable[bt.Kv[K, V]])
 
 var _ MutMap[int, string] = &MutHashEqMap[int, string]{}
 
-func (m *MutHashEqMap[K, V]) isMutable() {}
+func (m *MutHashEqMap[K, V]) isMut() {}
 
 func (m *MutHashEqMap[K, V]) Len() int                                 { return m.m.Len() }
 func (m *MutHashEqMap[K, V]) Contains(k K) bool                        { return m.m.Contains(k) }

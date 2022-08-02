@@ -79,7 +79,7 @@ type MutDenseList8[T any] struct {
 
 var _ MutList[int] = &MutDenseList8[int]{}
 
-func (l *MutDenseList8[T]) isMutable() {}
+func (l *MutDenseList8[T]) isMut() {}
 
 func (l *MutDenseList8[T]) Len() int                       { return l.l.Len() }
 func (l *MutDenseList8[T]) Get(i int) T                    { return l.l.Get(i) }

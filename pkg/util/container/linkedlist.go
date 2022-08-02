@@ -22,7 +22,7 @@ func NewLinkedList[T any](it bt.Iterable[T]) *LinkedList[T] {
 
 var _ MutList[int] = &LinkedList[int]{}
 
-func (l *LinkedList[T]) isMutable() {}
+func (l *LinkedList[T]) isMut() {}
 
 func (l *LinkedList[T]) Len() int {
 	return l.List.Len()

@@ -132,7 +132,7 @@ func NewMutRbTreeMap[K, V any](less bt.LessImpl[K], it bt.Iterable[bt.Kv[K, V]])
 
 var _ MutMap[int, string] = &MutRbTreeMap[int, string]{}
 
-func (m *MutRbTreeMap[K, V]) isMutable() {}
+func (m *MutRbTreeMap[K, V]) isMut() {}
 
 func (m *MutRbTreeMap[K, V]) Len() int                                 { return m.m.Len() }
 func (m *MutRbTreeMap[K, V]) Contains(k K) bool                        { return m.m.Contains(k) }
@@ -191,7 +191,7 @@ func NewPrimitiveMutRbTreeMap[K constraints.Ordered, V any](it bt.Iterable[bt.Kv
 
 var _ MutMap[int, string] = &PrimitiveMutRbTreeMap[int, string]{}
 
-func (m *PrimitiveMutRbTreeMap[K, V]) isMutable() {}
+func (m *PrimitiveMutRbTreeMap[K, V]) isMut() {}
 
 func (m *PrimitiveMutRbTreeMap[K, V]) Len() int                          { return m.m.Len() }
 func (m *PrimitiveMutRbTreeMap[K, V]) Contains(k K) bool                 { return m.m.Contains(k) }

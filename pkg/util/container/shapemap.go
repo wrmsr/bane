@@ -157,7 +157,7 @@ func (m MutShapeMap[K, V]) Value(i int) *V { return &m.m.vs[i] }
 
 var _ MutMap[int, string] = MutShapeMap[int, string]{}
 
-func (m MutShapeMap[K, V]) isMutable() {}
+func (m MutShapeMap[K, V]) isMut() {}
 
 func (m MutShapeMap[K, V]) Len() int                                  { return m.m.Len() }
 func (m MutShapeMap[K, V]) Contains(k K) bool                         { return m.m.Contains(k) }

@@ -80,7 +80,7 @@ func NewMutTypeMap[T any](it bt.Iterable[T]) MutTypeMap[T] {
 
 var _ MutTypeMap[any] = mutTypeMapImpl[any]{}
 
-func (m mutTypeMapImpl[T]) isMutable() {}
+func (m mutTypeMapImpl[T]) isMut() {}
 
 func (m mutTypeMapImpl[T]) Put(v T) {
 	m.m[reflect.TypeOf(v)] = v
