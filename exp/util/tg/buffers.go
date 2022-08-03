@@ -67,6 +67,7 @@ func (b *Buffer) Expand(newShape Shape) *Buffer {
 func (b *Buffer) MovementOp(op Op, arg any) *Buffer {
 	switch op {
 	case ExpandOp:
+		return b.Expand(arg.(Shape))
 	}
 	panic("nyi")
 }

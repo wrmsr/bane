@@ -45,6 +45,9 @@ func (o *LazyOp) GetBuffers() []*LazyBuffer {
 }
 
 func (o *LazyOp) ForEachOp(fn func(*LazyOp) bool) bool {
+	if !fn(o) {
+		return false
+	}
 	for _, s := range o.srcs {
 		switch s := s.(type) {
 		case *LazyOp:
@@ -154,12 +157,18 @@ func (b *LazyBuffer) ReduceOp(op Op, newShape Shape) *LazyBuffer {
 func (b *LazyBuffer) MovementOp(op Op, arg any) *LazyBuffer {
 	st := b.st.Clone()
 	st.MovementOp(op, arg)
+
+	var src Lazy = b
+	if op.Type() == MovementOpType && b.realized != nil {
+		src = b.op
+	}
+
 	ret := NewLazyBuffer(
 		st,
 		MovementOpType,
 		&LazyOp{
 			op:   op,
-			srcs: []Lazy{b},
+			srcs: []Lazy{src},
 			arg:  arg,
 		},
 	)
