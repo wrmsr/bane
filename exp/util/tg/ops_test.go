@@ -12,8 +12,9 @@ func TestOps(t *testing.T) {
 	//b := 20.
 	//rand.Seed(0)
 
-	xs := &Buffer{bt.RangeTo[float32](10.).Slice()}
-	ys := &Buffer{bt.RangeOf[float32](10., 20., 1.).Slice()}
+	sh := Shape{3, 3}
+	xs := NewBuffer(sh, bt.RangeTo[float32](9.).Slice())
+	ys := NewBuffer(sh, bt.RangeOf[float32](10., 19., 1.).Slice())
 
 	mkLoadBuffer := func(data *Buffer, shape Shape) *LazyBuffer {
 		return NewLazyBuffer(
@@ -27,8 +28,8 @@ func TestOps(t *testing.T) {
 		)
 	}
 
-	xb := mkLoadBuffer(xs, Shape{3, 3})
-	yb := mkLoadBuffer(ys, Shape{3, 3})
+	xb := mkLoadBuffer(xs, sh)
+	yb := mkLoadBuffer(ys, sh)
 
 	xt := NewTensor(xb, true)
 	yt := NewTensor(yb, true)

@@ -182,8 +182,8 @@ func init() {
 			realSrcs[x] = rd
 		}
 
-		var astEval = func(Lazy) *Buffer
-		astEval := func(x Lazy) *Buffer {
+		var astEval func(Lazy) *Buffer
+		astEval = func(x Lazy) *Buffer {
 			if x, ok := x.(*LazyBuffer); ok {
 				return realSrcs[x]
 			}
