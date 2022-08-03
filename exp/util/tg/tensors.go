@@ -101,7 +101,7 @@ func (t *Tensor) Sum(axis []int, keepDim bool) *Tensor {
 func (t *Tensor) Mean(axis []int, keepDim bool) *Tensor {
 	out := t.Sum(axis, keepDim)
 	c := float32(bt.Prod[Dim](out.Shape()...)) / float32(bt.Prod[Dim](t.Shape()...))
-	return out.Mul(NewTensor(MakeConstBuffer(c), false))
+	return out.Mul(NewTensor(MakeLoadConstBuffer(c, nil), false))
 }
 
 var scalarShape = Shape{1}

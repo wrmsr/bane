@@ -45,3 +45,28 @@ func (b *Buffer) BinaryOp(op Op, y *Buffer) *Buffer {
 	}
 	panic("nyi")
 }
+
+func MakeConstBuffer(c float32, shape Shape) *Buffer {
+	if len(shape) < 1 {
+		shape = scalarShape
+	}
+	s := make([]float32, shape.Dim())
+	for i := range s {
+		s[i] = c
+	}
+	return BufferOf(shape, s)
+}
+
+func (b *Buffer) Expand(newShape Shape) *Buffer {
+	if !newShape.Equals(scalarShape) {
+		panic("nyi")
+	}
+	return MakeConstBuffer(b.s[0], newShape)
+}
+
+func (b *Buffer) MovementOp(op Op, arg any) *Buffer {
+	switch op {
+	case ExpandOp:
+	}
+	panic("nyi")
+}

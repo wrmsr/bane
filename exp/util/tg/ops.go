@@ -1,6 +1,9 @@
 package tg
 
-import "github.com/wrmsr/bane/pkg/util/check"
+import (
+	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/slices"
+)
 
 //
 
@@ -203,6 +206,19 @@ func init() {
 			data: ret,
 			srcs: rds,
 			ot:   BinaryOpType,
+		}
+	}
+
+	realize[MovementOpType] = func(data *LazyBuffer) RealizedOp {
+		realSrc := data.op.GetBuffers()[0].Realize()
+		x := realSrc
+		for _, o := range slices.Reversed(data.op.GetOps()) {
+			x = x.MovementOp(o.op, o.arg)
+		}
+		return RealizedOp{
+			data: x,
+			srcs: []*Buffer{realSrc},
+			ot:   MovementOpType,
 		}
 	}
 }
