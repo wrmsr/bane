@@ -83,6 +83,13 @@ var _ Lazy = &LazyBuffer{}
 
 func (b *LazyBuffer) isLazy() {}
 
+func (b *LazyBuffer) Realize() *Buffer {
+	if b.realized != nil {
+		return b.realized
+	}
+
+}
+
 //
 
 func ElementwiseOp(op Op, srcs ...*LazyBuffer) *LazyBuffer {

@@ -1,5 +1,7 @@
 package tg
 
+import "github.com/wrmsr/bane/pkg/util/slices"
+
 type Tensor struct {
 	data *LazyBuffer
 
@@ -43,4 +45,25 @@ func BroadcastedTensor(fn func(x, y *Tensor) *Tensor, x, y *Tensor) *Tensor {
 	// }
 
 	return fn(x, y)
+}
+
+func (t *Tensor) Add(y *Tensor) *Tensor {
+	return BroadcastedTensor(func(x, y *Tensor) *Tensor {
+		ps := []*Tensor{x, y}
+
+		fn := AddFunc{}
+		ctx := NewFuncContext(fn, ps)
+
+		bs := slices.Map((*Tensor).Data, ps)
+		z := NewTensor(
+			fn.Forward(bs),
+			ctx.requiresGrad,
+		)
+
+		if ctx.requiresGrad {
+			z.ctx = ctx
+		}
+
+		return z
+	}, t, y)
 }
