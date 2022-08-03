@@ -59,3 +59,19 @@ func (a AddFunc) Forward(bs []*LazyBuffer) *LazyBuffer {
 func (a AddFunc) Backward(g *LazyBuffer) []*LazyBuffer {
 	panic("nyi")
 }
+
+//
+
+type SumFunc struct {
+	Axis []int
+}
+
+var _ Func = SumFunc{}
+
+func (s SumFunc) Forward(bs []*LazyBuffer) *LazyBuffer {
+	panic("implement me")
+}
+
+func (s SumFunc) Backward(g *LazyBuffer) []*LazyBuffer {
+	panic("implement me")
+}

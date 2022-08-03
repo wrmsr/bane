@@ -52,22 +52,7 @@ func BroadcastedTensor(fn func(x, y *Tensor) *Tensor, x, y *Tensor) *Tensor {
 
 func (t *Tensor) Add(y *Tensor) *Tensor {
 	return BroadcastedTensor(func(x, y *Tensor) *Tensor {
-		ps := []*Tensor{x, y}
-
-		fn := AddFunc{}
-		ctx := NewFuncContext(fn, ps)
-
-		bs := slices.Map((*Tensor).Data, ps)
-		z := NewTensor(
-			fn.Forward(bs),
-			ctx.requiresGrad,
-		)
-
-		if ctx.requiresGrad {
-			z.ctx = ctx
-		}
-
-		return z
+		return Apply(AddFunc{}, []*Tensor{x, y})
 	}, t, y)
 }
 
@@ -75,20 +60,30 @@ func canonicalizeReduceAxis(shape Shape, axis []int) ([]int, Shape) {
 	if len(axis) < 1 {
 		axis = bt.RangeTo(len(shape)).Slice()
 	}
-	// axis = tuple([x if x >= 0 else x + len(self.shape) for x in axis])
-	// shape = [self.shape[i] for i in range(len(self.shape)) if i not in axis]
-	// shape = [1] if shape == [] else shape
-	// return axis, shape
-	panic("nyi")
+	for i, x := range axis {
+		if x < 0 {
+			axis[i] += len(shape)
+		}
+	}
+	var newShape Shape
+	for i := 0; i < len(shape); i++ {
+		if !slices.Contains(axis, i) {
+			newShape = append(newShape, shape[i])
+		}
+	}
+	if len(newShape) < 1 {
+		newShape = Shape{1}
+	}
+	return axis, newShape
 }
 
 func (t *Tensor) Sum(axis []int, keepDim bool) *Tensor {
 	axis, outShape := canonicalizeReduceAxis(t.Shape(), axis)
-	/*
-	   ret := self._sum(axis=axis)
-	   return ret if keepDim or ret.shape == outShape else ret.reshape(shape=outShape)
-	*/
-	_ = outShape
+	ret := Apply(SumFunc{Axis: axis}, []*Tensor{t})
+	if keepDim || ret.Shape().Equals(outShape) {
+		return ret
+	}
+	// return ret.reshape(shape=outShape)
 	panic("nyi")
 }
 
