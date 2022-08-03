@@ -92,6 +92,8 @@ var _ Lazy = &LazyBuffer{}
 
 func (b *LazyBuffer) isLazy() {}
 
+func (b *LazyBuffer) Shape() Shape { return b.st.Shape() }
+
 func logOp(opType OpType, op []Op, ret *Buffer, inp []*Buffer) {
 
 }
@@ -135,4 +137,16 @@ func ElementwiseOp(op Op, srcs ...*LazyBuffer) *LazyBuffer {
 
 func (b *LazyBuffer) BinaryOp(op Op, y *LazyBuffer) *LazyBuffer {
 	return ElementwiseOp(op, b, y)
+}
+
+func (b *LazyBuffer) ReduceOp(op Op, newShape Shape) *LazyBuffer {
+	return NewLazyBuffer(
+		NewShapeTracker(newShape),
+		ReduceOpType,
+		&LazyOp{
+			op:   op,
+			srcs: []Lazy{b},
+			arg:  newShape,
+		},
+	)
 }

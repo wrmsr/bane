@@ -2,6 +2,7 @@ package tg
 
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -9,8 +10,8 @@ import (
 //
 
 type Func interface {
-	Forward(bs []*LazyBuffer) *LazyBuffer
-	Backward(g *LazyBuffer) []*LazyBuffer
+	Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer
+	Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer
 }
 
 //
@@ -23,6 +24,8 @@ type FuncContext struct {
 	requiresGrad   bool
 
 	savedTensors []*Tensor
+
+	inputShape opt.Optional[Shape]
 }
 
 func NewFuncContext(fn Func, parents []*Tensor) *FuncContext {
@@ -38,7 +41,7 @@ func NewFuncContext(fn Func, parents []*Tensor) *FuncContext {
 
 func Apply(fn Func, parents []*Tensor) *Tensor {
 	ctx := NewFuncContext(fn, parents)
-	ret := NewTensor(fn.Forward(slices.Map((*Tensor).Data, parents)), ctx.requiresGrad)
+	ret := NewTensor(fn.Forward(ctx, slices.Map((*Tensor).Data, parents)), ctx.requiresGrad)
 	if ctx.requiresGrad {
 		ret.ctx = ctx
 	}
@@ -51,12 +54,12 @@ type AddFunc struct{}
 
 var _ Func = AddFunc{}
 
-func (a AddFunc) Forward(bs []*LazyBuffer) *LazyBuffer {
+func (a AddFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	check.Condition(len(bs) == 2)
 	return bs[0].BinaryOp(AddOp, bs[1])
 }
 
-func (a AddFunc) Backward(g *LazyBuffer) []*LazyBuffer {
+func (a AddFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 	panic("nyi")
 }
 
@@ -68,10 +71,24 @@ type SumFunc struct {
 
 var _ Func = SumFunc{}
 
-func (s SumFunc) Forward(bs []*LazyBuffer) *LazyBuffer {
-	panic("implement me")
+func reduceShape(shape Shape, axis []int) Shape {
+	newShape := make(Shape, len(shape))
+	for i := 0; i < len(shape); i++ {
+		if slices.Contains(axis, i) {
+			newShape[i] = 1
+		} else {
+			newShape[i] = shape[i]
+		}
+	}
+	return newShape
 }
 
-func (s SumFunc) Backward(g *LazyBuffer) []*LazyBuffer {
+func (s SumFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	input := check.Single(bs)
+	ctx.inputShape = opt.Just(input.Shape())
+	return input.ReduceOp(SumOp, reduceShape(input.Shape(), s.Axis))
+}
+
+func (s SumFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 	panic("implement me")
 }

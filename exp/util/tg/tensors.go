@@ -89,9 +89,7 @@ func (t *Tensor) Sum(axis []int, keepDim bool) *Tensor {
 
 func (t *Tensor) Mean(axis []int, keepDim bool) *Tensor {
 	out := t.Sum(axis, keepDim)
-	/*
-		return out * (prod(out.shape) / prod(self.shape))
-	*/
+	// return out * (prod(out.shape) / prod(self.shape))
 	_ = out
 	panic("nyi")
 }
