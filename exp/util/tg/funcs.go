@@ -120,10 +120,10 @@ func (f ReshapeFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	input := check.Single(bs)
 	oldShape := input.Shape()
 	ctx.inputShape = opt.Just(oldShape)
-	newShape := make(Shape, len(oldShape))
-	for i, s := range oldShape {
+	newShape := make(Shape, len(f.Shape))
+	for i, s := range f.Shape {
 		if s == -1 {
-			newShape[i] = (bt.Prod[Dim](f.Shape...) * -1) / bt.Prod[Dim](oldShape...)
+			newShape[i] = (bt.Prod[Dim](oldShape...) * -1) / bt.Prod[Dim](f.Shape...)
 		} else {
 			newShape[i] = s
 		}

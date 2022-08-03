@@ -189,5 +189,5 @@ func MakeLoadBuffer(data *Buffer, shape Shape) *LazyBuffer {
 }
 
 func MakeConstBuffer(c float32) *LazyBuffer {
-	return MakeLoadBuffer(BufferOf(Shape{1}, []float32{c}), Shape{1})
+	return MakeLoadBuffer(BufferOf(scalarShape, []float32{c}), scalarShape)
 }

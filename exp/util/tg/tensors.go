@@ -1,6 +1,8 @@
 package tg
 
 import (
+	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/maps"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -82,7 +84,7 @@ func canonicalizeReduceAxis(shape Shape, axis []int) ([]int, Shape) {
 		}
 	}
 	if len(newShape) < 1 {
-		newShape = Shape{1}
+		newShape = scalarShape
 	}
 	return axis, newShape
 }
@@ -100,4 +102,31 @@ func (t *Tensor) Mean(axis []int, keepDim bool) *Tensor {
 	out := t.Sum(axis, keepDim)
 	c := float32(bt.Prod[Dim](out.Shape()...)) / float32(bt.Prod[Dim](t.Shape()...))
 	return out.Mul(NewTensor(MakeConstBuffer(c), false))
+}
+
+var scalarShape = Shape{1}
+
+func (t *Tensor) deepWalk() []*Tensor {
+	seen := maps.MakeSet[*Tensor]()
+	var ret []*Tensor
+	var rec func(*Tensor)
+	rec = func(node *Tensor) {
+		seen.Add(node)
+		if node.ctx != nil {
+			for _, p := range node.ctx.parents {
+				if !seen.Contains(p) {
+					rec(p)
+				}
+			}
+			ret = append(ret, node)
+		}
+	}
+	rec(t)
+	return ret
+}
+func (t *Tensor) Backward() {
+	check.Condition(t.Shape().Equals(scalarShape))
+	ps := slices.Reverse(t.deepWalk())
+	_ = ps
+	panic("nyi")
 }
