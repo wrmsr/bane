@@ -126,6 +126,9 @@ func (t *Tensor) deepWalk() []*Tensor {
 }
 func (t *Tensor) Backward() {
 	check.Condition(t.Shape().Equals(scalarShape))
+
+	// self.grad = Tensor.ones(*self.shape, device=self.device, requires_grad=False)
+
 	ps := slices.Reverse(t.deepWalk())
 	_ = ps
 	panic("nyi")
