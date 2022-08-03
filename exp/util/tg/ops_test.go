@@ -13,8 +13,8 @@ func TestOps(t *testing.T) {
 	//rand.Seed(0)
 
 	sh := Shape{3, 3}
-	xs := NewBuffer(sh, bt.RangeTo[float32](9.).Slice())
-	ys := NewBuffer(sh, bt.RangeOf[float32](10., 19., 1.).Slice())
+	xs := BufferOf(sh, bt.RangeTo[float32](9.).Slice())
+	ys := BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice())
 
 	mkLoadBuffer := func(data *Buffer, shape Shape) *LazyBuffer {
 		return NewLazyBuffer(
