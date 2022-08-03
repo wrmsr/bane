@@ -56,6 +56,12 @@ func (t *Tensor) Add(y *Tensor) *Tensor {
 	}, t, y)
 }
 
+func (t *Tensor) Mul(y *Tensor) *Tensor {
+	return BroadcastedTensor(func(x, y *Tensor) *Tensor {
+		return Apply(MulFunc{}, []*Tensor{x, y})
+	}, t, y)
+}
+
 func (t *Tensor) Reshape(shape Shape) *Tensor {
 	return Apply(ReshapeFunc{Shape: shape}, []*Tensor{t})
 }
@@ -92,7 +98,6 @@ func (t *Tensor) Sum(axis []int, keepDim bool) *Tensor {
 
 func (t *Tensor) Mean(axis []int, keepDim bool) *Tensor {
 	out := t.Sum(axis, keepDim)
-	// return out * (prod(out.shape) / prod(self.shape))
-	_ = out
-	panic("nyi")
+	c := float32(bt.Prod[Dim](out.Shape()...)) / float32(bt.Prod[Dim](t.Shape()...))
+	return out.Mul(NewTensor(MakeConstBuffer(c), false))
 }

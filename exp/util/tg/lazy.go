@@ -173,3 +173,21 @@ func (b *LazyBuffer) MovementOp(op Op, arg any) *LazyBuffer {
 
 	return ret
 }
+
+//
+
+func MakeLoadBuffer(data *Buffer, shape Shape) *LazyBuffer {
+	return NewLazyBuffer(
+		NewShapeTracker(shape),
+		LoadOpType,
+		&LazyOp{
+			op:   FromCpuOp,
+			srcs: nil,
+			arg:  data,
+		},
+	)
+}
+
+func MakeConstBuffer(c float32) *LazyBuffer {
+	return MakeLoadBuffer(BufferOf(Shape{1}, []float32{c}), Shape{1})
+}

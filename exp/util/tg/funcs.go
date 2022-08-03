@@ -65,6 +65,21 @@ func (a AddFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 
 //
 
+type MulFunc struct{}
+
+var _ Func = MulFunc{}
+
+func (a MulFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	check.Condition(len(bs) == 2)
+	return bs[0].BinaryOp(MulOp, bs[1])
+}
+
+func (a MulFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+	panic("nyi")
+}
+
+//
+
 type SumFunc struct {
 	Axis []int
 }

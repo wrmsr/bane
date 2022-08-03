@@ -35,6 +35,13 @@ func (b *Buffer) BinaryOp(op Op, y *Buffer) *Buffer {
 			z.s[i] = x + y.s[i]
 		}
 		return z
+	case MulOp:
+		check.Condition(b.shape.Equals(y.shape))
+		z := NewBuffer(b.shape)
+		for i, x := range b.s {
+			z.s[i] = x * y.s[i]
+		}
+		return z
 	}
 	panic("nyi")
 }
