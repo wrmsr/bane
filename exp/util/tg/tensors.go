@@ -32,22 +32,30 @@ func (t *Tensor) Shape() Shape {
 }
 
 func BroadcastedTensor(fn func(x, y *Tensor) *Tensor, x, y *Tensor) *Tensor {
-	// nDims := bt.Max(len(x.Shape()), len(y.Shape()))
+	xsh := x.Shape()
+	ysh := y.Shape()
+	nDims := bt.Max(len(xsh), len(ysh))
 
-	// if len(x.shape) != n_dims {
-	// 	x = x.reshape(list(x.shape) + [1] * (n_dims - len(x.shape)))
-	// }
-	// if len(y.shape) != n_dims {
-	// 	y = y.reshape(list(y.shape) + [1] * (n_dims - len(y.shape)))
-	// }
+	if len(xsh) != nDims {
+		// x = x.reshape(list(x.shape) + [1] * (n_dims - len(x.shape)))
+		panic("nyi")
+	}
+	if len(ysh) != nDims {
+		// y = y.reshape(list(y.shape) + [1] * (n_dims - len(y.shape)))
+		panic("nyi")
+	}
 
-	// shapeRet = tuple([max(sx, sy) for sx, sy in zip(x.shape, y.shape)])
-	// if x.shape != shapeRet {
-	//	x = x.expand(shape_ret)
-	// }
-	// if y.shape != shapeRet {
-	//	y = y.expand(shape_ret)
-	// }
+	shapeRet := make(Shape, len(xsh))
+	for i, sx := range xsh {
+		sy := ysh[i]
+		shapeRet[i] = bt.Max(sx, sy)
+	}
+	if !xsh.Equals(shapeRet) {
+		x = x.Expand(shapeRet)
+	}
+	if !ysh.Equals(shapeRet) {
+		y = y.Expand(shapeRet)
+	}
 
 	return fn(x, y)
 }
@@ -102,6 +110,10 @@ func (t *Tensor) Mean(axis []int, keepDim bool) *Tensor {
 	out := t.Sum(axis, keepDim)
 	c := float32(bt.Prod[Dim](out.Shape()...)) / float32(bt.Prod[Dim](t.Shape()...))
 	return out.Mul(NewTensor(MakeLoadConstBuffer(c, nil), false))
+}
+
+func (t *Tensor) Expand(shape Shape) *Tensor {
+	return Apply(ReshapeFunc{Shape: shape}, []*Tensor{t})
 }
 
 var scalarShape = Shape{1}
