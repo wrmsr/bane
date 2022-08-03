@@ -56,6 +56,10 @@ func (t *Tensor) Add(y *Tensor) *Tensor {
 	}, t, y)
 }
 
+func (t *Tensor) Reshape(shape Shape) *Tensor {
+	return Apply(ReshapeFunc{Shape: shape}, []*Tensor{t})
+}
+
 func canonicalizeReduceAxis(shape Shape, axis []int) ([]int, Shape) {
 	if len(axis) < 1 {
 		axis = bt.RangeTo(len(shape)).Slice()
@@ -83,8 +87,7 @@ func (t *Tensor) Sum(axis []int, keepDim bool) *Tensor {
 	if keepDim || ret.Shape().Equals(outShape) {
 		return ret
 	}
-	// return ret.reshape(shape=outShape)
-	panic("nyi")
+	return ret.Reshape(outShape)
 }
 
 func (t *Tensor) Mean(axis []int, keepDim bool) *Tensor {

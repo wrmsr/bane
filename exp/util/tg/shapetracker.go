@@ -72,6 +72,12 @@ func NewShapeTracker(shape Shape) *ShapeTracker {
 	}
 }
 
+func (st *ShapeTracker) Clone() *ShapeTracker {
+	return &ShapeTracker{
+		views: slices.Clone(st.views),
+	}
+}
+
 func (st *ShapeTracker) Shape() Shape     { return st.views[len(st.views)-1].shape }
 func (st *ShapeTracker) Strides() Strides { return st.views[len(st.views)-1].strides }
 func (st *ShapeTracker) Offset() Dim      { return st.views[len(st.views)-1].offset }
@@ -93,6 +99,15 @@ func (st *ShapeTracker) Permute(axis ...Dim) {
 		slices.Map(func(a Dim) Dim { return strides[a] }, axis),
 		st.Offset(),
 	)
+}
+
+func (st *ShapeTracker) MovementOp(op Op, arg any) {
+	switch op {
+	case ReshapeOp:
+		st.Reshape(arg.(Shape))
+	default:
+		panic(op)
+	}
 }
 
 func (st *ShapeTracker) Reshape(newShape Shape) {

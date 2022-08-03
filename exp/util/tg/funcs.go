@@ -83,12 +83,39 @@ func reduceShape(shape Shape, axis []int) Shape {
 	return newShape
 }
 
-func (s SumFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+func (f SumFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	input := check.Single(bs)
 	ctx.inputShape = opt.Just(input.Shape())
-	return input.ReduceOp(SumOp, reduceShape(input.Shape(), s.Axis))
+	return input.ReduceOp(SumOp, reduceShape(input.Shape(), f.Axis))
 }
 
-func (s SumFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+func (f SumFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+	panic("implement me")
+}
+
+//
+
+type ReshapeFunc struct {
+	Shape Shape
+}
+
+var _ Func = ReshapeFunc{}
+
+func (f ReshapeFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	input := check.Single(bs)
+	oldShape := input.Shape()
+	ctx.inputShape = opt.Just(oldShape)
+	newShape := make(Shape, len(oldShape))
+	for i, s := range oldShape {
+		if s == -1 {
+			newShape[i] = (bt.Prod[Dim](f.Shape...) * -1) / bt.Prod[Dim](oldShape...)
+		} else {
+			newShape[i] = s
+		}
+	}
+	return input.MovementOp(ReshapeOp, newShape)
+}
+
+func (f ReshapeFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 	panic("implement me")
 }

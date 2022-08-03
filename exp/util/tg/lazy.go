@@ -150,3 +150,26 @@ func (b *LazyBuffer) ReduceOp(op Op, newShape Shape) *LazyBuffer {
 		},
 	)
 }
+
+func (b *LazyBuffer) MovementOp(op Op, arg any) *LazyBuffer {
+	st := b.st.Clone()
+	st.MovementOp(op, arg)
+	ret := NewLazyBuffer(
+		st,
+		MovementOpType,
+		&LazyOp{
+			op:   op,
+			srcs: []Lazy{b},
+			arg:  arg,
+		},
+	)
+
+	if b.realized != nil && ret.st.Contiguous() {
+		root := ret.op.GetBuffers()[0]
+		if ret.st.Shape().Equals(root.Shape()) {
+			return root
+		}
+	}
+
+	return ret
+}

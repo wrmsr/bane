@@ -4,7 +4,7 @@ import "github.com/wrmsr/bane/pkg/util/slices"
 
 //
 
-type Dim = uint64
+type Dim = int64
 
 //
 
