@@ -1,6 +1,10 @@
 package tg
 
-import "github.com/wrmsr/bane/pkg/util/check"
+import (
+	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
 type Buffer struct {
 	shape Shape
@@ -58,16 +62,26 @@ func MakeConstBuffer(c float32, shape Shape) *Buffer {
 }
 
 func (b *Buffer) Expand(newShape Shape) *Buffer {
-	if !b.shape.Equals(scalarShape) {
+	if b.shape.Dim() != 1 {
 		panic("nyi")
 	}
 	return MakeConstBuffer(b.s[0], newShape)
+}
+
+func (b *Buffer) Reshape(newShape Shape) *Buffer {
+	check.Condition(bt.Prod[Dim](b.shape...) == bt.Prod[Dim](newShape...))
+	if slices.Equal(b.shape, newShape) {
+		return b
+	}
+	return BufferOf(newShape, b.s)
 }
 
 func (b *Buffer) MovementOp(op Op, arg any) *Buffer {
 	switch op {
 	case ExpandOp:
 		return b.Expand(arg.(Shape))
+	case ReshapeOp:
+		return b.Reshape(arg.(Shape))
 	}
 	panic("nyi")
 }

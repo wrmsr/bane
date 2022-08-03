@@ -12,8 +12,8 @@ func TestOps(t *testing.T) {
 	//b := 20.
 	//rand.Seed(0)
 
-	//sh := Shape{3, 3}
-	sh := Shape{9}
+	sh := Shape{3, 3}
+	//sh := Shape{9}
 
 	xs := BufferOf(sh, bt.RangeTo[float32](9.).Slice())
 	ys := BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice())
