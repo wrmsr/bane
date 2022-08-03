@@ -23,7 +23,7 @@ type FuncContext struct {
 	needsInputGrad []bool
 	requiresGrad   bool
 
-	savedTensors []*Tensor
+	savedBuffers []*LazyBuffer
 
 	inputShape opt.Optional[Shape]
 }
@@ -37,6 +37,10 @@ func NewFuncContext(fn Func, parents []*Tensor) *FuncContext {
 		needsInputGrad: needsInputGrad,
 		requiresGrad:   slices.Any(needsInputGrad, bt.Identity[bool]()),
 	}
+}
+
+func (ctx *FuncContext) saveForBackward(bs ...*LazyBuffer) {
+	ctx.savedBuffers = append(ctx.savedBuffers, bs...)
 }
 
 func Apply(fn Func, parents []*Tensor) *Tensor {
@@ -71,11 +75,20 @@ var _ Func = MulFunc{}
 
 func (a MulFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	check.Condition(len(bs) == 2)
+	ctx.saveForBackward(bs...)
 	return bs[0].BinaryOp(MulOp, bs[1])
 }
 
 func (a MulFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
-	panic("nyi")
+	var gradX *LazyBuffer
+	if ctx.needsInputGrad[0] {
+		gradX = ctx.savedBuffers[1].BinaryOp(MulOp, g)
+	}
+	var gradY *LazyBuffer
+	if ctx.needsInputGrad[1] {
+		gradY = ctx.savedBuffers[0].BinaryOp(MulOp, g)
+	}
+	return []*LazyBuffer{gradX, gradY}
 }
 
 //
