@@ -35,4 +35,6 @@ func TestOps(t *testing.T) {
 
 	zt := xt.Add(yt)
 	fmt.Println(zt)
+
+	fmt.Println(zt.Data().Realize())
 }

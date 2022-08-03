@@ -1,5 +1,7 @@
 package tg
 
+import "github.com/wrmsr/bane/pkg/util/check"
+
 //
 
 type OpType uint8
@@ -158,8 +160,49 @@ type RealizedOp struct {
 	ot   OpType
 }
 
-var realize = map[OpType]func(b *LazyBuffer) RealizedOp{
-	BinaryOpType: func(data *LazyBuffer) RealizedOp {
-		panic("nyi")
-	},
+var realize = make(map[OpType]func(b *LazyBuffer) RealizedOp)
+
+func init() {
+	realize[LoadOpType] = func(data *LazyBuffer) RealizedOp {
+		check.Condition(data.op.op == FromCpuOp)
+		return RealizedOp{
+			data: data.op.arg.(*Buffer),
+			ot:   LoadOpType,
+		}
+	}
+
+	realize[BinaryOpType] = func(data *LazyBuffer) RealizedOp {
+		obs := data.op.GetBuffers()
+
+		realSrcs := make(map[*LazyBuffer]*Buffer)
+		rds := make([]*Buffer, len(obs))
+		for i, x := range obs {
+			rd := x.Realize()
+			rds[i] = rd
+			realSrcs[x] = rd
+		}
+
+		var astEval = func(Lazy) *Buffer
+		astEval := func(x Lazy) *Buffer {
+			if x, ok := x.(*LazyBuffer); ok {
+				return realSrcs[x]
+			}
+			lo := x.(*LazyOp)
+			switch lo.op.Type() {
+			case UnaryOpType:
+				return astEval(lo.srcs[0]).UnaryOp(lo.op)
+			case BinaryOpType:
+				return astEval(lo.srcs[0]).BinaryOp(lo.op, astEval(lo.srcs[1]))
+			}
+			panic("unhandled")
+		}
+
+		ret := astEval(data.op)
+
+		return RealizedOp{
+			data: ret,
+			srcs: rds,
+			ot:   BinaryOpType,
+		}
+	}
 }

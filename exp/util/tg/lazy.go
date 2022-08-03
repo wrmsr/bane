@@ -1,6 +1,7 @@
 package tg
 
 import (
+	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/maps"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
@@ -39,6 +40,10 @@ func (o *LazyOp) ForEachBuffer(fn func(*LazyBuffer) bool) bool {
 	return true
 }
 
+func (o *LazyOp) GetBuffers() []*LazyBuffer {
+	return its.SeqForEach(its.TraversableOf(o.ForEachBuffer))
+}
+
 func (o *LazyOp) ForEachOp(fn func(*LazyOp) bool) bool {
 	for _, s := range o.srcs {
 		switch s := s.(type) {
@@ -49,6 +54,10 @@ func (o *LazyOp) ForEachOp(fn func(*LazyOp) bool) bool {
 		}
 	}
 	return true
+}
+
+func (o *LazyOp) GetOps() []*LazyOp {
+	return its.SeqForEach(its.TraversableOf(o.ForEachOp))
 }
 
 //

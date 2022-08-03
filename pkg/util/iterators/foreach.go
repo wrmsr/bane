@@ -53,6 +53,10 @@ type fnTraversable[T any] struct {
 	fn func(fn func(v T) bool) bool
 }
 
+func TraversableOf[T any](fn func(fn func(v T) bool) bool) bt.Traversable[T] {
+	return fnTraversable[T]{fn: fn}
+}
+
 var _ bt.Traversable[any] = fnTraversable[any]{}
 
 func (f fnTraversable[T]) ForEach(fn func(v T) bool) bool {
