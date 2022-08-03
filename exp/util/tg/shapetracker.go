@@ -105,6 +105,8 @@ func (st *ShapeTracker) MovementOp(op Op, arg any) {
 	switch op {
 	case ReshapeOp:
 		st.Reshape(arg.(Shape))
+	case ExpandOp:
+		st.Expand(arg.(Shape))
 	default:
 		panic(op)
 	}
@@ -150,6 +152,22 @@ func (st *ShapeTracker) Reshape(newShape Shape) {
 	} else {
 		st.views = append(st.views, newView)
 	}
+}
+
+func (st *ShapeTracker) Expand(newShape Shape) {
+	oldShape := st.Shape()
+	for i, x := range oldShape {
+		y := newShape[i]
+		check.Condition(x == y || x == 1)
+	}
+	newStrides := make(Strides, len(oldShape))
+	for i, s := range st.Strides() {
+		x := oldShape[i]
+		y := newShape[i]
+		newStrides[i] = bt.Choose(x == y, s, 0)
+
+	}
+	st.views = append(st.views, NewView(newShape, newStrides, st.Offset()))
 }
 
 func (st *ShapeTracker) Stride(mul ...Dim) {

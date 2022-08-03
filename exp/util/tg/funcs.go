@@ -64,7 +64,10 @@ func (a AddFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 }
 
 func (a AddFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
-	panic("nyi")
+	return []*LazyBuffer{
+		bt.Choose(ctx.needsInputGrad[0], g, nil),
+		bt.Choose(ctx.needsInputGrad[1], g, nil),
+	}
 }
 
 //
@@ -118,7 +121,7 @@ func (f SumFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 }
 
 func (f SumFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
-	panic("implement me")
+	return []*LazyBuffer{g.MovementOp(ExpandOp, ctx.inputShape.Value())}
 }
 
 //
@@ -145,5 +148,5 @@ func (f ReshapeFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 }
 
 func (f ReshapeFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
-	panic("implement me")
+	return []*LazyBuffer{g.MovementOp(ReshapeOp, ctx.inputShape.Value())}
 }

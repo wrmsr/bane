@@ -26,4 +26,8 @@ func TestOps(t *testing.T) {
 	fmt.Println(zt.Data().Realize())
 
 	zt.Mean(nil, false).Backward()
+
+	zg := zt.grad.Data().Realize()
+
+	fmt.Println(zg)
 }
