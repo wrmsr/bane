@@ -83,11 +83,21 @@ var _ Lazy = &LazyBuffer{}
 
 func (b *LazyBuffer) isLazy() {}
 
+func logOp(opType OpType, op []Op, ret *Buffer, inp []*Buffer) {
+
+}
+
 func (b *LazyBuffer) Realize() *Buffer {
 	if b.realized != nil {
 		return b.realized
 	}
 
+	ro := realize[b.ot](b)
+	b.realized = ro.data
+
+	// logOp(ro.ot, [x.op for x in getLazyOps(self.op)], ro.data, ro.srcs)
+
+	return b.realized
 }
 
 //

@@ -12,10 +12,10 @@ func TestOps(t *testing.T) {
 	//b := 20.
 	//rand.Seed(0)
 
-	xs := bt.RangeTo[float32](10.).Slice()
-	ys := bt.RangeOf[float32](10., 20., 1.).Slice()
+	xs := &Buffer{bt.RangeTo[float32](10.).Slice()}
+	ys := &Buffer{bt.RangeOf[float32](10., 20., 1.).Slice()}
 
-	mkLoadBuffer := func(data Buffer, shape Shape) *LazyBuffer {
+	mkLoadBuffer := func(data *Buffer, shape Shape) *LazyBuffer {
 		return NewLazyBuffer(
 			NewShapeTracker(shape),
 			LoadOpType,

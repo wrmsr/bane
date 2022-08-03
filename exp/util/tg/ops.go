@@ -149,3 +149,17 @@ func (o Op) Type() OpType {
 	}
 	panic(o)
 }
+
+//
+
+type RealizedOp struct {
+	data *Buffer
+	srcs []*Buffer
+	ot   OpType
+}
+
+var realize = map[OpType]func(b *LazyBuffer) RealizedOp{
+	BinaryOpType: func(data *LazyBuffer) RealizedOp {
+		panic("nyi")
+	},
+}
