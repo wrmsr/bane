@@ -58,7 +58,7 @@ func MakeConstBuffer(c float32, shape Shape) *Buffer {
 }
 
 func (b *Buffer) Expand(newShape Shape) *Buffer {
-	if !newShape.Equals(scalarShape) {
+	if !b.shape.Equals(scalarShape) {
 		panic("nyi")
 	}
 	return MakeConstBuffer(b.s[0], newShape)

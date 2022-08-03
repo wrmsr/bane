@@ -173,7 +173,7 @@ func (b *LazyBuffer) MovementOp(op Op, arg any) *LazyBuffer {
 		},
 	)
 
-	if b.realized != nil && ret.st.Contiguous() {
+	if b.realized == nil && ret.st.Contiguous() {
 		root := ret.op.GetBuffers()[0]
 		if ret.st.Shape().Equals(root.Shape()) {
 			return root
