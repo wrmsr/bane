@@ -38,4 +38,6 @@ func TestOps(t *testing.T) {
 	fmt.Println(zt)
 
 	fmt.Println(zt.Data().Realize())
+
+	zt.Mean(nil, false)
 }

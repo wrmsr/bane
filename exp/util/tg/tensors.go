@@ -1,6 +1,9 @@
 package tg
 
-import "github.com/wrmsr/bane/pkg/util/slices"
+import (
+	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
 type Tensor struct {
 	data *LazyBuffer
@@ -66,4 +69,34 @@ func (t *Tensor) Add(y *Tensor) *Tensor {
 
 		return z
 	}, t, y)
+}
+
+func canonicalizeReduceAxis(shape Shape, axis []int) ([]int, Shape) {
+	if len(axis) < 1 {
+		axis = bt.RangeTo(len(shape)).Slice()
+	}
+	// axis = tuple([x if x >= 0 else x + len(self.shape) for x in axis])
+	// shape = [self.shape[i] for i in range(len(self.shape)) if i not in axis]
+	// shape = [1] if shape == [] else shape
+	// return axis, shape
+	panic("nyi")
+}
+
+func (t *Tensor) Sum(axis []int, keepDim bool) *Tensor {
+	axis, outShape := canonicalizeReduceAxis(t.Shape(), axis)
+	/*
+	   ret := self._sum(axis=axis)
+	   return ret if keepDim or ret.shape == outShape else ret.reshape(shape=outShape)
+	*/
+	_ = outShape
+	panic("nyi")
+}
+
+func (t *Tensor) Mean(axis []int, keepDim bool) *Tensor {
+	out := t.Sum(axis, keepDim)
+	/*
+		return out * (prod(out.shape) / prod(self.shape))
+	*/
+	_ = out
+	panic("nyi")
 }
