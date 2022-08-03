@@ -167,7 +167,7 @@ func (t *Tensor) Backward() {
 
 		for i, p := range t0.ctx.parents {
 			g := grads[i]
-			if g == nil || !g.requiresGrad {
+			if g == nil || !p.requiresGrad {
 				continue
 			}
 			check.Condition(g.Shape().Equals(p.Shape()))
