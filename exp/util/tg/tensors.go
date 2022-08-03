@@ -37,12 +37,10 @@ func BroadcastedTensor(fn func(x, y *Tensor) *Tensor, x, y *Tensor) *Tensor {
 	nDims := bt.Max(len(xsh), len(ysh))
 
 	if len(xsh) != nDims {
-		// x = x.reshape(list(x.shape) + [1] * (n_dims - len(x.shape)))
-		panic("nyi")
+		x = x.Reshape(slices.Join(xsh, slices.Repeat([]Dim{1}, nDims-len(xsh))))
 	}
 	if len(ysh) != nDims {
-		// y = y.reshape(list(y.shape) + [1] * (n_dims - len(y.shape)))
-		panic("nyi")
+		y = y.Reshape(slices.Join(ysh, slices.Repeat([]Dim{1}, nDims-len(ysh))))
 	}
 
 	shapeRet := make(Shape, len(xsh))
