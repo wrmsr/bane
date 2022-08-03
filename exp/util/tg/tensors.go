@@ -10,7 +10,7 @@ import (
 type Tensor struct {
 	data *LazyBuffer
 
-	grad         *LazyBuffer
+	grad         *Tensor
 	requiresGrad bool
 
 	ctx *FuncContext
@@ -124,12 +124,58 @@ func (t *Tensor) deepWalk() []*Tensor {
 	rec(t)
 	return ret
 }
+
 func (t *Tensor) Backward() {
 	check.Condition(t.Shape().Equals(scalarShape))
 
 	// self.grad = Tensor.ones(*self.shape, device=self.device, requires_grad=False)
 
+	t.grad = NewTensor(
+		MakeLoadBuffer(
+			BufferOf(
+				t.Shape(),
+				slices.Repeat([]float32{1.}, int(t.Shape().Dim())),
+			),
+			t.Shape(),
+		),
+		false,
+	)
+
 	ps := slices.Reverse(t.deepWalk())
-	_ = ps
-	panic("nyi")
+	for _, t0 := range ps {
+		var hg bool
+		for _, p := range t0.ctx.parents {
+			if p.requiresGrad {
+				hg = true
+				break
+			}
+		}
+		if !hg {
+			continue
+		}
+
+		check.Condition(t0.grad != nil)
+
+		ograds := t0.ctx.fn.Backward(t0.ctx, t0.grad.data)
+		grads := make([]*Tensor, len(ograds))
+		for i, g := range ograds {
+			if g == nil {
+				continue
+			}
+			grads[i] = NewTensor(g, false)
+		}
+
+		for i, p := range t0.ctx.parents {
+			g := grads[i]
+			if g == nil || !g.requiresGrad {
+				continue
+			}
+			check.Condition(g.Shape().Equals(p.Shape()))
+			if p.grad == nil {
+				p.grad = g
+			} else {
+				p.grad = p.grad.Add(g)
+			}
+		}
+	}
 }
