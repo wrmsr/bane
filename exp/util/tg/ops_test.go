@@ -65,4 +65,5 @@ func TestBobNet(t *testing.T) {
 	l2t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](20., 29., 1.).Slice()), sh), true)
 
 	zt := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
+	fmt.Println(zt)
 }

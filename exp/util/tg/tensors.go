@@ -3,6 +3,7 @@ package tg
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/maps"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -118,6 +119,21 @@ func (t *Tensor) Relu() *Tensor {
 	return Apply(ReluFunc{}, []*Tensor{t})
 }
 
+func (t *Tensor) Permute(order []Dim) *Tensor {
+	if len(order) < 1 {
+		order = []Dim{1, 0}
+	}
+	return Apply(PermuteFunc{Order: order}, []*Tensor{t})
+}
+
+func (t *Tensor) Transpose(order []Dim) *Tensor {
+	return t.Permute(order)
+}
+
+func (t *Tensor) Conv2d(weight float32, bias opt.Optional[float32], groups opt.Optional[Dim]) *Tensor {
+
+}
+
 func (t *Tensor) Matmul(w *Tensor) *Tensor {
 	xsh := t.Shape()
 	wsh := w.Shape()
@@ -126,22 +142,15 @@ func (t *Tensor) Matmul(w *Tensor) *Tensor {
 	outShapeT := Shape(slices.Join(xsh[0:len(xsh)-2], []Dim{cout, -1}))
 	var order []Dim
 	if len(xsh) > 1 {
-		order = slices.Join(bt.RangeTo(Dim(len(xsh)-2)).Slice(), []Dim{Dim(len(xsh) - 1), Dim(len(xsh) - 2}))
+		order = slices.Join(bt.RangeTo(Dim(len(xsh)-2)).Slice(), []Dim{Dim(len(xsh) - 1), Dim(len(xsh) - 2)})
 	} else {
 		order = []Dim{0}
 		outShapeT = []Dim{cout}
 	}
-	/*
-	   worder = tuple(list(range(len(wsh) - 2)) + [len(wsh) - 1, len(wsh) - 2])
-
-	   # NOTE: with NHWC we can remove the transposes
-	   # bs x groups*cin x H x W
-	   cx = x.transpose(order=order).reshape(shape=(bs // groups, groups * cin, -1, 1))
-	   # groups*cout x cin x H, W
-	   cw = w.transpose(order=worder).reshape(shape=(groups * cout, cin, 1, 1))
-	   return cx.conv2d(cw, groups=groups).reshape(shape=outShapeT).transpose(order=order)
-	*/
-	panic("nyi")
+	worder := slices.Join(bt.RangeTo(Dim(len(wsh)-2)).Slice(), []Dim{Dim(len(wsh) - 1), Dim(len(wsh) - 2)})
+	cx := t.Transpose(order).Reshape(Shape{bs / groups, groups * cin, -1, 1})
+	cw := w.Transpose(worder).Reshape(Shape{groups * cout, cin, 1, 1})
+	return cx.Conv2d(cw, opt.None[float32](), opt.Just[Dim](groups)).Reshape(outShapeT).Transpose(order)
 }
 
 func (t *Tensor) Dot(w *Tensor) *Tensor {

@@ -26,6 +26,7 @@ type FuncContext struct {
 	savedBuffers []*LazyBuffer
 
 	inputShape opt.Optional[Shape]
+	inputOrder opt.Optional[[]Dim]
 }
 
 func NewFuncContext(fn Func, parents []*Tensor) *FuncContext {
@@ -165,4 +166,22 @@ func (f ReluFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 
 func (f ReluFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 	return []*LazyBuffer{ctx.savedBuffers[0].UnaryOp(SignOp).UnaryOp(ReluOp).BinaryOp(MulOp, g)}
+}
+
+//
+
+type PermuteFunc struct {
+	Order []Dim
+}
+
+var _ Func = PermuteFunc{}
+
+func (f PermuteFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	input := check.Single(bs)
+	ctx.inputOrder = opt.Just(f.Order)
+	return input.MovementOp(PermuteOp, f.Order)
+}
+
+func (f PermuteFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+	panic("implement me")
 }
