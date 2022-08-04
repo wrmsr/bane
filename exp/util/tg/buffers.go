@@ -112,7 +112,7 @@ func (b *Buffer) Reshape(newShape Shape) *Buffer {
 }
 
 func (b *Buffer) Transpose(order []Dim) *Buffer {
-
+	panic("nyi")
 }
 
 func (b *Buffer) Permute(order []Dim) *Buffer {
