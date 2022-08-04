@@ -132,7 +132,7 @@ func (t *Tensor) Mean(axis []int, keepDim bool) *Tensor {
 }
 
 func (t *Tensor) Expand(shape Shape) *Tensor {
-	return Apply(ReshapeFunc{Shape: shape}, []*Tensor{t})
+	return Apply(ExpandFunc{Shape: shape}, []*Tensor{t})
 }
 
 func (t *Tensor) Relu() *Tensor {

@@ -192,6 +192,22 @@ func (f ReshapeFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 
 //
 
+type ExpandFunc struct {
+	Shape Shape
+}
+
+func (f ExpandFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	input := check.Single(bs)
+	ctx.inputShape = opt.Just(f.Shape)
+	return input.MovementOp(ExpandOp, f.Shape)
+}
+
+func (f ExpandFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+	return []*LazyBuffer{g.ReduceOp(SumOp, ctx.inputShape.Value())}
+}
+
+//
+
 type ReluFunc struct{}
 
 func (f ReluFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
