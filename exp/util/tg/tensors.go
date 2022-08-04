@@ -130,7 +130,7 @@ func (t *Tensor) Transpose(order []Dim) *Tensor {
 	return t.Permute(order)
 }
 
-func (t *Tensor) Conv2d(weight float32, bias opt.Optional[float32], groups opt.Optional[Dim]) *Tensor {
+func (t *Tensor) Conv2d(weight *Tensor, bias opt.Optional[float32], groups opt.Optional[Dim]) *Tensor {
 
 }
 
