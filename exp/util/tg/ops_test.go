@@ -51,11 +51,11 @@ func TestOpsRelu(t *testing.T) {
 
 		fmt.Println(zt.Data().Realize())
 
-		zt.Mean(nil, false).Backward()
+		//zt.Mean(nil, false).Backward()
 
-		zg := zt.grad.Data()
+		//zg := zt.grad.Data()
 
-		zgt := zg.Realize()
-		fmt.Println(zgt)
+		//zgt := zg.Realize()
+		//fmt.Println(zgt)
 	}
 }
