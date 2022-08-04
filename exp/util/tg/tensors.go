@@ -131,7 +131,7 @@ func (t *Tensor) Transpose(order []Dim) *Tensor {
 }
 
 func (t *Tensor) Conv2d(weight *Tensor, bias opt.Optional[float32], groups opt.Optional[Dim]) *Tensor {
-
+	panic("nyi")
 }
 
 func (t *Tensor) Matmul(w *Tensor) *Tensor {
