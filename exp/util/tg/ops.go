@@ -166,12 +166,8 @@ type RealizedOp struct {
 var realize = make(map[OpType]func(b *LazyBuffer) RealizedOp)
 
 func init() {
-	realize[LoadOpType] = func(data *LazyBuffer) RealizedOp {
-		check.Condition(data.op.op == FromCpuOp)
-		return RealizedOp{
-			data: data.op.arg.(*Buffer),
-			ot:   LoadOpType,
-		}
+	realize[UnaryOpType] = func(data *LazyBuffer) RealizedOp {
+		panic("nyi")
 	}
 
 	realize[BinaryOpType] = func(data *LazyBuffer) RealizedOp {
@@ -219,6 +215,29 @@ func init() {
 			data: x,
 			srcs: []*Buffer{realSrc},
 			ot:   MovementOpType,
+		}
+	}
+
+	realize[ReduceOpType] = func(data *LazyBuffer) RealizedOp {
+		panic("nyi")
+	}
+
+	realize[ProcessingOpType] = func(data *LazyBuffer) RealizedOp {
+		rsx := data.op.srcs[0].(*LazyBuffer).Realize()
+		rsw := data.op.srcs[1].(*LazyBuffer).Realize()
+		ret := rsx.ProcessingOp(data.op.op, rsw, data.op.arg)
+		return RealizedOp{
+			data: ret,
+			srcs: []*Buffer{rsx, rsw},
+			ot:   ProcessingOpType,
+		}
+	}
+
+	realize[LoadOpType] = func(data *LazyBuffer) RealizedOp {
+		check.Condition(data.op.op == FromCpuOp)
+		return RealizedOp{
+			data: data.op.arg.(*Buffer),
+			ot:   LoadOpType,
 		}
 	}
 }

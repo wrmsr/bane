@@ -66,4 +66,6 @@ func TestBobNet(t *testing.T) {
 
 	zt := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
 	fmt.Println(zt)
+
+	fmt.Println(zt.Data().Realize())
 }
