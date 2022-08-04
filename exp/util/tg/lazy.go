@@ -117,25 +117,27 @@ func (b *LazyBuffer) Realize() *Buffer {
 //
 
 func ElementwiseOp(op Op, srcs ...*LazyBuffer) *LazyBuffer {
-	/*
-	   if (MERGE_UNARY_OPS and len(srcs) == 1) or MERGE_ELEMENTWISE_OPS:
-	       # remove the buffers from any (childless) BinaryOps that feed into this
-	       srcs = tuple(
-	           x.op
-	           if x.optype == BinaryOps
-	              and len(x.children) == 0
-	              and x.realized is None else x
-	           for x in srcs
-	       )
-	*/
+	opSrcs := slices.Map(func(b *LazyBuffer) Lazy { return b }, srcs)
+	if len(opSrcs) == 1 { // || MERGE_ELEMENTWISE_OPS
+		for i, x := range srcs {
+			if x.ot == BinaryOpType && len(x.children) == 0 && x.realized != nil {
+				opSrcs[i] = x.op
+			}
+		}
+	}
+
 	return NewLazyBuffer(
 		srcs[0].st,
 		BinaryOpType,
 		&LazyOp{
 			op:   op,
-			srcs: slices.Map(func(b *LazyBuffer) Lazy { return b }, srcs),
+			srcs: opSrcs,
 		},
 	)
+}
+
+func (b *LazyBuffer) UnaryOp(op Op) *LazyBuffer {
+	return ElementwiseOp(op, b)
 }
 
 func (b *LazyBuffer) BinaryOp(op Op, y *LazyBuffer) *LazyBuffer {

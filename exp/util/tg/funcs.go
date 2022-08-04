@@ -150,3 +150,20 @@ func (f ReshapeFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 func (f ReshapeFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 	return []*LazyBuffer{g.MovementOp(ReshapeOp, ctx.inputShape.Value())}
 }
+
+//
+
+type ReluFunc struct{}
+
+var _ Func = ReluFunc{}
+
+func (f ReluFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	input := check.Single(bs)
+	ctx.saveForBackward(input)
+	return input.UnaryOp(ReluOp)
+}
+
+func (f ReluFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+	// return ctx.saved_tensors[0].unary_op(UnaryOps.SIGN).unary_op(UnaryOps.RELU).binary_op(BinaryOps.MUL, grad_output)
+	panic("implement me")
+}

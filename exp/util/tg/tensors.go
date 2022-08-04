@@ -114,6 +114,10 @@ func (t *Tensor) Expand(shape Shape) *Tensor {
 	return Apply(ReshapeFunc{Shape: shape}, []*Tensor{t})
 }
 
+func (t *Tensor) Relu() *Tensor {
+	return Apply(ReluFunc{}, []*Tensor{t})
+}
+
 var scalarShape = Shape{1}
 
 func (t *Tensor) deepWalk() []*Tensor {

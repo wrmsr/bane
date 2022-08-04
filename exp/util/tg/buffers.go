@@ -27,6 +27,16 @@ func BufferOf(shape Shape, s []float32) *Buffer {
 }
 
 func (b *Buffer) UnaryOp(op Op) *Buffer {
+	switch op {
+	case ReluOp:
+		z := NewBuffer(b.shape)
+		for i, x := range b.s {
+			if !(x < 0) {
+				z.s[i] = x
+			}
+		}
+		return z
+	}
 	panic("nyi")
 }
 
@@ -39,11 +49,25 @@ func (b *Buffer) BinaryOp(op Op, y *Buffer) *Buffer {
 			z.s[i] = x + y.s[i]
 		}
 		return z
+	case SubOp:
+		check.Condition(b.shape.Equals(y.shape))
+		z := NewBuffer(b.shape)
+		for i, x := range b.s {
+			z.s[i] = x - y.s[i]
+		}
+		return z
 	case MulOp:
 		check.Condition(b.shape.Equals(y.shape))
 		z := NewBuffer(b.shape)
 		for i, x := range b.s {
 			z.s[i] = x * y.s[i]
+		}
+		return z
+	case DivOp:
+		check.Condition(b.shape.Equals(y.shape))
+		z := NewBuffer(b.shape)
+		for i, x := range b.s {
+			z.s[i] = x / y.s[i]
 		}
 		return z
 	}
