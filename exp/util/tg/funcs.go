@@ -164,6 +164,5 @@ func (f ReluFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 }
 
 func (f ReluFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
-	// return ctx.saved_tensors[0].unary_op(UnaryOps.SIGN).unary_op(UnaryOps.RELU).binary_op(BinaryOps.MUL, grad_output)
-	panic("implement me")
+	return []*LazyBuffer{ctx.savedBuffers[0].UnaryOp(SignOp).UnaryOp(ReluOp).BinaryOp(MulOp, g)}
 }

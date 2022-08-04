@@ -36,6 +36,17 @@ func (b *Buffer) UnaryOp(op Op) *Buffer {
 			}
 		}
 		return z
+	case SignOp:
+		z := NewBuffer(b.shape)
+		for i, x := range b.s {
+			if x > 0 {
+				z.s[i] = 1
+			} else if x < 0 {
+				z.s[i] = -1
+			}
+		}
+		return z
+
 	}
 	panic("nyi")
 }
