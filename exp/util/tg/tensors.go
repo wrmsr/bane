@@ -3,7 +3,6 @@ package tg
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/maps"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -65,6 +64,12 @@ func (t *Tensor) Add(y *Tensor) *Tensor {
 	}, t, y)
 }
 
+func (t *Tensor) Sub(y *Tensor) *Tensor {
+	return BroadcastedTensor(func(x, y *Tensor) *Tensor {
+		return Apply(SubFunc{}, []*Tensor{x, y})
+	}, t, y)
+}
+
 func (t *Tensor) Mul(y *Tensor) *Tensor {
 	return BroadcastedTensor(func(x, y *Tensor) *Tensor {
 		return Apply(MulFunc{}, []*Tensor{x, y})
@@ -105,6 +110,15 @@ func (t *Tensor) Sum(axis []int, keepDim bool) *Tensor {
 	return ret.Reshape(outShape)
 }
 
+func (t *Tensor) Max(axis []int, keepDim bool) *Tensor {
+	axis, outShape := canonicalizeReduceAxis(t.Shape(), axis)
+	ret := Apply(MaxFunc{axis: axis}, []*Tensor{t})
+	if keepDim || ret.Shape().Equals(outShape) {
+		return ret
+	}
+	return ret.Reshape(outShape)
+}
+
 func (t *Tensor) Mean(axis []int, keepDim bool) *Tensor {
 	out := t.Sum(axis, keepDim)
 	c := float32(bt.Prod[Dim](out.Shape()...)) / float32(bt.Prod[Dim](t.Shape()...))
@@ -130,10 +144,12 @@ func (t *Tensor) Transpose(order []Dim) *Tensor {
 	return t.Permute(order)
 }
 
-func (t *Tensor) Conv2d(weight *Tensor, bias opt.Optional[float32], groups opt.Optional[Dim]) *Tensor {
-	// ret = self._conv2d(weight, **kwargs)
-	// return ret if bias is None else ret.add(bias.reshape(shape=[1, -1, 1, 1]))
-	panic("nyi")
+func (t *Tensor) Conv2d(weight *Tensor, bias *Tensor, opts ConvOpts) *Tensor {
+	ret := Apply(Conv2dFunc{co: opts}, []*Tensor{t, weight})
+	if bias != nil {
+		ret = ret.Add(bias.Reshape(Shape{1, -1, 1, 1}))
+	}
+	return ret
 }
 
 func (t *Tensor) Matmul(w *Tensor) *Tensor {
@@ -152,26 +168,27 @@ func (t *Tensor) Matmul(w *Tensor) *Tensor {
 	worder := slices.Join(bt.RangeTo(Dim(len(wsh)-2)).Slice(), []Dim{Dim(len(wsh) - 1), Dim(len(wsh) - 2)})
 	cx := t.Transpose(order).Reshape(Shape{bs / groups, groups * cin, -1, 1})
 	cw := w.Transpose(worder).Reshape(Shape{groups * cout, cin, 1, 1})
-	return cx.Conv2d(cw, opt.None[float32](), opt.Just[Dim](groups)).Reshape(outShapeT).Transpose(order)
+	return cx.Conv2d(cw, nil, ConvOpts{Groups: groups}).Reshape(outShapeT).Transpose(order)
 }
 
 func (t *Tensor) Dot(w *Tensor) *Tensor {
 	return t.Matmul(w)
 }
 
-/*
-   def _softmax(self):
-       m = self - self.max(axis=len(self.shape) - 1, keepdim=True)
-       e = m.exp()
-       return m, e, e.sum(axis=len(self.shape) - 1, keepdim=True)
+func (t *Tensor) softmax() *Tensor {
+	m := t.Sub(t.Max([]int{len(t.Shape()) - 1}, true))
+	e := m.Exp()
+	// return m, e, e.sum(axis=len(self.shape) - 1, keepdim=True)
+}
 
+/*
    def softmax(self):
        _, e, ss = self._softmax()
        return e.div(ss)
 
    def logsoftmax(self):
-       m, _, ss = self._softmax()
-       return m - ss.log()
+       // m, _, ss = self._softmax()
+       // return m - ss.log()
 */
 
 func (t *Tensor) LogSoftmax() *Tensor {

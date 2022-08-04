@@ -27,6 +27,7 @@ type FuncContext struct {
 
 	inputShape opt.Optional[Shape]
 	inputOrder opt.Optional[[]Dim]
+	convArgs   opt.Optional[ConvArgs]
 }
 
 func NewFuncContext(fn Func, parents []*Tensor) *FuncContext {
@@ -57,8 +58,6 @@ func Apply(fn Func, parents []*Tensor) *Tensor {
 
 type AddFunc struct{}
 
-var _ Func = AddFunc{}
-
 func (a AddFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	check.Condition(len(bs) == 2)
 	return bs[0].BinaryOp(AddOp, bs[1])
@@ -73,9 +72,27 @@ func (a AddFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 
 //
 
-type MulFunc struct{}
+type SubFunc struct{}
 
-var _ Func = MulFunc{}
+func (a SubFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	check.Condition(len(bs) == 2)
+	return bs[0].BinaryOp(SubOp, bs[1])
+}
+
+func (a SubFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+	ret := []*LazyBuffer{
+		bt.Choose(ctx.needsInputGrad[0], g, nil),
+		nil,
+	}
+	if ctx.needsInputGrad[1] {
+		ret[1] = g.UnaryOp(NegOp)
+	}
+	return ret
+}
+
+//
+
+type MulFunc struct{}
 
 func (a MulFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	check.Condition(len(bs) == 2)
@@ -100,8 +117,6 @@ func (a MulFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 type SumFunc struct {
 	Axis []int
 }
-
-var _ Func = SumFunc{}
 
 func reduceShape(shape Shape, axis []int) Shape {
 	newShape := make(Shape, len(shape))
@@ -131,8 +146,6 @@ type ReshapeFunc struct {
 	Shape Shape
 }
 
-var _ Func = ReshapeFunc{}
-
 func (f ReshapeFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	input := check.Single(bs)
 	oldShape := input.Shape()
@@ -156,8 +169,6 @@ func (f ReshapeFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 
 type ReluFunc struct{}
 
-var _ Func = ReluFunc{}
-
 func (f ReluFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	input := check.Single(bs)
 	ctx.saveForBackward(input)
@@ -174,8 +185,6 @@ type PermuteFunc struct {
 	Order []Dim
 }
 
-var _ Func = PermuteFunc{}
-
 func (f PermuteFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	input := check.Single(bs)
 	ctx.inputOrder = opt.Just(f.Order)
@@ -184,4 +193,82 @@ func (f PermuteFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 
 func (f PermuteFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 	panic("implement me")
+}
+
+//
+
+type Conv2dFunc struct {
+	co ConvOpts
+}
+
+func (f Conv2dFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	x, w := slices.Unpack2(bs)
+	ca := BuildConvArgs(x.Shape(), w.Shape(), f.co)
+	ctx.convArgs = opt.Just(ca)
+	ctx.saveForBackward(x, w)
+	return x.ProcessingOp(ConvOp, w, ca)
+}
+
+func (f Conv2dFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+	panic("implement me")
+}
+
+//
+
+type MaxFunc struct {
+	axis []int
+}
+
+func (f MaxFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	input := check.Single(bs)
+	ret := input.ReduceOp(MaxOp, reduceShape(input.Shape(), f.axis))
+	ctx.saveForBackward(input, ret)
+	return ret
+}
+
+func (f MaxFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+	/*
+	   input, ret = ctx.saved_tensors
+
+	   # 1s in locations where the max was chosen (can be two locations)
+	   max_is_1s = input.binary_op(BinaryOps.CMPEQ, ret.movement_op(MovementOps.EXPAND, input.shape))
+
+	   # sum of locations, averaged
+	   div = max_is_1s.reduce_op(ReduceOps.SUM, grad_output.shape)
+	   div = div.movement_op(MovementOps.EXPAND, input.shape)
+	   max_is_amount = max_is_1s.binary_op(BinaryOps.DIV, div)
+
+	   grad_output_expanded = grad_output.movement_op(MovementOps.EXPAND, input.shape)
+	   return max_is_amount.binary_op(BinaryOps.MUL, grad_output_expanded)
+	*/
+	panic("implement me")
+}
+
+//
+
+type ExpFunc struct{}
+
+func (f ExpFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	input := check.Single(bs)
+	ret := input.UnaryOp(ExpOp)
+	ctx.saveForBackward(ret)
+	return ret
+}
+
+func (f ExpFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+	return []*LazyBuffer{ctx.savedBuffers[0].BinaryOp(MulOp, g)}
+}
+
+//
+
+type LogFunc struct{}
+
+func (f LogFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	input := check.Single(bs)
+	ctx.saveForBackward(input)
+	return input.UnaryOp(LogOp)
+}
+
+func (f LogFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+	return []*LazyBuffer{g.BinaryOp(DivOp, ctx.savedBuffers[0])}
 }

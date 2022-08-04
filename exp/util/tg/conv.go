@@ -66,6 +66,7 @@ func BuildConvArgs(xsh, wsh Shape, opts ConvOpts) ConvArgs {
 		px_, py_ = px, py
 	case 1:
 		px, px_, py, py_ = slices.Dup4(opts.Padding[0])
+	case 0:
 	default:
 		panic("unhandled padding")
 	}

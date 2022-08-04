@@ -1,5 +1,6 @@
 package tg
 
+import "C"
 import (
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/maps"
@@ -183,6 +184,23 @@ func (b *LazyBuffer) MovementOp(op Op, arg any) *LazyBuffer {
 	}
 
 	return ret
+}
+
+func (b *LazyBuffer) ProcessingOp(op Op, w *LazyBuffer, arg any) *LazyBuffer {
+	switch op {
+	case ConvOp:
+		ca := arg.(ConvArgs)
+		return NewLazyBuffer(
+			NewShapeTracker(ca.outShape),
+			ProcessingOpType,
+			&LazyOp{
+				op:   op,
+				srcs: []Lazy{b, w},
+				arg:  ca,
+			},
+		)
+	}
+	panic(op)
 }
 
 //
