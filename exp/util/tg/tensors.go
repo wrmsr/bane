@@ -76,6 +76,12 @@ func (t *Tensor) Mul(y *Tensor) *Tensor {
 	}, t, y)
 }
 
+//func (t *Tensor) Pow()
+//
+//func (t *Tensor) Div(y *Tensor) *Tensor {
+//	return t.Mul(y.Pow(-1.0))
+//}
+
 func (t *Tensor) Reshape(shape Shape) *Tensor {
 	return Apply(ReshapeFunc{Shape: shape}, []*Tensor{t})
 }
@@ -133,6 +139,14 @@ func (t *Tensor) Relu() *Tensor {
 	return Apply(ReluFunc{}, []*Tensor{t})
 }
 
+func (t *Tensor) Exp() *Tensor {
+	return Apply(ExpFunc{}, []*Tensor{t})
+}
+
+func (t *Tensor) Log() *Tensor {
+	return Apply(LogFunc{}, []*Tensor{t})
+}
+
 func (t *Tensor) Permute(order []Dim) *Tensor {
 	if len(order) < 1 {
 		order = []Dim{1, 0}
@@ -175,24 +189,25 @@ func (t *Tensor) Dot(w *Tensor) *Tensor {
 	return t.Matmul(w)
 }
 
-func (t *Tensor) softmax() *Tensor {
-	m := t.Sub(t.Max([]int{len(t.Shape()) - 1}, true))
-	e := m.Exp()
-	// return m, e, e.sum(axis=len(self.shape) - 1, keepdim=True)
+type TensorSoftmax struct {
+	M, E, Ss *Tensor
 }
 
-/*
-   def softmax(self):
-       _, e, ss = self._softmax()
-       return e.div(ss)
+func (t *Tensor) FullSoftmax() TensorSoftmax {
+	m := t.Sub(t.Max([]int{len(t.Shape()) - 1}, true))
+	e := m.Exp()
+	ss := e.Sum([]int{len(t.Shape()) - 1}, true)
+	return TensorSoftmax{M: m, E: e, Ss: ss}
+}
 
-   def logsoftmax(self):
-       // m, _, ss = self._softmax()
-       // return m - ss.log()
-*/
+//func (t *Tensor) Softmax() *Tensor {
+//	fsm := t.FullSoftmax()
+//	return fsm.E.Div(fsm.Ss)
+//}
 
 func (t *Tensor) LogSoftmax() *Tensor {
-	panic("nyi")
+	fsm := t.FullSoftmax()
+	return fsm.M.Sub(fsm.Ss.Log())
 }
 
 var scalarShape = Shape{1}

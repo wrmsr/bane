@@ -114,6 +114,31 @@ func (a MulFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
 
 //
 
+type PowFunc struct{}
+
+func (a PowFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
+	x, y := slices.Unpack2(bs)
+	ret := x.BinaryOp(PowOp, y)
+	ctx.saveForBackward(x, y, ret)
+	return ret
+}
+
+func (a PowFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
+	x, y, powxy := slices.Unpack3(ctx.savedBuffers)
+	var gradx, grady *LazyBuffer
+	if ctx.needsInputGrad[0] {
+		tmp := y.BinaryOp(MulOp, powxy.BinaryOp(DivOp, x))
+		gradx = g.BinaryOp(MulOp, tmp)
+	}
+	if ctx.needsInputGrad[1] {
+		tmp := x.UnaryOp(LogOp).BinaryOp(MulOp, powxy)
+		grady = g.BinaryOp(MulOp, tmp)
+	}
+	return []*LazyBuffer{gradx, grady}
+}
+
+//
+
 type SumFunc struct {
 	Axis []int
 }
