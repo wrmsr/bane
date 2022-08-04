@@ -1,6 +1,8 @@
 package tg
 
 import (
+	"fmt"
+
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
@@ -8,18 +10,18 @@ import (
 type ConvArgs struct {
 	h, w Dim
 
-	groups int
+	groups Dim
 
-	rcout int
-	cin   int
+	rcout Dim
+	cin   Dim
 
 	oy, ox Dim
 	iy, ix Dim
 	sy, sx Dim
 
-	bs int
+	bs Dim
 
-	cout int
+	cout Dim
 
 	py, py_ Dim
 
@@ -32,7 +34,7 @@ type ConvArgs struct {
 
 type ConvOpts struct {
 	Stride   []Dim
-	Groups   int
+	Groups   Dim
 	Padding  []Dim
 	Dilation []Dim
 	OutShape Shape
@@ -52,20 +54,18 @@ func BuildConvArgs(xsh, wsh Shape, opts ConvOpts) ConvArgs {
 		opts.Dilation = []Dim{1}
 	}
 
-	check.Condition(len(wsh) == 4)
-	cout, cin, h, w := wsh[0], wsh[1], wsh[2], wsh[3]
-
-	check.Condition(len(opts.Stride) == 2)
-	sx, sy := opts.Stride[0], opts.Stride[1]
+	cout, cin, h, w := slices.Unpack4(wsh)
+	sx, sy := slices.Unpack2(opts.Stride)
 
 	var px, px_, py, py_ Dim
 	switch len(opts.Padding) {
 	case 4:
-		px, px_, py, py_ = opts.Padding[0], opts.Padding[1], opts.Padding[2], opts.Padding[3]
+		px, px_, py, py_ = slices.Unpack4(opts.Padding)
 	case 2:
-		px, px_, py, py_ = opts.Padding[0], opts.Padding[0], opts.Padding[1], opts.Padding[1]
+		px, py = slices.Unpack2(opts.Padding)
+		px_, py_ = px, py
 	case 1:
-		px, px_, py, py_ = opts.Padding[0], opts.Padding[0], opts.Padding[0], opts.Padding[0]
+		px, px_, py, py_ = slices.Dup4(opts.Padding[0])
 	default:
 		panic("unhandled padding")
 	}
@@ -73,53 +73,57 @@ func BuildConvArgs(xsh, wsh Shape, opts ConvOpts) ConvArgs {
 	var dy, dx Dim
 	switch len(opts.Dilation) {
 	case 2:
-		dy, dx = opts.Dilation[0], opts.Dilation[1]
+		dy, dx = slices.Unpack2(opts.Dilation)
 	case 1:
-		dy, dx = opts.Dilation[0], opts.Dilation[0]
+		dy, dx = slices.Dup2(opts.Dilation[0])
 	default:
 		panic("unhandled dilation")
 	}
 
-	check.Condition(len(xsh) == 4)
-	bs, cin_, iy, ix := xsh[0], xsh[1], xsh[2], xsh[3]
+	bs, cin_, iy, ix := slices.Unpack4(xsh)
 
-	/*
-		      # this can change px_ and py_ to make the out_shape right
-		      if len(opts.OutShape) > 0 {
-				check.Condition(len(ou) == 4)
-		          py_ = (out_shape[2] - 1) * sy + 1 + dy * (h - 1) - iy - py
-		          px_ = (out_shape[3] - 1) * sx + 1 + dx * (w - 1) - ix - px
-			}
+	if len(opts.OutShape) > 0 {
+		check.Condition(len(opts.OutShape) == 4)
+		py_ = (opts.OutShape[2]-1)*sy + 1 + dy*(h-1) - iy - py
+		px_ = (opts.OutShape[3]-1)*sx + 1 + dx*(w-1) - ix - px
+	}
 
-		      # TODO: should be easy to support asymmetric padding by changing output size
-		      # https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html describes these sizes well
-		      oy = (iy + py + py_ - dy * (h - 1) - 1) // sy + 1
-		      ox = (ix + px + px_ - dx * (w - 1) - 1) // sx + 1
-		      if cin * groups != cin_: raise Exception(
-		          f"Input Tensor shape {x_shape} does not match the shape of the weights {w_shape}. ({cin * groups} vs. {cin_})")
-		      assert cout % groups == 0
-		      assert out_shape is None or out_shape == (bs, cout, oy, ox)
-		      return ConvArgs(
-		   h,
-		   w,
-		   groups,
-		   cout // groups,
-		   cin,
-		   oy,
-		   ox,
-		   iy,
-		   ix,
-		   sy,
-		   sx,
-		   bs,
-		   cout,
-		   py,
-		   py_,
-		   px,
-		   px_,
-		   dy,
-		   dx,
-		   (bs, cout, oy, ox))
-	*/
-	panic("nyi")
+	oy := (iy+py+py_-dy*(h-1)-1)/sy + 1
+	ox := (ix+px+px_-dx*(w-1)-1)/sx + 1
+
+	if cin*opts.Groups != cin_ {
+		panic(fmt.Errorf(
+			"input Tensor shape %v does not match the shape of the weights %v. (%v vs. %v)",
+			xsh,
+			wsh,
+			cin*opts.Groups,
+			cin_,
+		))
+	}
+
+	check.Condition(cout%opts.Groups == 0)
+	check.Condition(opts.OutShape == nil || opts.OutShape.Equals(Shape{bs, cout, oy, ox}))
+
+	return ConvArgs{
+		h:        h,
+		w:        w,
+		groups:   opts.Groups,
+		rcout:    cout / opts.Groups,
+		cin:      cin,
+		oy:       oy,
+		ox:       ox,
+		iy:       iy,
+		ix:       ix,
+		sy:       sy,
+		sx:       sx,
+		bs:       bs,
+		cout:     cout,
+		py:       py,
+		py_:      py_,
+		px:       px,
+		px_:      px_,
+		dy:       dy,
+		dx:       dx,
+		outShape: Shape{bs, cout, oy, ox},
+	}
 }
