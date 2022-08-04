@@ -131,6 +131,8 @@ func (t *Tensor) Transpose(order []Dim) *Tensor {
 }
 
 func (t *Tensor) Conv2d(weight *Tensor, bias opt.Optional[float32], groups opt.Optional[Dim]) *Tensor {
+	// ret = self._conv2d(weight, **kwargs)
+	// return ret if bias is None else ret.add(bias.reshape(shape=[1, -1, 1, 1]))
 	panic("nyi")
 }
 

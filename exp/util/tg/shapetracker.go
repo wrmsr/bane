@@ -107,6 +107,8 @@ func (st *ShapeTracker) MovementOp(op Op, arg any) {
 		st.Reshape(arg.(Shape))
 	case ExpandOp:
 		st.Expand(arg.(Shape))
+	case PermuteOp:
+		st.Permute(arg.([]Dim)...)
 	default:
 		panic(op)
 	}
