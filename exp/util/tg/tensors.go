@@ -118,6 +118,55 @@ func (t *Tensor) Relu() *Tensor {
 	return Apply(ReluFunc{}, []*Tensor{t})
 }
 
+func (t *Tensor) Matmul(w *Tensor) *Tensor {
+	xsh := t.Shape()
+	wsh := w.Shape()
+	bs, groups := bt.Prod[Dim](xsh[0:len(xsh)-2]...), bt.Prod[Dim](wsh[0:len(wsh)-2]...)
+	cin, cout := wsh[len(wsh)-2], wsh[len(wsh)-1]
+	outShapeT := Shape(slices.Join(xsh[0:len(xsh)-2], []Dim{cout, -1}))
+	var order []Dim
+	if len(xsh) > 1 {
+		order = slices.Join(bt.RangeTo(Dim(len(xsh)-2)).Slice(), []Dim{Dim(len(xsh) - 1), Dim(len(xsh) - 2}))
+	} else {
+		order = []Dim{0}
+		outShapeT = []Dim{cout}
+	}
+	/*
+	   worder = tuple(list(range(len(wsh) - 2)) + [len(wsh) - 1, len(wsh) - 2])
+
+	   # NOTE: with NHWC we can remove the transposes
+	   # bs x groups*cin x H x W
+	   cx = x.transpose(order=order).reshape(shape=(bs // groups, groups * cin, -1, 1))
+	   # groups*cout x cin x H, W
+	   cw = w.transpose(order=worder).reshape(shape=(groups * cout, cin, 1, 1))
+	   return cx.conv2d(cw, groups=groups).reshape(shape=outShapeT).transpose(order=order)
+	*/
+	panic("nyi")
+}
+
+func (t *Tensor) Dot(w *Tensor) *Tensor {
+	return t.Matmul(w)
+}
+
+/*
+   def _softmax(self):
+       m = self - self.max(axis=len(self.shape) - 1, keepdim=True)
+       e = m.exp()
+       return m, e, e.sum(axis=len(self.shape) - 1, keepdim=True)
+
+   def softmax(self):
+       _, e, ss = self._softmax()
+       return e.div(ss)
+
+   def logsoftmax(self):
+       m, _, ss = self._softmax()
+       return m - ss.log()
+*/
+
+func (t *Tensor) LogSoftmax() *Tensor {
+	panic("nyi")
+}
+
 var scalarShape = Shape{1}
 
 func (t *Tensor) deepWalk() []*Tensor {

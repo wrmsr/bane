@@ -17,11 +17,8 @@ func TestOps1(t *testing.T) {
 		{9, 1},
 		{3, 3},
 	} {
-		xs := BufferOf(sh, bt.RangeTo[float32](9.).Slice())
-		ys := BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice())
-
-		xt := NewTensor(MakeLoadBuffer(xs, sh), true)
-		yt := NewTensor(MakeLoadBuffer(ys, sh), true)
+		xt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](9.).Slice()), sh), true)
+		yt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice()), sh), true)
 
 		zt := xt.Add(yt)
 		fmt.Println(zt)
@@ -51,11 +48,21 @@ func TestOpsRelu(t *testing.T) {
 
 		fmt.Println(zt.Data().Realize())
 
-		//zt.Mean(nil, false).Backward()
+		zt.Mean(nil, false).Backward()
 
-		//zg := zt.grad.Data()
+		zg := zt.grad.Data()
 
-		//zgt := zg.Realize()
-		//fmt.Println(zgt)
+		zgt := zg.Realize()
+		fmt.Println(zgt)
 	}
+}
+
+func TestBobNet(t *testing.T) {
+	sh := Shape{3, 3}
+
+	xt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](9.).Slice()), sh), true)
+	l1t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice()), sh), true)
+	l2t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](20., 29., 1.).Slice()), sh), true)
+
+	zt := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
 }
