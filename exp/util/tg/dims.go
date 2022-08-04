@@ -34,6 +34,9 @@ func (sh Shape) Equals(o Shape) bool {
 type Strides []Dim
 
 func (st Strides) Offset(idxs ...Dim) Dim {
+	if len(idxs) != len(st) {
+		panic(idxs)
+	}
 	var ofs Dim
 	for i, idx := range idxs {
 		ofs += idx * st[i]

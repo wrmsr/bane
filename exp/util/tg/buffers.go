@@ -2,6 +2,7 @@ package tg
 
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
+	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -9,6 +10,8 @@ import (
 type Buffer struct {
 	shape Shape
 	s     []float32
+
+	st opt.Optional[Strides]
 }
 
 func NewBuffer(shape Shape) *Buffer {
@@ -24,6 +27,22 @@ func BufferOf(shape Shape, s []float32) *Buffer {
 		shape: shape,
 		s:     s,
 	}
+}
+
+func (b *Buffer) Shape() Shape { return b.shape }
+
+func (b *Buffer) Strides() Strides {
+	return opt.SetIfAbsent(&b.st, func() Strides {
+		return StridesForShape(b.shape)
+	})
+}
+
+func (b *Buffer) Get(idxs ...Dim) float32 {
+	return b.s[b.Strides().Offset(idxs...)]
+}
+
+func (b *Buffer) set(v float32, idxs ...Dim) {
+	b.s[b.Strides().Offset(idxs...)] = v
 }
 
 func (b *Buffer) UnaryOp(op Op) *Buffer {
@@ -112,7 +131,16 @@ func (b *Buffer) Reshape(newShape Shape) *Buffer {
 }
 
 func (b *Buffer) Transpose(order []Dim) *Buffer {
-	panic("nyi")
+	if len(b.shape) != 2 || len(order) != 2 || order[0] != 1 || order[1] != 0 {
+		panic("nyi")
+	}
+	r := BufferOf(Shape{b.shape[1], b.shape[0]}, make([]float32, b.shape.Dim()))
+	for i := Dim(0); i < b.shape[0]; i++ {
+		for j := Dim(0); j < b.shape[1]; j++ {
+			r.set(b.Get(i, j), j, i)
+		}
+	}
+	return r
 }
 
 func (b *Buffer) Permute(order []Dim) *Buffer {
