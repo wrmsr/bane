@@ -165,6 +165,7 @@ func (b *Buffer) MovementOp(op Op, arg any) *Buffer {
 		for i, p := range bs {
 			padding[i] = SliceBound{bt.Max[Dim](0, -p.Start), bt.Max[Dim](0, p.Stop-b.shape[i])}
 		}
+		// return x.custompad(padding)[tuple(slice(p[0] + padding[i][0], p[1] + padding[i][0], None) for i, p in enumerate(arg))]
 		panic("nyi")
 	}
 	panic("nyi")
