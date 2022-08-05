@@ -58,6 +58,23 @@ func FilterValues[K comparable, V any](fn func(v V) bool, m map[K]V) map[K]V {
 	return r
 }
 
+func SetDefault[K comparable, V any](m map[K]V, k K, d V) V {
+	if v, ok := m[k]; ok {
+		return v
+	}
+	m[k] = d
+	return d
+}
+
+func ComputeDefault[K comparable, V any](m map[K]V, k K, d func() V) V {
+	if v, ok := m[k]; ok {
+		return v
+	}
+	v := d()
+	m[k] = v
+	return v
+}
+
 //
 
 func Clone[K comparable, V any](m map[K]V) map[K]V {

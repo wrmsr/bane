@@ -43,7 +43,6 @@ func NewHashEqMap[K, V any](he bt.HashEqImpl[K], it bt.Iterable[bt.Kv[K, V]]) Ha
 		for it := it.Iterate(); it.HasNext(); {
 			c := it.Next()
 			m.put(c.K, c.V)
-			m.print()
 		}
 	}
 	return m
