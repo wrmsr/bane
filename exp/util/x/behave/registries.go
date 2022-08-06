@@ -4,14 +4,13 @@ import (
 	"reflect"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	ctr "github.com/wrmsr/bane/pkg/util/container"
 	"github.com/wrmsr/bane/pkg/util/maps"
 )
 
 //
 
-type Registry[K, O any] interface {
-	Get(key K) ctr.Set[O]
+type Registry[K any, O comparable] interface {
+	Get(key K) maps.Set[O]
 	Add(obj O, key K)
 	Remove(obj O, key K)
 	Clear(key K)
@@ -33,9 +32,9 @@ func NewSimpleRegistry[K, O comparable](addCallback func(O, K)) *SimpleRegistry[
 	}
 }
 
-func (r *SimpleRegistry[K, O]) Get(key K) ctr.Set[O] {
+func (r *SimpleRegistry[K, O]) Get(key K) maps.Set[O] {
 	check.NotNil(key)
-	return ctr.WrapSet(r.setsByKey[key])
+	return r.setsByKey[key]
 }
 
 func (r *SimpleRegistry[K, O]) Add(obj O, key K) {

@@ -4,7 +4,10 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/log"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
+	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 //
@@ -31,102 +34,118 @@ type TelegramProvider[T any] interface {
 }
 
 type Delayed[T any] struct {
-	telegram  Telegram[T]
-	timestamp time.Time
+	telegram Telegram[T]
+	deadline time.Time
 }
 
 //
 
-/*
-
 type Dispatcher[T any] struct {
-	queue PriorityQueue
-	listeners SimpleRegistry[
+	listeners Registry[reflect.Type, Telegraph[T]]
+	providers Registry[reflect.Type, TelegramProvider[T]]
+
+	queue slices.PriorityQueue[Delayed[T]]
+
+	log log.DefaultLogger
+}
+
+func NewDispatcher[T any]() *Dispatcher[T] {
+	d := &Dispatcher[T]{}
+	d.listeners = NewTypeRegistry[Telegraph[T]](d.onAddListener)
+	d.providers = NewTypeRegistry[TelegramProvider[T]](nil)
+	return d
+}
+
+func (d *Dispatcher[T]) Listeners() Registry[reflect.Type, Telegraph[T]]        { return d.listeners }
+func (d *Dispatcher[T]) Providers() Registry[reflect.Type, TelegramProvider[T]] { return d.providers }
+
+func (d *Dispatcher[T]) onAddListener(receiver Telegraph[T], messageType reflect.Type) {
+	s := d.providers.Get(messageType)
+	if s != nil {
+		for provider := range s {
+			provider.ProvideMessage(receiver, messageType).IfPresent(func(message T) {
+				var sender Telegraph[T]
+				if p, ok := provider.(Telegraph[T]); ok {
+					sender = p
+				}
+				d.Dispatch(sender, receiver, message, opt.None[time.Duration](), false)
+			})
+		}
+	}
+}
+
+func (d *Dispatcher[T]) Dispatch(
+	sender Telegraph[T],
+	receiver Telegraph[T],
+	message T,
+	delay opt.Optional[time.Duration],
+	needsReturnReceipt bool,
+) {
+	if needsReturnReceipt {
+		check.NotNil(sender)
+	}
+
+	telegram := Telegram[T]{
+		sender:             sender,
+		receiver:           receiver,
+		message:            message,
+		needsReturnReceipt: needsReturnReceipt,
+	}
+
+	if delay.Present() {
+		d.queue.Push(Delayed[T]{
+			telegram: telegram,
+			deadline: time.Now().Add(delay.Value()),
+		})
+	} else {
+		d.discharge(telegram)
+	}
 }
 
 var _ Telegraph[any] = &Dispatcher[any]{}
 
-   class Dispatcher(Telegraph):
+func (d *Dispatcher[T]) HandleMessage(telegram Telegram[T]) bool {
+	return false
+}
 
-       def __init__(self) -> None:
-           super().__init__()
+func (d *Dispatcher[T]) discharge(telegram Telegram[T]) {
+		   if telegram.receiver != nil {
+		       if !telegram.receiver.HandleMessage(telegram) {
+		           d.log.Error('Message not handled: {telegram}')
+				}
 
-           self._queue = queue.PriorityQueue()
-           self._listeners: SimpleRegistry[type, Telegraph] = SimpleRegistry(add_callback=self._on_add_listener)
-           self._providers: SimpleRegistry[type, TelegramProvider] = SimpleRegistry()
+		   } else {
+		       numHandled := 0
+				ls := d.listeners[type(telegram.message)]
+		       for listener := range self._listeners[reflect.TypeOf(telegram.message)] {
+		           if listener.handle_message(telegram) {
+		               numHandled += 1
+					}
+				}
+		       if numHandled < 1 {
+		           d.log.error(f'Message not handled: {telegram}')
+				}
+			}
 
-       @property
-       def listeners(self) -> SimpleRegistry[type, Telegraph]:
-           return self._listeners
 
-       @property
-       def providers(self) -> SimpleRegistry[type, TelegramProvider]:
-           return self._providers
+/*
+   if telegram.needs_return_receipt:
+		       receipt_telegram = Telegram(
+		           self,
+		           telegram.sender,
+		           telegram,
+		       )
+		       self._discharge(receipt_telegram)
+	*/
+}
 
-       def _on_add_listener(self, receiver: Telegraph, message_type: type) -> None:
-           for provider in self._providers.get(message_type):
-               message = provider.provide_message(receiver, message_type)
-               if message is not None:
-                   self.dispatch(
-                       provider if isinstance(provider, Telegraph) else None,
-                       receiver,
-                       message,
-                   )
-
-       def dispatch(
-               self,
-               sender: ta.Optional[Telegraph],
-               receiver: ta.Optional[Telegraph],
-               message: T,
-               *,
-               delay: float = None,
-               needs_return_receipt: bool = False,
-       ) -> None:
-           if needs_return_receipt:
-               check.not_none(sender)
-
-           telegram = Telegram(
-               sender,
-               receiver,
-               message,
-               needs_return_receipt=needs_return_receipt,
-           )
-
-           if not delay or delay <= 0.:
-               self._discharge(telegram)
-           else:
-               self._queue.put(Delayed(telegram, time.time() + delay))
-
-       def _discharge(self, telegram: Telegram) -> None:
-           if telegram.receiver is not None:
-               if not telegram.receiver.handle_message(telegram):
-                   log.error(f'Message not handled: {telegram}')
-
-           else:
-               num_handled = 0
-               for listener in self._listeners[type(telegram.message)]:
-                   if listener.handle_message(telegram):
-                       num_handled += 1
-               if not num_handled:
-                   log.error(f'Message not handled: {telegram}')
-
-           if telegram.needs_return_receipt:
-               receipt_telegram = Telegram(
-                   self,
-                   telegram.sender,
-                   telegram,
-               )
-               self._discharge(receipt_telegram)
-
-       def handle_message(self, telegram: Telegram) -> bool:
-           return False
-
-       def update(self) -> None:
-           while not self._queue.empty():
-               cur: Delayed = self._queue.get(block=False)
-               if cur.timestamp > time.time():
-                   self._queue.put(cur)
-                   break
-               self._discharge(cur.telegram)
-
-*/
+func (d *Dispatcher[T]) update() {
+	/*
+	   while not self._queue.empty():
+	       cur: Delayed = self._queue.get(block=False)
+	       if cur.timestamp > time.time():
+	           self._queue.put(cur)
+	           break
+	       self._discharge(cur.telegram)
+	*/
+}

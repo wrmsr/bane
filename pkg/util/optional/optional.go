@@ -33,9 +33,9 @@ func (o Optional[T]) Present() bool {
 	return o.p
 }
 
-func (o Optional[T]) IfPresent(fn func()) {
+func (o Optional[T]) IfPresent(fn func(v T)) {
 	if o.p {
-		fn()
+		fn(o.v)
 	}
 }
 
