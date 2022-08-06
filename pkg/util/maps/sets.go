@@ -53,6 +53,8 @@ func (s Set[T]) Slice() []T {
 
 //
 
+type TypeSet 
+
 func NewTypeSet(s []reflect.Type) map[reflect.Type]struct{} {
 	m := make(map[reflect.Type]struct{}, len(s))
 	for _, ty := range s {

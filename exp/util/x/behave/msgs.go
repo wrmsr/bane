@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/wrmsr/bane/pkg/util/check"
-	"github.com/wrmsr/bane/pkg/util/maps"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 )
+
+//
 
 type Telegram[T any] struct {
 	sender   Telegraph[T]
@@ -35,51 +35,16 @@ type Delayed[T any] struct {
 	timestamp time.Time
 }
 
-type SimpleRegistry[K, O comparable] struct {
-	setsByKey   map[K]maps.Set[O]
-	addCallback func(O, K)
-}
-
-func NewSimpleRegistry[K, O comparable](addCallback func(O, K)) *SimpleRegistry[K, O] {
-	return &SimpleRegistry[K, O]{
-		setsByKey:   make(map[K]maps.Set[O]),
-		addCallback: addCallback,
-	}
-}
-
-func (r *SimpleRegistry[K, O]) Get(key K) maps.Set[O] {
-	check.NotNil(key)
-	return r.setsByKey[key]
-}
-
-func (r *SimpleRegistry[K, O]) Add(obj O, key K) {
-	maps.ComputeDefault(r.setsByKey, key, maps.MakeSet[O]).Add(obj)
-	if r.addCallback != nil {
-		r.addCallback(obj, key)
-	}
-}
-
-func (r *SimpleRegistry[K, O]) Remove(obj O, key K) {
-	if key != nil {
-		if s, ok := r.setsByKey[key]; ok {
-			s.Remove(obj)
-		}
-	} else {
-		for _, s := range r.setsByKey {
-			s.Remove(obj)
-		}
-	}
-}
-
-func (r *SimpleRegistry[K, O]) Clear(key K) {
-	if key != nil {
-		delete(r.setsByKey, key)
-	} else {
-		r.setsByKey = make(map[K]maps.Set[O])
-	}
-}
+//
 
 /*
+
+type Dispatcher[T any] struct {
+	queue PriorityQueue
+	listeners SimpleRegistry[
+}
+
+var _ Telegraph[any] = &Dispatcher[any]{}
 
    class Dispatcher(Telegraph):
 

@@ -77,6 +77,10 @@ func NewMutStdSetOf[T comparable](vs ...T) *MutStdSet[T] {
 	return NewMutStdSet(its.Of(vs...))
 }
 
+func WrapSet[T comparable](s map[T]struct{}) *MutStdSet[T] {
+	return &MutStdSet[T]{StdSet[T]{s}}
+}
+
 var _ MutSet[int] = &MutStdSet[int]{}
 
 func (s *MutStdSet[T]) isMut() {}
