@@ -7,6 +7,7 @@ import (
 	"go/ast"
 	"go/types"
 	"reflect"
+	"strings"
 
 	"golang.org/x/tools/go/types/typeutil"
 
@@ -47,6 +48,19 @@ func FindPkgDefCalls(fil *ast.File, ti *types.Info) []*ast.CallExpr {
 			bad := findDefCalls(decl, ti)
 			if len(bad) > 0 {
 				panic(fmt.Errorf("illegal defs: %v", bad))
+			}
+		}
+	}
+	return ret
+}
+
+func FindPkgDefFuncs(fil *ast.File, ti *types.Info) []*ast.FuncDecl {
+	var ret []*ast.FuncDecl
+	for _, decl := range fil.Decls {
+		switch decl := decl.(type) {
+		case *ast.FuncDecl:
+			if strings.HasPrefix(decl.Name.Name, "_def_") {
+				ret = append(ret, decl)
 			}
 		}
 	}

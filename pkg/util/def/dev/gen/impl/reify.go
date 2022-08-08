@@ -158,3 +158,36 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 
 	panic(fmt.Errorf("unhandled type: %T", node))
 }
+
+func ReifyFunc(node ast.Node, ti *types.Info) any {
+	fn := node.(*ast.FuncDecl)
+
+	if strings.HasPrefix(fn.Name.Name, "_def_init_") {
+		rcv := check.Single(fn.Recv.List).Type
+
+		var sn string
+		switch rcv := rcv.(type) {
+		case *ast.StarExpr:
+			sn = rcv.X.(*ast.Ident).Name
+		case *ast.Ident:
+			sn = rcv.Name
+		default:
+			panic(rcv)
+		}
+
+		return def.StructDef{
+			Ty: sn,
+			Opts: []def.StructOpt{
+				def.InitOpt{
+					Fn: fn,
+				},
+			},
+		}
+	}
+
+	if strings.HasPrefix(fn.Name.Name, "_def_lazy_") {
+		panic("fixme")
+	}
+
+	panic(fmt.Errorf("unhandled def func: %s", fn.Name.Name))
+}

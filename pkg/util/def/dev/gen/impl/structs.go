@@ -4,6 +4,7 @@ package impl
 
 import (
 	"fmt"
+	"go/ast"
 	"strconv"
 	"strings"
 
@@ -95,21 +96,32 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 		initStmts = append(initStmts, gg.NewBlank())
 
 		var initVds []gg.Var
-		for i := range ss.Inits() {
-			initName := gg.NewIdent(fmt.Sprintf("_def_struct_init__%s__%d", sn, i))
+		for i, o := range ss.Inits() {
+			var initName gg.Ident
+			switch o := o.(type) {
+			case *ast.FuncLit:
+				initName = gg.NewIdent(fmt.Sprintf("_def_struct_init__%s__%d", sn, i))
 
-			initVds = append(initVds,
-				gg.NewVar(initName,
-					opt.Just[gg.Type](newPtrFuncType(gg.NewNameType(sName))), opt.None[gg.Expr]()))
+				initVds = append(initVds,
+					gg.NewVar(initName,
+						opt.Just[gg.Type](newPtrFuncType(gg.NewNameType(sName))), opt.None[gg.Expr]()))
 
-			fg.initStmts = append(fg.initStmts,
-				gg.NewAssign(initName,
-					gg.NewTypeAssert(
-						gg.NewIndex(gg.NewCall(gg.NewSelect(ssName, gg.NewIdent("Inits"))), gg.NewLit(strconv.Itoa(i))),
-						newPtrFuncType(gg.NewNameType(sName)))))
+				fg.initStmts = append(fg.initStmts,
+					gg.NewAssign(initName,
+						gg.NewTypeAssert(
+							gg.NewIndex(gg.NewCall(gg.NewSelect(ssName, gg.NewIdent("Inits"))), gg.NewLit(strconv.Itoa(i))),
+							newPtrFuncType(gg.NewNameType(sName)))))
 
-			initStmts = append(initStmts,
-				gg.NewExprStmt(gg.NewCall(initName, gg.NewIdent("f"))))
+				initStmts = append(initStmts,
+					gg.NewExprStmt(gg.NewCall(initName, gg.NewIdent("f"))))
+
+			case *ast.FuncDecl:
+				initStmts = append(initStmts,
+					gg.NewExprStmt(gg.NewCall(gg.NewSelect(gg.NewIdent("f"), gg.NewIdent(o.Name.Name)))))
+
+			default:
+				panic(i)
+			}
 		}
 
 		fg.decls = append(fg.decls,

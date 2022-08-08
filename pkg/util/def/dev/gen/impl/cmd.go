@@ -26,6 +26,12 @@ func Run(cwd string) string {
 			rd := ReifyDef(d, pkg.TypesInfo)
 			pkgDefs = append(pkgDefs, rd.(def.PackageDef))
 		}
+
+		astFuncs := FindPkgDefFuncs(fil, pkg.TypesInfo)
+		for _, f := range astFuncs {
+			rd := ReifyFunc(f, pkg.TypesInfo)
+			pkgDefs = append(pkgDefs, rd.(def.PackageDef))
+		}
 	}
 
 	ps := def.NewPackageSpec(pkg.ID, pkgDefs)

@@ -32,9 +32,10 @@ func (f *Foo) _def_init_barf() {
 
 }
 
-func (f *Foo) _def_lazy_Things() []int {
-	return []int{1, 2, 3}
-}
+//func (f *Foo) _def_lazy_Things() []int {
+//	return []int{1, 2, 3}
+//}
+
 func foof(s string, a ...any) {
 	fmt.Printf(s, a...)
 }
