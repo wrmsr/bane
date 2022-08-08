@@ -1,33 +1,37 @@
 /*
 Scalar
- Bool
- Numeric
-  Integral
-   Unsigned
-    Uint
-    Uint8
-    Uint16
-    Uint32
-    Uint64
-    Uintptr
-   Signed
-    Int
-    Int8
-    Int16
-    Int32
-    Int64
-  Float
-   Float32
-   Float64
-  Complex
-   Complex64
-   Complex128
- String
+
+	Bool
+	Numeric
+	 Integral
+	  Unsigned
+	   Uint
+	   Uint8
+	   Uint16
+	   Uint32
+	   Uint64
+	   Uintptr
+	  Signed
+	   Int
+	   Int8
+	   Int16
+	   Int32
+	   Int64
+	 Float
+	  Float32
+	  Float64
+	 Complex
+	  Complex64
+	  Complex128
+	String
+
 Container
- Sequence
-  Array
-  Slice
- Map
+
+	Sequence
+	 Array
+	 Slice
+	Map
+
 Chan
 Func
 Interface

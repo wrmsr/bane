@@ -1,6 +1,7 @@
 package behave
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
@@ -46,7 +47,7 @@ type Dispatcher[T any] struct {
 
 	queue slices.PriorityQueue[Delayed[T]]
 
-	log log.DefaultLogger
+	log log.DefaultGlobalLogger
 }
 
 func NewDispatcher[T any]() *Dispatcher[T] {
@@ -109,43 +110,43 @@ func (d *Dispatcher[T]) HandleMessage(telegram Telegram[T]) bool {
 }
 
 func (d *Dispatcher[T]) discharge(telegram Telegram[T]) {
-		   if telegram.receiver != nil {
-		       if !telegram.receiver.HandleMessage(telegram) {
-		           d.log.Error('Message not handled: {telegram}')
-				}
+	if telegram.receiver != nil {
+		if !telegram.receiver.HandleMessage(telegram) {
+			d.log.Error(fmt.Sprintf("Message not handled: %v", telegram))
+		}
 
-		   } else {
-		       numHandled := 0
-				ls := d.listeners[type(telegram.message)]
-		       for listener := range self._listeners[reflect.TypeOf(telegram.message)] {
-		           if listener.handle_message(telegram) {
-		               numHandled += 1
-					}
-				}
-		       if numHandled < 1 {
-		           d.log.error(f'Message not handled: {telegram}')
+	} else {
+		numHandled := 0
+		if ls := d.listeners.Get(reflect.TypeOf(telegram.message)); ls != nil {
+			for listener := range ls {
+				if listener.HandleMessage(telegram) {
+					numHandled += 1
 				}
 			}
+		}
+		if numHandled < 1 {
+			d.log.Error(fmt.Sprintf("Message not handled: %v", telegram))
+		}
+	}
 
-
-/*
-   if telegram.needs_return_receipt:
-		       receipt_telegram = Telegram(
-		           self,
-		           telegram.sender,
-		           telegram,
-		       )
-		       self._discharge(receipt_telegram)
-	*/
+	if telegram.needsReturnReceipt {
+		receiptTelegram := Telegram[T]{
+			sender:   d,
+			receiver: telegram.sender,
+			message:  telegram.message,
+		}
+		d.discharge(receiptTelegram)
+	}
 }
 
 func (d *Dispatcher[T]) update() {
 	/*
-	   while not self._queue.empty():
-	       cur: Delayed = self._queue.get(block=False)
-	       if cur.timestamp > time.time():
-	           self._queue.put(cur)
-	           break
-	       self._discharge(cur.telegram)
+		   for len(d.queue) > 0 {
+		       cur = d.queue.get(block=False)
+		       if cur.timestamp > time.time():
+		           self._queue.put(cur)
+		           break
+		       self._discharge(cur.telegram)
+			}
 	*/
 }

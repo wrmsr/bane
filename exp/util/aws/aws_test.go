@@ -21,7 +21,6 @@ irssi -n wrmsr
 
 export GOPATH="$HOME/go/1.18.3"
 export PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
-
 */
 package aws
 

@@ -159,7 +159,8 @@ func (n *TreapNode[T]) Split(v T, c Comparer[T]) (left, mid, right *TreapNode[T]
 //
 // see https://www.cs.cmu.edu/~scandal/papers/treaps-spaa98.pdf
 // "Fast Set Operations Using Treaps"
-//   by Guy E Blelloch and Margaret Reid-Miller.
+//
+//	by Guy E Blelloch and Margaret Reid-Miller.
 //
 // The algorithm is a very slight variation on that.
 func (n *TreapNode[T]) Intersection(other *TreapNode[T], c Comparer[T]) *TreapNode[T] {
@@ -213,7 +214,8 @@ func (n *TreapNode[T]) Diff(other *TreapNode[T], c Comparer[T]) *TreapNode[T] {
 
 // see https://www.cs.cmu.edu/~scandal/papers/treaps-spaa98.pdf
 // "Fast Set Operations Using Treaps"
-//   by Guy E Blelloch and Margaret Reid-Miller.
+//
+//	by Guy E Blelloch and Margaret Reid-Miller.
 //
 // The algorithm is a very slight variation on that provided there.
 //
