@@ -50,7 +50,7 @@ func (s StdTypeSet) Iterate() bt.Iterator[reflect.Type] {
 	if s.m == nil {
 		return its.Empty[reflect.Type]().Iterate()
 	}
-	return its.Map(its.OfMap(s.m), func(kv bt.Kv[reflect.Type, struct{}]) reflect.Type { return kv.K }).Iterate()
+	return its.Map(its.OfTypeMap(s.m), func(kv bt.Kv[reflect.Type, struct{}]) reflect.Type { return kv.K }).Iterate()
 }
 
 func (s StdTypeSet) ForEach(fn func(reflect.Type) bool) bool {

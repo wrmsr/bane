@@ -3,6 +3,7 @@ package behave
 import (
 	"fmt"
 	"reflect"
+	"sync/atomic"
 	"time"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -10,6 +11,26 @@ import (
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
+
+//
+
+type idGen struct {
+	next int64
+}
+
+func (g *idGen) Next() uintptr {
+	r := atomic.AddInt64(&g.next, 1)
+	if r < 0 {
+		panic("id overflow")
+	}
+	return uintptr(r)
+}
+
+var ids idGen
+
+func NextId() uintptr {
+	return ids.Next()
+}
 
 //
 
@@ -27,10 +48,12 @@ type ReturnReceipt[T any] struct {
 }
 
 type Telegraph[T any] interface {
+	Identity() uintptr
 	HandleMessage(telegram Telegram[T]) bool
 }
 
 type TelegramProvider[T any] interface {
+	Identity() uintptr
 	ProvideMessage(receiver Telegraph[T], messageType reflect.Type) opt.Optional[T]
 }
 
@@ -42,6 +65,8 @@ type Delayed[T any] struct {
 //
 
 type Dispatcher[T any] struct {
+	id uintptr
+
 	listeners Registry[reflect.Type, Telegraph[T]]
 	providers Registry[reflect.Type, TelegramProvider[T]]
 
@@ -51,7 +76,9 @@ type Dispatcher[T any] struct {
 }
 
 func NewDispatcher[T any]() *Dispatcher[T] {
-	d := &Dispatcher[T]{}
+	d := &Dispatcher[T]{
+		id: NextId(),
+	}
 	d.listeners = NewTypeRegistry[Telegraph[T]](d.onAddListener)
 	d.providers = NewTypeRegistry[TelegramProvider[T]](nil)
 	return d
@@ -63,7 +90,7 @@ func (d *Dispatcher[T]) Providers() Registry[reflect.Type, TelegramProvider[T]] 
 func (d *Dispatcher[T]) onAddListener(receiver Telegraph[T], messageType reflect.Type) {
 	s := d.providers.Get(messageType)
 	if s != nil {
-		for provider := range s {
+		for _, provider := range s {
 			provider.ProvideMessage(receiver, messageType).IfPresent(func(message T) {
 				var sender Telegraph[T]
 				if p, ok := provider.(Telegraph[T]); ok {
@@ -94,16 +121,22 @@ func (d *Dispatcher[T]) Dispatch(
 	}
 
 	if delay.Present() {
-		d.queue.Push(Delayed[T]{
-			telegram: telegram,
-			deadline: time.Now().Add(delay.Value()),
-		})
+		dl := time.Now().Add(delay.Value())
+		d.queue.Push(
+			Delayed[T]{
+				telegram: telegram,
+				deadline: dl,
+			},
+			float32(dl.UnixMilli()),
+		)
 	} else {
 		d.discharge(telegram)
 	}
 }
 
 var _ Telegraph[any] = &Dispatcher[any]{}
+
+func (d *Dispatcher[T]) Identity() uintptr { return d.id }
 
 func (d *Dispatcher[T]) HandleMessage(telegram Telegram[T]) bool {
 	return false
@@ -118,7 +151,7 @@ func (d *Dispatcher[T]) discharge(telegram Telegram[T]) {
 	} else {
 		numHandled := 0
 		if ls := d.listeners.Get(reflect.TypeOf(telegram.message)); ls != nil {
-			for listener := range ls {
+			for _, listener := range ls {
 				if listener.HandleMessage(telegram) {
 					numHandled += 1
 				}
@@ -140,13 +173,12 @@ func (d *Dispatcher[T]) discharge(telegram Telegram[T]) {
 }
 
 func (d *Dispatcher[T]) update() {
-	/*
-		   for len(d.queue) > 0 {
-		       cur = d.queue.get(block=False)
-		       if cur.timestamp > time.time():
-		           self._queue.put(cur)
-		           break
-		       self._discharge(cur.telegram)
-			}
-	*/
+	for d.queue.Len() > 0 {
+		cur := d.queue.Pop()
+		if cur.Value.deadline.Before(time.Now()) {
+			d.queue.Push(cur.Value, cur.Priority())
+			break
+		}
+		d.discharge(cur.Value.telegram)
+	}
 }

@@ -9,17 +9,17 @@ import (
 type PqItem[T any] struct {
 	Value T
 
-	priority int
+	priority float32
 	index    int
 }
 
-func (i PqItem[T]) Priority() int { return i.priority }
+func (i PqItem[T]) Priority() float32 { return i.priority }
 
 //
 
 type PqInitItem[T any] struct {
 	Value    T
-	Priority int
+	Priority float32
 }
 
 //
@@ -51,7 +51,7 @@ func (pq *PriorityQueue[T]) At(index int) *PqItem[T] {
 	return &pq.s[index]
 }
 
-func (pq *PriorityQueue[T]) Push(value T, priority int) {
+func (pq *PriorityQueue[T]) Push(value T, priority float32) {
 	item := PqItem[T]{
 		Value:    value,
 		priority: priority,
@@ -64,7 +64,7 @@ func (pq *PriorityQueue[T]) Pop() PqItem[T] {
 	return heap.Pop(pq.heap()).(PqItem[T])
 }
 
-func (pq *PriorityQueue[T]) UpdatePriority(item *PqItem[T], priority int) {
+func (pq *PriorityQueue[T]) UpdatePriority(item *PqItem[T], priority float32) {
 	item.priority = priority
 	heap.Fix(pq.heap(), item.index)
 }
@@ -141,7 +141,7 @@ func (pq *PtrPriorityQueue[T]) At(index int) *PqItem[T] {
 	return pq.s[index]
 }
 
-func (pq *PtrPriorityQueue[T]) Push(value T, priority int) {
+func (pq *PtrPriorityQueue[T]) Push(value T, priority float32) {
 	item := PqItem[T]{
 		Value:    value,
 		priority: priority,
@@ -154,7 +154,7 @@ func (pq *PtrPriorityQueue[T]) Pop() PqItem[T] {
 	return heap.Pop(pq.heap()).(PqItem[T])
 }
 
-func (pq *PtrPriorityQueue[T]) UpdatePriority(item *PqItem[T], priority int) {
+func (pq *PtrPriorityQueue[T]) UpdatePriority(item *PqItem[T], priority float32) {
 	item.priority = priority
 	heap.Fix(pq.heap(), item.index)
 }

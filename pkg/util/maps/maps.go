@@ -2,6 +2,10 @@ package maps
 
 //
 
+func Make[K comparable, V any]() map[K]V {
+	return make(map[K]V)
+}
+
 func Keys[K comparable, V any](m map[K]V) []K {
 	s := make([]K, len(m))
 	i := 0
