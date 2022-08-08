@@ -21,13 +21,19 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 	sName := gg.NewIdent(sn)
 	ssName := gg.NewIdent(fmt.Sprintf("struct_spec__%s", sn))
 
+	zn := fmt.Sprintf("zero_%s", sn)
 	fg.initStmts = append(fg.initStmts,
 		gg.NewBlank(),
+
+		gg.NewVar(
+			gg.NewIdent(zn), opt.Just[gg.Type](gg.NewNameType(gg.NewIdent(sn))), opt.None[gg.Expr]()),
 
 		gg.NewShortVar(ssName,
 			gg.NewCall(
 				gg.NewSelect(gg.NewIdent("spec"), gg.NewIdent("Struct")),
-				gg.NewLit(fmt.Sprintf("\"%s\"", sn)))),
+				gg.NewCall(
+					gg.NewSelect(gg.NewIdent("reflect"), gg.NewIdent("TypeOf")),
+					gg.NewIdent(zn)))),
 
 		gg.NewAssign(gg.NewIdent("_"), ssName),
 	)

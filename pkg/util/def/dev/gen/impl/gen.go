@@ -37,7 +37,10 @@ func NewFileGen(
 		pkg: pkg,
 		ps:  ps,
 
-		ti: newTypeImporter(ps, mod.Module.Mod.Path, []string{"sync"}),
+		ti: newTypeImporter(ps, mod.Module.Mod.Path, []string{
+			"reflect",
+			"sync",
+		}),
 	}
 }
 

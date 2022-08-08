@@ -3,6 +3,7 @@
 package test
 
 import (
+	"reflect"
 	"sync"
 
 	"github.com/wrmsr/bane/pkg/util/def"
@@ -15,7 +16,8 @@ func _def_init() {
 	_def_init_once.Do(func() {
 		spec := def.X_getPackageSpec()
 
-		struct_spec__Foo := spec.Struct("Foo")
+		var zero_Foo Foo
+		struct_spec__Foo := spec.Struct(reflect.TypeOf(zero_Foo))
 		_ = struct_spec__Foo
 
 		field_spec__Foo__bar := struct_spec__Foo.Field("bar")
