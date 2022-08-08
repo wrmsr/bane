@@ -1,6 +1,8 @@
 package behave
 
 import (
+	"time"
+
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
@@ -13,7 +15,7 @@ type Schedulable interface {
 
 type Scheduler interface {
 	Schedulable
-	Add(schedulable Schedulable, frequency int, phase int)
+	Add(schedulable Schedulable, frequency int, phase opt.Optional[int])
 }
 
 //
@@ -45,14 +47,14 @@ type BaseScheduler[T SchedulerEntry] struct {
 	frame         int
 }
 
-func (bs *BaseScheduler[T]) calculatePhase(frequency int) int {
-	bs.phaseCounters = slices.Repeat([]int{0}, frequency)
+func (bsch *BaseScheduler[T]) calculatePhase(frequency int) int {
+	bsch.phaseCounters = slices.Repeat([]int{0}, frequency)
 
-	for frame := 0; frame < bs.dryRunFrames; frame++ {
+	for frame := 0; frame < bsch.dryRunFrames; frame++ {
 		slot := frame % frequency
-		for _, entry := range bs.schedulable {
+		for _, entry := range bsch.schedulable {
 			if (frame-entry.Phase())%entry.Frequency() == 0 {
-				bs.phaseCounters[slot] += 1
+				bsch.phaseCounters[slot]++
 			}
 		}
 	}
@@ -60,91 +62,113 @@ func (bs *BaseScheduler[T]) calculatePhase(frequency int) int {
 	var minValue opt.Optional[int]
 	minValueAt := -1
 	for i := 0; i < frequency; i++ {
-		if !minValue.Present() || bs.phaseCounters[i] < minValue.Value() {
-			minValue = opt.Just(bs.phaseCounters[i])
+		if !minValue.Present() || bsch.phaseCounters[i] < minValue.Value() {
+			minValue = opt.Just(bsch.phaseCounters[i])
 			minValueAt = i
 		}
 	}
 	return minValueAt
 }
 
-/*
-class PriorityScheduler(BaseScheduler['PriorityScheduler.Entry']):
+//
 
-    class Entry(BaseScheduler.Entry, frozen=True):
-        priority: float
+type PrioritySchedulerEntry struct {
+	BaseSchedulerEntry
+	priority float32
+}
 
-    def __init__(self, dry_run_frames: int = 0) -> None:
-        super().__init__(dry_run_frames)
+type PriorityScheduler struct {
+	BaseScheduler[PrioritySchedulerEntry]
+}
 
-    def run(self, ttl: float) -> None:
-        ttl = float(ttl)
-        self._frame += 1
+var _ Scheduler = &PriorityScheduler{}
 
-        runnable = []
-        total_priority = 0.
-        for entry in self._schedulable:
-            if (self._frame + entry.phase) % entry.frequency == 0:
-                runnable.append(entry)
-                total_priority += entry.priority
+func (sch *PriorityScheduler) Run(ttl float32) {
+	sch.frame++
 
-        last_time = time.time()
-        for entry in runnable:
-            now = time.time()
-            ttl -= now - last_time
-            available_time = (ttl * entry.priority / total_priority)
+	var runnable []PrioritySchedulerEntry
+	var totalPriority float32
+	for _, entry := range sch.schedulable {
+		if (sch.frame+entry.Phase())%entry.Frequency() == 0 {
+			runnable = append(runnable, entry)
+			totalPriority += entry.priority
+		}
+	}
 
-            entry.schedulable.run(available_time)
-            last_time = now
+	lastTime := time.Now()
+	for _, entry := range runnable {
+		now := time.Now()
+		ttl -= float32(now.Sub(lastTime).Seconds())
+		availableTime := (ttl * entry.priority) / totalPriority
 
-    def add(
-            self,
-            schedulable: Schedulable,
-            frequency: int,
-            *,
-            phase: int = None,
-            priority: float = 1.,
-    ) -> None:
-        self._schedulable.append(
-            self.Entry(
-                schedulable,
-                frequency,
-                phase if phase is not None else self._calculate_phase(frequency),
-                priority,
-            ))
+		entry.schedulable.Run(availableTime)
+		lastTime = now
+	}
+}
 
+func (sch *PriorityScheduler) Add(schedulable Schedulable, frequency int, phase opt.Optional[int]) {
+	sch.AddPriority(schedulable, 1, frequency, phase)
+}
 
-class LoadBalancingScheduler(BaseScheduler[BaseScheduler.Entry]):
+func (sch *PriorityScheduler) AddPriority(schedulable Schedulable, priority float32, frequency int, phase opt.Optional[int]) {
+	var ph int
+	if phase.Present() {
+		ph = phase.Value()
+	} else {
+		ph = sch.calculatePhase(frequency)
+	}
 
-    def run(self, ttl: float) -> None:
-        ttl = float(ttl)
-        self._frame += 1
+	sch.schedulable = append(sch.schedulable, PrioritySchedulerEntry{
+		BaseSchedulerEntry: BaseSchedulerEntry{
+			schedulable: schedulable,
+			frequency:   frequency,
+			phase:       ph,
+		},
+		priority: priority,
+	})
+}
 
-        runnable = []
-        for entry in self._schedulable:
-            if (self._frame + entry.phase) % entry.frequency == 0:
-                runnable.append(entry)
+//
 
-        last_time = time.time()
-        for entry in runnable:
-            now = time.time()
-            ttl -= now - last_time
-            available_time = ttl / (len(runnable) - 1)
+type LoadBalancingScheduler struct {
+	BaseScheduler[BaseSchedulerEntry]
+}
 
-            entry.schedulable.run(available_time)
-            last_time = now
+var _ Scheduler = &LoadBalancingScheduler{}
 
-    def add(
-            self,
-            schedulable: Schedulable,
-            frequency: int,
-            *,
-            phase: int = None,
-    ) -> None:
-        self._schedulable.append(
-            self.Entry(
-                schedulable,
-                frequency,
-                phase if phase is not None else self._calculate_phase(frequency),
-            ))
-*/
+func (sch *LoadBalancingScheduler) Run(ttl float32) {
+	sch.frame++
+
+	var runnable []BaseSchedulerEntry
+	for _, entry := range sch.schedulable {
+		if (sch.frame+entry.Phase())%entry.Frequency() == 0 {
+			runnable = append(runnable, entry)
+		}
+	}
+
+	lastTime := time.Now()
+	for _, entry := range runnable {
+		now := time.Now()
+		ttl -= float32(now.Sub(lastTime).Seconds())
+		availableTime := ttl / float32(len(runnable)-1)
+
+		entry.schedulable.Run(availableTime)
+		lastTime = now
+	}
+}
+
+func (sch *LoadBalancingScheduler) Add(schedulable Schedulable, frequency int, phase opt.Optional[int]) {
+	var ph int
+	if phase.Present() {
+		ph = phase.Value()
+	} else {
+		ph = sch.calculatePhase(frequency)
+	}
+
+	sch.schedulable = append(sch.schedulable,
+		BaseSchedulerEntry{
+			schedulable: schedulable,
+			frequency:   frequency,
+			phase:       ph,
+		})
+}
