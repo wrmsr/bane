@@ -12,9 +12,14 @@ import (
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 )
 
+func getStructName(ss *def.StructSpec) string {
+	return ss.Type().(string)
+}
+
 func (fg *FileGen) genStruct(ss *def.StructSpec) {
-	sName := gg.NewIdent(ss.Name())
-	ssName := gg.NewIdent(fmt.Sprintf("struct_spec__%s", ss.Name()))
+	sn := getStructName(ss)
+	sName := gg.NewIdent(sn)
+	ssName := gg.NewIdent(fmt.Sprintf("struct_spec__%s", sn))
 
 	fg.initStmts = append(fg.initStmts,
 		gg.NewBlank(),
@@ -22,7 +27,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 		gg.NewShortVar(ssName,
 			gg.NewCall(
 				gg.NewSelect(gg.NewIdent("spec"), gg.NewIdent("Struct")),
-				gg.NewLit(fmt.Sprintf("\"%s\"", ss.Name())))),
+				gg.NewLit(fmt.Sprintf("\"%s\"", sn)))),
 
 		gg.NewAssign(gg.NewIdent("_"), ssName),
 	)
@@ -36,13 +41,13 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 	rcvr := ss.Receiver()
 	if rcvr == "" {
-		rcvr = strings.ToLower(string([]rune(strings.TrimLeft(ss.Name(), "_"))[0]))
+		rcvr = strings.ToLower(string([]rune(strings.TrimLeft(sn, "_"))[0]))
 	}
 
 	for _, fs := range ss.Fields() {
 		sfs = append(sfs, gg.NewStructField(gg.NewIdent(fs.Name()), fg.ti.importedType(fs.Type())))
 
-		fsName := gg.NewIdent(fmt.Sprintf("field_spec__%s__%s", ss.Name(), fs.Name()))
+		fsName := gg.NewIdent(fmt.Sprintf("field_spec__%s__%s", sn, fs.Name()))
 
 		fg.initStmts = append(fg.initStmts,
 			gg.NewBlank(),
@@ -56,7 +61,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 		)
 
 		if fs.Default() != nil {
-			dflName := gg.NewIdent(fmt.Sprintf("_def_field_default__%s__%s", ss.Name(), fs.Name()))
+			dflName := gg.NewIdent(fmt.Sprintf("_def_field_default__%s__%s", sn, fs.Name()))
 
 			dflVds = append(dflVds,
 				gg.NewVar(dflName, opt.Just[gg.Type](fg.ti.importedType(fs.Type())), opt.None[gg.Expr]()))
@@ -89,7 +94,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 		var initVds []gg.Var
 		for i := range ss.Inits() {
-			initName := gg.NewIdent(fmt.Sprintf("_def_struct_init__%s__%d", ss.Name(), i))
+			initName := gg.NewIdent(fmt.Sprintf("_def_struct_init__%s__%d", sn, i))
 
 			initVds = append(initVds,
 				gg.NewVar(initName,

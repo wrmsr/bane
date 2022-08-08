@@ -85,7 +85,7 @@ func (fs FieldSpec) RuntimeType() reflect.Type {
 //
 
 type StructSpec struct {
-	name string
+	ty   any
 	defs []StructDef
 	opts []StructOpt
 
@@ -97,9 +97,9 @@ type StructSpec struct {
 	meta     ctr.MutTypeMap[any]
 }
 
-func NewStructSpec(name string, defs []StructDef) *StructSpec {
+func NewStructSpec(ty any, defs []StructDef) *StructSpec {
 	ss := &StructSpec{
-		name: name,
+		ty:   ty,
 		defs: defs,
 
 		meta: ctr.NewMutTypeMap[any](nil),
@@ -121,7 +121,7 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 				if _, ok := fdm[o.Name]; !ok {
 					fns = append(fns, o.Name)
 				}
-				fdm[o.Name] = append(fdm[d.Name], o)
+				fdm[o.Name] = append(fdm[o.Name], o)
 
 			case InitOpt:
 				ss.inits = append(ss.inits, o.Fn)
@@ -145,7 +145,7 @@ func NewStructSpec(name string, defs []StructDef) *StructSpec {
 	return ss
 }
 
-func (ss StructSpec) Name() string           { return ss.name }
+func (ss StructSpec) Type() any              { return ss.ty }
 func (ss StructSpec) Defs() []StructDef      { return ss.defs }
 func (ss StructSpec) Opts() []StructOpt      { return ss.opts }
 func (ss StructSpec) Fields() []*FieldSpec   { return ss.fields }
@@ -187,8 +187,8 @@ type PackageSpec struct {
 	name string
 	defs []PackageDef
 
-	structs       []*StructSpec
-	structsByName map[string]*StructSpec
+	structs     []*StructSpec
+	structsByTy map[any]*StructSpec
 
 	enums     []*EnumSpec
 	enumsByTy map[any]*EnumSpec
@@ -200,8 +200,8 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 		defs: defs,
 	}
 
-	var sns []string
-	sdm := make(map[string][]StructDef)
+	var sns []any
+	sdm := make(map[any][]StructDef)
 	var ets []any
 	edm := make(map[any][]EnumDef)
 
@@ -209,10 +209,10 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 		switch d := d.(type) {
 
 		case StructDef:
-			if _, ok := sdm[d.Name]; !ok {
-				sns = append(sns, d.Name)
+			if _, ok := sdm[d.Ty]; !ok {
+				sns = append(sns, d.Ty)
 			}
-			sdm[d.Name] = append(sdm[d.Name], d)
+			sdm[d.Ty] = append(sdm[d.Ty], d)
 
 		case EnumDef:
 			if _, ok := edm[d.Ty]; !ok {
@@ -225,11 +225,11 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 		}
 	}
 
-	ps.structsByName = make(map[string]*StructSpec, len(sdm))
+	ps.structsByTy = make(map[any]*StructSpec, len(sdm))
 	for _, sn := range sns {
 		ss := NewStructSpec(sn, sdm[sn])
 		ps.structs = append(ps.structs, ss)
-		ps.structsByName[sn] = ss
+		ps.structsByTy[sn] = ss
 	}
 
 	ps.enumsByTy = make(map[any]*EnumSpec, len(edm))
@@ -246,11 +246,11 @@ func (ps PackageSpec) Name() string { return ps.name }
 
 func (ps PackageSpec) Structs() []*StructSpec { return ps.structs }
 
-func (ps PackageSpec) Struct(name string) *StructSpec {
-	if ss, ok := ps.structsByName[name]; ok {
+func (ps PackageSpec) Struct(ty any) *StructSpec {
+	if ss, ok := ps.structsByTy[ty]; ok {
 		return ss
 	}
-	panic(SpecError{fmt.Errorf("struct not found :%s", name)})
+	panic(SpecError{fmt.Errorf("struct not found :%s", ty)})
 }
 
 func (ps PackageSpec) Enums() []*EnumSpec { return ps.enums }

@@ -51,8 +51,11 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 			opts[i] = ReifyDef(arg, ti).(def.StructOpt)
 		}
 
+		idx := call.Fun.(*ast.IndexExpr)
+		id := idx.Index.(*ast.Ident)
+
 		return def.StructDef{
-			Name: reifyIdentStr(call.Args[0]),
+			Ty:   id.Name,
 			Opts: opts,
 		}
 

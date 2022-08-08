@@ -15,7 +15,7 @@ type Thing struct {
 
 var aThing = Thing{420}
 
-var _ = def.Struct("Foo",
+var _ = def.Struct[Foo](
 	def.Field("bar", def.Type[int]()),
 	def.Field("baz", def.Default(5)),
 	def.Field("optInt", def.Type[opt.Optional[int]]()),

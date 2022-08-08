@@ -17,15 +17,16 @@ type StructOpt interface {
 }
 
 type StructDef struct {
-	Name string
+	Ty   any
 	Opts []StructOpt
 }
 
 func (sd StructDef) isPackageDef() {}
 
-func Struct(name string, opts ...StructOpt) StructDef {
+func Struct[T any](opts ...StructOpt) StructDef {
+	var z T
 	return addPackageDef(globalRegistry, getCallingPackage(), StructDef{
-		Name: name,
+		Ty:   reflect.TypeOf(z),
 		Opts: opts,
 	})
 }
