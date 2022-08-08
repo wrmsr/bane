@@ -3,7 +3,6 @@ package behave
 import (
 	"fmt"
 	"reflect"
-	"sync/atomic"
 	"time"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -11,26 +10,6 @@ import (
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
-
-//
-
-type idGen struct {
-	next int64
-}
-
-func (g *idGen) Next() uintptr {
-	r := atomic.AddInt64(&g.next, 1)
-	if r < 0 {
-		panic("id overflow")
-	}
-	return uintptr(r)
-}
-
-var ids idGen
-
-func NextId() uintptr {
-	return ids.Next()
-}
 
 //
 
@@ -65,7 +44,7 @@ type Delayed[T any] struct {
 //
 
 type Dispatcher[T any] struct {
-	id uintptr
+	generatedIdentity
 
 	listeners Registry[reflect.Type, Telegraph[T]]
 	providers Registry[reflect.Type, TelegramProvider[T]]
@@ -76,9 +55,7 @@ type Dispatcher[T any] struct {
 }
 
 func NewDispatcher[T any]() *Dispatcher[T] {
-	d := &Dispatcher[T]{
-		id: NextId(),
-	}
+	d := &Dispatcher[T]{}
 	d.listeners = NewTypeRegistry[Telegraph[T]](d.onAddListener)
 	d.providers = NewTypeRegistry[TelegramProvider[T]](nil)
 	return d
@@ -135,8 +112,6 @@ func (d *Dispatcher[T]) Dispatch(
 }
 
 var _ Telegraph[any] = &Dispatcher[any]{}
-
-func (d *Dispatcher[T]) Identity() uintptr { return d.id }
 
 func (d *Dispatcher[T]) HandleMessage(telegram Telegram[T]) bool {
 	return false

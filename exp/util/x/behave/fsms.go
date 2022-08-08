@@ -15,7 +15,8 @@ type State[E, T any] interface {
 //
 
 type StateMachine[E, T any] struct {
-	id    uintptr
+	generatedIdentity
+
 	owner opt.Optional[E]
 
 	current, previous, global opt.Optional[State[E, T]]
@@ -23,7 +24,6 @@ type StateMachine[E, T any] struct {
 
 func NewStateMachine[E, T any](owner opt.Optional[E], initial, global opt.Optional[State[E, T]]) *StateMachine[E, T] {
 	return &StateMachine[E, T]{
-		id:    NextId(),
 		owner: owner,
 
 		current: initial,
@@ -31,7 +31,6 @@ func NewStateMachine[E, T any](owner opt.Optional[E], initial, global opt.Option
 	}
 }
 
-func (sm *StateMachine[E, T]) Identity() uintptr      { return sm.id }
 func (sm *StateMachine[E, T]) Owner() opt.Optional[E] { return sm.owner }
 
 func (sm *StateMachine[E, T]) Current() opt.Optional[State[E, T]]  { return sm.current }
@@ -86,8 +85,10 @@ func (sm *StateMachine[E, T]) HandleMessage(telegram Telegram[T]) bool {
 	return false
 }
 
+//
+
 /*
-class StackStateMachine(StateMachine[E, StateT]):
+type StackStateMachine(StateMachine[E, StateT]):
 
     def __init__(
             self,
