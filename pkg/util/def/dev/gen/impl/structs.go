@@ -12,12 +12,8 @@ import (
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 )
 
-func getStructName(ss *def.StructSpec) string {
-	return ss.Type().(string)
-}
-
 func (fg *FileGen) genStruct(ss *def.StructSpec) {
-	sn := getStructName(ss)
+	sn := ss.Type().(string)
 	sName := gg.NewIdent(sn)
 	ssName := gg.NewIdent(fmt.Sprintf("struct_spec__%s", sn))
 
