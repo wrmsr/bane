@@ -46,8 +46,8 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 	switch pn.Obj {
 
 	case "Struct":
-		opts := make([]def.StructOpt, len(call.Args)-1)
-		for i, arg := range call.Args[1:] {
+		opts := make([]def.StructOpt, len(call.Args))
+		for i, arg := range call.Args {
 			opts[i] = ReifyDef(arg, ti).(def.StructOpt)
 		}
 
