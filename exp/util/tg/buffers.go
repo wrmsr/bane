@@ -1,6 +1,8 @@
 package tg
 
 import (
+	"fmt"
+
 	"github.com/wrmsr/bane/pkg/util/check"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -182,6 +184,30 @@ func (b *Buffer) Slice(bounds ...SliceBound) *Buffer {
 	panic("nyi")
 }
 
+func (b *Buffer) Dot(y *Buffer, baxes, yaxes []int) *Buffer {
+	if !slices.Equal(baxes, []int{1, 0}) || !slices.Equal(yaxes, []int{0, 1}) {
+		panic("nyi")
+	}
+	if len(b.shape) != 3 || len(y.shape) != 3 {
+		panic("nyi")
+	}
+	if b.shape[0] != y.shape[1] ||
+		b.shape[1] != y.shape[0] {
+		panic("nyi")
+	}
+	ret := NewBuffer(Shape{b.shape[2], y.shape[2]})
+	for i := Dim(0); i < b.shape[2]; i++ {
+		for j := Dim(0); j < y.shape[2]; j++ {
+			for k := Dim(0); k < b.shape[0]; k++ {
+				for n := Dim(0); n < y.shape[0]; n++ {
+					ret.set(ret.Get(i, j)+b.Get(k, n, i)*y.Get(n, k, j), i, j)
+				}
+			}
+		}
+	}
+	return ret
+}
+
 type SliceBound struct {
 	Start, Stop Dim
 }
@@ -249,12 +275,20 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 				gst[4] * ca.dx,
 			}),
 		}
+		tw := w.Reshape(Shape{ca.groups, ca.rcout, ca.cin, ca.h, ca.w})
+
+		tmp := NewBuffer(Shape{ca.bs, ca.groups, ca.oy, ca.ox, ca.rcout})
+
+		for g := Dim(0); g < ca.groups; g++ {
+			fmt.Println(g)
+		}
+
 		_ = tx
+		_ = tw
+		_ = tmp
 		/*
-		   tw = w.reshape(ca.groups, ca.rcout, ca.cin, ca.H, ca.W)
-		   tmp = np.empty((ca.bs, ca.groups, ca.oy, ca.ox, ca.rcout), dtype=x.dtype)
 		   for g in range(ca.groups):
-		       # ijYXyx,kjyx -> iYXk ->ikYX
+		       // ijYXyx,kjyx -> iYXk ->ikYX
 		       tmp[:, g] = np.tensordot(tx[:, g], tw[g], ((1, 4, 5), (1, 2, 3)))
 		   return np.moveaxis(tmp, 4, 2).reshape(ca.bs, ca.groups * ca.rcout, ca.oy, ca.ox).view(CPUBuffer)
 		*/
