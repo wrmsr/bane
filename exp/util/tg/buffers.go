@@ -147,6 +147,41 @@ func (b *Buffer) Permute(order []Dim) *Buffer {
 	return b.Transpose(order)
 }
 
+func (b *Buffer) Pad(padding []SliceBound) *Buffer {
+	check.Condition(len(padding) == len(b.shape))
+	if slices.All(padding, func(b SliceBound) bool {
+		return b.Start == 0 && b.Stop == 0
+	}) {
+		return b
+	}
+
+	check.Condition(len(padding) == 2)
+
+	newShape := slices.Clone(b.shape)
+	for i, p := range padding {
+		newShape[i] += p.Start + p.Stop
+	}
+
+	// return np.pad(x, padding)
+	panic("nyi")
+}
+
+func (b *Buffer) Slice(bounds ...SliceBound) *Buffer {
+	check.Condition(len(bounds) == len(b.shape))
+	var nop = true
+	for i, bo := range bounds {
+		if bo.Start != 0 || bo.Stop != b.shape[i] {
+			nop = false
+			break
+		}
+	}
+	if nop {
+		return b
+	}
+
+	panic("nyi")
+}
+
 type SliceBound struct {
 	Start, Stop Dim
 }
@@ -165,8 +200,15 @@ func (b *Buffer) MovementOp(op Op, arg any) *Buffer {
 		for i, p := range bs {
 			padding[i] = SliceBound{bt.Max[Dim](0, -p.Start), bt.Max[Dim](0, p.Stop-b.shape[i])}
 		}
-		// return x.custompad(padding)[tuple(slice(p[0] + padding[i][0], p[1] + padding[i][0], None) for i, p in enumerate(arg))]
-		panic("nyi")
+		xp := b.Pad(padding)
+		ps := make([]SliceBound, len(bs))
+		for i, p := range bs {
+			ps[i] = SliceBound{
+				p.Start + padding[i].Start,
+				p.Stop + padding[i].Start,
+			}
+		}
+		return xp.Slice(ps...)
 	}
 	panic("nyi")
 }
