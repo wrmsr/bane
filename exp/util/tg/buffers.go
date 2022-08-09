@@ -226,29 +226,31 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 				{-ca.px, b.shape[3] + ca.px_},
 			},
 		)
-		_ = x
+		gx := x.Reshape(Shape{ca.bs, ca.groups, ca.cin, x.shape[2], x.shape[3]})
+		gst := gx.Strides()
+		tx := Buffer{
+			s: b.s,
+			shape: Shape{
+				ca.bs,
+				ca.groups,
+				ca.cin,
+				ca.oy,
+				ca.ox,
+				ca.h,
+				ca.w,
+			},
+			st: opt.Just[Strides](Strides{
+				gst[0],
+				gst[1],
+				gst[2],
+				gst[3] * ca.sy,
+				gst[4] * ca.sx,
+				gst[3] * ca.dy,
+				gst[4] * ca.dx,
+			}),
+		}
+		_ = tx
 		/*
-		   gx = x.ravel().Reshape(ca.bs, ca.groups, ca.cin, x.shape[2], x.shape[3])
-		   tx = np.lix.stride_tricks.as_strided(
-		       gx,
-		       shape=(
-		           ca.bs,
-		           ca.groups,
-		           ca.cin,
-		           ca.oy,
-		           ca.ox,
-		           ca.H,
-		           ca.W,
-		       ),
-		       strides=(
-		           *gx.strides[0:3],
-		           gx.strides[3] * ca.sy,
-		           gx.strides[4] * ca.sx,
-		           gx.strides[3] * ca.dy,
-		           gx.strides[4] * ca.dx,
-		       ),
-		       writeable=False,
-		   )
 		   tw = w.reshape(ca.groups, ca.rcout, ca.cin, ca.H, ca.W)
 		   tmp = np.empty((ca.bs, ca.groups, ca.oy, ca.ox, ca.rcout), dtype=x.dtype)
 		   for g in range(ca.groups):
