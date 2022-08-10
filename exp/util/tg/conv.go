@@ -13,20 +13,30 @@ type ConvArgs struct {
 	groups Dim
 
 	rcout Dim
-	cin   Dim
 
+	// channels in
+	cin Dim
+
+	// output size
 	oy, ox Dim
+
+	// input size
 	iy, ix Dim
+
+	// stride
 	sy, sx Dim
 
+	// batch size
 	bs Dim
 
+	// channels out
 	cout Dim
 
+	// padding
 	py, py_ Dim
-
 	px, px_ Dim
 
+	// dilation
 	dy, dx Dim
 
 	outShape Shape
@@ -106,25 +116,36 @@ func BuildConvArgs(xsh, wsh Shape, opts ConvOpts) ConvArgs {
 	check.Condition(opts.OutShape == nil || opts.OutShape.Equals(Shape{bs, cout, oy, ox}))
 
 	return ConvArgs{
-		h:        h,
-		w:        w,
-		groups:   opts.Groups,
-		rcout:    cout / opts.Groups,
-		cin:      cin,
-		oy:       oy,
-		ox:       ox,
-		iy:       iy,
-		ix:       ix,
-		sy:       sy,
-		sx:       sx,
-		bs:       bs,
-		cout:     cout,
-		py:       py,
-		py_:      py_,
-		px:       px,
-		px_:      px_,
-		dy:       dy,
-		dx:       dx,
+		h: h,
+		w: w,
+
+		groups: opts.Groups,
+
+		rcout: cout / opts.Groups,
+
+		cin: cin,
+
+		oy: oy,
+		ox: ox,
+
+		iy: iy,
+		ix: ix,
+
+		sy: sy,
+		sx: sx,
+
+		bs: bs,
+
+		cout: cout,
+
+		py:  py,
+		py_: py_,
+		px:  px,
+		px_: px_,
+
+		dy: dy,
+		dx: dx,
+
 		outShape: Shape{bs, cout, oy, ox},
 	}
 }

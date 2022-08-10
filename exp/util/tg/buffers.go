@@ -280,18 +280,21 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 		tmp := NewBuffer(Shape{ca.bs, ca.groups, ca.oy, ca.ox, ca.rcout})
 
 		for g := Dim(0); g < ca.groups; g++ {
+			//q := np.tensordot(tx[:, g], tw[g], ((1, 4, 5), (1, 2, 3)))
 			fmt.Println(g)
 		}
 
 		_ = tx
 		_ = tw
 		_ = tmp
+
 		/*
 		   for g in range(ca.groups):
-		       // ijYXyx,kjyx -> iYXk ->ikYX
+		       // ijyxyx,kjyx -> iyxk -> ikyx
 		       tmp[:, g] = np.tensordot(tx[:, g], tw[g], ((1, 4, 5), (1, 2, 3)))
 		   return np.moveaxis(tmp, 4, 2).reshape(ca.bs, ca.groups * ca.rcout, ca.oy, ca.ox).view(CPUBuffer)
 		*/
+
 		panic("nyi")
 	}
 	panic("nyi")

@@ -7,7 +7,7 @@ import (
 func PtrHashEq[T any]() bt.HashEqImpl[*T] {
 	return bt.HashEqImpl[*T]{
 		Hash: func(p *T) uintptr {
-			return PointerOf(p)
+			return AddressOf(p)
 		},
 		Eq: func(l, r *T) bool {
 			return l == r
@@ -18,10 +18,10 @@ func PtrHashEq[T any]() bt.HashEqImpl[*T] {
 func AddrHashEq[T any]() bt.HashEqImpl[T] {
 	return bt.HashEqImpl[T]{
 		Hash: func(v T) uintptr {
-			return PointerOf(v)
+			return AddressOf(v)
 		},
 		Eq: func(l, r T) bool {
-			return PointerOf(l) == PointerOf(r)
+			return AddressOf(l) == AddressOf(r)
 		},
 	}
 }

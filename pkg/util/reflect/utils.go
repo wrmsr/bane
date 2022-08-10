@@ -45,7 +45,7 @@ func ZeroOf[T any]() reflect.Value {
 	return reflect.New(TypeOf[T]()).Elem()
 }
 
-func PointerOf(v any) uintptr {
+func AddressOf(v any) uintptr {
 	return reflect.ValueOf(v).Pointer()
 }
 

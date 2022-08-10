@@ -11,7 +11,7 @@ import (
 func TestPool(t *testing.T) {
 	p := NewTrackingPool[*int](
 		NewSyncPool(func() *int { return new(int) }),
-		func(p *int) uintptr { return rfl.PointerOf(p) },
+		func(p *int) uintptr { return rfl.AddressOf(p) },
 	)
 
 	xs := make([]*int, 10)
