@@ -1,5 +1,10 @@
 set -ex
 
+if [ "$(whoami)" != "root" ] ; then
+  echo "must run as root" <&2
+  exit 1
+fi
+
 DST_DIR=/usr/local
 
 if [ -e "$DST_DIR/go" ] ; then
