@@ -1,9 +1,9 @@
 set -ex
 
-DST_DIR=/usr/local/go
+DST_DIR=/usr/local
 
-if [ -e "$DST_DIR" ] ; then
-  echo "destination $DST_DIR exists" <&2
+if [ -e "$DST_DIR/go" ] ; then
+  echo "destination $DST_DIR/go exists" <&2
   exit 1
 fi
 
@@ -31,9 +31,9 @@ GO_FILE="go$GO_VERSION.linux-$GO_ARCH.tar.gz"
 wget -q "https://go.dev/dl/$GO_FILE" -O "$TMP_DIR/$GO_FILE"
 tar xzf "$TMP_DIR/$GO_FILE" -C "$TMP_DIR"
 chown -R root:root "$TMP_DIR/go"
-mv -v "$TMP_DIR/go" /usr/local
+mv -v "$TMP_DIR/go" "$DST_DIR"
 
 echo -e "\n\
 export GOPATH="'$'"HOME/go\n\
-export PATH="'$'"PATH:/usr/local/go/bin:"'$'"GOPATH/bin\n\
+export PATH="'$'"PATH:$DST_DIR/go/bin:"'$'"GOPATH/bin\n\
 " >> /root/.bashrc
