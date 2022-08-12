@@ -10,31 +10,34 @@ import (
 )
 
 type Buffer struct {
-	shape Shape
-	s     []float32
+	s []float32
 
-	st opt.Optional[Strides]
+	shape Shape
+
+	strides opt.Optional[Strides]
 }
 
 func NewBuffer(shape Shape) *Buffer {
 	return &Buffer{
+		s: make([]float32, int(shape.Dim())),
+
 		shape: shape,
-		s:     make([]float32, int(shape.Dim())),
 	}
 }
 
 func BufferOf(shape Shape, s []float32) *Buffer {
 	check.Condition(int(shape.Dim()) == len(s))
 	return &Buffer{
+		s: s,
+
 		shape: shape,
-		s:     s,
 	}
 }
 
 func (b *Buffer) Shape() Shape { return b.shape }
 
 func (b *Buffer) Strides() Strides {
-	return opt.SetIfAbsent(&b.st, func() Strides {
+	return opt.SetIfAbsent(&b.strides, func() Strides {
 		return StridesForShape(b.shape)
 	})
 }
@@ -49,6 +52,7 @@ func (b *Buffer) set(v float32, idxs ...Dim) {
 
 func (b *Buffer) UnaryOp(op Op) *Buffer {
 	switch op {
+
 	case ReluOp:
 		z := NewBuffer(b.shape)
 		for i, x := range b.s {
@@ -57,6 +61,7 @@ func (b *Buffer) UnaryOp(op Op) *Buffer {
 			}
 		}
 		return z
+
 	case SignOp:
 		z := NewBuffer(b.shape)
 		for i, x := range b.s {
@@ -74,6 +79,7 @@ func (b *Buffer) UnaryOp(op Op) *Buffer {
 
 func (b *Buffer) BinaryOp(op Op, y *Buffer) *Buffer {
 	switch op {
+
 	case AddOp:
 		check.Condition(b.shape.Equals(y.shape))
 		z := NewBuffer(b.shape)
@@ -81,6 +87,7 @@ func (b *Buffer) BinaryOp(op Op, y *Buffer) *Buffer {
 			z.s[i] = x + y.s[i]
 		}
 		return z
+
 	case SubOp:
 		check.Condition(b.shape.Equals(y.shape))
 		z := NewBuffer(b.shape)
@@ -88,6 +95,7 @@ func (b *Buffer) BinaryOp(op Op, y *Buffer) *Buffer {
 			z.s[i] = x - y.s[i]
 		}
 		return z
+
 	case MulOp:
 		check.Condition(b.shape.Equals(y.shape))
 		z := NewBuffer(b.shape)
@@ -95,6 +103,7 @@ func (b *Buffer) BinaryOp(op Op, y *Buffer) *Buffer {
 			z.s[i] = x * y.s[i]
 		}
 		return z
+
 	case DivOp:
 		check.Condition(b.shape.Equals(y.shape))
 		z := NewBuffer(b.shape)
@@ -102,6 +111,7 @@ func (b *Buffer) BinaryOp(op Op, y *Buffer) *Buffer {
 			z.s[i] = x / y.s[i]
 		}
 		return z
+
 	}
 	panic("nyi")
 }
@@ -110,10 +120,12 @@ func MakeConstBuffer(c float32, shape Shape) *Buffer {
 	if len(shape) < 1 {
 		shape = scalarShape
 	}
+
 	s := make([]float32, shape.Dim())
 	for i := range s {
 		s[i] = c
 	}
+
 	return BufferOf(shape, s)
 }
 
@@ -184,17 +196,22 @@ func (b *Buffer) Slice(bounds ...SliceBound) *Buffer {
 	panic("nyi")
 }
 
+// dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])
+// tensordot, really
 func (b *Buffer) Dot(y *Buffer, baxes, yaxes []int) *Buffer {
 	if !slices.Equal(baxes, []int{1, 0}) || !slices.Equal(yaxes, []int{0, 1}) {
 		panic("nyi")
 	}
+
 	if len(b.shape) != 3 || len(y.shape) != 3 {
 		panic("nyi")
 	}
+
 	if b.shape[0] != y.shape[1] ||
 		b.shape[1] != y.shape[0] {
 		panic("nyi")
 	}
+
 	ret := NewBuffer(Shape{b.shape[2], y.shape[2]})
 	for i := Dim(0); i < b.shape[2]; i++ {
 		for j := Dim(0); j < y.shape[2]; j++ {
@@ -205,6 +222,7 @@ func (b *Buffer) Dot(y *Buffer, baxes, yaxes []int) *Buffer {
 			}
 		}
 	}
+
 	return ret
 }
 
@@ -214,12 +232,16 @@ type SliceBound struct {
 
 func (b *Buffer) MovementOp(op Op, arg any) *Buffer {
 	switch op {
+
 	case ExpandOp:
 		return b.Expand(arg.(Shape))
+
 	case ReshapeOp:
 		return b.Reshape(arg.(Shape))
+
 	case PermuteOp:
 		return b.Permute(arg.([]Dim))
+
 	case SliceOp:
 		bs := arg.([]SliceBound)
 		padding := make([]SliceBound, len(bs))
@@ -235,6 +257,7 @@ func (b *Buffer) MovementOp(op Op, arg any) *Buffer {
 			}
 		}
 		return xp.Slice(ps...)
+
 	}
 	panic("nyi")
 }
@@ -265,7 +288,7 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 				ca.h,
 				ca.w,
 			},
-			st: opt.Just[Strides](Strides{
+			strides: opt.Just[Strides](Strides{
 				gst[0],
 				gst[1],
 				gst[2],

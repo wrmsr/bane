@@ -3,7 +3,7 @@ module github.com/wrmsr/bane
 go 1.18
 
 require (
-	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220804214150-8b0cc382067f
+	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220812175421-d06b80227e40
 	github.com/aws/aws-sdk-go-v2/config v1.15.12
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.47.1
 	github.com/cespare/xxhash v1.1.0
@@ -45,5 +45,5 @@ require (
 	github.com/jackc/puddle v1.2.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/sys v0.0.0-20220808155132-1c4a2a72c664 // indirect
+	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 )
