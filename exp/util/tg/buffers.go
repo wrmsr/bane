@@ -303,7 +303,8 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 		tmp := NewBuffer(Shape{ca.bs, ca.groups, ca.oy, ca.ox, ca.rcout})
 
 		for g := Dim(0); g < ca.groups; g++ {
-			//q := np.tensordot(tx[:, g], tw[g], ((1, 4, 5), (1, 2, 3)))
+			// tmp[:, g] = np.tensordot(tx[:, g], tw[g], ((1, 4, 5), (1, 2, 3)))
+			// q        := np.tensordot(tx[:, g], tw[g], ((1, 4, 5), (1, 2, 3)))
 			fmt.Println(g)
 		}
 
