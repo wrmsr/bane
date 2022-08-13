@@ -77,6 +77,8 @@ type Bound struct {
 	stop  int
 }
 
+var Z = Bound{}
+
 func (a NdArray[T]) Slice(bounds ...Bound) NdArray[T] {
 
 }
