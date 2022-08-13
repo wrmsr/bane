@@ -71,3 +71,12 @@ func (a NdArray[T]) At(idxs ...int) *T {
 func (a NdArray[T]) Get(idxs ...int) T {
 	return *a.At(idxs...)
 }
+
+type Bound struct {
+	start int
+	stop  int
+}
+
+func (a NdArray[T]) Slice(bounds ...Bound) NdArray[T] {
+
+}
