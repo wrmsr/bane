@@ -9,6 +9,11 @@ type NdArray[T any] struct {
 	s  []T
 }
 
+func (a NdArray[T]) Shape() []int  { return a.sh }
+func (a NdArray[T]) Stride() []int { return a.st }
+func (a NdArray[T]) Offset() int   { return a.o }
+func (a NdArray[T]) Data() []T     { return a.s }
+
 func calcStrides(shape []int) []int {
 	st := make([]int, len(shape))
 	st[len(shape)-1] = 1
@@ -73,12 +78,15 @@ func (a NdArray[T]) Get(idxs ...int) T {
 }
 
 type Bound struct {
-	start int
-	stop  int
+	Start  int
+	Stop   int
+	Stride int
 }
 
 var Z = Bound{}
 
 func (a NdArray[T]) Slice(bounds ...Bound) NdArray[T] {
-
+	if len(bounds) > len(a.sh) {
+		panic(fmt.Errorf("slice dimension mismatch"))
+	}
 }
