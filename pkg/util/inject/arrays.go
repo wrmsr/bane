@@ -1,6 +1,10 @@
 package inject
 
-import "reflect"
+import (
+	"reflect"
+	"sort"
+	"strings"
+)
 
 //
 
@@ -21,6 +25,29 @@ func newArrayProvider(ty reflect.Type, ps []Provider) arrayProvider {
 }
 
 var _ Provider = arrayProvider{}
+
+func (p arrayProvider) String() string {
+	ps := make([]string, len(p.ps))
+	for i, ep := range p.ps {
+		ps[i] = ep.String()
+	}
+	sort.Strings(ps)
+
+	var sb strings.Builder
+	sb.WriteString("Array{")
+	sb.WriteString(p.ty.String())
+	sb.WriteString(", {")
+
+	for i, es := range ps {
+		if i > 0 {
+			sb.WriteString(", ")
+		}
+		sb.WriteString(es)
+	}
+
+	sb.WriteString("}}")
+	return sb.String()
+}
 
 func (p arrayProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
 	return p.sty

@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
+	ju "github.com/wrmsr/bane/pkg/util/json"
 )
 
 type fooInt int
@@ -17,9 +19,13 @@ func TestInjector(t *testing.T) {
 			numFoos++
 			return 2
 		}),
+		Func(func() string {
+			return "hi"
+		}),
+		As(Tag(KeyOf[string](), "foo"), Link(KeyOf[string]())),
 	))
 
-	fmt.Println(inj.Debug())
+	fmt.Println(check.Must1(ju.MarshalPretty(inj.Debug())))
 
 	tu.AssertEqual(t, inj.Provide(Type[int]()).(int), 420)
 

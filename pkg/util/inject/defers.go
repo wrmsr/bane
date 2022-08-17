@@ -1,6 +1,7 @@
 package inject
 
 import (
+	"fmt"
 	"reflect"
 
 	eu "github.com/wrmsr/bane/pkg/util/errors"
@@ -34,6 +35,10 @@ func Closing(o any) Provider {
 }
 
 var _ Provider = closingProvider{}
+
+func (p closingProvider) String() string {
+	return fmt.Sprintf("Closing{%s}", p.p)
+}
 
 func (p closingProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
 	return p.p.providedTy(rec)

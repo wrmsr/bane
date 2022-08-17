@@ -21,7 +21,7 @@ func debugBindings(bs Bindings) Debug {
 	}
 	var ds []string
 	bs.ForEach(func(b Binding) bool {
-		ds = append(ds, fmt.Sprintf("%s => %#v", b.key, b.provider))
+		ds = append(ds, fmt.Sprintf("%s = %s", b.key, b.provider))
 		return true
 	})
 	sort.Strings(ds)

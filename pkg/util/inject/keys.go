@@ -45,7 +45,7 @@ func (k Key) String() string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("Key{ty: %s", k.ty))
 	if k.arr {
-		sb.WriteString(", arr: true")
+		sb.WriteString(", arr")
 	}
 	if k.tag != nil {
 		sb.WriteString(fmt.Sprintf(", tag: %v", k.tag))

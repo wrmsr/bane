@@ -1,16 +1,20 @@
 package inject
 
 import (
+	"fmt"
 	"reflect"
 	"sync"
 	"sync/atomic"
 
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
+	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 )
 
 //
 
 type Provider interface {
+	String() string
+
 	providedTy(rec func(Key) reflect.Type) reflect.Type
 	providerFn() providerFn
 }
@@ -73,6 +77,10 @@ func Const(v any) Provider {
 
 var _ Provider = constProvider{}
 
+func (p constProvider) String() string {
+	return fmt.Sprintf("Const{%v}", p.v)
+}
+
 func (p constProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
 	return reflect.TypeOf(p.v)
 }
@@ -87,25 +95,31 @@ func (p constProvider) providerFn() providerFn {
 
 type funcProvider struct {
 	fn reflect.Value
-	ty reflect.Type
+
+	fty reflect.Type
+	ty  reflect.Type
 }
 
 func Func(fn any) Provider {
 	rv := rfl.AsValue(fn)
-	ty := rv.Type()
-	if ty.Kind() != reflect.Func {
+	fty := rv.Type()
+	if fty.Kind() != reflect.Func {
 		panic(genericErrorf("must be func: %v", rv))
 	}
-	if ty.NumOut() != 1 {
-		panic(genericErrorf("func must have one output: %v", ty))
+	if fty.NumOut() != 1 {
+		panic(genericErrorf("func must have one output: %v", fty))
 	}
-	return funcProvider{fn: rv, ty: ty}
+	return funcProvider{fn: rv, fty: fty, ty: fty.Out(0)}
 }
 
 var _ Provider = funcProvider{}
 
+func (p funcProvider) String() string {
+	return fmt.Sprintf("Func{%v, %s}", rtu.GetFuncName(p.fn), p.ty)
+}
+
 func (p funcProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
-	return p.ty.Out(0)
+	return p.ty
 }
 
 func (p funcProvider) providerFn() providerFn {
@@ -125,6 +139,10 @@ func Link(k any) Provider {
 }
 
 var _ Provider = linkProvider{}
+
+func (p linkProvider) String() string {
+	return fmt.Sprintf("Link{%s}", p.k)
+}
 
 func (p linkProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
 	return rec(p.k)
@@ -147,6 +165,10 @@ func Singleton(p any) Provider {
 }
 
 var _ Provider = singletonProvider{}
+
+func (p singletonProvider) String() string {
+	return fmt.Sprintf("Singleton{%s}", p.p)
+}
 
 func (p singletonProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
 	return p.p.providedTy(rec)
