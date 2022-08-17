@@ -57,12 +57,12 @@ func (fg *FileGen) Gen() string {
 	fg.genStructs()
 
 	doInit := gg.Func{
-		Body: gg.NewBlock(slices.DeepFlatten[gg.Stmt](
+		Body: &gg.Block{Body: slices.DeepFlatten[gg.Stmt](
 			gg.ShortVarOf(
 				gg.IdentOf("spec"),
 				gg.CallOf(gg.SelectOf("def", "X_getPackageSpec"))),
 			fg.initStmts,
-		)...)}
+		)}}
 
 	fg.decls = slices.DeepFlatten[gg.Decl](
 		gg.StmtDeclOf(gg.Var{

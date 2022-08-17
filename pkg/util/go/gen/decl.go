@@ -15,6 +15,16 @@ func (e decl) isDecl() {}
 
 //
 
+func DeclOf(o any) Decl {
+	if o, ok := o.(Decl); ok {
+		return o
+	}
+
+	return StmtDeclOf(StmtOf(o))
+}
+
+//
+
 type Func struct {
 	Receiver *Param
 	Name     *Ident

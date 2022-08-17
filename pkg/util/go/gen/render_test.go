@@ -72,7 +72,7 @@ func TestDefBuilder(t *testing.T) {
 	defInitNode := Func{
 		Name: NewIdent("_def_init"),
 		Body: NewBlock(
-			ExprStmtOf(CallOf(
+			CallOf(
 				SelectOf("_def_init_once", "Do"),
 				FuncExprOf(Func{
 					Body: NewBlock(
@@ -98,7 +98,7 @@ func TestDefBuilder(t *testing.T) {
 								newPtrFuncType(NameTypeOf("Foo")))),
 					),
 				}),
-			)),
+			),
 		),
 	}
 	fmt.Println(RenderString(defInitNode))
@@ -116,9 +116,9 @@ func TestDefBuilder(t *testing.T) {
 		Receiver: &Param{Name: NewIdent("f"), Type: PtrOf(NameTypeOf("Foo"))},
 		Name:     NewIdent("init"),
 		Body: NewBlock(
-			ExprStmtOf(CallOf("_def_init")),
+			CallOf("_def_init"),
 			AssignOf(SelectOf("f", "baz"), "_def_field_default__Foo__baz"),
-			ExprStmtOf(CallOf("_def_struct_init__Foo__0", "f")),
+			CallOf("_def_struct_init__Foo__0", "f"),
 		),
 	}
 	fmt.Println(RenderString(fooInitNode))

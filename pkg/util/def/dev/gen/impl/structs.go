@@ -133,7 +133,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 		gg.Func{
 			Receiver: &gg.Param{Name: gg.NewIdent("f"), Type: gg.PtrOf(gg.NameTypeOf(sName))},
 			Name:     gg.NewIdent("init"),
-			Body:     gg.NewBlock(initStmts...)})
+			Body:     &gg.Block{Body: initStmts}})
 }
 
 func (fg *FileGen) genStructs() {

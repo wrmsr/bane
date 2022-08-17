@@ -25,11 +25,7 @@ func StmtOf(o any) Stmt {
 		return o
 	}
 
-	if o, ok := o.(Expr); ok {
-		return ExprStmtOf(o)
-	}
-
-	panic(o)
+	return ExprStmtOf(o)
 }
 
 //
