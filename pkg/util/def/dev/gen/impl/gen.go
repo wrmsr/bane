@@ -46,15 +46,11 @@ func NewFileGen(
 
 func newPtrFuncType(elem gg.Type) gg.FuncType {
 	return gg.NewFuncType(
-		gg.NewFunc(
-			opt.None[gg.Param](),
-			opt.None[gg.Ident](),
-			[]gg.Param{
+		gg.Func{
+			Params: []gg.Param{
 				gg.NewParam(opt.None[gg.Ident](), gg.NewPtr(elem)),
 			},
-			opt.None[gg.Type](),
-			opt.None[gg.Block](),
-		),
+		},
 	)
 }
 
@@ -62,16 +58,16 @@ func (fg *FileGen) Gen() string {
 	fg.genStructs()
 
 	doInit := gg.NewFunc(
-		opt.None[gg.Param](),
-		opt.None[gg.Ident](),
 		nil,
-		opt.None[gg.Type](),
-		opt.Just(gg.NewBlock(slices.DeepFlatten[gg.Stmt](
+		nil,
+		nil,
+		nil,
+		gg.BlockOf(slices.DeepFlatten[gg.Stmt](
 			gg.NewShortVar(
 				gg.NewIdent("spec"),
 				gg.NewCall(gg.NewSelect(gg.NewIdent("def"), gg.NewIdent("X_getPackageSpec")))),
 			fg.initStmts,
-		)...)))
+		)...))
 
 	fg.decls = slices.DeepFlatten[gg.Decl](
 		gg.NewStmtDecl(
@@ -80,14 +76,14 @@ func (fg *FileGen) Gen() string {
 				opt.Just[gg.Type](gg.NewNameType(gg.NewIdent("sync.Once"))), opt.None[gg.Expr]())),
 
 		gg.NewFunc(
-			opt.None[gg.Param](),
-			opt.Just(gg.NewIdent("_def_init")),
 			nil,
-			opt.None[gg.Type](),
-			opt.Just(gg.NewBlock(
+			gg.IdentOf("_def_init"),
+			nil,
+			nil,
+			gg.BlockOf(
 				gg.NewExprStmt(gg.NewCall(
 					gg.NewSelect(gg.NewIdent("_def_init_once"), gg.NewIdent("Do")),
-					gg.NewFuncExpr(doInit)))))),
+					gg.NewFuncExpr(doInit))))),
 
 		fg.decls)
 

@@ -80,6 +80,12 @@ type Ident struct {
 	Name string
 }
 
+func IdentOf(name string) *Ident {
+	return &Ident{
+		Name: check.NotZero(name),
+	}
+}
+
 func NewIdent(name string) Ident {
 	return Ident{
 		Name: check.NotZero(name),

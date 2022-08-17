@@ -11,15 +11,15 @@ import (
 func renderFunc(w *iou.IndentWriter, n Func) {
 	w.WriteString("func")
 
-	if n.Receiver.Present() {
+	if n.Receiver != nil {
 		w.WriteString(" (")
-		Render(w, n.Receiver.Value())
+		Render(w, *n.Receiver)
 		w.WriteString(")")
 	}
 
-	if n.Name.Present() {
+	if n.Name != nil {
 		w.WriteString(" ")
-		Render(w, n.Name.Value())
+		Render(w, *n.Name)
 	}
 
 	w.WriteString("(")
@@ -31,14 +31,14 @@ func renderFunc(w *iou.IndentWriter, n Func) {
 	}
 	w.WriteString(")")
 
-	if n.Type.Present() {
+	if n.Type != nil {
 		w.WriteString(" ")
-		Render(w, n.Type.Value())
+		Render(w, *n.Type)
 	}
 
-	if n.Body.Present() {
+	if n.Body != nil {
 		w.WriteString(" ")
-		Render(w, n.Body.Value())
+		Render(w, *n.Body)
 	}
 }
 

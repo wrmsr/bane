@@ -21,19 +21,19 @@ func (e decl) isDecl() {}
 
 type Func struct {
 	decl
-	Receiver opt.Optional[Param]
-	Name     opt.Optional[Ident]
+	Receiver *Param
+	Name     *Ident
 	Params   []Param
-	Type     opt.Optional[Type]
-	Body     opt.Optional[Block]
+	Type     *Type
+	Body     *Block
 }
 
 func NewFunc(
-	receiver opt.Optional[Param],
-	name opt.Optional[Ident],
+	receiver *Param,
+	name *Ident,
 	params []Param,
-	type_ opt.Optional[Type],
-	body opt.Optional[Block],
+	type_ *Type,
+	body *Block,
 ) Func {
 	return Func{
 		Receiver: receiver,
@@ -95,6 +95,13 @@ type Param struct {
 	node
 	Name opt.Optional[Ident]
 	Type Type
+}
+
+func ParamOf(name opt.Optional[Ident], type_ Type) *Param {
+	return &Param{
+		Name: name,
+		Type: type_,
+	}
 }
 
 func NewParam(name opt.Optional[Ident], type_ Type) Param {

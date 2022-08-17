@@ -130,11 +130,11 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 	fg.decls = append(fg.decls,
 		gg.NewFunc(
-			opt.Just(gg.NewParam(opt.Just(gg.NewIdent("f")), gg.NewPtr(gg.NewNameType(sName)))),
-			opt.Just(gg.NewIdent("init")),
+			gg.ParamOf(opt.Just(gg.NewIdent("f")), gg.NewPtr(gg.NewNameType(sName))),
+			gg.IdentOf("init"),
 			nil,
-			opt.None[gg.Type](),
-			opt.Just(gg.NewBlock(initStmts...))))
+			nil,
+			gg.BlockOf(initStmts...)))
 }
 
 func (fg *FileGen) genStructs() {

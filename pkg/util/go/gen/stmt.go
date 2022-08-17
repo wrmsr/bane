@@ -50,6 +50,12 @@ type Block struct {
 	Body []Stmt
 }
 
+func BlockOf(body ...Stmt) *Block {
+	return &Block{
+		Body: body,
+	}
+}
+
 func NewBlock(body ...Stmt) Block {
 	return Block{
 		Body: body,
