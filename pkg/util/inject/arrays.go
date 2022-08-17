@@ -83,11 +83,6 @@ type emptyArrayProvider struct {
 	ty reflect.Type
 }
 
-func EmptyArrayOf[T any]() emptyArrayProvider {
-	var z T
-	return emptyArrayProvider{ty: reflect.TypeOf(z)}
-}
-
 var _ Provider = emptyArrayProvider{}
 
 func (p emptyArrayProvider) String() string {
@@ -104,6 +99,13 @@ func (p emptyArrayProvider) providerFn() providerFn {
 	}
 }
 
+type EmptyArrayOf[T any] struct{}
+
+func (pg EmptyArrayOf[T]) provider() Provider {
+	var z T
+	return emptyArrayProvider{ty: reflect.TypeOf(z)}
+}
+
 //
 
 type BindArrayOf[T any] struct {
@@ -111,7 +113,7 @@ type BindArrayOf[T any] struct {
 }
 
 func (bg BindArrayOf[T]) binding() Binding {
-	return As(ArrayOf[T]{bg.Tag}, EmptyArrayOf[T]())
+	return As(ArrayOf[T]{bg.Tag}, EmptyArrayOf[T]{})
 }
 
 //
@@ -121,5 +123,5 @@ type BindArraySliceOf[T any] struct {
 }
 
 func (bg BindArraySliceOf[T]) binding() Binding {
-	return As(ArrayOf[[]int]{bg.Tag}, Link(ArrayOf[int]{bg.Tag}))
+	return As(ArrayOf[[]int]{bg.Tag}, Link{ArrayOf[int]{bg.Tag}})
 }

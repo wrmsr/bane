@@ -17,7 +17,7 @@ func TestArrays(t *testing.T) {
 	tu.AssertDeepEqual(t, inj.Provide(ArrayOf[int]{}), []int{420, 421})
 
 	inj2 := inj.NewChild(Bind(
-		As(KeyOf[[]int]{}, Link(ArrayOf[int]{})),
+		As(KeyOf[[]int]{}, Link{ArrayOf[int]{}}),
 	))
 	tu.AssertDeepEqual(t, inj2.Provide(KeyOf[[]int]{}), []int{420, 421})
 }
@@ -27,12 +27,12 @@ func TestEmptyArray(t *testing.T) {
 		BindArrayOf[int]{},
 	))
 
-	tu.AssertDeepEqual(t, inj.Provide(Array(KeyOf[int]{})), []int{})
+	tu.AssertDeepEqual(t, inj.Provide(ArrayOf[int]{}), []int{})
 
 	inj = NewInjector(Bind(
-		As(ArrayOf[int]{}, EmptyArrayOf[int]()),
+		BindArrayOf[int]{},
 		As(ArrayOf[int]{}, 420),
-		As(ArrayOf[int]{}, EmptyArrayOf[int]()),
+		As(ArrayOf[int]{}, EmptyArrayOf[int]{}),
 	))
 
 	tu.AssertDeepEqual(t, inj.Provide(ArrayOf[int]{}), []int{420})

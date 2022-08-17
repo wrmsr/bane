@@ -25,8 +25,8 @@ import (
 
 var _ = dev.Register(func() inj.Bindings {
 	return inj.Bind(
-		inj.Singleton(DefaultServiceLocatorConfig),
-		inj.Singleton(NewServiceLocator),
+		inj.Singleton{DefaultServiceLocatorConfig},
+		inj.Singleton{NewServiceLocator},
 	)
 })
 

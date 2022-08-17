@@ -12,7 +12,7 @@ import (
 func NewDeferInjector(bs Bindings) (*Injector, func() error) {
 	inj := NewInjector(
 		Append(
-			Bind(Singleton(eu.NewDeferStack)),
+			Bind(Singleton{eu.NewDeferStack}),
 			bs,
 		),
 	)

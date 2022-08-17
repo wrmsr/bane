@@ -15,14 +15,14 @@ func TestInjector(t *testing.T) {
 	numFoos := 0
 	inj := NewInjector(Bind(
 		420,
-		Singleton(func() fooInt {
+		Singleton{func() fooInt {
 			numFoos++
 			return 2
-		}),
-		Func(func() string {
+		}},
+		Func{func() string {
 			return "hi"
-		}),
-		As(Tag(KeyOf[string]{}, "foo"), Link(KeyOf[string]{})),
+		}},
+		As(Tag(KeyOf[string]{}, "foo"), Link{KeyOf[string]{}}),
 	))
 
 	fmt.Println(check.Must1(ju.MarshalPretty(inj.Debug())))

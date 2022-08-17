@@ -8,6 +8,7 @@ import (
 
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -41,7 +42,7 @@ func (pm providerMap) fns() providerFnMap {
 //
 
 func asProvider(o any) Provider {
-	if _, ok := o.(Binding); ok {
+	if bt.Is[Binding](o) || bt.Is[bindingGen](o) {
 		panic(genericErrorf("must not use bindings as providers"))
 	}
 
@@ -50,7 +51,7 @@ func asProvider(o any) Provider {
 	}
 
 	if o == nil {
-		return Const(nil)
+		return constProvider{}
 	}
 
 	if o, ok := o.(Provider); ok {
@@ -62,26 +63,22 @@ func asProvider(o any) Provider {
 	}
 
 	if o, ok := o.(Key); ok {
-		return Link(o)
+		return Link{o}.provider()
 	}
 
 	rv := reflect.ValueOf(o)
 	rt := rv.Type()
 	if rt.Kind() == reflect.Func {
-		return Func(o)
+		return Func{o}.provider()
 	}
 
-	return Const(o)
+	return constProvider{o}
 }
 
 //
 
 type constProvider struct {
 	v any
-}
-
-func Const(v any) Provider {
-	return constProvider{v}
 }
 
 var _ Provider = constProvider{}
@@ -100,6 +97,14 @@ func (p constProvider) providerFn() providerFn {
 	}
 }
 
+type Const struct {
+	Val any
+}
+
+func (pg Const) provider() Provider {
+	return constProvider{pg.Val}
+}
+
 //
 
 type funcProvider struct {
@@ -107,18 +112,6 @@ type funcProvider struct {
 
 	fty reflect.Type
 	ty  reflect.Type
-}
-
-func Func(fn any) Provider {
-	rv := rfl.AsValue(fn)
-	fty := rv.Type()
-	if fty.Kind() != reflect.Func {
-		panic(genericErrorf("must be func: %v", rv))
-	}
-	if fty.NumOut() != 1 {
-		panic(genericErrorf("func must have one output: %v", fty))
-	}
-	return funcProvider{fn: rv, fty: fty, ty: fty.Out(0)}
 }
 
 var _ Provider = funcProvider{}
@@ -137,14 +130,26 @@ func (p funcProvider) providerFn() providerFn {
 	}
 }
 
+type Func struct {
+	Fn any
+}
+
+func (pg Func) provider() Provider {
+	rv := rfl.AsValue(pg.Fn)
+	fty := rv.Type()
+	if fty.Kind() != reflect.Func {
+		panic(genericErrorf("must be func: %v", rv))
+	}
+	if fty.NumOut() != 1 {
+		panic(genericErrorf("func must have one output: %v", fty))
+	}
+	return funcProvider{fn: rv, fty: fty, ty: fty.Out(0)}
+}
+
 //
 
 type linkProvider struct {
 	k Key
-}
-
-func Link(k any) Provider {
-	return linkProvider{k: AsKey(k)}
 }
 
 var _ Provider = linkProvider{}
@@ -163,14 +168,18 @@ func (p linkProvider) providerFn() providerFn {
 	}
 }
 
+type Link struct {
+	To any
+}
+
+func (pg Link) provider() Provider {
+	return linkProvider{k: AsKey(pg.To)}
+}
+
 //
 
 type singletonProvider struct {
 	p Provider
-}
-
-func Singleton(p any) Provider {
-	return singletonProvider{p: asProvider(p)}
 }
 
 var _ Provider = singletonProvider{}
@@ -194,4 +203,12 @@ func (p singletonProvider) providerFn() providerFn {
 		})
 		return v.Load().(box).v
 	}
+}
+
+type Singleton struct {
+	Obj any
+}
+
+func (pg Singleton) provider() Provider {
+	return singletonProvider{p: asProvider(pg.Obj)}
 }

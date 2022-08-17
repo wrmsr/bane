@@ -40,12 +40,16 @@ func asBinding(o any) Binding {
 		})}, provider: o}
 	}
 
-	rv := reflect.ValueOf(o)
-	if rv.Kind() == reflect.Func {
-		return asBinding(Func(rv))
+	if o, ok := o.(providerGen); ok {
+		return asBinding(o.provider())
 	}
 
-	return Binding{key: Key{ty: rv.Type()}, provider: Const(o)}
+	rv := reflect.ValueOf(o)
+	if rv.Kind() == reflect.Func {
+		return asBinding(Func{rv})
+	}
+
+	return Binding{key: Key{ty: rv.Type()}, provider: constProvider{o}}
 }
 
 func asBindings(os []any) []Binding {
