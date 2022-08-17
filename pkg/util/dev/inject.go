@@ -74,4 +74,4 @@ func ProvideArgs(fn any) []any     { return Injector().ProvideArgs(fn) }
 func Inject(fn any) []any          { return Injector().Inject(fn) }
 func InjectOne(fn any) any         { return Injector().InjectOne(fn) }
 
-func ProvideAs[T any]() T { return inj.ProvideAs[T](Injector()) }
+func ProvideAs[T any](tags ...any) T { return inj.ProvideAs[T](Injector(), tags...) }

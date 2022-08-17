@@ -42,6 +42,16 @@ func Array(o any) Key {
 	return k
 }
 
+func tag(k Key, tags ...any) Key {
+	if len(tags) > 0 {
+		if len(tags) > 1 {
+			panic(genericErrorf("must provide at most one tag: %v", tags))
+		}
+		k.tag = tags[0]
+	}
+	return k
+}
+
 func Tag(o, tag any) Key {
 	k := AsKey(o)
 	k.tag = tag

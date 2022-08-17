@@ -12,7 +12,6 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev"
-	inj "github.com/wrmsr/bane/pkg/util/inject"
 	"github.com/wrmsr/bane/pkg/util/log"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
@@ -94,11 +93,11 @@ func TestSqlite(t *testing.T) {
 }
 
 func TestDevMysql(t *testing.T) {
-	dsn := dev.Provide(inj.Tag(rfl.TypeOf[opt.Optional[sqb.Dsn]](), "mysql")).(opt.Optional[sqb.Dsn]).Value()
+	dsn := dev.ProvideAs[opt.Optional[sqb.Dsn]]("mysql").Value()
 	fmt.Println(dsn)
 }
 
 func TestDevPostgres(t *testing.T) {
-	dsn := dev.Provide(inj.Tag(rfl.TypeOf[opt.Optional[sqb.Dsn]](), "postgres")).(opt.Optional[sqb.Dsn]).Value()
+	dsn := dev.ProvideAs[opt.Optional[sqb.Dsn]]("postgres").Value()
 	fmt.Println(dsn)
 }

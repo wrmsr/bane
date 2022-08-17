@@ -124,6 +124,6 @@ func (i *Injector) InjectOne(fn any) any {
 	return rs[0]
 }
 
-func ProvideAs[T any](i *Injector) T {
-	return i.Provide(KeyOf[T]{}).(T)
+func ProvideAs[T any](i *Injector, tags ...any) T {
+	return i.Provide(tag(KeyOf[T]{}.key(), tags...)).(T)
 }
