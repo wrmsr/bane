@@ -44,7 +44,7 @@ func (p closingProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
 	return p.p.providedTy(rec)
 }
 
-var deferStackKey = KeyOf[*eu.DeferStack]()
+var deferStackKey = AsKey(KeyOf[*eu.DeferStack]{})
 
 func (p closingProvider) providerFn() providerFn {
 	pfn := p.p.providerFn()

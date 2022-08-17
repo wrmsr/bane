@@ -107,9 +107,9 @@ func (p emptyProvider) providerFn() providerFn {
 //
 
 func BindArrayOf[T any](tag any) Binding {
-	return As(Array(Tag(KeyOf[T](), tag)), EmptyOf[T]())
+	return As(ArrayOf[T]{tag}, EmptyOf[T]())
 }
 
 func BindArraySliceOf[T any](tag any) Binding {
-	return As(Tag(KeyOf[[]int](), tag), Link(Tag(Array(KeyOf[int]()), tag)))
+	return As(ArrayOf[[]int]{tag}, Link(ArrayOf[int]{tag}))
 }

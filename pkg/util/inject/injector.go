@@ -34,7 +34,7 @@ func (i *Injector) NewChild(bs Bindings) *Injector {
 
 //
 
-var injectorKey = KeyOf[*Injector]()
+var injectorKey = AsKey(KeyOf[*Injector]{})
 
 func (i *Injector) TryProvide(o any) (any, bool) {
 	k := AsKey(o)
@@ -125,5 +125,5 @@ func (i *Injector) InjectOne(fn any) any {
 }
 
 func ProvideAs[T any](i *Injector) T {
-	return i.Provide(KeyOf[T]()).(T)
+	return i.Provide(KeyOf[T]{}).(T)
 }

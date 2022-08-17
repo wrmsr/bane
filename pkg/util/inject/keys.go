@@ -16,19 +16,22 @@ type Key struct {
 	tag any
 }
 
+type keyable interface {
+	key() Key
+}
+
 func AsKey(o any) Key {
 	if k, ok := o.(Key); ok {
 		return k
 	}
 
+	if k, ok := o.(keyable); ok {
+		return k.key()
+	}
+
 	return Key{
 		ty: rfl.AsType(o),
 	}
-}
-
-func KeyOf[T any](tags ...any) Key {
-	var z T
-	return tag(Key{ty: reflect.TypeOf(z)}, tags...)
 }
 
 //
@@ -39,28 +42,37 @@ func Array(o any) Key {
 	return k
 }
 
-func ArrayOf[T any](tags ...any) Key {
-	var z T
-	return tag(Key{ty: reflect.TypeOf(z), arr: true}, tags...)
-}
-
-//
-
-func tag(k Key, tags ...any) Key {
-	if len(tags) > 0 {
-		if len(tags) > 1 {
-			panic(genericErrorf("must specify at most one tag: %v", tags))
-
-		}
-		k.tag = tags[0]
-	}
-	return k
-}
-
 func Tag(o, tag any) Key {
 	k := AsKey(o)
 	k.tag = tag
 	return k
+}
+
+//
+
+type KeyOf[T any] struct {
+	Tag any
+}
+
+func (o KeyOf[T]) key() Key {
+	var z T
+	return Key{
+		ty:  reflect.TypeOf(z),
+		tag: o.Tag,
+	}
+}
+
+type ArrayOf[T any] struct {
+	Tag any
+}
+
+func (o ArrayOf[T]) key() Key {
+	var z T
+	return Key{
+		ty:  reflect.TypeOf(z),
+		tag: o.Tag,
+		arr: true,
+	}
 }
 
 //
