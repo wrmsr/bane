@@ -65,7 +65,7 @@ func (p arrayProvider) providerFn() providerFn {
 		n := 0
 		for _, ep := range ps {
 			o := ep(i)
-			if _, ok := o.(emptyProvider); !ok {
+			if _, ok := o.(emptyArrayProvider); !ok {
 				rv.Index(n).Set(reflect.ValueOf(o))
 				n++
 			}
@@ -79,26 +79,26 @@ func (p arrayProvider) providerFn() providerFn {
 
 //
 
-type emptyProvider struct {
+type emptyArrayProvider struct {
 	ty reflect.Type
 }
 
-func EmptyOf[T any]() emptyProvider {
+func EmptyArrayOf[T any]() emptyArrayProvider {
 	var z T
-	return emptyProvider{ty: reflect.TypeOf(z)}
+	return emptyArrayProvider{ty: reflect.TypeOf(z)}
 }
 
-var _ Provider = emptyProvider{}
+var _ Provider = emptyArrayProvider{}
 
-func (p emptyProvider) String() string {
+func (p emptyArrayProvider) String() string {
 	return fmt.Sprintf("Empty{%s}", p.ty)
 }
 
-func (p emptyProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
+func (p emptyArrayProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
 	return p.ty
 }
 
-func (p emptyProvider) providerFn() providerFn {
+func (p emptyArrayProvider) providerFn() providerFn {
 	return func(_ any) any {
 		return p
 	}
@@ -106,10 +106,20 @@ func (p emptyProvider) providerFn() providerFn {
 
 //
 
-func BindArrayOf[T any](tag any) Binding {
-	return As(ArrayOf[T]{tag}, EmptyOf[T]())
+type BindArrayOf[T any] struct {
+	Tag any
 }
 
-func BindArraySliceOf[T any](tag any) Binding {
-	return As(ArrayOf[[]int]{tag}, Link(ArrayOf[int]{tag}))
+func (bg BindArrayOf[T]) binding() Binding {
+	return As(ArrayOf[T]{bg.Tag}, EmptyArrayOf[T]())
+}
+
+//
+
+type BindArraySliceOf[T any] struct {
+	Tag any
+}
+
+func (bg BindArraySliceOf[T]) binding() Binding {
+	return As(ArrayOf[[]int]{bg.Tag}, Link(ArrayOf[int]{bg.Tag}))
 }

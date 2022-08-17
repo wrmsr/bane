@@ -24,15 +24,15 @@ func TestArrays(t *testing.T) {
 
 func TestEmptyArray(t *testing.T) {
 	inj := NewInjector(Bind(
-		BindArrayOf[int](nil),
+		BindArrayOf[int]{},
 	))
 
 	tu.AssertDeepEqual(t, inj.Provide(Array(KeyOf[int]{})), []int{})
 
 	inj = NewInjector(Bind(
-		As(ArrayOf[int]{}, EmptyOf[int]()),
+		As(ArrayOf[int]{}, EmptyArrayOf[int]()),
 		As(ArrayOf[int]{}, 420),
-		As(ArrayOf[int]{}, EmptyOf[int]()),
+		As(ArrayOf[int]{}, EmptyArrayOf[int]()),
 	))
 
 	tu.AssertDeepEqual(t, inj.Provide(ArrayOf[int]{}), []int{420})
