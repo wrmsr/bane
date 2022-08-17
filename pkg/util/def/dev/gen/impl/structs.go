@@ -21,10 +21,10 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 	fg.initStmts = append(fg.initStmts,
 		gg.Blank{},
 
-		gg.Var{
-			Name: gg.IdentOf(zn), Type: gg.NameTypeOf(gg.IdentOf(sn))},
+		gg.VarOf(zn, gg.NameTypeOf(sn)),
 
-		gg.ShortVarOf(ssName,
+		gg.ShortVarOf(
+			ssName,
 			gg.CallOf(
 				gg.SelectOf(gg.IdentOf("spec"), gg.IdentOf("Struct")),
 				gg.CallOf(
@@ -54,7 +54,8 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 		fg.initStmts = append(fg.initStmts,
 			gg.Blank{},
 
-			gg.ShortVarOf(fsName,
+			gg.ShortVarOf(
+				fsName,
 				gg.CallOf(
 					gg.SelectOf(ssName, gg.IdentOf("Field")),
 					gg.LitOf(fmt.Sprintf("\"%s\"", fs.Name())))),
@@ -66,12 +67,13 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 			dflName := gg.IdentOf(fmt.Sprintf("_def_field_default__%s__%s", sn, fs.Name()))
 
 			dflVds = append(dflVds,
-				gg.Var{Name: dflName, Type: fg.ti.importedType(fs.Type())})
+				gg.VarOf(dflName, fg.ti.importedType(fs.Type())))
 
 			fg.initStmts = append(fg.initStmts,
 				gg.Blank{},
 
-				gg.AssignOf(dflName,
+				gg.AssignOf(
+					dflName,
 					gg.TypeAssertOf(
 						gg.CallOf(gg.SelectOf(fsName, gg.IdentOf("Default"))),
 						fg.ti.importedType(fs.Type()))))
@@ -102,12 +104,11 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 				initName = gg.IdentOf(fmt.Sprintf("_def_struct_init__%s__%d", sn, i))
 
 				initVds = append(initVds,
-					gg.Var{
-						Name: initName,
-						Type: newPtrFuncType(gg.NameTypeOf(sName))})
+					gg.VarOf(initName, newPtrFuncType(gg.NameTypeOf(sName))))
 
 				fg.initStmts = append(fg.initStmts,
-					gg.AssignOf(initName,
+					gg.AssignOf(
+						initName,
 						gg.TypeAssertOf(
 							gg.IndexOf(gg.CallOf(gg.SelectOf(ssName, gg.IdentOf("Inits"))), gg.LitOf(strconv.Itoa(i))),
 							newPtrFuncType(gg.NameTypeOf(sName)))))

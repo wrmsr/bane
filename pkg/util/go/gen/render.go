@@ -167,7 +167,7 @@ func Render(w *iou.IndentWriter, n Node) {
 		Render(w, n.Index)
 		w.WriteString("]")
 
-	case InfixExpr:
+	case Infix:
 		for i, a := range n.Args {
 			if i > 0 {
 				w.WriteString(" ")
@@ -198,7 +198,7 @@ func Render(w *iou.IndentWriter, n Node) {
 		Render(w, n.Type)
 		w.WriteString(")")
 
-	case UnaryExpr:
+	case Unary:
 		w.WriteString(n.Op.String())
 		w.WriteString(" ")
 		Render(w, n.Arg)

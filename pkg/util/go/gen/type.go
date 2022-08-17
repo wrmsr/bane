@@ -76,9 +76,9 @@ type NameType struct {
 	type_
 }
 
-func NameTypeOf(name Ident) NameType {
+func NameTypeOf(name any) NameType {
 	return NameType{
-		Name: name,
+		Name: IdentOf(name),
 	}
 }
 

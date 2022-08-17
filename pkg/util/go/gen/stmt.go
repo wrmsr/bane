@@ -2,6 +2,7 @@ package gen
 
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 //
@@ -153,6 +154,16 @@ type Var struct {
 	Value Expr
 
 	stmt
+}
+
+func VarOf(name any, args ...any) Var {
+	v := Var{
+		Name:  IdentOf(name),
+		Type:  slices.TryShiftAs[Type](&args),
+		Value: slices.TryShiftAs[Expr](&args),
+	}
+	check.EmptySlice(args)
+	return v
 }
 
 //

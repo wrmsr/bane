@@ -67,7 +67,7 @@ func (fg *FileGen) Gen() string {
 	fg.decls = slices.DeepFlatten[gg.Decl](
 		gg.StmtDeclOf(gg.Var{
 			Name: gg.IdentOf("_def_init_once"),
-			Type: gg.NameTypeOf(gg.IdentOf("sync.Once"))}),
+			Type: gg.NameTypeOf("sync.Once")}),
 
 		gg.Func{
 			Name: gg.NewIdent("_def_init"),

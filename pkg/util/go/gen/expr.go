@@ -79,10 +79,18 @@ func NewIdent(name string) *Ident {
 	}
 }
 
-func IdentOf(name string) Ident {
-	return Ident{
-		Name: check.NotZero(name),
+func IdentOf(o any) Ident {
+	switch o := o.(type) {
+	case Ident:
+		return o
+	case *Ident:
+		return *o
+	case string:
+		return Ident{
+			Name: check.NotZero(o),
+		}
 	}
+	panic(o)
 }
 
 //
@@ -171,45 +179,35 @@ func (o InfixOp) IsBoolean() bool {
 	return false
 }
 
-type InfixExpr struct {
+type Infix struct {
 	Op   InfixOp
 	Args []Expr
 
 	expr
 }
 
-func InfixExprOf(op InfixOp, args ...Expr) InfixExpr {
-	return InfixExpr{
+func InfixOf(op InfixOp, args ...Expr) Infix {
+	return Infix{
 		Op:   op,
 		Args: check.NotEmptySlice(args),
 	}
 }
 
-func InfixExprOrSelf(op InfixOp, args ...Expr) Expr {
-	if len(args) == 1 {
-		return args[0]
-	}
-	return InfixExprOf(
-		op,
-		args...,
-	)
-}
+func Add(args ...Expr) Expr { return InfixOf(AddOp, args...) }
+func Sub(args ...Expr) Expr { return InfixOf(SubOp, args...) }
+func Mul(args ...Expr) Expr { return InfixOf(MulOp, args...) }
+func Div(args ...Expr) Expr { return InfixOf(DivOp, args...) }
+func Mod(args ...Expr) Expr { return InfixOf(ModOp, args...) }
 
-func Add(args ...Expr) Expr { return InfixExprOrSelf(AddOp, args...) }
-func Sub(args ...Expr) Expr { return InfixExprOrSelf(SubOp, args...) }
-func Mul(args ...Expr) Expr { return InfixExprOrSelf(MulOp, args...) }
-func Div(args ...Expr) Expr { return InfixExprOrSelf(DivOp, args...) }
-func Mod(args ...Expr) Expr { return InfixExprOrSelf(ModOp, args...) }
+func Lt(args ...Expr) Expr  { return InfixOf(LtOp, args...) }
+func Lte(args ...Expr) Expr { return InfixOf(LteOp, args...) }
+func Eq(args ...Expr) Expr  { return InfixOf(EqOp, args...) }
+func Ne(args ...Expr) Expr  { return InfixOf(NeOp, args...) }
+func Gt(args ...Expr) Expr  { return InfixOf(GtOp, args...) }
+func Gte(args ...Expr) Expr { return InfixOf(GteOp, args...) }
 
-func Lt(args ...Expr) Expr  { return InfixExprOrSelf(LtOp, args...) }
-func Lte(args ...Expr) Expr { return InfixExprOrSelf(LteOp, args...) }
-func Eq(args ...Expr) Expr  { return InfixExprOrSelf(EqOp, args...) }
-func Ne(args ...Expr) Expr  { return InfixExprOrSelf(NeOp, args...) }
-func Gt(args ...Expr) Expr  { return InfixExprOrSelf(GtOp, args...) }
-func Gte(args ...Expr) Expr { return InfixExprOrSelf(GteOp, args...) }
-
-func And(args ...Expr) Expr { return InfixExprOrSelf(AndOp, args...) }
-func Or(args ...Expr) Expr  { return InfixExprOrSelf(OrOp, args...) }
+func And(args ...Expr) Expr { return InfixOf(AndOp, args...) }
+func Or(args ...Expr) Expr  { return InfixOf(OrOp, args...) }
 
 //
 
@@ -291,18 +289,18 @@ func (o UnaryOp) String() string {
 	panic(fmt.Errorf("invalid unary op: %d", o))
 }
 
-type UnaryExpr struct {
+type Unary struct {
 	Op  UnaryOp
 	Arg Expr
 
 	expr
 }
 
-func UnaryExprOf(op UnaryOp, arg Expr) UnaryExpr {
-	return UnaryExpr{
+func UnaryOf(op UnaryOp, arg Expr) Unary {
+	return Unary{
 		Op:  op,
 		Arg: check.NotNil(arg).(Expr),
 	}
 }
 
-func Not(arg Expr) Expr { return UnaryExprOf(NotOp, arg) }
+func Not(arg Expr) Expr { return UnaryOf(NotOp, arg) }
