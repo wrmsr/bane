@@ -1,7 +1,6 @@
 package inject
 
 import (
-	"fmt"
 	"reflect"
 
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -19,13 +18,17 @@ func asBinding(o any) Binding {
 		panic(genericErrorf("must explicitly bind nil"))
 	}
 
+	if o, ok := o.(Bindings); ok {
+		panic(genericErrorf("must not create Binding from Bindings: %s", o))
+	}
+
 	if o, ok := o.(Binding); ok {
 		return o
 	}
 
 	if o, ok := o.(Provider); ok {
 		return Binding{key: Key{ty: o.providedTy(func(Key) reflect.Type {
-			panic(genericError(fmt.Errorf("can't determine binding type: %s", o)))
+			panic(genericErrorf("can't determine binding type: %s", o))
 		})}, provider: o}
 	}
 
@@ -38,9 +41,11 @@ func asBinding(o any) Binding {
 }
 
 func asBindings(os []any) []Binding {
-	bs := make([]Binding, len(os))
-	for i, o := range os {
-		bs[i] = asBinding(o)
+	bs := make([]Binding, 0, len(os))
+	for _, o := range os {
+		if o != nil {
+			bs = append(bs, asBinding(o))
+		}
 	}
 	return bs
 }
@@ -112,7 +117,7 @@ func Override(p Bindings, a ...any) Bindings {
 	m := make(map[Key]Binding)
 	Bind(a...).ForEach(func(b Binding) bool {
 		if _, ok := m[b.key]; ok {
-			panic(DuplicateBindingError{b.key})
+			panic(DuplicateBindingError{KeyError{Key: b.key}})
 		}
 		m[b.key] = b
 		return true
@@ -149,7 +154,7 @@ func makeProviderMap(bs Bindings) providerMap {
 			am[b.key] = append(am[b.key], b.provider)
 		} else {
 			if _, ok := pm[b.key]; ok {
-				panic(DuplicateBindingError{b.key})
+				panic(DuplicateBindingError{KeyError{Key: b.key}})
 			}
 			pm[b.key] = b.provider
 		}

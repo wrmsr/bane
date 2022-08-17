@@ -8,6 +8,8 @@ import (
 //
 
 type Error interface {
+	error
+
 	isError()
 }
 
@@ -32,30 +34,59 @@ func (e GenericError) Unwrap() error { return e.Err }
 
 //
 
-type UnboundKeyError struct {
+type KeyError struct {
 	Key Key
-	Src any
+
+	Source any
+	Name   string
 }
 
-func (e UnboundKeyError) isError() {}
+var _ Error = KeyError{}
 
-func (e UnboundKeyError) Error() string {
+func (e KeyError) isError() {}
+
+func (e KeyError) Error() string {
+	return e.error("key error")
+}
+
+func (e KeyError) error(prefix string) string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("unbound key: %+v", e.Key))
-	if e.Src != nil {
-		sb.WriteString(fmt.Sprintf(" from src: %s", e.Src))
+	sb.WriteString(fmt.Sprintf("%s key: %+v", prefix, e.Key))
+	if e.Source != nil {
+		sb.WriteString(fmt.Sprintf(" from source: %s", e.Source))
+	}
+	if e.Name != "" {
+		sb.WriteString(fmt.Sprintf(" with name: %s", e.Name))
 	}
 	return sb.String()
 }
 
 //
 
-type DuplicateBindingError struct {
-	Key Key
+type UnboundKeyError struct {
+	KeyError
 }
 
-func (e DuplicateBindingError) isError() {}
+func (e UnboundKeyError) Error() string {
+	return e.error("unbound key")
+}
+
+//
+
+type DuplicateKeyError struct {
+	KeyError
+}
+
+func (e DuplicateKeyError) Error() string {
+	return e.error("duplicate key")
+}
+
+//
+
+type DuplicateBindingError struct {
+	KeyError
+}
 
 func (e DuplicateBindingError) Error() string {
-	return fmt.Sprintf("duplicate binding: %+v", e.Key)
+	return e.error("duplicate binding")
 }

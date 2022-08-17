@@ -6,6 +6,8 @@ import (
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
+//
+
 type Injector struct {
 	bs Bindings
 	p  *Injector
@@ -30,11 +32,27 @@ func (i *Injector) NewChild(bs Bindings) *Injector {
 	return c
 }
 
+//
+
+var injectorKey = KeyOf[*Injector]()
+
 func (i *Injector) TryProvide(o any) (any, bool) {
 	k := AsKey(o)
+
+	if k == injectorKey {
+		return i, true
+	}
+
 	if p, ok := i.pfm[k]; ok {
 		return p(i), true
 	}
+
+	if i.p != nil {
+		if p, ok := i.p.TryProvide(k); ok {
+			return p, true
+		}
+	}
+
 	return nil, false
 }
 
@@ -43,12 +61,23 @@ func (i *Injector) Provide(o any) any {
 	if v, ok := i.TryProvide(k); ok {
 		return v
 	}
-	panic(UnboundKeyError{Key: k})
+
+	panic(UnboundKeyError{KeyError{Key: k}})
 }
 
 func (i *Injector) ProvideArgs(fn any) []any {
 	fnty := rfl.AsValue(fn).Type()
 	ni := fnty.NumIn()
+
+	seen := make(map[reflect.Type]struct{}, ni)
+	for n := 0; n < ni; n++ {
+		aty := fnty.In(n)
+		if _, ok := seen[aty]; ok {
+			panic(DuplicateKeyError{KeyError{Key: AsKey(aty), Source: fn}})
+		}
+		seen[aty] = struct{}{}
+	}
+
 	as := make([]any, ni)
 	for n := 0; n < ni; n++ {
 		aty := fnty.In(n)
@@ -57,10 +86,19 @@ func (i *Injector) ProvideArgs(fn any) []any {
 			as[n] = v
 			continue
 		}
-		panic(UnboundKeyError{Key: ak, Src: fn})
+		panic(UnboundKeyError{KeyError{Key: ak, Source: fn}})
 	}
 
 	return as
+}
+
+func (i *Injector) ArgsProvider() rfl.ArgsProvider {
+	return func(fn any, args ...any) []any {
+		if len(args) < 1 {
+			return i.ProvideArgs(fn)
+		}
+		return i.NewChild(Bind(args...)).ProvideArgs(fn)
+	}
 }
 
 func (i *Injector) Inject(fn any) []any {

@@ -1,6 +1,7 @@
 package inject
 
 import (
+	"fmt"
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
@@ -17,6 +18,8 @@ func TestInjector(t *testing.T) {
 			return 2
 		}),
 	))
+
+	fmt.Println(inj.Debug())
 
 	tu.AssertEqual(t, inj.Provide(Type[int]()).(int), 420)
 
@@ -44,5 +47,8 @@ func TestArrays(t *testing.T) {
 	tu.AssertDeepEqual(t, inj.Provide(KeyOf[string]()), "hi")
 	tu.AssertDeepEqual(t, inj.Provide(Array(KeyOf[int]())), []int{420, 421})
 
-	tu.AssertDeepEqual(t, inj.Provide(Array(KeyOf[int]())), []int{420, 421})
+	inj2 := inj.NewChild(Bind(
+		As(KeyOf[[]int](), Link(Array(KeyOf[int]()))),
+	))
+	tu.AssertDeepEqual(t, inj2.Provide(KeyOf[[]int]()), []int{420, 421})
 }

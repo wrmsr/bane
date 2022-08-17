@@ -1,6 +1,12 @@
 package inject
 
-import eu "github.com/wrmsr/bane/pkg/util/errors"
+import (
+	"reflect"
+
+	eu "github.com/wrmsr/bane/pkg/util/errors"
+)
+
+//
 
 func NewDeferInjector(bs Bindings) (*Injector, func() error) {
 	inj := NewInjector(
@@ -11,4 +17,36 @@ func NewDeferInjector(bs Bindings) (*Injector, func() error) {
 	)
 	ds := ProvideAs[*eu.DeferStack](inj)
 	return inj, ds.Call
+}
+
+//
+
+type Closer interface {
+	Close() error
+}
+
+type closingProvider struct {
+	p Provider
+}
+
+func Closing(o any) Provider {
+	return closingProvider{p: asProvider(o)}
+}
+
+var _ Provider = closingProvider{}
+
+func (p closingProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
+	return p.p.providedTy(rec)
+}
+
+var deferStackKey = KeyOf[*eu.DeferStack]()
+
+func (p closingProvider) providerFn() providerFn {
+	pfn := p.p.providerFn()
+	return func(i any) any {
+		ds := i.(*Injector).Provide(deferStackKey).(*eu.DeferStack)
+		o := pfn(i)
+		ds.DeferErr(o.(Closer).Close)
+		return o
+	}
 }

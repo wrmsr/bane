@@ -2,9 +2,7 @@ package inject
 
 import "sync"
 
-var (
-	binderRegistrySealedErr = genericErrorf("should not be sealed")
-)
+var binderRegistrySealedErr = genericErrorf("should not be sealed")
 
 type BinderRegistry struct {
 	mtx sync.Mutex
