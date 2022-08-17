@@ -89,4 +89,6 @@ func (a NdArray[T]) Slice(bounds ...Bound) NdArray[T] {
 	if len(bounds) > len(a.sh) {
 		panic(fmt.Errorf("slice dimension mismatch"))
 	}
+
+	panic("nyi")
 }

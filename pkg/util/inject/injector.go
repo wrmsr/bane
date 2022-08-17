@@ -8,19 +8,31 @@ import (
 
 type Injector struct {
 	bs Bindings
-	pm providerMap
+	p  *Injector
+
+	pfm providerFnMap
 }
 
 func NewInjector(bs Bindings) *Injector {
 	return &Injector{
 		bs: bs,
-		pm: makeProviderMap(bs),
+
+		pfm: makeProviderMap(bs).fns(),
 	}
+}
+
+func (i *Injector) Bindings() Bindings { return i.bs }
+func (i *Injector) Parent() *Injector  { return i.p }
+
+func (i *Injector) NewChild(bs Bindings) *Injector {
+	c := NewInjector(bs)
+	c.p = i
+	return c
 }
 
 func (i *Injector) TryProvide(o any) (any, bool) {
 	k := AsKey(o)
-	if p, ok := i.pm[k]; ok {
+	if p, ok := i.pfm[k]; ok {
 		return p(i), true
 	}
 	return nil, false

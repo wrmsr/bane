@@ -10,12 +10,24 @@ import (
 
 //
 
-type providerFn = func(injector any) any
-type providerMap map[Key]providerFn
-
 type Provider interface {
 	providedTy(rec func(Key) reflect.Type) reflect.Type
 	providerFn() providerFn
+}
+
+//
+
+type providerMap map[Key]Provider
+
+type providerFn = func(injector any) any
+type providerFnMap map[Key]providerFn
+
+func (pm providerMap) fns() providerFnMap {
+	pfm := make(providerFnMap, len(pm))
+	for k, p := range pm {
+		pfm[k] = p.providerFn()
+	}
+	return pfm
 }
 
 //
@@ -150,5 +162,44 @@ func (p singletonProvider) providerFn() providerFn {
 			v.Store(box{fn(i)})
 		})
 		return v.Load().(box).v
+	}
+}
+
+//
+
+type arrayProvider struct {
+	ty reflect.Type
+	ps []Provider
+
+	sty reflect.Type
+}
+
+func newArrayProvider(ty reflect.Type, ps []Provider) arrayProvider {
+	return arrayProvider{
+		ty: ty,
+		ps: ps,
+
+		sty: reflect.SliceOf(ty),
+	}
+}
+
+var _ Provider = arrayProvider{}
+
+func (p arrayProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
+	return p.sty
+}
+
+func (p arrayProvider) providerFn() providerFn {
+	l := len(p.ps)
+	ps := make([]providerFn, l, l)
+	for n, p := range p.ps {
+		ps[n] = p.providerFn()
+	}
+	return func(injector any) any {
+		rv := reflect.MakeSlice(p.sty, l, l)
+		for n, c := range ps {
+			rv.Index(n).Set(reflect.ValueOf(c(injector)))
+		}
+		return rv.Interface()
 	}
 }

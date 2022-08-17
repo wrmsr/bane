@@ -139,13 +139,26 @@ func (bs overrides) ForEach(fn func(Binding) bool) bool {
 //
 
 func makeProviderMap(bs Bindings) providerMap {
-	m := make(providerMap)
+	pm := make(providerMap)
+	var am map[Key][]Provider
 	bs.ForEach(func(b Binding) bool {
-		if _, ok := m[b.key]; ok {
-			panic(DuplicateBindingError{b.key})
+		if b.key.arr {
+			if am == nil {
+				am = make(map[Key][]Provider)
+			}
+			am[b.key] = append(am[b.key], b.provider)
+		} else {
+			if _, ok := pm[b.key]; ok {
+				panic(DuplicateBindingError{b.key})
+			}
+			pm[b.key] = b.provider
 		}
-		m[b.key] = b.provider.providerFn()
 		return true
 	})
-	return m
+	if am != nil {
+		for k, aps := range am {
+			pm[k] = newArrayProvider(k.ty, aps)
+		}
+	}
+	return pm
 }

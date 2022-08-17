@@ -33,3 +33,16 @@ func TestInjector(t *testing.T) {
 
 	tu.AssertEqual(t, numFoos, 1)
 }
+
+func TestArrays(t *testing.T) {
+	inj := NewInjector(Bind(
+		As(KeyOf[string](), "hi"),
+		As(Array(KeyOf[int]()), 420),
+		As(Array(KeyOf[int]()), 421),
+	))
+
+	tu.AssertDeepEqual(t, inj.Provide(KeyOf[string]()), "hi")
+	tu.AssertDeepEqual(t, inj.Provide(Array(KeyOf[int]())), []int{420, 421})
+
+	tu.AssertDeepEqual(t, inj.Provide(Array(KeyOf[int]())), []int{420, 421})
+}

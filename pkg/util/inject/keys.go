@@ -29,6 +29,12 @@ func AsKey(o any) Key {
 	}
 }
 
+func Array(o any) Key {
+	k := AsKey(o)
+	k.arr = true
+	return k
+}
+
 func Tag(o, tag any) Key {
 	k := AsKey(o)
 	k.tag = tag
