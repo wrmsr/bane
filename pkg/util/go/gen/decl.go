@@ -67,6 +67,12 @@ type StmtDecl struct {
 	decl
 }
 
+func StmtDeclOf(stmt Stmt) StmtDecl {
+	return StmtDecl{
+		Stmt: stmt,
+	}
+}
+
 //
 
 type Struct struct {

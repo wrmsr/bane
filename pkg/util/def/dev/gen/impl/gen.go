@@ -11,7 +11,6 @@ import (
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/go/gen"
 	iou "github.com/wrmsr/bane/pkg/util/io"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
 )
@@ -45,10 +44,10 @@ func NewFileGen(
 }
 
 func newPtrFuncType(elem gg.Type) gg.FuncType {
-	return gg.NewFuncType(
+	return gg.FuncTypeOf(
 		gg.Func{
 			Params: []gg.Param{
-				{Type: gg.NewPtr(elem)},
+				{Type: gg.PtrOf(elem)},
 			},
 		},
 	)
@@ -58,25 +57,24 @@ func (fg *FileGen) Gen() string {
 	fg.genStructs()
 
 	doInit := gg.Func{
-		Body: gg.BlockOf(slices.DeepFlatten[gg.Stmt](
+		Body: gg.NewBlock(slices.DeepFlatten[gg.Stmt](
 			gg.ShortVar{
 				Name:  gg.IdentOf("spec"),
-				Value: gg.NewCall(gg.NewSelect(gg.IdentOf("def"), gg.IdentOf("X_getPackageSpec")))},
+				Value: gg.CallOf(gg.SelectOf(gg.IdentOf("def"), gg.IdentOf("X_getPackageSpec")))},
 			fg.initStmts,
 		)...)}
 
 	fg.decls = slices.DeepFlatten[gg.Decl](
-		gg.StmtDecl{
-			Stmt: gg.NewVar(
-				gg.IdentOf("_def_init_once"),
-				opt.Just[gg.Type](gg.NewNameType(gg.IdentOf("sync.Once"))), opt.None[gg.Expr]())},
+		gg.StmtDeclOf(gg.Var{
+			Name: gg.IdentOf("_def_init_once"),
+			Type: gg.NameTypeOf(gg.IdentOf("sync.Once"))}),
 
 		gg.Func{
 			Name: gg.NewIdent("_def_init"),
-			Body: gg.BlockOf(
-				gg.NewExprStmt(gg.NewCall(
-					gg.NewSelect(gg.IdentOf("_def_init_once"), gg.IdentOf("Do")),
-					gg.NewFuncExpr(doInit))))},
+			Body: gg.NewBlock(
+				gg.ExprStmtOf(gg.CallOf(
+					gg.SelectOf(gg.IdentOf("_def_init_once"), gg.IdentOf("Do")),
+					gg.FuncExpr{Func: doInit})))},
 
 		fg.decls)
 

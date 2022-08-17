@@ -2,7 +2,6 @@ package gen
 
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 )
 
 //
@@ -27,7 +26,7 @@ type Assign struct {
 	stmt
 }
 
-func NewAssign(var_ Expr, value Expr) Assign {
+func AssignOf(var_ Expr, value Expr) Assign {
 	return Assign{
 		Var:   var_,
 		Value: value,
@@ -40,10 +39,6 @@ type Blank struct {
 	stmt
 }
 
-func NewBlank() Blank {
-	return Blank{}
-}
-
 //
 
 type Block struct {
@@ -52,13 +47,13 @@ type Block struct {
 	stmt
 }
 
-func BlockOf(body ...Stmt) *Block {
+func NewBlock(body ...Stmt) *Block {
 	return &Block{
 		Body: body,
 	}
 }
 
-func NewBlock(body ...Stmt) Block {
+func BlockOf(body ...Stmt) Block {
 	return Block{
 		Body: body,
 	}
@@ -77,7 +72,7 @@ type Const struct {
 	stmt
 }
 
-func NewConst(name Ident, value Expr) Const {
+func ConstOf(name Ident, value Expr) Const {
 	return Const{
 		Name:  name,
 		Value: value,
@@ -92,7 +87,7 @@ type Consts struct {
 	stmt
 }
 
-func NewConsts(consts []Const) Consts {
+func ConstsOf(consts []Const) Consts {
 	return Consts{
 		Consts: consts,
 	}
@@ -106,7 +101,7 @@ type ExprStmt struct {
 	stmt
 }
 
-func NewExprStmt(expr Expr) ExprStmt {
+func ExprStmtOf(expr Expr) ExprStmt {
 	return ExprStmt{
 		Expr: check.NotNil(expr).(Expr),
 	}
@@ -122,7 +117,7 @@ type If struct {
 	stmt
 }
 
-func NewIfElse(cond Expr, then, else_ Block) If {
+func IfElseOf(cond Expr, then, else_ Block) If {
 	return If{
 		Cond: check.NotNil(cond).(Expr),
 		Then: then,
@@ -130,8 +125,8 @@ func NewIfElse(cond Expr, then, else_ Block) If {
 	}
 }
 
-func NewIf(cond Expr, then Block) If {
-	return NewIfElse(cond, then, NewBlock())
+func IfOf(cond Expr, then Block) If {
+	return IfElseOf(cond, then, BlockOf())
 }
 
 //
@@ -143,7 +138,7 @@ type ShortVar struct {
 	stmt
 }
 
-func NewShortVar(name Ident, value Expr) ShortVar {
+func ShortVarOf(name Ident, value Expr) ShortVar {
 	return ShortVar{
 		Name:  name,
 		Value: value,
@@ -154,18 +149,10 @@ func NewShortVar(name Ident, value Expr) ShortVar {
 
 type Var struct {
 	Name  Ident
-	Type  opt.Optional[Type]
-	Value opt.Optional[Expr]
+	Type  Type
+	Value Expr
 
 	stmt
-}
-
-func NewVar(name Ident, type_ opt.Optional[Type], value opt.Optional[Expr]) Var {
-	return Var{
-		Name:  name,
-		Type:  type_,
-		Value: value,
-	}
 }
 
 //
@@ -176,7 +163,7 @@ type Vars struct {
 	stmt
 }
 
-func NewVars(vars []Var) Vars {
+func VarsOf(vars ...Var) Vars {
 	return Vars{
 		Vars: vars,
 	}

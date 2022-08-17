@@ -24,13 +24,6 @@ type Array struct {
 	type_
 }
 
-func NewArray(len_ opt.Optional[int], elem Type) Array {
-	return Array{
-		Len:  len_,
-		Elem: elem,
-	}
-}
-
 //
 
 type FuncType struct {
@@ -39,7 +32,7 @@ type FuncType struct {
 	type_
 }
 
-func NewFuncType(func_ Func) FuncType {
+func FuncTypeOf(func_ Func) FuncType {
 	return FuncType{
 		Func: func_,
 	}
@@ -54,7 +47,7 @@ type Map struct {
 	type_
 }
 
-func NewMap(key, value Type) Map {
+func MapOf(key, value Type) Map {
 	return Map{
 		Key:   key,
 		Value: value,
@@ -69,7 +62,7 @@ type Ptr struct {
 	type_
 }
 
-func NewPtr(elem Type) Ptr {
+func PtrOf(elem Type) Ptr {
 	return Ptr{
 		Elem: elem,
 	}
@@ -83,7 +76,7 @@ type NameType struct {
 	type_
 }
 
-func NewNameType(name Ident) NameType {
+func NameTypeOf(name Ident) NameType {
 	return NameType{
 		Name: name,
 	}
@@ -97,7 +90,7 @@ type Slice struct {
 	type_
 }
 
-func NewSlice(elem Type) Slice {
+func SliceOf(elem Type) Slice {
 	return Slice{
 		Elem: elem,
 	}

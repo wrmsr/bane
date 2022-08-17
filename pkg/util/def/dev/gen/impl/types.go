@@ -165,5 +165,5 @@ func (ti *typeImporter) importedType(ty any) gg.Type {
 		}
 	}
 	rec(tyu.SpecOf(ty))
-	return gg.NewNameType(gg.IdentOf(sb.String()))
+	return gg.NameTypeOf(gg.IdentOf(sb.String()))
 }

@@ -27,12 +27,6 @@ type Addr struct {
 	expr
 }
 
-func NewAddr(value Expr) Addr {
-	return Addr{
-		Value: value,
-	}
-}
-
 //
 
 type Call struct {
@@ -42,7 +36,7 @@ type Call struct {
 	expr
 }
 
-func NewCall(func_ Expr, args ...Expr) Call {
+func CallOf(func_ Expr, args ...Expr) Call {
 	return Call{
 		Func: func_,
 		Args: args,
@@ -57,12 +51,6 @@ type Deref struct {
 	expr
 }
 
-func NewDeref(value Expr) Deref {
-	return Deref{
-		Value: value,
-	}
-}
-
 //
 
 type FuncExpr struct {
@@ -71,7 +59,7 @@ type FuncExpr struct {
 	expr
 }
 
-func NewFuncExpr(func_ Func) FuncExpr {
+func FuncExprOf(func_ Func) FuncExpr {
 	return FuncExpr{
 		Func: func_,
 	}
@@ -106,7 +94,7 @@ type Index struct {
 	expr
 }
 
-func NewIndex(value, index Expr) Index {
+func IndexOf(value, index Expr) Index {
 	return Index{
 		Value: value,
 		Index: index,
@@ -190,38 +178,38 @@ type InfixExpr struct {
 	expr
 }
 
-func NewInfixExpr(op InfixOp, args ...Expr) InfixExpr {
+func InfixExprOf(op InfixOp, args ...Expr) InfixExpr {
 	return InfixExpr{
 		Op:   op,
 		Args: check.NotEmptySlice(args),
 	}
 }
 
-func NewInfixExprOrSelf(op InfixOp, args ...Expr) Expr {
+func InfixExprOrSelf(op InfixOp, args ...Expr) Expr {
 	if len(args) == 1 {
 		return args[0]
 	}
-	return NewInfixExpr(
+	return InfixExprOf(
 		op,
 		args...,
 	)
 }
 
-func Add(args ...Expr) Expr { return NewInfixExprOrSelf(AddOp, args...) }
-func Sub(args ...Expr) Expr { return NewInfixExprOrSelf(SubOp, args...) }
-func Mul(args ...Expr) Expr { return NewInfixExprOrSelf(MulOp, args...) }
-func Div(args ...Expr) Expr { return NewInfixExprOrSelf(DivOp, args...) }
-func Mod(args ...Expr) Expr { return NewInfixExprOrSelf(ModOp, args...) }
+func Add(args ...Expr) Expr { return InfixExprOrSelf(AddOp, args...) }
+func Sub(args ...Expr) Expr { return InfixExprOrSelf(SubOp, args...) }
+func Mul(args ...Expr) Expr { return InfixExprOrSelf(MulOp, args...) }
+func Div(args ...Expr) Expr { return InfixExprOrSelf(DivOp, args...) }
+func Mod(args ...Expr) Expr { return InfixExprOrSelf(ModOp, args...) }
 
-func Lt(args ...Expr) Expr  { return NewInfixExprOrSelf(LtOp, args...) }
-func Lte(args ...Expr) Expr { return NewInfixExprOrSelf(LteOp, args...) }
-func Eq(args ...Expr) Expr  { return NewInfixExprOrSelf(EqOp, args...) }
-func Ne(args ...Expr) Expr  { return NewInfixExprOrSelf(NeOp, args...) }
-func Gt(args ...Expr) Expr  { return NewInfixExprOrSelf(GtOp, args...) }
-func Gte(args ...Expr) Expr { return NewInfixExprOrSelf(GteOp, args...) }
+func Lt(args ...Expr) Expr  { return InfixExprOrSelf(LtOp, args...) }
+func Lte(args ...Expr) Expr { return InfixExprOrSelf(LteOp, args...) }
+func Eq(args ...Expr) Expr  { return InfixExprOrSelf(EqOp, args...) }
+func Ne(args ...Expr) Expr  { return InfixExprOrSelf(NeOp, args...) }
+func Gt(args ...Expr) Expr  { return InfixExprOrSelf(GtOp, args...) }
+func Gte(args ...Expr) Expr { return InfixExprOrSelf(GteOp, args...) }
 
-func And(args ...Expr) Expr { return NewInfixExprOrSelf(AndOp, args...) }
-func Or(args ...Expr) Expr  { return NewInfixExprOrSelf(OrOp, args...) }
+func And(args ...Expr) Expr { return InfixExprOrSelf(AndOp, args...) }
+func Or(args ...Expr) Expr  { return InfixExprOrSelf(OrOp, args...) }
 
 //
 
@@ -231,7 +219,7 @@ type Lit struct {
 	expr
 }
 
-func NewLit(s string) Lit {
+func LitOf(s string) Lit {
 	return Lit{
 		String: check.NotZero(s),
 	}
@@ -245,7 +233,7 @@ type Paren struct {
 	expr
 }
 
-func NewParen(value Expr) Paren {
+func ParenOf(value Expr) Paren {
 	return Paren{
 		Value: value,
 	}
@@ -260,7 +248,7 @@ type Select struct {
 	expr
 }
 
-func NewSelect(value Expr, names ...Ident) Select {
+func SelectOf(value Expr, names ...Ident) Select {
 	return Select{
 		Value: value,
 		Names: names,
@@ -276,7 +264,7 @@ type TypeAssert struct {
 	expr
 }
 
-func NewTypeAssert(value Expr, type_ Type) TypeAssert {
+func TypeAssertOf(value Expr, type_ Type) TypeAssert {
 	return TypeAssert{
 		Value: value,
 		Type:  type_,
@@ -310,11 +298,11 @@ type UnaryExpr struct {
 	expr
 }
 
-func NewUnaryExpr(op UnaryOp, arg Expr) UnaryExpr {
+func UnaryExprOf(op UnaryOp, arg Expr) UnaryExpr {
 	return UnaryExpr{
 		Op:  op,
 		Arg: check.NotNil(arg).(Expr),
 	}
 }
 
-func Not(arg Expr) Expr { return NewUnaryExpr(NotOp, arg) }
+func Not(arg Expr) Expr { return UnaryExprOf(NotOp, arg) }
