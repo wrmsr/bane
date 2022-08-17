@@ -37,6 +37,16 @@ func ExprOf(o any) Expr {
 
 //
 
+type Exprs []Expr
+
+func (s *Exprs) Append(os ...any) {
+	for _, o := range os {
+		*s = append(*s, ExprOf(o))
+	}
+}
+
+//
+
 type Addr struct {
 	Value Expr
 

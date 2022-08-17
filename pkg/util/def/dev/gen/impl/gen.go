@@ -23,7 +23,7 @@ type FileGen struct {
 	ti *typeImporter
 
 	decls     []gg.Decl
-	initStmts []gg.Stmt
+	initStmts gg.Stmts
 }
 
 func NewFileGen(

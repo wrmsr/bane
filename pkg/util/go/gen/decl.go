@@ -25,6 +25,16 @@ func DeclOf(o any) Decl {
 
 //
 
+type Decls []Decl
+
+func (s *Decls) Append(os ...any) {
+	for _, o := range os {
+		*s = append(*s, DeclOf(o))
+	}
+}
+
+//
+
 type Func struct {
 	Receiver *Param
 	Name     *Ident

@@ -30,6 +30,16 @@ func StmtOf(o any) Stmt {
 
 //
 
+type Stmts []Stmt
+
+func (s *Stmts) Append(os ...any) {
+	for _, o := range os {
+		*s = append(*s, StmtOf(o))
+	}
+}
+
+//
+
 type Assign struct {
 	Var   Expr
 	Value Expr

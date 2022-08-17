@@ -18,7 +18,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 	ssName := gg.IdentOf(fmt.Sprintf("struct_spec__%s", sn))
 
 	zn := fmt.Sprintf("zero_%s", sn)
-	fg.initStmts = append(fg.initStmts,
+	fg.initStmts.Append(
 		gg.Blank{},
 
 		gg.VarOf(zn, gg.NameTypeOf(sn)),
@@ -37,7 +37,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 	var sfs []gg.StructField
 	var dflVds []gg.Var
 
-	initStmts := []gg.Stmt{
+	initStmts := gg.Stmts{
 		gg.ExprStmtOf(gg.CallOf("_def_init")),
 	}
 
@@ -51,7 +51,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 		fsName := gg.IdentOf(fmt.Sprintf("field_spec__%s__%s", sn, fs.Name()))
 
-		fg.initStmts = append(fg.initStmts,
+		initStmts.Append(
 			gg.Blank{},
 
 			gg.ShortVarOf(
@@ -69,7 +69,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 			dflVds = append(dflVds,
 				gg.VarOf(dflName, fg.ti.importedType(fs.Type())))
 
-			fg.initStmts = append(fg.initStmts,
+			initStmts.Append(
 				gg.Blank{},
 
 				gg.AssignOf(
@@ -78,7 +78,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 						gg.CallOf(gg.SelectOf(fsName, "Default")),
 						fg.ti.importedType(fs.Type()))))
 
-			initStmts = append(initStmts,
+			initStmts.Append(
 				gg.Blank{},
 
 				gg.AssignOf(gg.SelectOf("f", fs.Name()), dflName))
