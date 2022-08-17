@@ -27,10 +27,10 @@ type Assign struct {
 	stmt
 }
 
-func AssignOf(var_ Expr, value Expr) Assign {
+func AssignOf(var_, value any) Assign {
 	return Assign{
-		Var:   var_,
-		Value: value,
+		Var:   ExprOf(var_),
+		Value: ExprOf(value),
 	}
 }
 

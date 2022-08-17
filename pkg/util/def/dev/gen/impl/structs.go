@@ -26,19 +26,19 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 		gg.ShortVarOf(
 			ssName,
 			gg.CallOf(
-				gg.SelectOf(gg.IdentOf("spec"), gg.IdentOf("Struct")),
+				gg.SelectOf("spec", "Struct"),
 				gg.CallOf(
-					gg.SelectOf(gg.IdentOf("reflect"), gg.IdentOf("TypeOf")),
+					gg.SelectOf("reflect", "TypeOf"),
 					gg.IdentOf(zn)))),
 
-		gg.AssignOf(gg.IdentOf("_"), ssName),
+		gg.AssignOf("_", ssName),
 	)
 
 	var sfs []gg.StructField
 	var dflVds []gg.Var
 
 	initStmts := []gg.Stmt{
-		gg.ExprStmtOf(gg.CallOf(gg.IdentOf("_def_init"))),
+		gg.ExprStmtOf(gg.CallOf("_def_init")),
 	}
 
 	rcvr := ss.Receiver()
@@ -57,10 +57,10 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 			gg.ShortVarOf(
 				fsName,
 				gg.CallOf(
-					gg.SelectOf(ssName, gg.IdentOf("Field")),
+					gg.SelectOf(ssName, "Field"),
 					gg.LitOf(fmt.Sprintf("\"%s\"", fs.Name())))),
 
-			gg.AssignOf(gg.IdentOf("_"), fsName),
+			gg.AssignOf("_", fsName),
 		)
 
 		if fs.Default() != nil {
@@ -75,13 +75,13 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 				gg.AssignOf(
 					dflName,
 					gg.TypeAssertOf(
-						gg.CallOf(gg.SelectOf(fsName, gg.IdentOf("Default"))),
+						gg.CallOf(gg.SelectOf(fsName, "Default")),
 						fg.ti.importedType(fs.Type()))))
 
 			initStmts = append(initStmts,
 				gg.Blank{},
 
-				gg.AssignOf(gg.SelectOf(gg.IdentOf("f"), gg.IdentOf(fs.Name())), dflName))
+				gg.AssignOf(gg.SelectOf("f", fs.Name()), dflName))
 		}
 	}
 
@@ -110,15 +110,15 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 					gg.AssignOf(
 						initName,
 						gg.TypeAssertOf(
-							gg.IndexOf(gg.CallOf(gg.SelectOf(ssName, gg.IdentOf("Inits"))), gg.LitOf(strconv.Itoa(i))),
+							gg.IndexOf(gg.CallOf(gg.SelectOf(ssName, "Inits")), gg.LitOf(strconv.Itoa(i))),
 							newPtrFuncType(gg.NameTypeOf(sName)))))
 
 				initStmts = append(initStmts,
-					gg.ExprStmtOf(gg.CallOf(initName, gg.IdentOf("f"))))
+					gg.ExprStmtOf(gg.CallOf(initName, "f")))
 
 			case *ast.FuncDecl:
 				initStmts = append(initStmts,
-					gg.ExprStmtOf(gg.CallOf(gg.SelectOf(gg.IdentOf("f"), gg.IdentOf(o.Name.Name)))))
+					gg.ExprStmtOf(gg.CallOf(gg.SelectOf("f", o.Name.Name))))
 
 			default:
 				panic(i)

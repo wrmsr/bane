@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 //
@@ -18,6 +19,21 @@ type expr struct {
 }
 
 func (e expr) isExpr() {}
+
+//
+
+func ExprOf(o any) Expr {
+	if o, ok := o.(Expr); ok {
+		return o
+	}
+
+	switch o.(type) {
+	case string:
+		return IdentOf(o)
+	}
+
+	panic(o)
+}
 
 //
 
@@ -36,10 +52,10 @@ type Call struct {
 	expr
 }
 
-func CallOf(func_ Expr, args ...Expr) Call {
+func CallOf(func_ any, args ...any) Call {
 	return Call{
-		Func: func_,
-		Args: args,
+		Func: ExprOf(func_),
+		Args: slices.Map(ExprOf, args),
 	}
 }
 
@@ -246,10 +262,10 @@ type Select struct {
 	expr
 }
 
-func SelectOf(value Expr, names ...Ident) Select {
+func SelectOf(value any, names ...any) Select {
 	return Select{
-		Value: value,
-		Names: names,
+		Value: ExprOf(value),
+		Names: slices.Map(IdentOf, names),
 	}
 }
 

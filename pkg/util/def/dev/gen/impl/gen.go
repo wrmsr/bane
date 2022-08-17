@@ -58,9 +58,9 @@ func (fg *FileGen) Gen() string {
 
 	doInit := gg.Func{
 		Body: gg.NewBlock(slices.DeepFlatten[gg.Stmt](
-			gg.ShortVar{
-				Name:  gg.IdentOf("spec"),
-				Value: gg.CallOf(gg.SelectOf(gg.IdentOf("def"), gg.IdentOf("X_getPackageSpec")))},
+			gg.ShortVarOf(
+				gg.IdentOf("spec"),
+				gg.CallOf(gg.SelectOf("def", "X_getPackageSpec"))),
 			fg.initStmts,
 		)...)}
 
@@ -73,7 +73,7 @@ func (fg *FileGen) Gen() string {
 			Name: gg.NewIdent("_def_init"),
 			Body: gg.NewBlock(
 				gg.ExprStmtOf(gg.CallOf(
-					gg.SelectOf(gg.IdentOf("_def_init_once"), gg.IdentOf("Do")),
+					gg.SelectOf("_def_init_once", "Do"),
 					gg.FuncExpr{Func: doInit})))},
 
 		fg.decls)

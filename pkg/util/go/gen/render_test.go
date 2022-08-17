@@ -73,28 +73,28 @@ func TestDefBuilder(t *testing.T) {
 		Name: NewIdent("_def_init"),
 		Body: NewBlock(
 			ExprStmtOf(CallOf(
-				SelectOf(IdentOf("_def_init_once"), IdentOf("Do")),
+				SelectOf("_def_init_once", "Do"),
 				FuncExprOf(Func{
 					Body: NewBlock(
 						ShortVarOf(
 							IdentOf("spec"),
-							CallOf(SelectOf(IdentOf("def"), IdentOf("X_getPackageSpec")))),
+							CallOf(SelectOf("def", "X_getPackageSpec"))),
 
 						ShortVarOf(
 							IdentOf("struct_spec__Foo"),
-							CallOf(SelectOf(IdentOf("spec"), IdentOf("Struct")), LitOf("\"foo\""))),
-						AssignOf(IdentOf("_"), IdentOf("struct_spec__Foo")),
+							CallOf(SelectOf("spec", "Struct"), LitOf("\"foo\""))),
+						AssignOf("_", "struct_spec__Foo"),
 
 						AssignOf(
-							IdentOf("_def_field_default__Foo__baz"),
+							"_def_field_default__Foo__baz",
 							TypeAssertOf(
-								CallOf(SelectOf(IdentOf("struct_spec__Foo"), IdentOf("Default"))),
+								CallOf(SelectOf("struct_spec__Foo", "Default")),
 								NameTypeOf("int"))),
 
 						AssignOf(
-							IdentOf("_def_struct_init__Foo__0"),
+							"_def_struct_init__Foo__0",
 							TypeAssertOf(
-								IndexOf(CallOf(SelectOf(IdentOf("struct_spec__Foo"), IdentOf("Inits"))), LitOf("0")),
+								IndexOf(CallOf(SelectOf("struct_spec__Foo", "Inits")), LitOf("0")),
 								newPtrFuncType(NameTypeOf("Foo")))),
 					),
 				}),
@@ -116,9 +116,9 @@ func TestDefBuilder(t *testing.T) {
 		Receiver: &Param{Name: NewIdent("f"), Type: PtrOf(NameTypeOf("Foo"))},
 		Name:     NewIdent("init"),
 		Body: NewBlock(
-			ExprStmtOf(CallOf(IdentOf("_def_init"))),
-			AssignOf(SelectOf(IdentOf("f"), IdentOf("baz")), IdentOf("_def_field_default__Foo__baz")),
-			ExprStmtOf(CallOf(IdentOf("_def_struct_init__Foo__0"), IdentOf("f"))),
+			ExprStmtOf(CallOf("_def_init")),
+			AssignOf(SelectOf("f", "baz"), "_def_field_default__Foo__baz"),
+			ExprStmtOf(CallOf("_def_struct_init__Foo__0", "f")),
 		),
 	}
 	fmt.Println(RenderString(fooInitNode))
