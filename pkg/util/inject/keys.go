@@ -8,15 +8,12 @@ import (
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
 
+//
+
 type Key struct {
 	ty  reflect.Type
 	arr bool
 	tag any
-}
-
-func KeyOf[T any]() Key {
-	var z T
-	return Key{ty: reflect.TypeOf(z)}
 }
 
 func AsKey(o any) Key {
@@ -29,9 +26,34 @@ func AsKey(o any) Key {
 	}
 }
 
+func KeyOf[T any](tags ...any) Key {
+	var z T
+	return tag(Key{ty: reflect.TypeOf(z)}, tags...)
+}
+
+//
+
 func Array(o any) Key {
 	k := AsKey(o)
 	k.arr = true
+	return k
+}
+
+func ArrayOf[T any](tags ...any) Key {
+	var z T
+	return tag(Key{ty: reflect.TypeOf(z), arr: true}, tags...)
+}
+
+//
+
+func tag(k Key, tags ...any) Key {
+	if len(tags) > 0 {
+		if len(tags) > 1 {
+			panic(genericErrorf("must specify at most one tag: %v", tags))
+
+		}
+		k.tag = tags[0]
+	}
 	return k
 }
 
@@ -40,6 +62,8 @@ func Tag(o, tag any) Key {
 	k.tag = tag
 	return k
 }
+
+//
 
 func (k Key) String() string {
 	var sb strings.Builder

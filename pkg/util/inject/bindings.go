@@ -60,6 +60,7 @@ type Binder = func() Bindings
 
 type Bindings interface {
 	bt.Traversable[Binding]
+
 	isBindings()
 }
 

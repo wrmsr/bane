@@ -79,8 +79,6 @@ func (p arrayProvider) providerFn() providerFn {
 
 //
 
-// TODO: BindEmptyArrayOf
-
 type emptyProvider struct {
 	ty reflect.Type
 }
@@ -104,4 +102,14 @@ func (p emptyProvider) providerFn() providerFn {
 	return func(_ any) any {
 		return p
 	}
+}
+
+//
+
+func BindArrayOf[T any](tag any) Binding {
+	return As(Array(Tag(KeyOf[T](), tag)), EmptyOf[T]())
+}
+
+func BindArraySliceOf[T any](tag any) Binding {
+	return As(Tag(KeyOf[[]int](), tag), Link(Tag(Array(KeyOf[int]()), tag)))
 }
