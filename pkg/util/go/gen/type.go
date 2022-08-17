@@ -18,9 +18,10 @@ func (t type_) isType() {}
 //
 
 type Array struct {
-	type_
 	Len  opt.Optional[int]
 	Elem Type
+
+	type_
 }
 
 func NewArray(len_ opt.Optional[int], elem Type) Array {
@@ -33,8 +34,9 @@ func NewArray(len_ opt.Optional[int], elem Type) Array {
 //
 
 type FuncType struct {
-	type_
 	Func Func
+
+	type_
 }
 
 func NewFuncType(func_ Func) FuncType {
@@ -46,9 +48,10 @@ func NewFuncType(func_ Func) FuncType {
 //
 
 type Map struct {
-	type_
 	Key   Type
 	Value Type
+
+	type_
 }
 
 func NewMap(key, value Type) Map {
@@ -61,8 +64,9 @@ func NewMap(key, value Type) Map {
 //
 
 type Ptr struct {
-	type_
 	Elem Type
+
+	type_
 }
 
 func NewPtr(elem Type) Ptr {
@@ -74,8 +78,9 @@ func NewPtr(elem Type) Ptr {
 //
 
 type NameType struct {
-	type_
 	Name Ident
+
+	type_
 }
 
 func NewNameType(name Ident) NameType {
@@ -87,8 +92,9 @@ func NewNameType(name Ident) NameType {
 //
 
 type Slice struct {
-	type_
 	Elem Type
+
+	type_
 }
 
 func NewSlice(elem Type) Slice {

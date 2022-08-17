@@ -47,8 +47,8 @@ func renderImport(w *iou.IndentWriter, n Import) {
 		w.WriteString("\n")
 		return
 	}
-	if n.Alias.Present() {
-		Render(w, n.Alias.Value())
+	if n.Alias != nil {
+		Render(w, *n.Alias)
 		w.WriteString(" ")
 	}
 	w.WriteString("\"")
@@ -107,8 +107,8 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString("\n")
 
 	case Param:
-		if n.Name.Present() {
-			Render(w, n.Name.Value())
+		if n.Name != nil {
+			Render(w, *n.Name)
 			w.WriteString(" ")
 		}
 		Render(w, n.Type)

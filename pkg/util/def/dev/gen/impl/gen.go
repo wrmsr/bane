@@ -48,7 +48,7 @@ func newPtrFuncType(elem gg.Type) gg.FuncType {
 	return gg.NewFuncType(
 		gg.Func{
 			Params: []gg.Param{
-				gg.NewParam(opt.None[gg.Ident](), gg.NewPtr(elem)),
+				{Type: gg.NewPtr(elem)},
 			},
 		},
 	)
@@ -59,34 +59,34 @@ func (fg *FileGen) Gen() string {
 
 	doInit := gg.Func{
 		Body: gg.BlockOf(slices.DeepFlatten[gg.Stmt](
-			gg.NewShortVar(
-				gg.NewIdent("spec"),
-				gg.NewCall(gg.NewSelect(gg.NewIdent("def"), gg.NewIdent("X_getPackageSpec")))),
+			gg.ShortVar{
+				Name:  gg.IdentOf("spec"),
+				Value: gg.NewCall(gg.NewSelect(gg.IdentOf("def"), gg.IdentOf("X_getPackageSpec")))},
 			fg.initStmts,
 		)...)}
 
 	fg.decls = slices.DeepFlatten[gg.Decl](
-		gg.NewStmtDecl(
-			gg.NewVar(
-				gg.NewIdent("_def_init_once"),
-				opt.Just[gg.Type](gg.NewNameType(gg.NewIdent("sync.Once"))), opt.None[gg.Expr]())),
+		gg.StmtDecl{
+			Stmt: gg.NewVar(
+				gg.IdentOf("_def_init_once"),
+				opt.Just[gg.Type](gg.NewNameType(gg.IdentOf("sync.Once"))), opt.None[gg.Expr]())},
 
 		gg.Func{
-			Name: gg.IdentOf("_def_init"),
+			Name: gg.NewIdent("_def_init"),
 			Body: gg.BlockOf(
 				gg.NewExprStmt(gg.NewCall(
-					gg.NewSelect(gg.NewIdent("_def_init_once"), gg.NewIdent("Do")),
+					gg.NewSelect(gg.IdentOf("_def_init_once"), gg.IdentOf("Do")),
 					gg.NewFuncExpr(doInit))))},
 
 		fg.decls)
 
 	imps := fg.ti.imports()
 	if len(imps) > 0 {
-		fg.decls = slices.DeepFlatten[gg.Decl](gg.NewImports(imps...), fg.decls)
+		fg.decls = slices.DeepFlatten[gg.Decl](gg.Imports{Imports: imps}, fg.decls)
 	}
 
 	_, pn, _ := stru.LastCut(fg.ps.Name(), "/")
-	fg.decls = slices.DeepFlatten[gg.Decl](gg.NewPackage(gg.NewIdent(pn)), fg.decls)
+	fg.decls = slices.DeepFlatten[gg.Decl](gg.Package{Name: gg.IdentOf(pn)}, fg.decls)
 
 	var sb strings.Builder
 	sw := iou.NewIndentWriter(iou.NewDiscardStringWriter(&sb), "\t")

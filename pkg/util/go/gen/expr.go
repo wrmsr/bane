@@ -22,8 +22,9 @@ func (e expr) isExpr() {}
 //
 
 type Addr struct {
-	expr
 	Value Expr
+
+	expr
 }
 
 func NewAddr(value Expr) Addr {
@@ -35,9 +36,10 @@ func NewAddr(value Expr) Addr {
 //
 
 type Call struct {
-	expr
 	Func Expr
 	Args []Expr
+
+	expr
 }
 
 func NewCall(func_ Expr, args ...Expr) Call {
@@ -50,8 +52,9 @@ func NewCall(func_ Expr, args ...Expr) Call {
 //
 
 type Deref struct {
-	expr
 	Value Expr
+
+	expr
 }
 
 func NewDeref(value Expr) Deref {
@@ -63,8 +66,9 @@ func NewDeref(value Expr) Deref {
 //
 
 type FuncExpr struct {
-	expr
 	Func Func
+
+	expr
 }
 
 func NewFuncExpr(func_ Func) FuncExpr {
@@ -76,17 +80,18 @@ func NewFuncExpr(func_ Func) FuncExpr {
 //
 
 type Ident struct {
-	expr
 	Name string
+
+	expr
 }
 
-func IdentOf(name string) *Ident {
+func NewIdent(name string) *Ident {
 	return &Ident{
 		Name: check.NotZero(name),
 	}
 }
 
-func NewIdent(name string) Ident {
+func IdentOf(name string) Ident {
 	return Ident{
 		Name: check.NotZero(name),
 	}
@@ -95,9 +100,10 @@ func NewIdent(name string) Ident {
 //
 
 type Index struct {
-	expr
 	Value Expr
 	Index Expr
+
+	expr
 }
 
 func NewIndex(value, index Expr) Index {
@@ -178,9 +184,10 @@ func (o InfixOp) IsBoolean() bool {
 }
 
 type InfixExpr struct {
-	expr
 	Op   InfixOp
 	Args []Expr
+
+	expr
 }
 
 func NewInfixExpr(op InfixOp, args ...Expr) InfixExpr {
@@ -219,8 +226,9 @@ func Or(args ...Expr) Expr  { return NewInfixExprOrSelf(OrOp, args...) }
 //
 
 type Lit struct {
-	expr
 	String string
+
+	expr
 }
 
 func NewLit(s string) Lit {
@@ -232,8 +240,9 @@ func NewLit(s string) Lit {
 //
 
 type Paren struct {
-	expr
 	Value Expr
+
+	expr
 }
 
 func NewParen(value Expr) Paren {
@@ -245,9 +254,10 @@ func NewParen(value Expr) Paren {
 //
 
 type Select struct {
-	expr
 	Value Expr
 	Names []Ident
+
+	expr
 }
 
 func NewSelect(value Expr, names ...Ident) Select {
@@ -260,9 +270,10 @@ func NewSelect(value Expr, names ...Ident) Select {
 //
 
 type TypeAssert struct {
-	expr
 	Value Expr
 	Type  Type
+
+	expr
 }
 
 func NewTypeAssert(value Expr, type_ Type) TypeAssert {
@@ -293,9 +304,10 @@ func (o UnaryOp) String() string {
 }
 
 type UnaryExpr struct {
-	expr
 	Op  UnaryOp
 	Arg Expr
+
+	expr
 }
 
 func NewUnaryExpr(op UnaryOp, arg Expr) UnaryExpr {

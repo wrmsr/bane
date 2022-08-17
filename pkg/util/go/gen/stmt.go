@@ -21,9 +21,10 @@ func (s stmt) isStmt() {}
 //
 
 type Assign struct {
-	stmt
 	Var   Expr
 	Value Expr
+
+	stmt
 }
 
 func NewAssign(var_ Expr, value Expr) Assign {
@@ -46,8 +47,9 @@ func NewBlank() Blank {
 //
 
 type Block struct {
-	stmt
 	Body []Stmt
+
+	stmt
 }
 
 func BlockOf(body ...Stmt) *Block {
@@ -69,9 +71,10 @@ func (b Block) Empty() bool {
 //
 
 type Const struct {
-	stmt
 	Name  Ident
 	Value Expr
+
+	stmt
 }
 
 func NewConst(name Ident, value Expr) Const {
@@ -84,8 +87,9 @@ func NewConst(name Ident, value Expr) Const {
 //
 
 type Consts struct {
-	stmt
 	Consts []Const
+
+	stmt
 }
 
 func NewConsts(consts []Const) Consts {
@@ -97,8 +101,9 @@ func NewConsts(consts []Const) Consts {
 //
 
 type ExprStmt struct {
-	stmt
 	Expr Expr
+
+	stmt
 }
 
 func NewExprStmt(expr Expr) ExprStmt {
@@ -110,10 +115,11 @@ func NewExprStmt(expr Expr) ExprStmt {
 //
 
 type If struct {
-	stmt
 	Cond Expr
 	Then Block
 	Else Block
+
+	stmt
 }
 
 func NewIfElse(cond Expr, then, else_ Block) If {
@@ -131,9 +137,10 @@ func NewIf(cond Expr, then Block) If {
 //
 
 type ShortVar struct {
-	stmt
 	Name  Ident
 	Value Expr
+
+	stmt
 }
 
 func NewShortVar(name Ident, value Expr) ShortVar {
@@ -146,10 +153,11 @@ func NewShortVar(name Ident, value Expr) ShortVar {
 //
 
 type Var struct {
-	stmt
 	Name  Ident
 	Type  opt.Optional[Type]
 	Value opt.Optional[Expr]
+
+	stmt
 }
 
 func NewVar(name Ident, type_ opt.Optional[Type], value opt.Optional[Expr]) Var {
@@ -163,8 +171,9 @@ func NewVar(name Ident, type_ opt.Optional[Type], value opt.Optional[Expr]) Var 
 //
 
 type Vars struct {
-	stmt
 	Vars []Var
+
+	stmt
 }
 
 func NewVars(vars []Var) Vars {

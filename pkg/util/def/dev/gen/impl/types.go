@@ -11,7 +11,6 @@ import (
 	gg "github.com/wrmsr/bane/pkg/util/go/gen"
 	tyu "github.com/wrmsr/bane/pkg/util/go/types"
 	"github.com/wrmsr/bane/pkg/util/maps"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
@@ -118,9 +117,9 @@ func (ti *typeImporter) imports() []gg.Import {
 	for k, v := range ti.imps {
 		_, n, _ := stru.LastCut(k, "/")
 		if n != v {
-			imps = append(imps, gg.NewImportAs(k, opt.Just[gg.Ident](gg.NewIdent(v))))
+			imps = append(imps, gg.Import{Spec: k, Alias: gg.NewIdent(v)})
 		} else {
-			imps = append(imps, gg.NewImport(k))
+			imps = append(imps, gg.Import{Spec: k})
 		}
 	}
 
@@ -132,7 +131,7 @@ func (ti *typeImporter) imports() []gg.Import {
 	}, restImps)
 
 	impSecs := slices.Filter(func(s []gg.Import) bool { return len(s) > 0 }, [][]gg.Import{sysImps, depImps, prjImps})
-	return slices.DeepFlatten[gg.Import](slices.Interleave(impSecs, []gg.Import{gg.NewImport("")}))
+	return slices.DeepFlatten[gg.Import](slices.Interleave(impSecs, []gg.Import{{Spec: ""}}))
 }
 
 func (ti *typeImporter) importedType(ty any) gg.Type {
@@ -166,5 +165,5 @@ func (ti *typeImporter) importedType(ty any) gg.Type {
 		}
 	}
 	rec(tyu.SpecOf(ty))
-	return gg.NewNameType(gg.NewIdent(sb.String()))
+	return gg.NewNameType(gg.IdentOf(sb.String()))
 }

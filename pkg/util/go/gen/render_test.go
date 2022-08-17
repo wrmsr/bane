@@ -9,11 +9,11 @@ import (
 
 func TestBuilder(t *testing.T) {
 	n := Func{
-		Name: IdentOf("foo"),
+		Name: NewIdent("foo"),
 		Params: []Param{
-			NewParam(
-				opt.Just(NewIdent("x")),
-				NewNameType(NewIdent("int"))),
+			{
+				Name: NewIdent("x"),
+				Type: NewNameType(IdentOf("int"))},
 		},
 		Body: BlockOf(
 			NewIf(
@@ -46,8 +46,8 @@ func TestDefBuilder(t *testing.T) {
 			return nil
 		}()
 	*/
-	expectsNode := NewVar(NewIdent("_"), opt.None[Type](), opt.Just[Expr](NewCall(NewFuncExpr(Func{
-		Type: NewNameType(NewIdent("any")),
+	expectsNode := NewVar(IdentOf("_"), opt.None[Type](), opt.Just[Expr](NewCall(NewFuncExpr(Func{
+		Type: NewNameType(IdentOf("any")),
 		Body: BlockOf(),
 	}))))
 	fmt.Println(RenderString(expectsNode))
@@ -56,46 +56,46 @@ func TestDefBuilder(t *testing.T) {
 		return NewFuncType(
 			Func{
 				Params: []Param{
-					NewParam(opt.None[Ident](), NewPtr(elem)),
+					{Type: NewPtr(elem)},
 				},
 			},
 		)
 	}
 
 	varsNode := NewVars([]Var{
-		NewVar(NewIdent("_def_init_once"), opt.Just[Type](NewNameType(NewIdent("sync.Once"))), opt.None[Expr]()),
-		NewVar(NewIdent("_def_field_default__Foo__baz"), opt.Just[Type](NewNameType(NewIdent("int"))), opt.None[Expr]()),
-		NewVar(NewIdent("_def_struct_init__Foo__0"), opt.Just[Type](newPtrFuncType(NewNameType(NewIdent("Foo")))), opt.None[Expr]()),
+		NewVar(IdentOf("_def_init_once"), opt.Just[Type](NewNameType(IdentOf("sync.Once"))), opt.None[Expr]()),
+		NewVar(IdentOf("_def_field_default__Foo__baz"), opt.Just[Type](NewNameType(IdentOf("int"))), opt.None[Expr]()),
+		NewVar(IdentOf("_def_struct_init__Foo__0"), opt.Just[Type](newPtrFuncType(NewNameType(IdentOf("Foo")))), opt.None[Expr]()),
 	})
 	fmt.Println(RenderString(varsNode))
 
 	defInitNode := Func{
-		Name: IdentOf("_def_init"),
+		Name: NewIdent("_def_init"),
 		Body: BlockOf(
 			NewExprStmt(NewCall(
-				NewSelect(NewIdent("_def_init_once"), NewIdent("Do")),
+				NewSelect(IdentOf("_def_init_once"), IdentOf("Do")),
 				NewFuncExpr(Func{
 					Body: BlockOf(
 						NewShortVar(
-							NewIdent("spec"),
-							NewCall(NewSelect(NewIdent("def"), NewIdent("X_getPackageSpec")))),
+							IdentOf("spec"),
+							NewCall(NewSelect(IdentOf("def"), IdentOf("X_getPackageSpec")))),
 
 						NewShortVar(
-							NewIdent("struct_spec__Foo"),
-							NewCall(NewSelect(NewIdent("spec"), NewIdent("Struct")), NewLit("\"foo\""))),
-						NewAssign(NewIdent("_"), NewIdent("struct_spec__Foo")),
+							IdentOf("struct_spec__Foo"),
+							NewCall(NewSelect(IdentOf("spec"), IdentOf("Struct")), NewLit("\"foo\""))),
+						NewAssign(IdentOf("_"), IdentOf("struct_spec__Foo")),
 
 						NewAssign(
-							NewIdent("_def_field_default__Foo__baz"),
+							IdentOf("_def_field_default__Foo__baz"),
 							NewTypeAssert(
-								NewCall(NewSelect(NewIdent("struct_spec__Foo"), NewIdent("Default"))),
-								NewNameType(NewIdent("int")))),
+								NewCall(NewSelect(IdentOf("struct_spec__Foo"), IdentOf("Default"))),
+								NewNameType(IdentOf("int")))),
 
 						NewAssign(
-							NewIdent("_def_struct_init__Foo__0"),
+							IdentOf("_def_struct_init__Foo__0"),
 							NewTypeAssert(
-								NewIndex(NewCall(NewSelect(NewIdent("struct_spec__Foo"), NewIdent("Inits"))), NewLit("0")),
-								newPtrFuncType(NewNameType(NewIdent("Foo"))))),
+								NewIndex(NewCall(NewSelect(IdentOf("struct_spec__Foo"), IdentOf("Inits"))), NewLit("0")),
+								newPtrFuncType(NewNameType(IdentOf("Foo"))))),
 					),
 				}),
 			)),
@@ -103,20 +103,22 @@ func TestDefBuilder(t *testing.T) {
 	}
 	fmt.Println(RenderString(defInitNode))
 
-	structNode := NewStruct(
-		NewIdent("Foo"),
-		NewStructField(NewIdent("bar"), NewNameType(NewIdent("int"))),
-		NewStructField(NewIdent("baz"), NewNameType(NewIdent("int"))),
-	)
+	structNode := Struct{
+		Name: IdentOf("Foo"),
+		Fields: []StructField{
+			{Name: IdentOf("bar"), Type: NewNameType(IdentOf("int"))},
+			{Name: IdentOf("baz"), Type: NewNameType(IdentOf("int"))},
+		},
+	}
 	fmt.Println(RenderString(structNode))
 
 	fooInitNode := Func{
-		Receiver: ParamOf(opt.Just(NewIdent("f")), NewPtr(NewNameType(NewIdent("Foo")))),
-		Name:     IdentOf("init"),
+		Receiver: &Param{Name: NewIdent("f"), Type: NewPtr(NewNameType(IdentOf("Foo")))},
+		Name:     NewIdent("init"),
 		Body: BlockOf(
-			NewExprStmt(NewCall(NewIdent("_def_init"))),
-			NewAssign(NewSelect(NewIdent("f"), NewIdent("baz")), NewIdent("_def_field_default__Foo__baz")),
-			NewExprStmt(NewCall(NewIdent("_def_struct_init__Foo__0"), NewIdent("f"))),
+			NewExprStmt(NewCall(IdentOf("_def_init"))),
+			NewAssign(NewSelect(IdentOf("f"), IdentOf("baz")), IdentOf("_def_field_default__Foo__baz")),
+			NewExprStmt(NewCall(IdentOf("_def_struct_init__Foo__0"), IdentOf("f"))),
 		),
 	}
 	fmt.Println(RenderString(fooInitNode))
