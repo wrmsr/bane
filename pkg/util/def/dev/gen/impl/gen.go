@@ -72,9 +72,9 @@ func (fg *FileGen) Gen() string {
 		gg.Func{
 			Name: gg.NewIdent("_def_init"),
 			Body: gg.NewBlock(
-				gg.ExprStmtOf(gg.CallOf(
+				gg.CallOf(
 					gg.SelectOf("_def_init_once", "Do"),
-					gg.FuncExpr{Func: doInit})))},
+					gg.FuncExpr{Func: doInit}))},
 
 		fg.decls)
 

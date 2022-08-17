@@ -16,7 +16,7 @@ func TestBuilder(t *testing.T) {
 		Body: NewBlock(
 			IfOf(
 				LitOf("foo"),
-				BlockOf(
+				*NewBlock(
 					ExprStmtOf(LitOf("bar")))))}
 
 	fmt.Println(RenderString(n))

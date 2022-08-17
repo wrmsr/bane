@@ -20,6 +20,20 @@ func (s stmt) isStmt() {}
 
 //
 
+func StmtOf(o any) Stmt {
+	if o, ok := o.(Stmt); ok {
+		return o
+	}
+
+	if o, ok := o.(Expr); ok {
+		return ExprStmtOf(o)
+	}
+
+	panic(o)
+}
+
+//
+
 type Assign struct {
 	Var   Expr
 	Value Expr
@@ -48,15 +62,9 @@ type Block struct {
 	stmt
 }
 
-func NewBlock(body ...Stmt) *Block {
+func NewBlock(body ...any) *Block {
 	return &Block{
-		Body: body,
-	}
-}
-
-func BlockOf(body ...Stmt) Block {
-	return Block{
-		Body: body,
+		Body: slices.Map(StmtOf, body),
 	}
 }
 
@@ -102,9 +110,9 @@ type ExprStmt struct {
 	stmt
 }
 
-func ExprStmtOf(expr Expr) ExprStmt {
+func ExprStmtOf(expr any) ExprStmt {
 	return ExprStmt{
-		Expr: check.NotNil(expr).(Expr),
+		Expr: ExprOf(expr),
 	}
 }
 
@@ -127,7 +135,7 @@ func IfElseOf(cond Expr, then, else_ Block) If {
 }
 
 func IfOf(cond Expr, then Block) If {
-	return IfElseOf(cond, then, BlockOf())
+	return IfElseOf(cond, then, *NewBlock())
 }
 
 //
