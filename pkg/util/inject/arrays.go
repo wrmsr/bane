@@ -1,6 +1,7 @@
 package inject
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
 	"strings"
@@ -61,8 +62,16 @@ func (p arrayProvider) providerFn() providerFn {
 	}
 	return func(i any) any {
 		rv := reflect.MakeSlice(p.sty, l, l)
-		for n, c := range ps {
-			rv.Index(n).Set(reflect.ValueOf(c(i)))
+		n := 0
+		for _, ep := range ps {
+			o := ep(i)
+			if _, ok := o.(emptyProvider); !ok {
+				rv.Index(n).Set(reflect.ValueOf(o))
+				n++
+			}
+		}
+		if n < l {
+			rv = rv.Slice(0, n)
 		}
 		return rv.Interface()
 	}
@@ -71,3 +80,28 @@ func (p arrayProvider) providerFn() providerFn {
 //
 
 // TODO: BindEmptyArrayOf
+
+type emptyProvider struct {
+	ty reflect.Type
+}
+
+func EmptyOf[T any]() emptyProvider {
+	var z T
+	return emptyProvider{ty: reflect.TypeOf(z)}
+}
+
+var _ Provider = emptyProvider{}
+
+func (p emptyProvider) String() string {
+	return fmt.Sprintf("Empty{%s}", p.ty)
+}
+
+func (p emptyProvider) providedTy(rec func(Key) reflect.Type) reflect.Type {
+	return p.ty
+}
+
+func (p emptyProvider) providerFn() providerFn {
+	return func(_ any) any {
+		return p
+	}
+}
