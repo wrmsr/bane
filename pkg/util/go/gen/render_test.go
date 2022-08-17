@@ -8,20 +8,18 @@ import (
 )
 
 func TestBuilder(t *testing.T) {
-	n := NewFunc(
-		opt.None[Param](),
-		opt.Just(NewIdent("foo")),
-		[]Param{
+	n := Func{
+		Name: IdentOf("foo"),
+		Params: []Param{
 			NewParam(
 				opt.Just(NewIdent("x")),
 				NewNameType(NewIdent("int"))),
 		},
-		opt.None[Type](),
-		opt.Just(NewBlock(
+		Body: BlockOf(
 			NewIf(
 				NewLit("foo"),
 				NewBlock(
-					NewExprStmt(NewLit("bar")))))))
+					NewExprStmt(NewLit("bar")))))}
 
 	fmt.Println(RenderString(n))
 }
@@ -48,26 +46,19 @@ func TestDefBuilder(t *testing.T) {
 			return nil
 		}()
 	*/
-	expectsNode := NewVar(NewIdent("_"), opt.None[Type](), opt.Just[Expr](NewCall(NewFuncExpr(NewFunc(
-		opt.None[Param](),
-		opt.None[Ident](),
-		nil,
-		opt.Just[Type](NewNameType(NewIdent("any"))),
-		opt.Just(NewBlock()),
-	)))))
+	expectsNode := NewVar(NewIdent("_"), opt.None[Type](), opt.Just[Expr](NewCall(NewFuncExpr(Func{
+		Type: NewNameType(NewIdent("any")),
+		Body: BlockOf(),
+	}))))
 	fmt.Println(RenderString(expectsNode))
 
 	newPtrFuncType := func(elem Type) FuncType {
 		return NewFuncType(
-			NewFunc(
-				opt.None[Param](),
-				opt.None[Ident](),
-				[]Param{
+			Func{
+				Params: []Param{
 					NewParam(opt.None[Ident](), NewPtr(elem)),
 				},
-				opt.None[Type](),
-				opt.None[Block](),
-			),
+			},
 		)
 	}
 
@@ -78,20 +69,13 @@ func TestDefBuilder(t *testing.T) {
 	})
 	fmt.Println(RenderString(varsNode))
 
-	defInitNode := NewFunc(
-		opt.None[Param](),
-		opt.Just(NewIdent("_def_init")),
-		nil,
-		opt.None[Type](),
-		opt.Just(NewBlock(
+	defInitNode := Func{
+		Name: IdentOf("_def_init"),
+		Body: BlockOf(
 			NewExprStmt(NewCall(
 				NewSelect(NewIdent("_def_init_once"), NewIdent("Do")),
-				NewFuncExpr(NewFunc(
-					opt.None[Param](),
-					opt.None[Ident](),
-					nil,
-					opt.None[Type](),
-					opt.Just(NewBlock(
+				NewFuncExpr(Func{
+					Body: BlockOf(
 						NewShortVar(
 							NewIdent("spec"),
 							NewCall(NewSelect(NewIdent("def"), NewIdent("X_getPackageSpec")))),
@@ -112,11 +96,11 @@ func TestDefBuilder(t *testing.T) {
 							NewTypeAssert(
 								NewIndex(NewCall(NewSelect(NewIdent("struct_spec__Foo"), NewIdent("Inits"))), NewLit("0")),
 								newPtrFuncType(NewNameType(NewIdent("Foo"))))),
-					)),
-				)),
+					),
+				}),
 			)),
-		)),
-	)
+		),
+	}
 	fmt.Println(RenderString(defInitNode))
 
 	structNode := NewStruct(
@@ -126,16 +110,14 @@ func TestDefBuilder(t *testing.T) {
 	)
 	fmt.Println(RenderString(structNode))
 
-	fooInitNode := NewFunc(
-		opt.Just(NewParam(opt.Just(NewIdent("f")), NewPtr(NewNameType(NewIdent("Foo"))))),
-		opt.Just(NewIdent("init")),
-		nil,
-		opt.None[Type](),
-		opt.Just(NewBlock(
+	fooInitNode := Func{
+		Receiver: ParamOf(opt.Just(NewIdent("f")), NewPtr(NewNameType(NewIdent("Foo")))),
+		Name:     IdentOf("init"),
+		Body: BlockOf(
 			NewExprStmt(NewCall(NewIdent("_def_init"))),
 			NewAssign(NewSelect(NewIdent("f"), NewIdent("baz")), NewIdent("_def_field_default__Foo__baz")),
 			NewExprStmt(NewCall(NewIdent("_def_struct_init__Foo__0"), NewIdent("f"))),
-		)),
-	)
+		),
+	}
 	fmt.Println(RenderString(fooInitNode))
 }

@@ -57,17 +57,13 @@ func newPtrFuncType(elem gg.Type) gg.FuncType {
 func (fg *FileGen) Gen() string {
 	fg.genStructs()
 
-	doInit := gg.NewFunc(
-		nil,
-		nil,
-		nil,
-		nil,
-		gg.BlockOf(slices.DeepFlatten[gg.Stmt](
+	doInit := gg.Func{
+		Body: gg.BlockOf(slices.DeepFlatten[gg.Stmt](
 			gg.NewShortVar(
 				gg.NewIdent("spec"),
 				gg.NewCall(gg.NewSelect(gg.NewIdent("def"), gg.NewIdent("X_getPackageSpec")))),
 			fg.initStmts,
-		)...))
+		)...)}
 
 	fg.decls = slices.DeepFlatten[gg.Decl](
 		gg.NewStmtDecl(
@@ -75,15 +71,12 @@ func (fg *FileGen) Gen() string {
 				gg.NewIdent("_def_init_once"),
 				opt.Just[gg.Type](gg.NewNameType(gg.NewIdent("sync.Once"))), opt.None[gg.Expr]())),
 
-		gg.NewFunc(
-			nil,
-			gg.IdentOf("_def_init"),
-			nil,
-			nil,
-			gg.BlockOf(
+		gg.Func{
+			Name: gg.IdentOf("_def_init"),
+			Body: gg.BlockOf(
 				gg.NewExprStmt(gg.NewCall(
 					gg.NewSelect(gg.NewIdent("_def_init_once"), gg.NewIdent("Do")),
-					gg.NewFuncExpr(doInit))))),
+					gg.NewFuncExpr(doInit))))},
 
 		fg.decls)
 

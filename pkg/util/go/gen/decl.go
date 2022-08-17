@@ -24,24 +24,8 @@ type Func struct {
 	Receiver *Param
 	Name     *Ident
 	Params   []Param
-	Type     *Type
+	Type     Type
 	Body     *Block
-}
-
-func NewFunc(
-	receiver *Param,
-	name *Ident,
-	params []Param,
-	type_ *Type,
-	body *Block,
-) Func {
-	return Func{
-		Receiver: receiver,
-		Name:     name,
-		Params:   params,
-		Type:     type_,
-		Body:     body,
-	}
 }
 
 //

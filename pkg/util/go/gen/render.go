@@ -33,7 +33,7 @@ func renderFunc(w *iou.IndentWriter, n Func) {
 
 	if n.Type != nil {
 		w.WriteString(" ")
-		Render(w, *n.Type)
+		Render(w, n.Type)
 	}
 
 	if n.Body != nil {
