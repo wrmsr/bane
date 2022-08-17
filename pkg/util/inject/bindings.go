@@ -13,6 +13,10 @@ type Binding struct {
 	provider Provider
 }
 
+type bindingGen interface {
+	binding() Binding
+}
+
 func asBinding(o any) Binding {
 	if o == nil {
 		panic(genericErrorf("must explicitly bind nil"))
@@ -24,6 +28,10 @@ func asBinding(o any) Binding {
 
 	if o, ok := o.(Binding); ok {
 		return o
+	}
+
+	if o, ok := o.(bindingGen); ok {
+		return o.binding()
 	}
 
 	if o, ok := o.(Provider); ok {

@@ -19,6 +19,10 @@ type Provider interface {
 	providerFn() providerFn
 }
 
+type providerGen interface {
+	provider() Provider
+}
+
 //
 
 type providerMap map[Key]Provider
@@ -40,6 +44,7 @@ func asProvider(o any) Provider {
 	if _, ok := o.(Binding); ok {
 		panic(genericErrorf("must not use bindings as providers"))
 	}
+
 	if _, ok := o.(Bindings); ok {
 		panic(genericErrorf("must not use bindings as providers"))
 	}
@@ -50,6 +55,10 @@ func asProvider(o any) Provider {
 
 	if o, ok := o.(Provider); ok {
 		return o
+	}
+
+	if o, ok := o.(providerGen); ok {
+		return o.provider()
 	}
 
 	if o, ok := o.(Key); ok {

@@ -16,7 +16,7 @@ type Key struct {
 	tag any
 }
 
-type keyable interface {
+type keyGen interface {
 	key() Key
 }
 
@@ -25,7 +25,7 @@ func AsKey(o any) Key {
 		return k
 	}
 
-	if k, ok := o.(keyable); ok {
+	if k, ok := o.(keyGen); ok {
 		return k.key()
 	}
 
