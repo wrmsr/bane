@@ -3,13 +3,10 @@ package ndarray
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
 	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
-type Bound struct {
-	Start int
-	Stop  int
-	Step  int
-}
+type Bound = bt.Range[Dim]
 
 func AsBound(o ...any) opt.Optional[Bound] {
 	if len(o) < 1 {

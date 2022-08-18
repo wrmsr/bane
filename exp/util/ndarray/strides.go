@@ -20,7 +20,7 @@ func (st Strides) Offset(idxs []Dim) Dim {
 
 	o := 0
 	for i, idx := range idxs {
-		o += i * st[idx]
+		o += idx * st[i]
 	}
 
 	return o
