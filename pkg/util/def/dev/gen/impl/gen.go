@@ -74,7 +74,7 @@ func (fg *FileGen) Gen() string {
 			Body: gg.NewBlock(
 				gg.CallOf(
 					gg.SelectOf("_def_init_once", "Do"),
-					gg.FuncExpr{Func: doInit}))},
+					doInit))},
 
 		fg.decls)
 

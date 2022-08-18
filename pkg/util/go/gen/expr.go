@@ -3,6 +3,7 @@ package gen
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -32,6 +33,10 @@ func ExprOf(o any) Expr {
 	case Func:
 		return FuncExprOf(o)
 	case string:
+		if strings.Contains(o, ".") {
+			is := slices.Map(func(p string) any { return Ident{Name: p} }, strings.Split(o, "."))
+			return SelectOf(is[0], is[1:]...)
+		}
 		return IdentOf(o)
 	case int:
 		return LitOf(strconv.Itoa(o))
@@ -117,8 +122,11 @@ func IdentOf(o any) Ident {
 	case *Ident:
 		return *o
 	case string:
+		check.NotZero(o)
+		// FIXME:
+		//check.Condition(!strings.Contains(o, "."))
 		return Ident{
-			Name: check.NotZero(o),
+			Name: o,
 		}
 	}
 	panic(o)
