@@ -87,10 +87,10 @@ type Const struct {
 	stmt
 }
 
-func ConstOf(name Ident, value Expr) Const {
+func ConstOf(name, value any) Const {
 	return Const{
-		Name:  name,
-		Value: value,
+		Name:  IdentOf(name),
+		Value: ExprOf(value),
 	}
 }
 
@@ -153,10 +153,10 @@ type ShortVar struct {
 	stmt
 }
 
-func ShortVarOf(name Ident, value Expr) ShortVar {
+func ShortVarOf(name, value any) ShortVar {
 	return ShortVar{
-		Name:  name,
-		Value: value,
+		Name:  IdentOf(name),
+		Value: ExprOf(value),
 	}
 }
 

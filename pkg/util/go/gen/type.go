@@ -17,6 +17,23 @@ func (t type_) isType() {}
 
 //
 
+func TypeOf(o any) Type {
+	if o, ok := o.(Type); ok {
+		return o
+	}
+
+	switch o.(type) {
+	case Ident:
+		return NameTypeOf(o)
+	case string:
+		return NameTypeOf(IdentOf(o))
+	}
+
+	panic(o)
+}
+
+//
+
 type Array struct {
 	Len  opt.Optional[int]
 	Elem Type
@@ -47,10 +64,10 @@ type Map struct {
 	type_
 }
 
-func MapOf(key, value Type) Map {
+func MapOf(key, value any) Map {
 	return Map{
-		Key:   key,
-		Value: value,
+		Key:   TypeOf(key),
+		Value: TypeOf(value),
 	}
 }
 
@@ -62,9 +79,9 @@ type Ptr struct {
 	type_
 }
 
-func PtrOf(elem Type) Ptr {
+func PtrOf(elem any) Ptr {
 	return Ptr{
-		Elem: elem,
+		Elem: TypeOf(elem),
 	}
 }
 
@@ -90,8 +107,8 @@ type Slice struct {
 	type_
 }
 
-func SliceOf(elem Type) Slice {
+func SliceOf(elem any) Slice {
 	return Slice{
-		Elem: elem,
+		Elem: TypeOf(elem),
 	}
 }

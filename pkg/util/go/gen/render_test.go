@@ -11,7 +11,7 @@ func TestBuilder(t *testing.T) {
 		Params: []Param{
 			{
 				Name: NewIdent("x"),
-				Type: NameTypeOf("int")},
+				Type: TypeOf("int")},
 		},
 		Body: NewBlock(
 			IfOf(
@@ -47,12 +47,12 @@ func TestDefBuilder(t *testing.T) {
 	expectsNode := VarOf(
 		IdentOf("_"),
 		CallOf(FuncExpr{Func: Func{
-			Type: NameTypeOf("any"),
+			Type: TypeOf("any"),
 			Body: NewBlock()}}))
 
 	fmt.Println(RenderString(expectsNode))
 
-	newPtrFuncType := func(elem Type) FuncType {
+	newPtrFuncType := func(elem any) FuncType {
 		return FuncTypeOf(
 			Func{
 				Params: []Param{
@@ -63,9 +63,9 @@ func TestDefBuilder(t *testing.T) {
 	}
 
 	varsNode := VarsOf(
-		VarOf("_def_init_once", NameTypeOf("sync.Once")),
-		VarOf("_def_field_default__Foo__baz", NameTypeOf("int")),
-		VarOf("_def_struct_init__Foo__0", newPtrFuncType(NameTypeOf("Foo"))),
+		VarOf("_def_init_once", TypeOf("sync.Once")),
+		VarOf("_def_field_default__Foo__baz", TypeOf("int")),
+		VarOf("_def_struct_init__Foo__0", newPtrFuncType("Foo")),
 	)
 	fmt.Println(RenderString(varsNode))
 
@@ -77,11 +77,11 @@ func TestDefBuilder(t *testing.T) {
 				FuncExprOf(Func{
 					Body: NewBlock(
 						ShortVarOf(
-							IdentOf("spec"),
+							"spec",
 							CallOf(SelectOf("def", "X_getPackageSpec"))),
 
 						ShortVarOf(
-							IdentOf("struct_spec__Foo"),
+							"struct_spec__Foo",
 							CallOf(SelectOf("spec", "Struct"), LitOf("\"foo\""))),
 						AssignOf("_", "struct_spec__Foo"),
 
@@ -89,13 +89,13 @@ func TestDefBuilder(t *testing.T) {
 							"_def_field_default__Foo__baz",
 							TypeAssertOf(
 								CallOf(SelectOf("struct_spec__Foo", "Default")),
-								NameTypeOf("int"))),
+								"int")),
 
 						AssignOf(
 							"_def_struct_init__Foo__0",
 							TypeAssertOf(
-								IndexOf(CallOf(SelectOf("struct_spec__Foo", "Inits")), LitOf("0")),
-								newPtrFuncType(NameTypeOf("Foo")))),
+								IndexOf(CallOf(SelectOf("struct_spec__Foo", "Inits")), 0),
+								newPtrFuncType("Foo"))),
 					),
 				}),
 			),
@@ -106,14 +106,14 @@ func TestDefBuilder(t *testing.T) {
 	structNode := Struct{
 		Name: IdentOf("Foo"),
 		Fields: []StructField{
-			{Name: IdentOf("bar"), Type: NameTypeOf("int")},
-			{Name: IdentOf("baz"), Type: NameTypeOf("int")},
+			{Name: IdentOf("bar"), Type: TypeOf("int")},
+			{Name: IdentOf("baz"), Type: TypeOf("int")},
 		},
 	}
 	fmt.Println(RenderString(structNode))
 
 	fooInitNode := Func{
-		Receiver: &Param{Name: NewIdent("f"), Type: PtrOf(NameTypeOf("Foo"))},
+		Receiver: &Param{Name: NewIdent("f"), Type: PtrOf("Foo")},
 		Name:     NewIdent("init"),
 		Body: NewBlock(
 			CallOf("_def_init"),

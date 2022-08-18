@@ -2,6 +2,7 @@ package gen
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -27,9 +28,13 @@ func ExprOf(o any) Expr {
 		return o
 	}
 
-	switch o.(type) {
+	switch o := o.(type) {
+	case Func:
+		return FuncExprOf(o)
 	case string:
 		return IdentOf(o)
+	case int:
+		return LitOf(strconv.Itoa(o))
 	}
 
 	panic(o)
@@ -128,10 +133,10 @@ type Index struct {
 	expr
 }
 
-func IndexOf(value, index Expr) Index {
+func IndexOf(value, index any) Index {
 	return Index{
-		Value: value,
-		Index: index,
+		Value: ExprOf(value),
+		Index: ExprOf(index),
 	}
 }
 
@@ -257,9 +262,9 @@ type Paren struct {
 	expr
 }
 
-func ParenOf(value Expr) Paren {
+func ParenOf(value any) Paren {
 	return Paren{
-		Value: value,
+		Value: ExprOf(value),
 	}
 }
 
@@ -288,10 +293,10 @@ type TypeAssert struct {
 	expr
 }
 
-func TypeAssertOf(value Expr, type_ Type) TypeAssert {
+func TypeAssertOf(value, type_ any) TypeAssert {
 	return TypeAssert{
-		Value: value,
-		Type:  type_,
+		Value: ExprOf(value),
+		Type:  TypeOf(type_),
 	}
 }
 
@@ -322,10 +327,10 @@ type Unary struct {
 	expr
 }
 
-func UnaryOf(op UnaryOp, arg Expr) Unary {
+func UnaryOf(op UnaryOp, arg any) Unary {
 	return Unary{
 		Op:  op,
-		Arg: check.NotNil(arg).(Expr),
+		Arg: ExprOf(arg),
 	}
 }
 

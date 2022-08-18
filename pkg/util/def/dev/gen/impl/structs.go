@@ -5,7 +5,6 @@ package impl
 import (
 	"fmt"
 	"go/ast"
-	"strconv"
 	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/def"
@@ -21,7 +20,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 	fg.initStmts.Append(
 		gg.Blank{},
 
-		gg.VarOf(zn, gg.NameTypeOf(sn)),
+		gg.VarOf(zn, gg.TypeOf(sn)),
 
 		gg.ShortVarOf(
 			ssName,
@@ -29,7 +28,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 				gg.SelectOf("spec", "Struct"),
 				gg.CallOf(
 					gg.SelectOf("reflect", "TypeOf"),
-					gg.IdentOf(zn)))),
+					zn))),
 
 		gg.AssignOf("_", ssName),
 	)
@@ -85,16 +84,15 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 		}
 	}
 
-	fg.decls = append(fg.decls, gg.Struct{Name: sName, Fields: sfs})
+	fg.decls.Append(gg.Struct{Name: sName, Fields: sfs})
 
 	if len(dflVds) > 0 {
-		fg.decls = append(fg.decls,
-			gg.StmtDeclOf(gg.VarsOf(dflVds...)))
+		fg.decls.Append(gg.VarsOf(dflVds...))
 	}
 
 	if len(ss.Inits()) > 0 {
-		fg.initStmts = append(fg.initStmts, gg.Blank{})
-		initStmts = append(initStmts, gg.Blank{})
+		fg.initStmts.Append(gg.Blank{})
+		initStmts.Append(gg.Blank{})
 
 		var initVds []gg.Var
 		for i, o := range ss.Inits() {
@@ -104,34 +102,31 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 				initName = gg.IdentOf(fmt.Sprintf("_def_struct_init__%s__%d", sn, i))
 
 				initVds = append(initVds,
-					gg.VarOf(initName, newPtrFuncType(gg.NameTypeOf(sName))))
+					gg.VarOf(initName, newPtrFuncType(sName)))
 
-				fg.initStmts = append(fg.initStmts,
+				fg.initStmts.Append(
 					gg.AssignOf(
 						initName,
 						gg.TypeAssertOf(
-							gg.IndexOf(gg.CallOf(gg.SelectOf(ssName, "Inits")), gg.LitOf(strconv.Itoa(i))),
-							newPtrFuncType(gg.NameTypeOf(sName)))))
+							gg.IndexOf(gg.CallOf(gg.SelectOf(ssName, "Inits")), i),
+							newPtrFuncType(sName))))
 
-				initStmts = append(initStmts,
-					gg.ExprStmtOf(gg.CallOf(initName, "f")))
+				initStmts.Append(gg.CallOf(initName, "f"))
 
 			case *ast.FuncDecl:
-				initStmts = append(initStmts,
-					gg.ExprStmtOf(gg.CallOf(gg.SelectOf("f", o.Name.Name))))
+				initStmts.Append(gg.CallOf(gg.SelectOf("f", o.Name.Name)))
 
 			default:
 				panic(i)
 			}
 		}
 
-		fg.decls = append(fg.decls,
-			gg.StmtDeclOf(gg.VarsOf(initVds...)))
+		fg.decls.Append(gg.VarsOf(initVds...))
 	}
 
-	fg.decls = append(fg.decls,
+	fg.decls.Append(
 		gg.Func{
-			Receiver: &gg.Param{Name: gg.NewIdent("f"), Type: gg.PtrOf(gg.NameTypeOf(sName))},
+			Receiver: &gg.Param{Name: gg.NewIdent("f"), Type: gg.PtrOf(sName)},
 			Name:     gg.NewIdent("init"),
 			Body:     &gg.Block{Body: initStmts}})
 }
@@ -140,7 +135,7 @@ func (fg *FileGen) genStructs() {
 	i := 0
 	for _, ss := range fg.ps.Structs() {
 		if i > 0 {
-			fg.initStmts = append(fg.initStmts, gg.Blank{})
+			fg.initStmts.Append(gg.Blank{})
 		}
 		i++
 		fg.genStruct(ss)

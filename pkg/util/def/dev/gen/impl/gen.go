@@ -22,7 +22,7 @@ type FileGen struct {
 
 	ti *typeImporter
 
-	decls     []gg.Decl
+	decls     gg.Decls
 	initStmts gg.Stmts
 }
 
@@ -43,7 +43,7 @@ func NewFileGen(
 	}
 }
 
-func newPtrFuncType(elem gg.Type) gg.FuncType {
+func newPtrFuncType(elem any) gg.FuncType {
 	return gg.FuncTypeOf(
 		gg.Func{
 			Params: []gg.Param{
@@ -59,7 +59,7 @@ func (fg *FileGen) Gen() string {
 	doInit := gg.Func{
 		Body: &gg.Block{Body: slices.DeepFlatten[gg.Stmt](
 			gg.ShortVarOf(
-				gg.IdentOf("spec"),
+				"spec",
 				gg.CallOf(gg.SelectOf("def", "X_getPackageSpec"))),
 			fg.initStmts,
 		)}}
@@ -67,7 +67,7 @@ func (fg *FileGen) Gen() string {
 	fg.decls = slices.DeepFlatten[gg.Decl](
 		gg.StmtDeclOf(gg.Var{
 			Name: gg.IdentOf("_def_init_once"),
-			Type: gg.NameTypeOf("sync.Once")}),
+			Type: gg.TypeOf("sync.Once")}),
 
 		gg.Func{
 			Name: gg.NewIdent("_def_init"),
