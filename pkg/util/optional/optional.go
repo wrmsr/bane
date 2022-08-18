@@ -59,6 +59,13 @@ func (o Optional[T]) OrDefault(d T) T {
 	return o.v
 }
 
+func (o Optional[T]) OrFactory(f func() T) T {
+	if !o.p {
+		return f()
+	}
+	return o.v
+}
+
 func (o Optional[T]) OrZero() T {
 	return o.OrDefault(bt.Zero[T]())
 }

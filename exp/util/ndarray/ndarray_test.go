@@ -15,4 +15,6 @@ func TestNdArray(t *testing.T) {
 	*a.At(idx...) = 420
 	fmt.Println(a)
 	fmt.Println(a.Get(idx...))
+
+	fmt.Println(a.Slice(1))
 }

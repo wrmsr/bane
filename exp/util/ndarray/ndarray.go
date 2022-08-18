@@ -57,9 +57,15 @@ func (a NdArray[T]) Get(idxs ...Dim) T {
 	return *a.At(idxs...)
 }
 
-func (a NdArray[T]) Slice(bounds ...Bound) NdArray[T] {
+func (a NdArray[T]) Slice(bounds ...any) NdArray[T] {
 	if len(bounds) > len(a.sh) {
 		panic(fmt.Errorf("slice dimension mismatch"))
+	}
+
+	for i, rb := range bounds {
+		b := AsBound(rb).OrFactory(func() Bound { return Bound{Stop: a.sh[i]} })
+		fmt.Println(b)
+		_ = i
 	}
 
 	panic("nyi")
