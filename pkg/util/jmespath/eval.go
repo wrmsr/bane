@@ -161,12 +161,12 @@ func (e Evaluator[T]) EvalSequence(node *Sequence, obj T) T {
 
 func (e Evaluator[T]) EvalSlice(node *Slice, obj T) T {
 	items := e.rt.ToIterable(obj)
-	step := node.Step.OrDefault(1)
+	step := node.Step.Or(1)
 	check.Condition(step != 0)
 	rounding := bt.Choose(step < 0, step+1, step-1)
 	limit := bt.Choose(step < 0, -1, 0)
-	start := node.Start.OrDefault(limit)
-	stop := node.Stop.OrDefault(bt.Choose(step < 0, -0x100000000, 0x100000000))
+	start := node.Start.Or(limit)
+	stop := node.Stop.Or(bt.Choose(step < 0, -0x100000000, 0x100000000))
 	begin := bt.Choose(start < 0, bt.Max(len(items)+start, 0), bt.Min(start, len(items)+limit))
 	end := bt.Choose(stop < 0, bt.Max(len(items)+stop, limit), bt.Min(stop, len(items)))
 	steps := bt.Max(0, (end-begin+rounding)/step)

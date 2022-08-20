@@ -52,14 +52,14 @@ func (o Optional[T]) Value() T {
 	return o.v
 }
 
-func (o Optional[T]) OrDefault(d T) T {
+func (o Optional[T]) Or(d T) T {
 	if !o.p {
 		return d
 	}
 	return o.v
 }
 
-func (o Optional[T]) OrFactory(f func() T) T {
+func (o Optional[T]) OrFn(f func() T) T {
 	if !o.p {
 		return f()
 	}
@@ -67,7 +67,7 @@ func (o Optional[T]) OrFactory(f func() T) T {
 }
 
 func (o Optional[T]) OrZero() T {
-	return o.OrDefault(bt.Zero[T]())
+	return o.Or(bt.Zero[T]())
 }
 
 //

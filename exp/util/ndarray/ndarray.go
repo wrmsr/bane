@@ -63,7 +63,7 @@ func (a NdArray[T]) Slice(bounds ...any) NdArray[T] {
 	}
 
 	for i, rb := range bounds {
-		b := AsBound(rb).OrFactory(func() Bound { return Bound{Stop: a.sh[i]} })
+		b := AsBound(rb).OrFn(func() Bound { return Bound{Stop: a.sh[i]} })
 		fmt.Println(b)
 		_ = i
 	}
