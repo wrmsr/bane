@@ -67,14 +67,13 @@ func (a NdArray[T]) Slice(bounds ...any) NdArray[T] {
 	for i, rb := range bounds {
 		sh := a.sh[i]
 
-		b := AsBound(rb).OrFn(func() Bound { return Bound{Stop: a.sh[i]} })
+		b := AsBound(rb)
 
 		if b.Start.Present() {
-			check.Between(b.Start, 0, sh)
+			check.Between(b.Start.Value(), 0, sh)
 		}
-		check.Between(b.Stop, 0, sh)
-		check.Condition(b.Start <= b.Stop)
-		check.Equal(b.Step, 0)
+		check.Condition(!b.Stop.Present())
+		check.Condition(!b.Step.Present())
 
 		bounds[i] = b
 	}
