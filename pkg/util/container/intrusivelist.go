@@ -51,8 +51,8 @@ func NewIntrusiveList[T any](ops IntrusiveListOps[T]) *IntrusiveList[T] {
 
 func (l IntrusiveList[T]) verify() {
 	if l.head == nil {
-		check.Condition(l.tail == nil)
-		check.Condition(l.l == 0)
+		check.Equal(l.tail, nil)
+		check.Equal(l.l, 0)
 		return
 	}
 
@@ -62,12 +62,12 @@ func (l IntrusiveList[T]) verify() {
 	for cur := l.head; cur != nil; prev, cur = cur, l.o.getNode(cur).next {
 		cn := l.o.getNode(cur)
 		fmt.Printf("%+v\n", cn)
-		check.Condition(cn.prev == prev)
+		check.Equal(cn.prev, prev)
 		i++
 	}
-	check.Condition(l.tail == prev)
+	check.Equal(l.tail, prev)
 
-	check.Condition(i == l.l)
+	check.Equal(i, l.l)
 	fmt.Println()
 }
 

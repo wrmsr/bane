@@ -2,6 +2,8 @@ package ndarray
 
 import (
 	"fmt"
+
+	"github.com/wrmsr/bane/pkg/util/check"
 )
 
 type NdArray[T any] struct {
@@ -62,11 +64,20 @@ func (a NdArray[T]) Slice(bounds ...any) NdArray[T] {
 		panic(fmt.Errorf("slice dimension mismatch"))
 	}
 
+	var o Dim
 	for i, rb := range bounds {
+		sh := a.sh[i]
+
 		b := AsBound(rb).OrFn(func() Bound { return Bound{Stop: a.sh[i]} })
 		fmt.Println(b)
-		_ = i
+
+		check.Between(b.Start, 0, sh)
+		check.Between(b.Stop, 0, sh)
+		check.Condition(b.Start <= b.Stop)
+		check.Equal(b.Step, 0)
 	}
+
+	_ = o
 
 	panic("nyi")
 }

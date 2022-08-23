@@ -1,6 +1,8 @@
 package check
 
 import (
+	"golang.org/x/exp/constraints"
+
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -59,6 +61,13 @@ func EmptySlice[T any](s []T, details ...any) []T {
 		panic(checkError("must be empty slice", []any{s}, details...))
 	}
 	return s
+}
+
+func Between[T constraints.Ordered](v, lo, hi T, details ...any) T {
+	if v < lo || v > hi {
+		panic(checkError("must be between", []any{v, lo, hi}, details...))
+	}
+	return v
 }
 
 //
