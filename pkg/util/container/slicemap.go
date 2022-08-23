@@ -154,7 +154,7 @@ func (m *SliceMap[K, V]) delete(k K) {
 func (m *SliceMap[K, V]) default_(k K, v V) bool {
 	m.lazyInit()
 	_, ok := m.m[k]
-	if !ok {
+	if ok {
 		return false
 	}
 	m.m[k] = len(m.s)

@@ -115,7 +115,7 @@ func (m HashEqMap[K, V]) ForEach(fn func(v bt.Kv[K, V]) bool) bool {
 }
 
 func (m *HashEqMap[K, V]) lazyInit() {
-
+	// FIXME: default ops
 }
 
 func (m *HashEqMap[K, V]) put(k K, v V) {

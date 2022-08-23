@@ -14,6 +14,10 @@ type IntrusiveListNode[T any] struct {
 	next, prev *T
 }
 
+func (n IntrusiveListNode[T]) String() string {
+	return fmt.Sprintf("{%16p %16p}", n.next, n.prev)
+}
+
 func (n IntrusiveListNode[T]) Next() *T { return n.next }
 func (n IntrusiveListNode[T]) Prev() *T { return n.prev }
 

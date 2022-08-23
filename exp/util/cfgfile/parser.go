@@ -1,5 +1,10 @@
 package cfgfile
 
+import (
+	"bufio"
+	"io"
+)
+
 const (
 	sectionPatternTemplate = "" +
 		"\\[" +
@@ -20,3 +25,12 @@ const (
 
 	defaultDelim = "=|:"
 )
+
+type Loader struct{}
+
+func (l *Loader) read(r io.Reader) {
+	sc := bufio.NewScanner(r)
+	for sc.Scan() {
+		sc.Text()
+	}
+}
