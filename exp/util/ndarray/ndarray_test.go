@@ -27,4 +27,8 @@ func TestNdArray(t *testing.T) {
 	fmt.Println("====")
 
 	fmt.Println(a.Slice(1))
+	fmt.Println("====")
+
+	fmt.Println(a.Slice(nil, 1))
+	fmt.Println("====")
 }

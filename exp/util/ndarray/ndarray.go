@@ -73,17 +73,23 @@ func (a NdArray[T]) Slice(bs ...any) NdArray[T] {
 		rs[i] = r
 	}
 
-	no := a.o
 	nsh := make(Shape, nd)
 	nst := make(Strides, nd)
+	no := a.o
 
 	j := 0
 	for i, r := range rs {
 		if s := r.Scalar(); s.Present() {
 			no += s.Value() * a.st[i]
 		} else {
-			panic("nyi")
-			//j++
+			if r.Step == 1 {
+				nsh[j] = r.Stop - r.Step
+				nst[j] = a.st[i]
+				no += r.Start * a.st[i]
+			} else {
+				panic("nyi")
+			}
+			j++
 		}
 	}
 
