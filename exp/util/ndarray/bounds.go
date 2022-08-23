@@ -6,32 +6,68 @@ import (
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
-type Bound = bt.Range[Dim]
+type Bound struct {
+	Start, Stop, Step opt.Optional[Dim]
+}
 
-func AsBound(o ...any) opt.Optional[Bound] {
+func AsBound(o ...any) Bound {
 	if len(o) < 1 {
-		return opt.None[Bound]()
+		return Bound{}
 	}
 
-	if len(o) > 1 {
-		check.Condition(len(o) < 4)
-		var step int
-		if len(o) > 2 {
-			step = o[2].(int)
+	cd := func(o any) opt.Optional[Dim] {
+		if o == nil {
+			return opt.None[Dim]()
 		}
-		return opt.Just(Bound{
-			Start: o[0].(int),
-			Stop:  o[1].(int),
-			Step:  step,
-		})
+
+		switch o := o.(type) {
+		case opt.Optional[Dim]:
+			return o
+
+		case Dim:
+			return opt.Just[Dim](o)
+		}
+
+		panic(o)
 	}
 
-	switch o := check.Single(o).(type) {
-	case Bound:
-		return opt.Just(o)
-	case int:
-		return opt.Just(Bound{Start: o})
+	if len(o) == 1 {
+		if o, ok := o[0].(Bound); ok {
+			return o
+		}
 	}
 
-	panic(o)
+	a := func() bt.AnySlice {
+		if len(o) == 1 {
+			if o, ok := o[0].([]opt.Optional[Dim]); ok {
+				return bt.AnySliceOf(o)
+			}
+
+			if o, ok := o[0].([]Dim); ok {
+				return bt.AnySliceOf(o)
+			}
+
+			if o, ok := o[0].([]any); ok {
+				return bt.AnySliceOf(o)
+			}
+		}
+
+		return bt.AnySliceOf(o)
+	}()
+
+	check.Condition(a.Len() < 4)
+
+	cdi := func(i int) opt.Optional[Dim] {
+		if i >= a.Len() {
+			return opt.None[Dim]()
+		}
+
+		return cd(a.Get(i))
+	}
+
+	return Bound{
+		Start: cdi(0),
+		Stop:  cdi(1),
+		Step:  cdi(2),
+	}
 }

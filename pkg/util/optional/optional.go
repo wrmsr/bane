@@ -27,6 +27,13 @@ func Just[T any](v T) Optional[T] {
 	return Optional[T]{v: v, p: true}
 }
 
+func IfNotNil[T any](v any) Optional[T] {
+	if v == nil {
+		return None[T]()
+	}
+	return Just[T](v.(T))
+}
+
 //
 
 func (o Optional[T]) Present() bool {

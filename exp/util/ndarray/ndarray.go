@@ -64,18 +64,25 @@ func (a NdArray[T]) Slice(bounds ...any) NdArray[T] {
 		panic(fmt.Errorf("slice dimension mismatch"))
 	}
 
-	var o Dim
 	for i, rb := range bounds {
 		sh := a.sh[i]
 
 		b := AsBound(rb).OrFn(func() Bound { return Bound{Stop: a.sh[i]} })
-		fmt.Println(b)
 
-		check.Between(b.Start, 0, sh)
+		if b.Start.Present() {
+			check.Between(b.Start, 0, sh)
+		}
 		check.Between(b.Stop, 0, sh)
 		check.Condition(b.Start <= b.Stop)
 		check.Equal(b.Step, 0)
+
+		bounds[i] = b
 	}
+
+	var o Dim
+	nd := len(bounds)
+	nsh := make(Shape)
+	nst := make(Strides)
 
 	_ = o
 
