@@ -2,8 +2,6 @@ package ndarray
 
 import (
 	"fmt"
-
-	"github.com/wrmsr/bane/pkg/util/check"
 )
 
 type NdArray[T any] struct {
@@ -59,31 +57,44 @@ func (a NdArray[T]) Get(idxs ...Dim) T {
 	return *a.At(idxs...)
 }
 
-func (a NdArray[T]) Slice(bounds ...any) NdArray[T] {
-	if len(bounds) > len(a.sh) {
+func (a NdArray[T]) Slice(bs ...any) NdArray[T] {
+	if len(bs) > len(a.sh) {
 		panic(fmt.Errorf("slice dimension mismatch"))
 	}
 
-	for i, rb := range bounds {
-		sh := a.sh[i]
-
+	nd := len(a.sh)
+	rs := make([]DimRange, len(bs))
+	for i, rb := range bs {
 		b := AsBound(rb)
-
-		if b.Start.Present() {
-			check.Between(b.Start.Value(), 0, sh)
+		r := b.Range(a.sh[i])
+		if r.Scalar().Present() {
+			nd--
 		}
-		check.Condition(!b.Stop.Present())
-		check.Condition(!b.Step.Present())
-
-		bounds[i] = b
+		rs[i] = r
 	}
 
-	var o Dim
-	nd := len(bounds)
-	nsh := make(Shape)
-	nst := make(Strides)
+	no := a.o
+	nsh := make(Shape, nd)
+	nst := make(Strides, nd)
 
-	_ = o
+	j := 0
+	for i, r := range rs {
+		if s := r.Scalar(); s.Present() {
+			no += s.Value() * a.st[i]
+		} else {
+			panic("nyi")
+			//j++
+		}
+	}
 
-	panic("nyi")
+	do := len(a.sh) - nd
+	copy(nsh[j:], a.sh[do:])
+	copy(nst[j:], a.st[do:])
+
+	return NdArray[T]{
+		sh: nsh,
+		st: nst,
+		o:  no,
+		s:  a.s,
+	}
 }

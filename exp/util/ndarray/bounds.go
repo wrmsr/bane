@@ -6,9 +6,49 @@ import (
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
+//
+
 type Bound struct {
 	Start, Stop, Step opt.Optional[Dim]
 }
+
+func (b Bound) Range(l Dim) DimRange {
+	ci := func(o opt.Optional[Dim], d Dim) Dim {
+		if !o.Present() {
+			return d
+		}
+		i := o.Value()
+		if i < 0 {
+			i += l
+			if i < 0 {
+				i = 0
+			}
+		}
+		if i > l {
+			return l
+		}
+		return i
+	}
+
+	r := DimRange{
+		Start: ci(b.Start, 0),
+		Step:  b.Step.Or(1),
+	}
+
+	if b.Start.Present() && !b.Stop.Present() {
+		if r.Step > 0 {
+			r.Stop = r.Start + 1
+		} else {
+			r.Stop = r.Start - 1
+		}
+	} else {
+		r.Stop = ci(b.Stop, l)
+	}
+
+	return r
+}
+
+//
 
 func AsBound(o ...any) Bound {
 	if len(o) < 1 {
@@ -34,6 +74,22 @@ func AsBound(o ...any) Bound {
 	if len(o) == 1 {
 		if o, ok := o[0].(Bound); ok {
 			return o
+		}
+
+		if o, ok := o[0].(DimRange); ok {
+			return Bound{
+				Start: opt.Just(o.Start),
+				Stop:  opt.Just(o.Stop),
+				Step:  opt.Just(o.Step),
+			}
+		}
+
+		if o, ok := o[0].(bt.Range[Dim]); ok {
+			return Bound{
+				Start: opt.Just(o.Start),
+				Stop:  opt.Just(o.Stop),
+				Step:  opt.Just(o.Step),
+			}
 		}
 	}
 
