@@ -13,7 +13,7 @@ func (a NdArray[T]) View() View { return a.v }
 func (a NdArray[T]) Data() []T  { return a.d }
 
 func New[T any](shape Shape) NdArray[T] {
-	return Of[T](shape, nil, 0, nil)
+	return Of[T](shape, Strides{}, 0, nil)
 }
 
 func Of[T any](
@@ -24,11 +24,11 @@ func Of[T any](
 ) NdArray[T] {
 	v := ViewOf(shape, strides, offset)
 
-	sz := v.st[0] * v.sh[0]
+	l := v.Len()
 	if data == nil {
-		data = make([]T, sz+v.o)
+		data = make([]T, l+v.o)
 	}
-	if len(data)-offset < sz {
+	if len(data)-offset < l {
 		panic(fmt.Errorf("size mismatch"))
 	}
 

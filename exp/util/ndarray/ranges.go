@@ -5,21 +5,49 @@ import (
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
-func CalcRange(o any, l Dim) DimRange {
+//
+
+type Range bt.Range[Dim]
+
+func (r Range) Range() bt.Range[Dim] {
+	return bt.Range[Dim](r)
+}
+
+func (r Range) Check(l Dim) Range {
+	r.Range().CheckNormal(l)
+	return r
+}
+
+func (r Range) Scalar() bt.Optional[Dim] {
+	if r.Step > 0 {
+		if r.Stop == r.Start+1 {
+			return bt.Just(r.Start)
+		}
+	} else {
+		if r.Start == r.Stop+1 {
+			return bt.Just(r.Stop)
+		}
+	}
+	return bt.None[Dim]()
+}
+
+//
+
+func CalcRange(o any, l Dim) Range {
 	if o == nil {
-		return DimRange{
+		return Range{
 			Start: 0,
 			Stop:  l,
 			Step:  1,
 		}
 	}
 
-	if o, ok := o.(DimRange); ok {
+	if o, ok := o.(Range); ok {
 		return o
 	}
 
 	if o, ok := o.(bt.Range[Dim]); ok {
-		return DimRange(o)
+		return Range(o)
 	}
 
 	clamp := func(o any, d Dim) Dim {
@@ -40,7 +68,7 @@ func CalcRange(o any, l Dim) DimRange {
 	}
 
 	if o, ok := o.(Dim); ok {
-		return DimRange{
+		return Range{
 			Start: clamp(o, 0),
 			Stop:  clamp(o+1, l),
 			Step:  1,
@@ -68,7 +96,7 @@ func CalcRange(o any, l Dim) DimRange {
 		return clamp(a.Get(i), d)
 	}
 
-	r := DimRange{
+	r := Range{
 		Step: 1,
 	}
 

@@ -17,10 +17,10 @@ func ViewOf(
 	strides Strides,
 	offset Dim,
 ) View {
-	if len(strides) < 1 {
-		strides = calcStrides(shape)
+	if len(strides.s) < 1 {
+		strides = CalcStrides(shape)
 	}
-	if len(strides) != len(shape) {
+	if len(strides.s) != len(shape.s) {
 		panic(fmt.Errorf("strides mismatch"))
 	}
 
@@ -32,11 +32,11 @@ func ViewOf(
 }
 
 func (v View) Equals(o View) bool {
-	if len(v.sh) != len(o.sh) || v.o != o.o {
+	if len(v.sh.s) != len(o.sh.s) || v.o != o.o {
 		return false
 	}
-	for i := range v.sh {
-		if v.sh[i] != o.sh[i] || v.st[i] != o.st[i] {
+	for i := range v.sh.s {
+		if v.sh.s[i] != o.sh.s[i] || v.st.s[i] != o.st.s[i] {
 			return false
 		}
 	}
@@ -47,22 +47,24 @@ func (v View) Shape() Shape     { return v.sh }
 func (v View) Strides() Strides { return v.st }
 func (v View) Offset() Dim      { return v.o }
 
+func (v View) Len() Dim { return v.sh.s[0] * v.st.s[0] }
+
 func (v View) Index(idxs ...Dim) Dim {
 	return v.st.Offset(idxs) + v.o
 }
 
 func (v View) Slice(bs ...any) View {
-	nd := len(v.sh)
+	nd := len(v.sh.s)
 	if len(bs) != nd {
 		panic(fmt.Errorf("slice dimension mismatch"))
 	}
 
-	nsh := make(Shape, nd)
-	nst := make(Strides, nd)
+	nsh := Shape{s: make([]Dim, nd)}
+	nst := Strides{s: make([]Dim, nd)}
 	no := v.o
 
 	for i := nd - 1; i >= 0; i-- {
-		r := CalcRange(bs[i], v.sh[i])
+		r := CalcRange(bs[i], v.sh.s[i])
 		check.Condition(r.Step > 0)
 
 		rnd := 0
@@ -72,9 +74,9 @@ func (v View) Slice(bs ...any) View {
 			rnd = r.Step - 1
 		}
 
-		nsh[i] = (r.Stop - r.Start + rnd) / r.Step
-		nst[i] = v.st[i] * r.Step
-		no += r.Start * (v.st[i] * r.Step)
+		nsh.s[i] = (r.Stop - r.Start + rnd) / r.Step
+		nst.s[i] = v.st.s[i] * r.Step
+		no += r.Start * (v.st.s[i] * r.Step)
 	}
 
 	return View{
@@ -90,17 +92,17 @@ func (v View) Squeeze() View {
 		return v
 	}
 
-	nd := len(v.sh)
-	nsh := make(Shape, nd-nsd)
-	nst := make(Strides, nd-nsd)
+	nd := len(v.sh.s)
+	nsh := Shape{s: make([]Dim, nd-nsd)}
+	nst := Strides{s: make([]Dim, nd-nsd)}
 
 	i := 0
 	for j := 0; j < nd; j++ {
-		if v.sh[j] == 1 {
+		if v.sh.s[j] == 1 {
 			continue
 		}
-		nst[i] = v.st[j]
-		nsh[i] = v.sh[j]
+		nst.s[i] = v.st.s[j]
+		nsh.s[i] = v.sh.s[j]
 		i++
 	}
 

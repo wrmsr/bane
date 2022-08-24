@@ -9,8 +9,8 @@ import (
 
 func TestNdArray(t *testing.T) {
 	a := Of[int](
-		[]int{3, 3, 3},
-		nil,
+		Shape{[]Dim{3, 3, 3}},
+		Strides{},
 		0,
 		bt.RangeTo(27).Slice(),
 	)
