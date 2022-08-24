@@ -6,6 +6,8 @@ import (
 	"github.com/wrmsr/bane/pkg/util/check"
 )
 
+//
+
 type View struct {
 	sh Shape
 	st Strides
@@ -53,6 +55,8 @@ func (v View) Index(idxs ...Dim) Dim {
 	return v.st.Offset(idxs) + v.o
 }
 
+//
+
 func (v View) Slice(bs ...any) View {
 	nd := len(v.sh.s)
 	if len(bs) != nd {
@@ -85,6 +89,8 @@ func (v View) Slice(bs ...any) View {
 		o:  no,
 	}
 }
+
+//
 
 func (v View) Squeeze() View {
 	nsd := v.sh.NumScalarDims()

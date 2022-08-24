@@ -2,8 +2,6 @@ package ndarray
 
 import bt "github.com/wrmsr/bane/pkg/util/types"
 
-//
-
 type Dim int64
 
 func AsDim(o any) (bt.Optional[Dim], bool) {
