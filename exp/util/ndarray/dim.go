@@ -110,14 +110,14 @@ type MutDims struct {
 	_ds Dims
 }
 
-func NewMutDims(l int) *MutDims {
+func NewMutDims(l int) MutDims {
 	ds := Dims{
 		_l: l,
 	}
 	if l > _dimsWidth {
 		ds._s = make([]Dim, l-_dimsWidth)
 	}
-	return &MutDims{ds}
+	return MutDims{ds}
 }
 
 func (ds *MutDims) Decay() Dims { return ds._ds }
