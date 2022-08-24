@@ -11,12 +11,12 @@ func StridesOf(s ...Dim) Strides {
 }
 
 func CalcStrides(shape Shape) Strides {
-	st := make([]Dim, shape.Len())
-	st[shape.Len()-1] = 1
+	st := NewMutDims(shape.Len())
+	st.Set(shape.Len()-1, 1)
 	for i := shape.Len() - 2; i >= 0; i-- {
-		st[i] = st[i+1] * shape.Get(i+1)
+		st.Set(i, st.Get(i+1)*shape.Get(i+1))
 	}
-	return Strides{Dims{st}}
+	return Strides{st.Decay()}
 }
 
 func (st Strides) Offset(idxs []Dim) Dim {

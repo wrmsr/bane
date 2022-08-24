@@ -2,6 +2,8 @@ package ndarray
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 )
@@ -45,6 +47,18 @@ func (v View) Equals(o View) bool {
 	return true
 }
 
+func (v View) String() string {
+	var sb strings.Builder
+	sb.WriteRune('{')
+	sb.WriteString(v.sh.String())
+	sb.WriteRune(' ')
+	sb.WriteString(v.st.String())
+	sb.WriteRune(' ')
+	sb.WriteString(strconv.FormatInt(int64(v.o), 10))
+	sb.WriteRune('}')
+	return sb.String()
+}
+
 func (v View) Shape() Shape     { return v.sh }
 func (v View) Strides() Strides { return v.st }
 func (v View) Offset() Dim      { return v.o }
@@ -60,8 +74,8 @@ func (v View) Index(idxs ...Dim) Dim {
 func (v View) Slice(bs ...any) View {
 	nd := v.sh.Len()
 
-	nsh := make([]Dim, nd)
-	nst := make([]Dim, nd)
+	nsh := NewMutDims(nd)
+	nst := NewMutDims(nd)
 	no := v.o
 
 	for i := nd - 1; i >= 0; i-- {
@@ -84,14 +98,14 @@ func (v View) Slice(bs ...any) View {
 			rnd = r.Step - 1
 		}
 
-		nsh[i] = (r.Stop - r.Start + rnd) / r.Step
-		nst[i] = v.st.Get(i) * r.Step
+		nsh.Set(i, (r.Stop-r.Start+rnd)/r.Step)
+		nst.Set(i, v.st.Get(i)*r.Step)
 		no += r.Start * (v.st.Get(i) * r.Step)
 	}
 
 	return View{
-		sh: ShapeOf(nsh...),
-		st: StridesOf(nst...),
+		sh: Shape{nsh.Decay()},
+		st: Strides{nst.Decay()},
 		o:  no,
 	}
 }
@@ -105,22 +119,22 @@ func (v View) Squeeze() View {
 	}
 
 	nd := v.sh.Len()
-	nsh := make([]Dim, nd-nsd)
-	nst := make([]Dim, nd-nsd)
+	nsh := NewMutDims(nd - nsd)
+	nst := NewMutDims(nd - nsd)
 
 	i := 0
 	for j := 0; j < nd; j++ {
 		if v.sh.Get(j) == 1 {
 			continue
 		}
-		nst[i] = v.st.Get(j)
-		nsh[i] = v.sh.Get(j)
+		nst.Set(i, v.st.Get(j))
+		nsh.Set(i, v.sh.Get(j))
 		i++
 	}
 
 	return View{
-		sh: ShapeOf(nsh...),
-		st: StridesOf(nst...),
+		sh: Shape{nsh.Decay()},
+		st: Strides{nst.Decay()},
 		o:  v.o,
 	}
 }

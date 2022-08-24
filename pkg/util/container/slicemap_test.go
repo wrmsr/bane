@@ -23,3 +23,17 @@ func TestSliceMapIt(t *testing.T) {
 
 	fmt.Println(its.Seq[bt.Kv[int, string]](m.IterateFrom(8)))
 }
+
+func TestSliceMapDecay(t *testing.T) {
+	mm := NewMutSliceMap[int, string](nil)
+	mm.Put(1, "one")
+	fmt.Println(mm.Get(1))
+
+	var m Map[int, string]
+	m = mm
+	//m = mm.Decay()
+	fmt.Println(m.Get(1))
+
+	m.(MutMap[int, string]).Put(2, "two")
+	fmt.Println(m.Get(2))
+}

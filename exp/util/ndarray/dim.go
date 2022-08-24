@@ -1,6 +1,12 @@
 package ndarray
 
-import bt "github.com/wrmsr/bane/pkg/util/types"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
 //
 
@@ -39,13 +45,93 @@ func AsDim(o any) (bt.Optional[Dim], bool) {
 
 //
 
+const _dimsWidth = 6
+
 type Dims struct {
+	_a [_dimsWidth]Dim
 	_s []Dim
+	_l int
 }
 
 func DimsOf(s ...Dim) Dims {
-	return Dims{_s: s}
+	ds := Dims{
+		_l: len(s),
+	}
+	n := _dimsWidth
+	if n > len(s) {
+		n = len(s)
+	}
+	copy(ds._a[:], s[:n])
+	o := len(s) - _dimsWidth
+	if o > 0 {
+		ds._s = make([]Dim, o)
+		copy(ds._s, s[_dimsWidth:])
+	}
+	return ds
 }
 
-func (ds Dims) Len() int      { return len(ds._s) }
-func (ds Dims) Get(i int) Dim { return ds._s[i] }
+func (ds Dims) String() string {
+	var sb strings.Builder
+	sb.WriteRune('[')
+	for i := 0; i < ds._l; i++ {
+		if i > 0 {
+			sb.WriteRune(' ')
+		}
+		var d Dim
+		if i < _dimsWidth {
+			d = ds._a[i]
+		} else {
+			d = ds._s[i-_dimsWidth]
+		}
+		sb.WriteString(strconv.FormatInt(int64(d), 10))
+	}
+	sb.WriteRune(']')
+	return sb.String()
+}
+
+func (ds Dims) Len() int {
+	return ds._l
+}
+
+func (ds Dims) Get(i int) Dim {
+	if i < 0 || i >= ds._l {
+		panic(fmt.Errorf("index out of bounds: %d", i))
+	}
+	if i < _dimsWidth {
+		return ds._a[i]
+	} else {
+		return ds._s[i-_dimsWidth]
+	}
+}
+
+//
+
+type MutDims struct {
+	_ds Dims
+}
+
+func NewMutDims(l int) *MutDims {
+	ds := Dims{
+		_l: l,
+	}
+	if l > _dimsWidth {
+		ds._s = make([]Dim, l-_dimsWidth)
+	}
+	return &MutDims{ds}
+}
+
+func (ds *MutDims) Decay() Dims { return ds._ds }
+
+func (ds *MutDims) Len() int      { return ds._ds.Len() }
+func (ds *MutDims) Get(i int) Dim { return ds._ds.Get(i) }
+
+func (ds *MutDims) Set(i int, d Dim) {
+	if i < 0 || i >= ds._ds.Len() {
+		panic(fmt.Errorf("index out of bounds: %d", i))
+	}
+	if i < _dimsWidth {
+		ds._ds._a[i] = d
+	} else {
+		ds._ds._s[i-_dimsWidth] = d
+	}
+}
