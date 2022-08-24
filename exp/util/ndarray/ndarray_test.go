@@ -27,12 +27,13 @@ func TestNdArray(t *testing.T) {
 	//fmt.Println("====")
 
 	for _, sl := range [][]any{
-		{1, nil, nil},
-		{nil, 1, nil},
-		{nil, nil, 1},
-		{[]any{1, nil}, nil, nil},
-		{[]any{1, nil}, 1, nil},
-		{[]any{1, nil}, nil, 1},
+		//{1, nil, nil},
+		//{nil, 1, nil},
+		//{nil, nil, 1},
+		//{[]any{1, nil}, nil, nil},
+		//{[]any{1, nil}, 1, nil},
+		//{[]any{1, nil}, nil, 1},
+		{[]any{nil, nil, 2}, nil, nil},
 	} {
 		fmt.Println(sl)
 		fmt.Println("====")

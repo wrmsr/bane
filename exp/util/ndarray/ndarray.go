@@ -2,6 +2,8 @@ package ndarray
 
 import (
 	"fmt"
+
+	"github.com/wrmsr/bane/pkg/util/check"
 )
 
 type NdArray[T any] struct {
@@ -69,13 +71,18 @@ func (a NdArray[T]) Slice(bs ...any) NdArray[T] {
 
 	for i := nd - 1; i >= 0; i-- {
 		r := CalcRange(bs[i], a.sh[i])
-		if r.Step == 1 {
-			nsh[i] = r.Stop - r.Start
-			nst[i] = a.st[i]
-			no += r.Start * a.st[i]
+		check.Condition(r.Step > 0)
+
+		rnd := 0
+		if r.Step < 0 {
+			rnd = r.Step + 1
 		} else {
-			panic("nyi")
+			rnd = r.Step - 1
 		}
+
+		nsh[i] = (r.Stop - r.Start + rnd) / r.Step
+		nst[i] = a.st[i] * r.Step
+		no += r.Start * (a.st[i] * r.Step)
 	}
 
 	return NdArray[T]{
