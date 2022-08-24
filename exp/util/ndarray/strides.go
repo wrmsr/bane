@@ -17,11 +17,9 @@ func (st Strides) Offset(idxs []Dim) Dim {
 	if len(idxs) != len(st) {
 		panic(fmt.Errorf("dim mismatch: got %d need %d", len(idxs), len(st)))
 	}
-
 	o := 0
 	for i, idx := range idxs {
 		o += idx * st[i]
 	}
-
 	return o
 }

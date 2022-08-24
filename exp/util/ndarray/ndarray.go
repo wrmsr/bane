@@ -58,18 +58,15 @@ func (a NdArray[T]) Get(idxs ...Dim) T {
 }
 
 func (a NdArray[T]) Slice(bs ...any) NdArray[T] {
-	if len(bs) > len(a.sh) {
+	nd := len(a.sh)
+	if len(bs) != nd {
 		panic(fmt.Errorf("slice dimension mismatch"))
 	}
 
-	nd := len(a.sh)
-	rs := make([]DimRange, len(bs))
+	rs := make([]DimRange, nd)
 	for i, rb := range bs {
 		b := AsBound(rb)
 		r := b.Range(a.sh[i])
-		if r.Scalar().Present() {
-			nd--
-		}
 		rs[i] = r
 	}
 
@@ -77,30 +74,49 @@ func (a NdArray[T]) Slice(bs ...any) NdArray[T] {
 	nst := make(Strides, nd)
 	no := a.o
 
-	j := 0
-	for i, r := range rs {
-		if s := r.Scalar(); s.Present() {
-			no += s.Value() * a.st[i]
+	for i := nd - 1; i >= 0; i-- {
+		r := rs[i]
+		if r.Step == 1 {
+			nsh[i] = r.Stop - r.Start
+			nst[i] = a.st[i]
+			no += r.Start * a.st[i]
 		} else {
-			if r.Step == 1 {
-				nsh[j] = r.Stop - r.Step
-				nst[j] = a.st[i]
-				no += r.Start * a.st[i]
-			} else {
-				panic("nyi")
-			}
-			j++
+			panic("nyi")
 		}
 	}
-
-	do := len(a.sh) - nd
-	copy(nsh[j:], a.sh[do:])
-	copy(nst[j:], a.st[do:])
 
 	return NdArray[T]{
 		sh: nsh,
 		st: nst,
 		o:  no,
+		s:  a.s,
+	}
+}
+
+func (a NdArray[T]) Squeeze() NdArray[T] {
+	nsd := a.sh.NumScalarDims()
+	if nsd < 1 {
+		return a
+	}
+
+	nd := len(a.sh)
+	nsh := make(Shape, nd-nsd)
+	nst := make(Strides, nd-nsd)
+
+	i := 0
+	for j := 0; j < nd; j++ {
+		if a.sh[j] == 1 {
+			continue
+		}
+		nst[i] = a.st[j]
+		nsh[i] = a.sh[j]
+		i++
+	}
+
+	return NdArray[T]{
+		sh: nsh,
+		st: nst,
+		o:  a.o,
 		s:  a.s,
 	}
 }

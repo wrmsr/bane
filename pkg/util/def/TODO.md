@@ -68,3 +68,6 @@
     - func (f *Foo) _def_init_barfs() {}
     - func (f *Foo) _def_lazy_Things() []int { return nil }
 - //def:override
+- const generic (template) params - ints - dense4/8, mat3x3x3, ... - ** type checked, valid runnable template **
+    - switching factories
+    - auto interface
