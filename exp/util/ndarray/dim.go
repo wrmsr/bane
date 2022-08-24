@@ -2,6 +2,8 @@ package ndarray
 
 import bt "github.com/wrmsr/bane/pkg/util/types"
 
+//
+
 type Dim int64
 
 func AsDim(o any) (bt.Optional[Dim], bool) {
@@ -34,3 +36,16 @@ func AsDim(o any) (bt.Optional[Dim], bool) {
 	}
 	return bt.None[Dim](), false
 }
+
+//
+
+type Dims struct {
+	_s []Dim
+}
+
+func DimsOf(s ...Dim) Dims {
+	return Dims{_s: s}
+}
+
+func (ds Dims) Len() int      { return len(ds._s) }
+func (ds Dims) Get(i int) Dim { return ds._s[i] }

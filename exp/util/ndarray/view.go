@@ -19,10 +19,10 @@ func ViewOf(
 	strides Strides,
 	offset Dim,
 ) View {
-	if len(strides.s) < 1 {
+	if strides.Len() < 1 {
 		strides = CalcStrides(shape)
 	}
-	if len(strides.s) != len(shape.s) {
+	if strides.Len() != shape.Len() {
 		panic(fmt.Errorf("strides mismatch"))
 	}
 
@@ -34,11 +34,11 @@ func ViewOf(
 }
 
 func (v View) Equals(o View) bool {
-	if len(v.sh.s) != len(o.sh.s) || v.o != o.o {
+	if v.sh.Len() != o.sh.Len() || v.o != o.o {
 		return false
 	}
-	for i := range v.sh.s {
-		if v.sh.s[i] != o.sh.s[i] || v.st.s[i] != o.st.s[i] {
+	for i := 0; i < v.sh.Len(); i++ {
+		if v.sh.Get(i) != o.sh.Get(i) || v.st.Get(i) != o.st.Get(i) {
 			return false
 		}
 	}
@@ -49,7 +49,7 @@ func (v View) Shape() Shape     { return v.sh }
 func (v View) Strides() Strides { return v.st }
 func (v View) Offset() Dim      { return v.o }
 
-func (v View) Len() Dim { return v.sh.s[0] * v.st.s[0] }
+func (v View) Len() Dim { return v.sh.Get(0) * v.st.Get(0) }
 
 func (v View) Index(idxs ...Dim) Dim {
 	return v.st.Offset(idxs) + v.o
@@ -58,21 +58,21 @@ func (v View) Index(idxs ...Dim) Dim {
 //
 
 func (v View) Slice(bs ...any) View {
-	nd := len(v.sh.s)
+	nd := v.sh.Len()
 
-	nsh := Shape{s: make([]Dim, nd)}
-	nst := Strides{s: make([]Dim, nd)}
+	nsh := make([]Dim, nd)
+	nst := make([]Dim, nd)
 	no := v.o
 
 	for i := nd - 1; i >= 0; i-- {
 		var r Range
 		if i < len(bs) {
-			r = CalcRange(bs[i], v.sh.s[i])
+			r = CalcRange(bs[i], v.sh.Get(i))
 			check.Condition(r.Step > 0)
 		} else {
 			r = Range{
 				Start: 0,
-				Stop:  v.sh.s[i],
+				Stop:  v.sh.Get(i),
 				Step:  1,
 			}
 		}
@@ -84,14 +84,14 @@ func (v View) Slice(bs ...any) View {
 			rnd = r.Step - 1
 		}
 
-		nsh.s[i] = (r.Stop - r.Start + rnd) / r.Step
-		nst.s[i] = v.st.s[i] * r.Step
-		no += r.Start * (v.st.s[i] * r.Step)
+		nsh[i] = (r.Stop - r.Start + rnd) / r.Step
+		nst[i] = v.st.Get(i) * r.Step
+		no += r.Start * (v.st.Get(i) * r.Step)
 	}
 
 	return View{
-		sh: nsh,
-		st: nst,
+		sh: ShapeOf(nsh...),
+		st: StridesOf(nst...),
 		o:  no,
 	}
 }
@@ -104,23 +104,23 @@ func (v View) Squeeze() View {
 		return v
 	}
 
-	nd := len(v.sh.s)
-	nsh := Shape{s: make([]Dim, nd-nsd)}
-	nst := Strides{s: make([]Dim, nd-nsd)}
+	nd := v.sh.Len()
+	nsh := make([]Dim, nd-nsd)
+	nst := make([]Dim, nd-nsd)
 
 	i := 0
 	for j := 0; j < nd; j++ {
-		if v.sh.s[j] == 1 {
+		if v.sh.Get(j) == 1 {
 			continue
 		}
-		nst.s[i] = v.st.s[j]
-		nsh.s[i] = v.sh.s[j]
+		nst[i] = v.st.Get(j)
+		nsh[i] = v.sh.Get(j)
 		i++
 	}
 
 	return View{
-		sh: nsh,
-		st: nst,
+		sh: ShapeOf(nsh...),
+		st: StridesOf(nst...),
 		o:  v.o,
 	}
 }

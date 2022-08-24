@@ -1,19 +1,17 @@
 package ndarray
 
 type Shape struct {
-	s []Dim
+	Dims
 }
 
 func ShapeOf(s ...Dim) Shape {
-	return Shape{s: s}
+	return Shape{DimsOf(s...)}
 }
-
-func (sh Shape) Len() int      { return len(sh.s) }
-func (sh Shape) Get(i int) Dim { return sh.s[i] }
 
 func (sh Shape) NumScalarDims() int {
 	i := 0
-	for _, d := range sh.s {
+	for n := 0; n < sh.Len(); n++ {
+		d := sh.Get(n)
 		if d == 1 {
 			i++
 		}
