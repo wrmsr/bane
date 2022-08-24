@@ -17,27 +17,28 @@ func TestNdArray(t *testing.T) {
 	fmt.Println(a)
 	fmt.Println("====")
 
-	idx := []Dim{1, 2, 0}
-	fmt.Println(a.Get(idx...))
-	fmt.Println("====")
+	//idx := []Dim{1, 2, 0}
+	//fmt.Println(a.Get(idx...))
+	//fmt.Println("====")
 
-	*a.At(idx...) = 420
-	fmt.Println(a)
-	fmt.Println(a.Get(idx...))
-	fmt.Println("====")
+	//*a.At(idx...) = 420
+	//fmt.Println(a)
+	//fmt.Println(a.Get(idx...))
+	//fmt.Println("====")
 
-	fmt.Println(a.Slice(1, nil, nil))
-	fmt.Println("====")
+	for _, sl := range [][]any{
+		{1, nil, nil},
+		{nil, 1, nil},
+		{nil, nil, 1},
+	} {
+		fmt.Println(sl)
+		fmt.Println("====")
 
-	fmt.Println(a.Slice(1, nil, nil))
-	fmt.Println("====")
+		sa := a.Slice(sl...)
+		fmt.Println(sa)
+		fmt.Println("====")
 
-	fmt.Println(a.Slice(1, nil, nil).Squeeze())
-	fmt.Println("====")
-
-	fmt.Println(a.Slice(nil, 1, nil))
-	fmt.Println("====")
-
-	fmt.Println(a.Slice(nil, 1, nil).Squeeze())
-	fmt.Println("====")
+		fmt.Println(sa.Squeeze())
+		fmt.Println("====")
+	}
 }
