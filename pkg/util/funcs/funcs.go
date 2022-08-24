@@ -55,3 +55,11 @@ func Drop2x1[T, U, R any](fn func(U) R) func(T, U) R {
 func DropR2x1[T, U, R any](fn func(T) R) func(T, U) R {
 	return func(t T, u U) R { return fn(t) }
 }
+
+func Load[T any](p *T) func() T {
+	return func() T { return *p }
+}
+
+func Store[T any](p *T) func(T) {
+	return func(v T) { *p = v }
+}

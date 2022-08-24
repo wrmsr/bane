@@ -28,7 +28,7 @@ func Of[T any](
 	if data == nil {
 		data = make([]T, l+v.o)
 	}
-	if len(data)-offset < l {
+	if Dim(len(data))-offset < l {
 		panic(fmt.Errorf("size mismatch"))
 	}
 

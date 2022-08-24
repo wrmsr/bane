@@ -2,6 +2,7 @@ package ndarray
 
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
+	fnu "github.com/wrmsr/bane/pkg/util/funcs"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -51,10 +52,11 @@ func CalcRange(o any, l Dim) Range {
 	}
 
 	clamp := func(o any, d Dim) Dim {
-		if o == nil {
+		v := check.Ok1(AsDim(o))
+		if !v.Present() {
 			return d
 		}
-		i := o.(Dim)
+		i := v.Value()
 		if i < 0 {
 			i += l
 			if i < 0 {
@@ -67,10 +69,10 @@ func CalcRange(o any, l Dim) Range {
 		return i
 	}
 
-	if o, ok := o.(Dim); ok {
+	if o, ok := AsDim(o); ok {
 		return Range{
 			Start: clamp(o, 0),
-			Stop:  clamp(o+1, l),
+			Stop:  clamp(o.Map(func(d Dim) Dim { return d + 1 }), l),
 			Step:  1,
 		}
 	}
@@ -102,7 +104,7 @@ func CalcRange(o any, l Dim) Range {
 
 	if a.Len() > 2 {
 		if astep := a.Get(2); astep != nil {
-			r.Step = astep.(Dim)
+			check.Ok1(AsDim(astep)).IfPresent(fnu.Store(&r.Step))
 		}
 	}
 

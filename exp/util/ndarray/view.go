@@ -67,7 +67,7 @@ func (v View) Slice(bs ...any) View {
 		r := CalcRange(bs[i], v.sh.s[i])
 		check.Condition(r.Step > 0)
 
-		rnd := 0
+		var rnd Dim
 		if r.Step < 0 {
 			rnd = r.Step + 1
 		} else {

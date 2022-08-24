@@ -73,6 +73,20 @@ func (o Optional[T]) OrZero() T {
 	return o.Or(Zero[T]())
 }
 
+func (o Optional[T]) Map(f func(T) T) Optional[T] {
+	if !o.p {
+		return o
+	}
+	return Just(f(o.v))
+}
+
+func (o Optional[T]) FlatMap(f func(T) Optional[T]) Optional[T] {
+	if !o.p {
+		return o
+	}
+	return f(o.v)
+}
+
 //
 
 type AnyOptional interface {

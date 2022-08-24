@@ -1,16 +1,17 @@
-package ndarray
+package tests
 
 import (
 	"fmt"
 	"testing"
 
+	nd "github.com/wrmsr/bane/exp/util/ndarray"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func TestNdArray(t *testing.T) {
-	a := Of[int](
-		Shape{[]Dim{3, 3, 3}},
-		Strides{},
+	a := nd.Of[int](
+		nd.ShapeOf(3, 3, 3),
+		nd.Strides{},
 		0,
 		bt.RangeTo(27).Slice(),
 	)

@@ -23,7 +23,7 @@ func (a NdArray[T]) Render(w io.Writer, fn func(io.Writer, T)) {
 		if n < len(a.v.sh.s)-1 {
 			_, _ = w.Write([]byte("\n"))
 
-			for i := 0; i < a.v.sh.s[n]; i++ {
+			for i := Dim(0); i < a.v.sh.s[n]; i++ {
 				if i > 0 {
 					_, _ = w.Write([]byte(",\n"))
 				}
@@ -37,7 +37,7 @@ func (a NdArray[T]) Render(w io.Writer, fn func(io.Writer, T)) {
 		} else {
 			_, _ = w.Write([]byte(" "))
 
-			for i := 0; i < a.v.sh.s[n]; i++ {
+			for i := Dim(0); i < a.v.sh.s[n]; i++ {
 				if i > 0 {
 					_, _ = w.Write([]byte(", "))
 				}
