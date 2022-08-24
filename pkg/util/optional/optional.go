@@ -160,7 +160,7 @@ func SetIfAbsent[T any](o *Optional[T], fn func() T) T {
 
 //
 
-func HashEq[T any](he bt.HashEqImpl[T]) bt.HashEqImpl[Optional[T]] {
+func OptionalHashEq[T any](he bt.HashEqImpl[T]) bt.HashEqImpl[Optional[T]] {
 	return bt.HashEqOf[Optional[T]](
 		func(v Optional[T]) uintptr {
 			if v.Present() {
