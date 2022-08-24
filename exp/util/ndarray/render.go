@@ -15,15 +15,15 @@ func (a NdArray[T]) Render(w io.Writer, fn func(io.Writer, T)) {
 
 	var rec func(int, Dim)
 	rec = func(n int, o Dim) {
-		st := a.st[n]
+		st := a.v.st[n]
 
 		indent(n)
 		_, _ = w.Write([]byte("["))
 
-		if n < len(a.sh)-1 {
+		if n < len(a.v.sh)-1 {
 			_, _ = w.Write([]byte("\n"))
 
-			for i := 0; i < a.sh[n]; i++ {
+			for i := 0; i < a.v.sh[n]; i++ {
 				if i > 0 {
 					_, _ = w.Write([]byte(",\n"))
 				}
@@ -37,12 +37,12 @@ func (a NdArray[T]) Render(w io.Writer, fn func(io.Writer, T)) {
 		} else {
 			_, _ = w.Write([]byte(" "))
 
-			for i := 0; i < a.sh[n]; i++ {
+			for i := 0; i < a.v.sh[n]; i++ {
 				if i > 0 {
 					_, _ = w.Write([]byte(", "))
 				}
 
-				e := a.s[a.o+o+(i*st)]
+				e := a.d[a.v.o+o+(i*st)]
 				if fn != nil {
 					fn(w, e)
 				} else {
