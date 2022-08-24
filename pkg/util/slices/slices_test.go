@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
-	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func TestReverse(t *testing.T) {
@@ -29,12 +28,4 @@ func TestMakePrepend(t *testing.T) {
 	r := MakePrepend(s, 4, 5, 6)
 	tu.AssertDeepEqual(t, r, []int{4, 5, 6, 0, 1, 2, 3})
 	tu.AssertDeepEqual(t, s, []int{0, 1, 2, 3})
-}
-
-func TestReshape(t *testing.T) {
-	s := bt.RangeTo(10).Slice()
-	tu.AssertDeepEqual(t, Reshape(s, 1, 6, 2), []int{1, 3, 5})
-	tu.AssertDeepEqual(t, Reshape(s, 6, 1, -2), []int{6, 4, 2})
-	tu.AssertDeepEqual(t, Reshape(s, 3, -1, 3), []int{3, 6})
-	tu.AssertDeepEqual(t, Reshape(s, -2, 2, -3), []int{8, 5})
 }
