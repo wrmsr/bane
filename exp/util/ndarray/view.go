@@ -59,17 +59,23 @@ func (v View) Index(idxs ...Dim) Dim {
 
 func (v View) Slice(bs ...any) View {
 	nd := len(v.sh.s)
-	if len(bs) != nd {
-		panic(fmt.Errorf("slice dimension mismatch"))
-	}
 
 	nsh := Shape{s: make([]Dim, nd)}
 	nst := Strides{s: make([]Dim, nd)}
 	no := v.o
 
 	for i := nd - 1; i >= 0; i-- {
-		r := CalcRange(bs[i], v.sh.s[i])
-		check.Condition(r.Step > 0)
+		var r Range
+		if i < len(bs) {
+			r = CalcRange(bs[i], v.sh.s[i])
+			check.Condition(r.Step > 0)
+		} else {
+			r = Range{
+				Start: 0,
+				Stop:  v.sh.s[i],
+				Step:  1,
+			}
+		}
 
 		var rnd Dim
 		if r.Step < 0 {
