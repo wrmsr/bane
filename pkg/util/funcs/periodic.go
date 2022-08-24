@@ -3,7 +3,7 @@ package funcs
 import (
 	"time"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type PeriodicFn[T any] struct {
@@ -13,7 +13,7 @@ type PeriodicFn[T any] struct {
 	clock func() time.Time
 
 	dl time.Time
-	v  opt.Optional[T]
+	v  bt.Optional[T]
 }
 
 func NewPeriodicFn[T any](fn func() T, iv time.Duration) PeriodicFn[T] {
@@ -34,7 +34,7 @@ func (pf PeriodicFn[T]) Call() T {
 			now = pf.clock()
 		}
 
-		pf.v = opt.Just(pf.fn())
+		pf.v = bt.Just(pf.fn())
 		pf.dl = now.Add(pf.iv)
 	}
 

@@ -3,7 +3,7 @@ package behave
 import (
 	"sync/atomic"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -29,9 +29,9 @@ func NextId() uintptr {
 //
 
 type generatedIdentity struct {
-	_id opt.Optional[uintptr]
+	_id bt.Optional[uintptr]
 }
 
 func (hi *generatedIdentity) Identity() uintptr {
-	return opt.SetIfAbsent(&hi._id, NextId)
+	return bt.SetIfAbsent(&hi._id, NextId)
 }

@@ -2,7 +2,7 @@ package builder
 
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -23,10 +23,10 @@ func (r relation) isRelation() {}
 type Table struct {
 	relation
 	Name  Ident
-	Alias opt.Optional[Ident]
+	Alias bt.Optional[Ident]
 }
 
-func NewTableAs(name Ident, alias opt.Optional[Ident]) Table {
+func NewTableAs(name Ident, alias bt.Optional[Ident]) Table {
 	return Table{
 		Name:  check.NotZero(name),
 		Alias: alias,
@@ -34,5 +34,5 @@ func NewTableAs(name Ident, alias opt.Optional[Ident]) Table {
 }
 
 func NewTable(name Ident) Table {
-	return NewTableAs(name, opt.None[Ident]())
+	return NewTableAs(name, bt.None[Ident]())
 }

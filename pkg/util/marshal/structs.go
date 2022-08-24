@@ -4,7 +4,6 @@ import (
 	"errors"
 	"reflect"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	stu "github.com/wrmsr/bane/pkg/util/structs"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -42,12 +41,12 @@ func (ri SetField) isRegistryItem() {}
 ///
 
 func NewStructFieldGetter(fi *stu.FieldInfo) ObjectFieldGetter {
-	return func(ctx MarshalContext, rv reflect.Value) (opt.Optional[reflect.Value], error) {
+	return func(ctx MarshalContext, rv reflect.Value) (bt.Optional[reflect.Value], error) {
 		fv, ok := fi.GetValue(rv)
 		if !ok {
-			return opt.None[reflect.Value](), nil
+			return bt.None[reflect.Value](), nil
 		}
-		return opt.Just(fv), nil
+		return bt.Just(fv), nil
 	}
 }
 

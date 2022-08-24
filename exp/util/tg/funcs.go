@@ -2,7 +2,6 @@ package tg
 
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -25,9 +24,9 @@ type FuncContext struct {
 
 	savedBuffers []*LazyBuffer
 
-	inputShape opt.Optional[Shape]
-	inputOrder opt.Optional[[]Dim]
-	convArgs   opt.Optional[ConvArgs]
+	inputShape bt.Optional[Shape]
+	inputOrder bt.Optional[[]Dim]
+	convArgs   bt.Optional[ConvArgs]
 }
 
 func NewFuncContext(fn Func, parents []*Tensor) *FuncContext {
@@ -157,7 +156,7 @@ func reduceShape(shape Shape, axis []int) Shape {
 
 func (f SumFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	input := check.Single(bs)
-	ctx.inputShape = opt.Just(input.Shape())
+	ctx.inputShape = bt.Just(input.Shape())
 	return input.ReduceOp(SumOp, reduceShape(input.Shape(), f.Axis))
 }
 
@@ -174,7 +173,7 @@ type ReshapeFunc struct {
 func (f ReshapeFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	input := check.Single(bs)
 	oldShape := input.Shape()
-	ctx.inputShape = opt.Just(oldShape)
+	ctx.inputShape = bt.Just(oldShape)
 	newShape := make(Shape, len(f.Shape))
 	for i, s := range f.Shape {
 		if s == -1 {
@@ -198,7 +197,7 @@ type ExpandFunc struct {
 
 func (f ExpandFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	input := check.Single(bs)
-	ctx.inputShape = opt.Just(f.Shape)
+	ctx.inputShape = bt.Just(f.Shape)
 	return input.MovementOp(ExpandOp, f.Shape)
 }
 
@@ -228,7 +227,7 @@ type PermuteFunc struct {
 
 func (f PermuteFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	input := check.Single(bs)
-	ctx.inputOrder = opt.Just(f.Order)
+	ctx.inputOrder = bt.Just(f.Order)
 	return input.MovementOp(PermuteOp, f.Order)
 }
 
@@ -245,7 +244,7 @@ type Conv2dFunc struct {
 func (f Conv2dFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	x, w := slices.Unpack2(bs)
 	ca := BuildConvArgs(x.Shape(), w.Shape(), f.co)
-	ctx.convArgs = opt.Just(ca)
+	ctx.convArgs = bt.Just(ca)
 	ctx.saveForBackward(x, w)
 	return x.ProcessingOp(ConvOp, w, ca)
 }

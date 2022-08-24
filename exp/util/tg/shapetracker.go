@@ -3,7 +3,6 @@ package tg
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/maps"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -17,8 +16,8 @@ type View struct {
 
 	shapeStrides []ShapeStride
 
-	baseStrides opt.Optional[Strides]
-	contiguous  opt.Optional[bool]
+	baseStrides bt.Optional[Strides]
+	contiguous  bt.Optional[bool]
 }
 
 func NewView(shape Shape, strides Strides, offset Dim) View {
@@ -40,13 +39,13 @@ func (v View) Offset() Dim      { return v.offset }
 func (v View) ShapeStrides() []ShapeStride { return v.shapeStrides }
 
 func (v *View) BaseStrides() Strides {
-	return opt.SetIfAbsent(&v.baseStrides, func() Strides {
+	return bt.SetIfAbsent(&v.baseStrides, func() Strides {
 		return StridesForShape(v.shape)
 	})
 }
 
 func (v *View) Contiguous() bool {
-	return opt.SetIfAbsent(&v.contiguous, func() bool {
+	return bt.SetIfAbsent(&v.contiguous, func() bool {
 		if v.offset != 0 {
 			return false
 		}

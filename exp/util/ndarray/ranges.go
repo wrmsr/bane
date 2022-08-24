@@ -87,5 +87,5 @@ func CalcRange(o any, l Dim) DimRange {
 		r.Stop = aclamp(1, 0)
 	}
 
-	return r
+	return r.Check(l)
 }

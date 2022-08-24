@@ -3,7 +3,6 @@ package iterators
 import (
 	"context"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -12,7 +11,7 @@ import (
 type chanIterator[T any] struct {
 	ch   <-chan T
 	done <-chan struct{}
-	nxt  opt.Optional[T]
+	nxt  bt.Optional[T]
 }
 
 func OfChan[T any](ch <-chan T) bt.Iterable[T] {
@@ -49,7 +48,7 @@ func (i *chanIterator[T]) HasNext() bool {
 		if !ok {
 			return false
 		}
-		i.nxt = opt.Just(v)
+		i.nxt = bt.Just(v)
 		return true
 	}
 }
@@ -59,7 +58,7 @@ func (i *chanIterator[T]) Next() T {
 		panic(bt.IteratorExhaustedError{})
 	}
 	v := i.nxt.Value()
-	i.nxt = opt.None[T]()
+	i.nxt = bt.None[T]()
 	return v
 }
 

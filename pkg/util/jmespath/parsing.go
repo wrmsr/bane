@@ -7,7 +7,7 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/jmespath/parser"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -220,16 +220,16 @@ func (v *parseVisitor) VisitBracketStar(ctx *parser.BracketStarContext) any {
 }
 
 func (v *parseVisitor) VisitBracketSlice(ctx *parser.BracketSliceContext) any {
-	var start, stop, step opt.Optional[int]
+	var start, stop, step bt.Optional[int]
 	sliceCtx := ctx.SliceNode().(*parser.SliceNodeContext)
 	if sliceCtx.GetSliceStart() != nil {
-		start = opt.Just(check.Must1(strconv.Atoi(sliceCtx.GetSliceStart().GetText())))
+		start = bt.Just(check.Must1(strconv.Atoi(sliceCtx.GetSliceStart().GetText())))
 	}
 	if sliceCtx.GetSliceStop() != nil {
-		stop = opt.Just(check.Must1(strconv.Atoi(sliceCtx.GetSliceStop().GetText())))
+		stop = bt.Just(check.Must1(strconv.Atoi(sliceCtx.GetSliceStop().GetText())))
 	}
 	if sliceCtx.GetSliceStep() != nil {
-		step = opt.Just(check.Must1(strconv.Atoi(sliceCtx.GetSliceStep().GetText())))
+		step = bt.Just(check.Must1(strconv.Atoi(sliceCtx.GetSliceStep().GetText())))
 		if step.Value() == 0 {
 			panic("zero step")
 		}

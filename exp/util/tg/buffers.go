@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -14,7 +13,7 @@ type Buffer struct {
 
 	shape Shape
 
-	strides opt.Optional[Strides]
+	strides bt.Optional[Strides]
 }
 
 func NewBuffer(shape Shape) *Buffer {
@@ -37,7 +36,7 @@ func BufferOf(shape Shape, s []float32) *Buffer {
 func (b *Buffer) Shape() Shape { return b.shape }
 
 func (b *Buffer) Strides() Strides {
-	return opt.SetIfAbsent(&b.strides, func() Strides {
+	return bt.SetIfAbsent(&b.strides, func() Strides {
 		return StridesForShape(b.shape)
 	})
 }
@@ -288,7 +287,7 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 				ca.h,
 				ca.w,
 			},
-			strides: opt.Just[Strides](Strides{
+			strides: bt.Just[Strides](Strides{
 				gst[0],
 				gst[1],
 				gst[2],

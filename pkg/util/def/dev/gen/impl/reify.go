@@ -14,8 +14,8 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/def"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -63,14 +63,14 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		opts := make([]def.FieldOpt, len(call.Args)-1)
 
 		hasTyOpt := false
-		var dflTy opt.Optional[any]
+		var dflTy bt.Optional[any]
 		for i, arg := range call.Args[1:] {
 			o := ReifyDef(arg, ti).(def.FieldOpt)
 			if _, ok := o.(def.TypeOpt); ok {
 				hasTyOpt = true
 			}
 			if o, ok := o.(def.DefaultOpt); ok {
-				dflTy = opt.Just(o.Ty)
+				dflTy = bt.Just(o.Ty)
 			}
 			opts[i] = o
 		}

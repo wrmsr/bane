@@ -1,8 +1,4 @@
-package optional
-
-import (
-	bt "github.com/wrmsr/bane/pkg/util/types"
-)
+package types
 
 //
 
@@ -74,7 +70,7 @@ func (o Optional[T]) OrFn(f func() T) T {
 }
 
 func (o Optional[T]) OrZero() T {
-	return o.Or(bt.Zero[T]())
+	return o.Or(Zero[T]())
 }
 
 //
@@ -111,9 +107,9 @@ type optionalIterator[T any] struct {
 	o Optional[T]
 }
 
-var _ bt.Iterator[any] = &optionalIterator[any]{}
+var _ Iterator[any] = &optionalIterator[any]{}
 
-func (i *optionalIterator[T]) Iterate() bt.Iterator[T] {
+func (i *optionalIterator[T]) Iterate() Iterator[T] {
 	return i
 }
 
@@ -123,20 +119,20 @@ func (i *optionalIterator[T]) HasNext() bool {
 
 func (i *optionalIterator[T]) Next() T {
 	if !i.o.Present() {
-		panic(bt.IteratorExhaustedError{})
+		panic(IteratorExhaustedError{})
 	}
 	v := i.o.Value()
 	i.o = None[T]()
 	return v
 }
 
-var _ bt.Iterable[any] = Optional[any]{}
+var _ Iterable[any] = Optional[any]{}
 
-func (o Optional[T]) Iterate() bt.Iterator[T] {
+func (o Optional[T]) Iterate() Iterator[T] {
 	return &optionalIterator[T]{o: o}
 }
 
-var _ bt.Traversable[any] = Optional[any]{}
+var _ Traversable[any] = Optional[any]{}
 
 func (o Optional[T]) ForEach(fn func(v T) bool) bool {
 	if o.Present() {
@@ -160,8 +156,8 @@ func SetIfAbsent[T any](o *Optional[T], fn func() T) T {
 
 //
 
-func OptionalHashEq[T any](he bt.HashEqImpl[T]) bt.HashEqImpl[Optional[T]] {
-	return bt.HashEqOf[Optional[T]](
+func OptionalHashEq[T any](he HashEqImpl[T]) HashEqImpl[Optional[T]] {
+	return HashEqOf[Optional[T]](
 		func(v Optional[T]) uintptr {
 			if v.Present() {
 				return he.Hash(v.Value())

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 ///
@@ -53,13 +53,13 @@ func (f TypeMapFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 
 type TypeCacheFactory[R, C any] struct {
 	f Factory[R, C, reflect.Type]
-	m map[reflect.Type]opt.Optional[R]
+	m map[reflect.Type]bt.Optional[R]
 }
 
 func NewTypeCacheFactory[R, C any](f Factory[R, C, reflect.Type]) TypeCacheFactory[R, C] {
 	return TypeCacheFactory[R, C]{
 		f: f,
-		m: make(map[reflect.Type]opt.Optional[R]),
+		m: make(map[reflect.Type]bt.Optional[R]),
 	}
 }
 
@@ -75,9 +75,9 @@ func (f TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 		return z, err
 	}
 	if !reflect.ValueOf(r).IsValid() {
-		f.m[a] = opt.None[R]()
+		f.m[a] = bt.None[R]()
 	} else {
-		f.m[a] = opt.Just(r)
+		f.m[a] = bt.Just(r)
 	}
 	return r, nil
 }

@@ -6,13 +6,13 @@ import (
 	"strings"
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type peekReader struct {
 	rd *bufio.Reader
 
-	pch opt.Optional[rune]
+	pch bt.Optional[rune]
 }
 
 func newPeekReader(r io.Reader) *peekReader {
@@ -23,14 +23,14 @@ func newPeekReader(r io.Reader) *peekReader {
 
 //
 
-func (pr *peekReader) peek() opt.Optional[rune] {
+func (pr *peekReader) peek() bt.Optional[rune] {
 	if pr.pch.Present() {
 		return pr.pch
 	}
 
 	och := pr.read()
 	if !och.Present() {
-		return opt.None[rune]()
+		return bt.None[rune]()
 	}
 
 	pr.pch = och
@@ -49,22 +49,22 @@ func (pr *peekReader) isEof() bool {
 	return !och.Present()
 }
 
-func (pr *peekReader) read() opt.Optional[rune] {
+func (pr *peekReader) read() bt.Optional[rune] {
 	if pr.pch.Present() {
 		och := pr.pch
-		pr.pch = opt.None[rune]()
+		pr.pch = bt.None[rune]()
 		return och
 	}
 
 	ch, _, e := pr.rd.ReadRune()
 	if e != nil {
 		if e == io.EOF {
-			return opt.None[rune]()
+			return bt.None[rune]()
 		}
 		panic(ParseError{e})
 	}
 
-	return opt.Just(ch)
+	return bt.Just(ch)
 }
 
 func (pr *peekReader) mustRead() rune {

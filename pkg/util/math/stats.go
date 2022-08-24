@@ -4,7 +4,6 @@ import (
 	"math"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -30,12 +29,12 @@ type Stats struct {
 	dfl float64
 	_eq func(l, r float64) bool
 
-	min  opt.Optional[float64]
-	max  opt.Optional[float64]
-	sum  opt.Optional[float64]
-	mean opt.Optional[float64]
+	min  bt.Optional[float64]
+	max  bt.Optional[float64]
+	sum  bt.Optional[float64]
+	mean bt.Optional[float64]
 
-	sorted opt.Optional[[]float64]
+	sorted bt.Optional[[]float64]
 }
 
 func NewStats(data []float64) Stats {
@@ -65,31 +64,31 @@ func (s Stats) Eq(l, r float64) bool {
 func (s Stats) Len() int { return len(s.data) }
 
 func (s *Stats) Min() float64 {
-	return opt.SetIfAbsent(&s.min, func() float64 {
+	return bt.SetIfAbsent(&s.min, func() float64 {
 		return bt.Min(s.data...)
 	})
 }
 
 func (s *Stats) Max() float64 {
-	return opt.SetIfAbsent(&s.min, func() float64 {
+	return bt.SetIfAbsent(&s.min, func() float64 {
 		return bt.Max(s.data...)
 	})
 }
 
 func (s *Stats) Sum() float64 {
-	return opt.SetIfAbsent(&s.sum, func() float64 {
+	return bt.SetIfAbsent(&s.sum, func() float64 {
 		return bt.Sum(s.data...)
 	})
 }
 
 func (s *Stats) Mean() float64 {
-	return opt.SetIfAbsent(&s.mean, func() float64 {
+	return bt.SetIfAbsent(&s.mean, func() float64 {
 		return s.Sum() / float64(len(s.data))
 	})
 }
 
 func (s *Stats) Sorted() []float64 {
-	return opt.SetIfAbsent(&s.sorted, func() []float64 {
+	return bt.SetIfAbsent(&s.sorted, func() []float64 {
 		return slices.Sort(slices.Clone(s.data))
 	})
 }

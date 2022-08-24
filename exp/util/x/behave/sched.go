@@ -3,8 +3,8 @@ package behave
 import (
 	"time"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -15,7 +15,7 @@ type Schedulable interface {
 
 type Scheduler interface {
 	Schedulable
-	Add(schedulable Schedulable, frequency int, phase opt.Optional[int])
+	Add(schedulable Schedulable, frequency int, phase bt.Optional[int])
 }
 
 //
@@ -59,11 +59,11 @@ func (bsch *BaseScheduler[T]) calculatePhase(frequency int) int {
 		}
 	}
 
-	var minValue opt.Optional[int]
+	var minValue bt.Optional[int]
 	minValueAt := -1
 	for i := 0; i < frequency; i++ {
 		if !minValue.Present() || bsch.phaseCounters[i] < minValue.Value() {
-			minValue = opt.Just(bsch.phaseCounters[i])
+			minValue = bt.Just(bsch.phaseCounters[i])
 			minValueAt = i
 		}
 	}
@@ -106,11 +106,11 @@ func (sch *PriorityScheduler) Run(ttl float32) {
 	}
 }
 
-func (sch *PriorityScheduler) Add(schedulable Schedulable, frequency int, phase opt.Optional[int]) {
+func (sch *PriorityScheduler) Add(schedulable Schedulable, frequency int, phase bt.Optional[int]) {
 	sch.AddPriority(schedulable, 1, frequency, phase)
 }
 
-func (sch *PriorityScheduler) AddPriority(schedulable Schedulable, priority float32, frequency int, phase opt.Optional[int]) {
+func (sch *PriorityScheduler) AddPriority(schedulable Schedulable, priority float32, frequency int, phase bt.Optional[int]) {
 	var ph int
 	if phase.Present() {
 		ph = phase.Value()
@@ -157,7 +157,7 @@ func (sch *LoadBalancingScheduler) Run(ttl float32) {
 	}
 }
 
-func (sch *LoadBalancingScheduler) Add(schedulable Schedulable, frequency int, phase opt.Optional[int]) {
+func (sch *LoadBalancingScheduler) Add(schedulable Schedulable, frequency int, phase bt.Optional[int]) {
 	var ph int
 	if phase.Present() {
 		ph = phase.Value()

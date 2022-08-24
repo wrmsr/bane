@@ -44,7 +44,7 @@ func TestTensorDot(t *testing.T) {
 		{"c", "d"},
 	}
 
-	var c [][]string = make([][]string, 3)
+	var c = make([][]string, 3)
 	for i := 0; i < 3; i++ {
 		c[i] = make([]string, 3)
 	}

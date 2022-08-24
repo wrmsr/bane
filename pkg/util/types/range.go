@@ -77,15 +77,15 @@ func (r Range[T]) CheckNormal(n T) Range[T] {
 		if r.Start < 0 {
 			panic(RangeError[T]{Err: errors.New("start < 0"), Range: r})
 		}
-		if r.Stop >= n {
-			panic(RangeError[T]{Err: errors.New("stop >= n"), Range: r})
+		if r.Stop > n {
+			panic(RangeError[T]{Err: errors.New("stop > n"), Range: r})
 		}
 		if r.Stop < r.Start {
 			panic(RangeError[T]{Err: errors.New("stop < start"), Range: r})
 		}
 	} else {
-		if r.Start >= n {
-			panic(RangeError[T]{Err: errors.New("start >= n"), Range: r})
+		if r.Start > n {
+			panic(RangeError[T]{Err: errors.New("start > n"), Range: r})
 		}
 		if r.Stop < 0 {
 			panic(RangeError[T]{Err: errors.New("stop < 0"), Range: r})

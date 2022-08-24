@@ -1,6 +1,8 @@
 package gen
 
-import opt "github.com/wrmsr/bane/pkg/util/optional"
+import (
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
 //
 
@@ -35,7 +37,7 @@ func TypeOf(o any) Type {
 //
 
 type Array struct {
-	Len  opt.Optional[int]
+	Len  bt.Optional[int]
 	Elem Type
 
 	type_

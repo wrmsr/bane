@@ -6,13 +6,12 @@ import (
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	stu "github.com/wrmsr/bane/pkg/util/structs"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type FooStruct struct {
-	M map[opt.Optional[int]][]*string
+	M map[bt.Optional[int]][]*string
 	S string
 }
 
@@ -44,10 +43,10 @@ func TestDefaultFactory(t *testing.T) {
 	))
 
 	o := FooStruct{
-		M: map[opt.Optional[int]][]*string{
-			opt.Just(10):    {bt.PtrTo("ten"), bt.PtrTo("one zero")},
-			opt.Just(20):    {bt.PtrTo("twenty"), bt.PtrTo("two zero")},
-			opt.None[int](): {bt.PtrTo("none")},
+		M: map[bt.Optional[int]][]*string{
+			bt.Just(10):    {bt.PtrTo("ten"), bt.PtrTo("one zero")},
+			bt.Just(20):    {bt.PtrTo("twenty"), bt.PtrTo("two zero")},
+			bt.None[int](): {bt.PtrTo("none")},
 		},
 		S: "foo..",
 	}

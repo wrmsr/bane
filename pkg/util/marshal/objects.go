@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"reflect"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
 
-type ObjectFieldGetter = func(ctx MarshalContext, rv reflect.Value) (opt.Optional[reflect.Value], error)
+type ObjectFieldGetter = func(ctx MarshalContext, rv reflect.Value) (bt.Optional[reflect.Value], error)
 
 type ObjectMarshalerField struct {
 	Name string

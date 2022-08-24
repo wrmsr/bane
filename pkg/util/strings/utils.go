@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	fnu "github.com/wrmsr/bane/pkg/util/funcs"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func ScanAllLines(r io.Reader, skipEmpty bool) ([]string, error) {
@@ -40,7 +40,7 @@ func NumLeadingSpaces(s string) int {
 func Dedent(s string) string {
 	lines := strings.Split(s, "\n")
 
-	n := opt.None[int]()
+	n := bt.None[int]()
 	for _, l := range lines {
 		if l == "" {
 			continue
@@ -48,9 +48,9 @@ func Dedent(s string) string {
 
 		c := NumLeadingSpaces(l)
 		if n.Present() {
-			n = opt.Just(fnu.Min(c, n.Value()))
+			n = bt.Just(fnu.Min(c, n.Value()))
 		} else {
-			n = opt.Just(c)
+			n = bt.Just(c)
 		}
 	}
 

@@ -16,9 +16,9 @@ import (
 	fnu "github.com/wrmsr/bane/pkg/util/funcs"
 	inj "github.com/wrmsr/bane/pkg/util/inject"
 	"github.com/wrmsr/bane/pkg/util/log"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -60,9 +60,9 @@ type Service struct {
 type ServiceLocator struct {
 	cfg ServiceLocatorConfig
 
-	pss opt.Optional[Pss]
-	ins opt.Optional[Inspects]
-	cmp opt.Optional[*ComposeConfig]
+	pss bt.Optional[Pss]
+	ins bt.Optional[Inspects]
+	cmp bt.Optional[*ComposeConfig]
 
 	m map[string]*Service
 }
@@ -76,7 +76,7 @@ func NewServiceLocator(cfg ServiceLocatorConfig) *ServiceLocator {
 }
 
 func (sl *ServiceLocator) Pss() Pss {
-	return opt.SetIfAbsent(&sl.pss, func() Pss {
+	return bt.SetIfAbsent(&sl.pss, func() Pss {
 		ctx, cancel := context.WithTimeout(context.Background(), sl.cfg.Timeout)
 		defer cancel()
 
@@ -91,7 +91,7 @@ func (sl *ServiceLocator) Pss() Pss {
 }
 
 func (sl *ServiceLocator) Inspects() Inspects {
-	return opt.SetIfAbsent(&sl.ins, func() Inspects {
+	return bt.SetIfAbsent(&sl.ins, func() Inspects {
 		pss := sl.Pss()
 
 		ctx, cancel := context.WithTimeout(context.Background(), sl.cfg.Timeout)
@@ -108,7 +108,7 @@ func (sl *ServiceLocator) Inspects() Inspects {
 }
 
 func (sl *ServiceLocator) Compose() *ComposeConfig {
-	return opt.SetIfAbsent(&sl.cmp, func() *ComposeConfig {
+	return bt.SetIfAbsent(&sl.cmp, func() *ComposeConfig {
 		fp := filepath.Join(paths.FindProjectRoot(), sl.cfg.ComposePath)
 
 		cmp, err := ReadComposeConfig(fp)

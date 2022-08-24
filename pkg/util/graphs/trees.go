@@ -6,7 +6,6 @@ import (
 
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -38,13 +37,13 @@ type Tree[T any] struct {
 	nodes   ctr.List[T]
 	nodeSet ctr.Set[T]
 
-	parentsByNode   ctr.Map[opt.Optional[T], opt.Optional[T]]
-	childrenByNode  ctr.Map[opt.Optional[T], ctr.List[T]]
-	childSetsByNode ctr.Map[opt.Optional[T], ctr.Set[T]]
+	parentsByNode   ctr.Map[bt.Optional[T], bt.Optional[T]]
+	childrenByNode  ctr.Map[bt.Optional[T], ctr.List[T]]
+	childSetsByNode ctr.Map[bt.Optional[T], ctr.Set[T]]
 
-	depthsByNode opt.Optional[ctr.Map[T, int]]
+	depthsByNode bt.Optional[ctr.Map[T, int]]
 
-	nodeSetsByType opt.Optional[map[reflect.Type]ctr.Set[T]]
+	nodeSetsByType bt.Optional[map[reflect.Type]ctr.Set[T]]
 }
 
 func NewTree[T any](root T, walk func(T) bt.Iterable[T], he bt.HashEqImpl[T]) (*Tree[T], error) {
@@ -57,15 +56,15 @@ func NewTree[T any](root T, walk func(T) bt.Iterable[T], he bt.HashEqImpl[T]) (*
 	nodes := ctr.NewSliceMutList[T](nil)
 	nodeSet := ctr.NewMutHashEqSet[T](he, nil)
 
-	parentsByNode := ctr.NewMutHashEqMap[opt.Optional[T], opt.Optional[T]](opt.OptionalHashEq(he), nil)
-	childrenByNode := ctr.NewMutHashEqMap[opt.Optional[T], ctr.List[T]](opt.OptionalHashEq(he), nil)
-	childSetsByNode := ctr.NewMutHashEqMap[opt.Optional[T], ctr.Set[T]](opt.OptionalHashEq(he), nil)
+	parentsByNode := ctr.NewMutHashEqMap[bt.Optional[T], bt.Optional[T]](bt.OptionalHashEq(he), nil)
+	childrenByNode := ctr.NewMutHashEqMap[bt.Optional[T], ctr.List[T]](bt.OptionalHashEq(he), nil)
+	childSetsByNode := ctr.NewMutHashEqMap[bt.Optional[T], ctr.Set[T]](bt.OptionalHashEq(he), nil)
 
-	childrenByNode.Put(opt.None[T](), ctr.NewSliceListOf(root))
-	childSetsByNode.Put(opt.None[T](), ctr.NewHashEqSet(he, its.Of(root)))
+	childrenByNode.Put(bt.None[T](), ctr.NewSliceListOf(root))
+	childSetsByNode.Put(bt.None[T](), ctr.NewHashEqSet(he, its.Of(root)))
 
-	var rec func(T, opt.Optional[T]) error
-	rec = func(cur T, parent opt.Optional[T]) error {
+	var rec func(T, bt.Optional[T]) error
+	rec = func(cur T, parent bt.Optional[T]) error {
 		if nodeSet.Contains(cur) {
 			return DuplicateNodeError[T]{NodeError[T]{cur}}
 		}
@@ -80,20 +79,20 @@ func NewTree[T any](root T, walk func(T) bt.Iterable[T], he bt.HashEqImpl[T]) (*
 			return UnknownNodeError[T]{NodeError[T]{parent.Value()}}
 		}
 
-		parentsByNode.Put(opt.Just(cur), parent)
+		parentsByNode.Put(bt.Just(cur), parent)
 
 		children := ctr.NewSliceList(walk(cur))
-		childrenByNode.Put(opt.Just(cur), children)
-		childSetsByNode.Put(opt.Just(cur), ctr.NewHashEqSet[T](he, children))
+		childrenByNode.Put(bt.Just(cur), children)
+		childSetsByNode.Put(bt.Just(cur), ctr.NewHashEqSet[T](he, children))
 
 		var err error
 		children.ForEach(func(child T) bool {
-			err = rec(child, opt.Just(cur))
+			err = rec(child, bt.Just(cur))
 			return err == nil
 		})
 		return err
 	}
-	if err := rec(root, opt.None[T]()); err != nil {
+	if err := rec(root, bt.None[T]()); err != nil {
 		return nil, err
 	}
 
@@ -113,17 +112,17 @@ func (t Tree[T]) Walk() func(T) bt.Iterable[T] { return t.walk }
 func (t Tree[T]) Nodes() ctr.List[T]  { return t.nodes }
 func (t Tree[T]) NodeSet() ctr.Set[T] { return t.nodeSet }
 
-func (t Tree[T]) ParentsByNode() ctr.Map[opt.Optional[T], opt.Optional[T]] { return t.parentsByNode }
-func (t Tree[T]) ChildrenByNode() ctr.Map[opt.Optional[T], ctr.List[T]]    { return t.childrenByNode }
-func (t Tree[T]) ChildSetsByNode() ctr.Map[opt.Optional[T], ctr.Set[T]]    { return t.childSetsByNode }
+func (t Tree[T]) ParentsByNode() ctr.Map[bt.Optional[T], bt.Optional[T]] { return t.parentsByNode }
+func (t Tree[T]) ChildrenByNode() ctr.Map[bt.Optional[T], ctr.List[T]]   { return t.childrenByNode }
+func (t Tree[T]) ChildSetsByNode() ctr.Map[bt.Optional[T], ctr.Set[T]]   { return t.childSetsByNode }
 
 func (t *Tree[T]) DepthsByNode() ctr.Map[T, int] {
-	return opt.SetIfAbsent(&t.depthsByNode, func() ctr.Map[T, int] {
+	return bt.SetIfAbsent(&t.depthsByNode, func() ctr.Map[T, int] {
 		m := ctr.NewMutHashEqMap[T, int](t.he, nil)
 		var rec func(T, int)
 		rec = func(n T, d int) {
 			m.Put(n, d)
-			t.childSetsByNode.Get(opt.Just(n)).ForEach(func(c T) bool {
+			t.childSetsByNode.Get(bt.Just(n)).ForEach(func(c T) bool {
 				rec(c, d+1)
 				return true
 			})
@@ -134,7 +133,7 @@ func (t *Tree[T]) DepthsByNode() ctr.Map[T, int] {
 }
 
 func (t *Tree[T]) NodeSetsByType() map[reflect.Type]ctr.Set[T] {
-	return opt.SetIfAbsent(&t.nodeSetsByType, func() map[reflect.Type]ctr.Set[T] {
+	return bt.SetIfAbsent(&t.nodeSetsByType, func() map[reflect.Type]ctr.Set[T] {
 		m := make(map[reflect.Type]ctr.MutSet[T])
 		r := make(map[reflect.Type]ctr.Set[T])
 		t.nodes.ForEach(func(n T) bool {

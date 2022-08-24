@@ -10,22 +10,31 @@
 - type-switched polymorphic - if only impls are a userstring and userint
 
 - mapstruct:
-  - ErrorUnused - If ErrorUnused is true, then it is an error for there to exist keys in the original map that were unused in the decoding process (extra keys).
-  - ErrorUnset - If ErrorUnset is true, then it is an error for there to exist fields in the result that were not set in the decoding process (extra fields). This only applies to decoding to a struct. This/ will affect all nested structs as well.
-  - ZeroFields - ZeroFields, if set to true, will zero fields before writing them. For example, a map will be emptied before decoded values are put in it. If this is false, a map will be merged.
-  - WeaklyTypedInput - If WeaklyTypedInput is true, the decoder will make the following "weak" conversions:
-    - bools to string (true = "1", false = "0")
-    - numbers to string (base 10)
-    - bools to int/uint (true = 1, false = 0)
-    - strings to int/uint (base implied by prefix)
-    - int to bool (true if value != 0)
-    - string to bool (accepts: 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, False. Anything else is an error)
-    - empty array = empty map and vice versa
-    - negative numbers to overflowed uint values (base 10)
-    - slice of maps to a merged map
-    - single values are converted to slices if required. Each element is weakly decoded. For example: "4" can become []int{4} if the target type is an int slice.
-  - Squash - Squash will squash embedded structs.  A squash tag may also be added to an individual struct field using a tag.  For example: type Parent struct { Child `mapstructure:",squash"` }
-  - Metadata - Metadata is the struct that will contain extra metadata about the decoding. If this is nil, then no metadata will be tracked.
-  - TagName - The tag name that mapstructure reads for field names. This defaults to "mapstructure"
-  - IgnoreUntaggedFields - IgnoreUntaggedFields ignores all struct fields without explicit TagName, comparable to `mapstructure:"-"` as default behaviour.
-  - MatchName - MatchName is the function used to match the map key to the struct field name or tag. Defaults to `strings.EqualFold`. This can be used to implement case-sensitive tag values, support snake casing, etc.
+    - ErrorUnused - If ErrorUnused is true, then it is an error for there to exist keys in the original map that were
+      unused in the decoding process (extra keys).
+    - ErrorUnset - If ErrorUnset is true, then it is an error for there to exist fields in the result that were not set
+      in the decoding process (extra fields). This only applies to decoding to a struct. This/ will affect all nested
+      structs as well.
+    - ZeroFields - ZeroFields, if set to true, will zero fields before writing them. For example, a map will be emptied
+      before decoded values are put in it. If this is false, a map will be merged.
+    - WeaklyTypedInput - If WeaklyTypedInput is true, the decoder will make the following "weak" conversions:
+        - bools to string (true = "1", false = "0")
+        - numbers to string (base 10)
+        - bools to int/uint (true = 1, false = 0)
+        - strings to int/uint (base implied by prefix)
+        - int to bool (true if value != 0)
+        - string to bool (accepts: 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, False. Anything else is an error)
+        - empty array = empty map and vice versa
+        - negative numbers to overflowed uint values (base 10)
+        - slice of maps to a merged map
+        - single values are converted to slices if required. Each element is weakly decoded. For example: "4" can
+          become []int{4} if the target type is an int slice.
+    - Squash - Squash will squash embedded structs. A squash tag may also be added to an individual struct field using a
+      tag. For example: type Parent struct { Child `mapstructure:",squash"` }
+    - Metadata - Metadata is the struct that will contain extra metadata about the decoding. If this is nil, then no
+      metadata will be tracked.
+    - TagName - The tag name that mapstructure reads for field names. This defaults to "mapstructure"
+    - IgnoreUntaggedFields - IgnoreUntaggedFields ignores all struct fields without explicit TagName, comparable
+      to `mapstructure:"-"` as default behaviour.
+    - MatchName - MatchName is the function used to match the map key to the struct field name or tag. Defaults
+      to `strings.EqualFold`. This can be used to implement case-sensitive tag values, support snake casing, etc.

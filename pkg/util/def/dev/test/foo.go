@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/wrmsr/bane/pkg/util/def"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type Thing struct {
@@ -18,9 +18,9 @@ var aThing = Thing{420}
 var _ = def.Struct[Foo](
 	def.Field("bar", def.Type[int]()),
 	def.Field("baz", def.Default(5)),
-	def.Field("optInt", def.Type[opt.Optional[int]]()),
-	def.Field("optOptInt", def.Type[opt.Optional[opt.Optional[int]]]()),
-	def.Field("dflInt", def.Default(opt.Just(10))),
+	def.Field("optInt", def.Type[bt.Optional[int]]()),
+	def.Field("optOptInt", def.Type[bt.Optional[bt.Optional[int]]]()),
+	def.Field("dflInt", def.Default(bt.Just(10))),
 	def.Field("thing", def.Type[Thing]()),
 	def.Field("aThing", def.Default(aThing)),
 	def.Init(func(f *Foo) {

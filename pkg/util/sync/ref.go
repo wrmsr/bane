@@ -3,13 +3,13 @@ package sync
 import (
 	"sync"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
 
 type Ref[T any] interface {
-	Acquire() opt.Optional[T]
+	Acquire() bt.Optional[T]
 	Release()
 
 	AddCallback(cb func(r Ref[T], v T))
@@ -18,19 +18,19 @@ type Ref[T any] interface {
 //
 
 type ref[T any] struct {
-	v opt.Optional[T]
+	v bt.Optional[T]
 	c int32
 
 	cbs []func(r Ref[T], v T)
 }
 
 func NewRef[T any](v T) Ref[T] {
-	return &ref[T]{v: opt.Just(v), c: 1}
+	return &ref[T]{v: bt.Just(v), c: 1}
 }
 
 var _ Ref[int] = &ref[int]{}
 
-func (r *ref[T]) Acquire() opt.Optional[T] {
+func (r *ref[T]) Acquire() bt.Optional[T] {
 	if r.v.Present() {
 		r.c++
 	}
@@ -59,7 +59,7 @@ func (r *ref[T]) Release() {
 		}
 
 		if r.c == 0 {
-			r.v = opt.None[T]()
+			r.v = bt.None[T]()
 		}
 	}
 }
@@ -77,12 +77,12 @@ type syncRef[T any] struct {
 }
 
 func NewSyncRef[T any](v T) Ref[T] {
-	return &syncRef[T]{r: ref[T]{v: opt.Just(v), c: 1}}
+	return &syncRef[T]{r: ref[T]{v: bt.Just(v), c: 1}}
 }
 
 var _ Ref[int] = &syncRef[int]{}
 
-func (r *syncRef[T]) Acquire() opt.Optional[T] {
+func (r *syncRef[T]) Acquire() bt.Optional[T] {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 

@@ -8,7 +8,6 @@ import (
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -79,9 +78,9 @@ func TestProcStatus(t *testing.T) {
 	kvs := its.FlatMap(lines, func(l string) bt.Iterable[bt.Kv[string, string]] {
 		k, v, ok := stru.TrimSpaceCut(l, ":")
 		if !ok {
-			return opt.None[bt.Kv[string, string]]()
+			return bt.None[bt.Kv[string, string]]()
 		}
-		return opt.Just(bt.KvOf(strings.TrimSpace(k), v))
+		return bt.Just(bt.KvOf(strings.TrimSpace(k), v))
 	})
 	m := ctr.NewSliceMap(kvs)
 
@@ -102,13 +101,13 @@ func TestProcNetNetstat(t *testing.T) {
 
 	kvs := its.FlatMap(its.ChunkShared(lines, 2), func(ls []string) bt.Iterable[bt.Kv[string, ctr.SliceMap[string, string]]] {
 		if len(ls) != 2 {
-			return opt.None[bt.Kv[string, ctr.SliceMap[string, string]]]()
+			return bt.None[bt.Kv[string, ctr.SliceMap[string, string]]]()
 		}
 
 		kt, kl, kok := stru.TrimSpaceCut(ls[0], ":")
 		vt, vl, vok := stru.TrimSpaceCut(ls[1], ":")
 		if !kok || !vok || kt != vt {
-			return opt.None[bt.Kv[string, ctr.SliceMap[string, string]]]()
+			return bt.None[bt.Kv[string, ctr.SliceMap[string, string]]]()
 		}
 
 		kvs := its.Kvs(its.Zip[string, string](
@@ -116,7 +115,7 @@ func TestProcNetNetstat(t *testing.T) {
 			its.OfSlice(stru.TrimSpaceSplit(vl, " ")),
 		))
 		m := ctr.NewSliceMap(kvs)
-		return opt.Just(bt.KvOf[string, ctr.SliceMap[string, string]](kt, m))
+		return bt.Just(bt.KvOf[string, ctr.SliceMap[string, string]](kt, m))
 	})
 	m := ctr.NewSliceMap(kvs)
 

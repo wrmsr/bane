@@ -4,7 +4,6 @@ import (
 	"context"
 
 	eu "github.com/wrmsr/bane/pkg/util/errors"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -65,38 +64,38 @@ func All(ctx context.Context, o sqb.Querier, objs ...any) (s []Row, err error) {
 	return
 }
 
-func maybe(ctx context.Context, o sqb.Querier, objs []any, onlyOne bool) (opt.Optional[Row], error) {
+func maybe(ctx context.Context, o sqb.Querier, objs []any, onlyOne bool) (bt.Optional[Row], error) {
 	ri, err := Iter(ctx, o, objs...)
 	if err != nil {
-		return opt.None[Row](), err
+		return bt.None[Row](), err
 	}
 	defer eu.AppendInvoke(&err, eu.Close(ri))
 
 	if !ri.HasNext() {
-		return opt.None[Row](), nil
+		return bt.None[Row](), nil
 	}
 
 	re := ri.Next()
 	if re.Err != nil {
-		return opt.None[Row](), re.Err
+		return bt.None[Row](), re.Err
 	}
 
 	if onlyOne && ri.HasNext() {
-		return opt.None[Row](), MultipleFoundError{}
+		return bt.None[Row](), MultipleFoundError{}
 	}
 
-	return opt.Just(re.Val), nil
+	return bt.Just(re.Val), nil
 }
 
-func MaybeFirst(ctx context.Context, o sqb.Querier, objs ...any) (opt.Optional[Row], error) {
+func MaybeFirst(ctx context.Context, o sqb.Querier, objs ...any) (bt.Optional[Row], error) {
 	return maybe(ctx, o, objs, false)
 }
 
-func MaybeOne(ctx context.Context, o sqb.Querier, objs ...any) (opt.Optional[Row], error) {
+func MaybeOne(ctx context.Context, o sqb.Querier, objs ...any) (bt.Optional[Row], error) {
 	return maybe(ctx, o, objs, true)
 }
 
-func unwrapMaybe(ro opt.Optional[Row], err error) (Row, error) {
+func unwrapMaybe(ro bt.Optional[Row], err error) (Row, error) {
 	if err != nil {
 		return Row{}, err
 	}

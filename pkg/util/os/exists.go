@@ -4,18 +4,18 @@ import (
 	"errors"
 	"os"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
-func OptStat(name string) (opt.Optional[os.FileInfo], error) {
+func OptStat(name string) (bt.Optional[os.FileInfo], error) {
 	stat, err := os.Stat(name)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return opt.None[os.FileInfo](), nil
+			return bt.None[os.FileInfo](), nil
 		}
-		return opt.None[os.FileInfo](), err
+		return bt.None[os.FileInfo](), err
 	}
-	return opt.Just(stat), nil
+	return bt.Just(stat), nil
 }
 
 func Exists(name string) (bool, error) {

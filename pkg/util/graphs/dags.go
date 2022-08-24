@@ -5,7 +5,6 @@ import (
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/maps"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -14,9 +13,9 @@ import (
 type Dag[T comparable] struct {
 	inputSetsByOutput ctr.Map[T, ctr.Set[T]]
 
-	all opt.Optional[ctr.Set[T]]
+	all bt.Optional[ctr.Set[T]]
 
-	outputSetsByOutput opt.Optional[ctr.Map[T, ctr.Set[T]]]
+	outputSetsByOutput bt.Optional[ctr.Map[T, ctr.Set[T]]]
 }
 
 func SliceEdges[T comparable](m map[T][]T) ctr.Map[T, ctr.Set[T]] {
@@ -38,13 +37,13 @@ func (d *Dag[T]) InputSetsByOutput() ctr.Map[T, ctr.Set[T]] {
 }
 
 func (d *Dag[T]) All() ctr.Set[T] {
-	return opt.SetIfAbsent(&d.all, func() ctr.Set[T] {
+	return bt.SetIfAbsent(&d.all, func() ctr.Set[T] {
 		return ctr.NewStdSet(ctr.Keys(d.inputSetsByOutput))
 	})
 }
 
 func (d *Dag[T]) OutputSetsByOutput() ctr.Map[T, ctr.Set[T]] {
-	return opt.SetIfAbsent(&d.outputSetsByOutput, func() ctr.Map[T, ctr.Set[T]] {
+	return bt.SetIfAbsent(&d.outputSetsByOutput, func() ctr.Map[T, ctr.Set[T]] {
 		m := ctr.NewMutStdMap[T, ctr.MutSet[T]](nil)
 		d.All().ForEach(func(t T) bool {
 			m.Put(t, ctr.NewMutStdSet[T](nil))
@@ -97,12 +96,12 @@ type Subdag[T comparable] struct {
 	targets ctr.Set[T]
 	ignored ctr.Set[T]
 
-	inputs  opt.Optional[ctr.Set[T]]
-	outputs opt.Optional[ctr.Set[T]]
+	inputs  bt.Optional[ctr.Set[T]]
+	outputs bt.Optional[ctr.Set[T]]
 
-	outputInputs opt.Optional[ctr.Set[T]]
+	outputInputs bt.Optional[ctr.Set[T]]
 
-	all opt.Optional[ctr.Set[T]]
+	all bt.Optional[ctr.Set[T]]
 }
 
 func (sd *Subdag[T]) Dag() *Dag[T] {
@@ -118,26 +117,26 @@ func (sd *Subdag[T]) Ignored() ctr.Set[T] {
 }
 
 func (sd *Subdag[T]) Inputs() ctr.Set[T] {
-	return opt.SetIfAbsent(&sd.inputs, func() ctr.Set[T] {
+	return bt.SetIfAbsent(&sd.inputs, func() ctr.Set[T] {
 		return ctr.Difference(TraverseLinks[T](sd.dag.InputSetsByOutput(), sd.targets), sd.ignored)
 	})
 }
 
 func (sd *Subdag[T]) Outputs() ctr.Set[T] {
-	return opt.SetIfAbsent(&sd.outputs, func() ctr.Set[T] {
+	return bt.SetIfAbsent(&sd.outputs, func() ctr.Set[T] {
 		return ctr.Difference(TraverseLinks[T](sd.dag.OutputSetsByOutput(), sd.targets), sd.ignored)
 
 	})
 }
 
 func (sd *Subdag[T]) OutputInputs() ctr.Set[T] {
-	return opt.SetIfAbsent(&sd.outputInputs, func() ctr.Set[T] {
+	return bt.SetIfAbsent(&sd.outputInputs, func() ctr.Set[T] {
 		return ctr.Difference(TraverseLinks[T](sd.dag.InputSetsByOutput(), sd.Outputs()), sd.ignored)
 	})
 }
 
 func (sd *Subdag[T]) All() ctr.Set[T] {
-	return opt.SetIfAbsent(&sd.all, func() ctr.Set[T] {
+	return bt.SetIfAbsent(&sd.all, func() ctr.Set[T] {
 		return ctr.Union(sd.targets, sd.Inputs(), sd.Outputs(), sd.OutputInputs())
 	})
 }

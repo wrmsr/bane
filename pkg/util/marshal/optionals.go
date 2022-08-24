@@ -3,8 +3,8 @@ package marshal
 import (
 	"reflect"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 ///
@@ -21,7 +21,7 @@ func NewOptionalMarshaler(ty reflect.Type, elem Marshaler) OptionalMarshaler {
 var _ Marshaler = OptionalMarshaler{}
 
 func (m OptionalMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
-	o := rv.Interface().(opt.AnyOptional)
+	o := rv.Interface().(bt.AnyOptional)
 	if !o.Present() {
 		return _nullValue, nil
 	}
@@ -31,14 +31,14 @@ func (m OptionalMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value,
 
 //
 
-var _optionalInterfaceTy = rfl.TypeOf[opt.AnyOptional]()
+var _optionalInterfaceTy = rfl.TypeOf[bt.AnyOptional]()
 
 var optionalMarshalerFactory = NewFuncFactory(func(ctx MarshalContext, ty reflect.Type) (Marshaler, error) {
 	if !ty.AssignableTo(_optionalInterfaceTy) {
 		return nil, nil
 	}
 
-	ety := reflect.TypeOf(reflect.New(ty).Interface().(opt.AnyOptional).ZeroInterface())
+	ety := reflect.TypeOf(reflect.New(ty).Interface().(bt.AnyOptional).ZeroInterface())
 	elem, err := ctx.Make(ctx, ety)
 	if err != nil {
 		return nil, err
@@ -58,12 +58,12 @@ type OptionalUnmarshaler struct {
 	elem Unmarshaler
 
 	nv  reflect.Value
-	nvi opt.AnyOptional
+	nvi bt.AnyOptional
 }
 
 func NewOptionalUnmarshaler(ty reflect.Type, elem Unmarshaler) OptionalUnmarshaler {
 	nv := rfl.ZeroFor(ty)
-	return OptionalUnmarshaler{ty: ty, elem: elem, nv: nv, nvi: nv.Interface().(opt.AnyOptional)}
+	return OptionalUnmarshaler{ty: ty, elem: elem, nv: nv, nvi: nv.Interface().(bt.AnyOptional)}
 }
 
 var _ Unmarshaler = OptionalUnmarshaler{}
@@ -90,7 +90,7 @@ var optionalUnmarshalerFactory = NewFuncFactory(func(ctx UnmarshalContext, ty re
 		return nil, nil
 	}
 
-	ety := reflect.TypeOf(reflect.New(ty).Interface().(opt.AnyOptional).ZeroInterface())
+	ety := reflect.TypeOf(reflect.New(ty).Interface().(bt.AnyOptional).ZeroInterface())
 	elem, err := ctx.Make(ctx, ety)
 	if err != nil {
 		return nil, err

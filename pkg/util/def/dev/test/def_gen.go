@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/wrmsr/bane/pkg/util/def"
-	"github.com/wrmsr/bane/pkg/util/optional"
+	"github.com/wrmsr/bane/pkg/util/types"
 )
 
 var _def_init_once sync.Once
@@ -37,7 +37,7 @@ func _def_init() {
 		field_spec__Foo__dflInt := struct_spec__Foo.Field("dflInt")
 		_ = field_spec__Foo__dflInt
 
-		_def_field_default__Foo__dflInt = field_spec__Foo__dflInt.Default().(optional.Optional[int])
+		_def_field_default__Foo__dflInt = field_spec__Foo__dflInt.Default().(types.Optional[int])
 
 		field_spec__Foo__thing := struct_spec__Foo.Field("thing")
 		_ = field_spec__Foo__thing
@@ -54,16 +54,16 @@ func _def_init() {
 type Foo struct {
 	bar       int
 	baz       int
-	optInt    optional.Optional[int]
-	optOptInt optional.Optional[optional.Optional[int]]
-	dflInt    optional.Optional[int]
+	optInt    types.Optional[int]
+	optOptInt types.Optional[types.Optional[int]]
+	dflInt    types.Optional[int]
 	thing     Thing
 	aThing    Thing
 }
 
 var (
 	_def_field_default__Foo__baz    int
-	_def_field_default__Foo__dflInt optional.Optional[int]
+	_def_field_default__Foo__dflInt types.Optional[int]
 	_def_field_default__Foo__aThing Thing
 )
 

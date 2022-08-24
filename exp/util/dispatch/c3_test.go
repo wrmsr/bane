@@ -40,8 +40,8 @@ package dispatch
 import (
 	"errors"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func c3Merge[T comparable](seqs [][]T) ([]T, error) {
@@ -49,7 +49,7 @@ func c3Merge[T comparable](seqs [][]T) ([]T, error) {
 	// Adapted from http://www.python.org/download/releases/2.3/mro/.
 
 	var result []T
-	var candidate opt.Optional[T]
+	var candidate bt.Optional[T]
 	for {
 		var nseqs [][]T
 		for _, s := range seqs {
@@ -64,10 +64,10 @@ func c3Merge[T comparable](seqs [][]T) ([]T, error) {
 		}
 
 		for _, s1 := range seqs { // find merge candidates among seq heads
-			candidate = opt.Just(s1[0])
+			candidate = bt.Just(s1[0])
 			for _, s2 := range seqs {
 				if slices.Contains(s2[1:], candidate.Value()) {
-					candidate = opt.None[T]()
+					candidate = bt.None[T]()
 					break
 				}
 			}

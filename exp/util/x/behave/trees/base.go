@@ -1,6 +1,8 @@
 package trees
 
-import opt "github.com/wrmsr/bane/pkg/util/optional"
+import (
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
 //
 
@@ -19,13 +21,13 @@ const (
 type Task[E any] interface {
 	Status() TaskStatus
 
-	Control() opt.Optional[Task[E]]
-	SetControl(c opt.Optional[Task[E]])
+	Control() bt.Optional[Task[E]]
+	SetControl(c bt.Optional[Task[E]])
 
 	//Tree() opt.Optional[BehaviorTree[E]]
 
-	Guard() opt.Optional[Task[E]]
-	SetGuard(g opt.Optional[Task[E]])
+	Guard() bt.Optional[Task[E]]
+	SetGuard(g bt.Optional[Task[E]])
 
 	AddChild(child Task[E]) int
 	NumChildren() int
@@ -54,9 +56,9 @@ type Task[E any] interface {
 
 type BaseTask[E any] struct {
 	status  TaskStatus
-	control opt.Optional[Task[E]]
+	control bt.Optional[Task[E]]
 	//tree opt.Optional[BehaviorTree[E]]
-	guard opt.Optional[Task[E]]
+	guard bt.Optional[Task[E]]
 }
 
 func (t *BaseTask[E]) Status() TaskStatus { return t.status }

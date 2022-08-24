@@ -5,22 +5,22 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/maps"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
-func GetEnvs(ks []string) map[string]opt.Optional[string] {
-	m := make(map[string]opt.Optional[string], len(ks))
+func GetEnvs(ks []string) map[string]bt.Optional[string] {
+	m := make(map[string]bt.Optional[string], len(ks))
 	for _, k := range ks {
 		if ov, ok := os.LookupEnv(k); ok {
-			m[k] = opt.Just(ov)
+			m[k] = bt.Just(ov)
 		} else {
-			m[k] = opt.None[string]()
+			m[k] = bt.None[string]()
 		}
 	}
 	return m
 }
 
-func SetEnvs(m map[string]opt.Optional[string]) {
+func SetEnvs(m map[string]bt.Optional[string]) {
 	for k, v := range m {
 		if v.Present() {
 			check.Must(os.Setenv(k, v.Value()))
@@ -30,7 +30,7 @@ func SetEnvs(m map[string]opt.Optional[string]) {
 	}
 }
 
-func SwapEnvs(m map[string]opt.Optional[string]) func() {
+func SwapEnvs(m map[string]bt.Optional[string]) func() {
 	if m == nil || len(m) < 1 {
 		return func() {}
 	}

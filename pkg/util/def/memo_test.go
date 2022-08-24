@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -31,20 +31,20 @@ func (m *MemoStruct) _Bar() int {
 type _MemoStruct struct {
 	__MemoStruct *MemoStruct
 
-	__Foo opt.Optional[int]
-	__Bar opt.Optional[int]
+	__Foo bt.Optional[int]
+	__Bar bt.Optional[int]
 }
 
 func (m *_MemoStruct) Foo() int {
 	if !m.__Foo.Present() {
-		m.__Foo = opt.Just(m.__MemoStruct._Foo())
+		m.__Foo = bt.Just(m.__MemoStruct._Foo())
 	}
 	return m.__Foo.Value()
 }
 
 func (m *_MemoStruct) Bar() int {
 	if !m.__Bar.Present() {
-		m.__Bar = opt.Just(m.__MemoStruct._Bar())
+		m.__Bar = bt.Just(m.__MemoStruct._Bar())
 	}
 	return m.__Bar.Value()
 }

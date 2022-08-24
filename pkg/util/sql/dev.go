@@ -6,23 +6,23 @@ import (
 	"github.com/wrmsr/bane/pkg/util/dev"
 	"github.com/wrmsr/bane/pkg/util/dev/docker"
 	inj "github.com/wrmsr/bane/pkg/util/inject"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 var _ = dev.Register(func() inj.Bindings {
 
 	return inj.Bind(
-		inj.As(inj.KeyOf[opt.Optional[sqb.Dsn]]{"mysql"}, inj.Singleton{func(
+		inj.As(inj.KeyOf[bt.Optional[sqb.Dsn]]{"mysql"}, inj.Singleton{func(
 			dsl *docker.ServiceLocator,
-		) opt.Optional[sqb.Dsn] {
+		) bt.Optional[sqb.Dsn] {
 			svc := dsl.Locate("bane-mysql")
 			if svc == nil {
-				return opt.None[sqb.Dsn]()
+				return bt.None[sqb.Dsn]()
 			}
 
-			return opt.Just(sqb.Dsn{
+			return bt.Just(sqb.Dsn{
 				Host: svc.Host,
 				Port: svc.Ports[3306],
 
@@ -31,15 +31,15 @@ var _ = dev.Register(func() inj.Bindings {
 			})
 		}}),
 
-		inj.As(inj.KeyOf[opt.Optional[sqb.Dsn]]{"postgres"}, inj.Singleton{func(
+		inj.As(inj.KeyOf[bt.Optional[sqb.Dsn]]{"postgres"}, inj.Singleton{func(
 			dsl *docker.ServiceLocator,
-		) opt.Optional[sqb.Dsn] {
+		) bt.Optional[sqb.Dsn] {
 			svc := dsl.Locate("bane-postgres")
 			if svc == nil {
-				return opt.None[sqb.Dsn]()
+				return bt.None[sqb.Dsn]()
 			}
 
-			return opt.Just(sqb.Dsn{
+			return bt.Just(sqb.Dsn{
 				Host: svc.Host,
 				Port: svc.Ports[5432],
 

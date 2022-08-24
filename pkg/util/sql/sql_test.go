@@ -13,10 +13,10 @@ import (
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev"
 	"github.com/wrmsr/bane/pkg/util/log"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	sqa "github.com/wrmsr/bane/pkg/util/sql/adapters"
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func TestPgx(t *testing.T) {
@@ -93,11 +93,11 @@ func TestSqlite(t *testing.T) {
 }
 
 func TestDevMysql(t *testing.T) {
-	dsn := dev.ProvideAs[opt.Optional[sqb.Dsn]]("mysql").Value()
+	dsn := dev.ProvideAs[bt.Optional[sqb.Dsn]]("mysql").Value()
 	fmt.Println(dsn)
 }
 
 func TestDevPostgres(t *testing.T) {
-	dsn := dev.ProvideAs[opt.Optional[sqb.Dsn]]("postgres").Value()
+	dsn := dev.ProvideAs[bt.Optional[sqb.Dsn]]("postgres").Value()
 	fmt.Println(dsn)
 }

@@ -3,7 +3,7 @@ package jmespath
 import (
 	"fmt"
 
-	opt "github.com/wrmsr/bane/pkg/util/optional"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 // TODO: //go:generate go run github.com/wrmsr/bane/pkg/util/trees/dev/gen
@@ -234,9 +234,9 @@ type Sequence struct {
 
 type Slice struct {
 	leaf
-	Start opt.Optional[int]
-	Stop  opt.Optional[int]
-	Step  opt.Optional[int]
+	Start bt.Optional[int]
+	Stop  bt.Optional[int]
+	Step  bt.Optional[int]
 }
 
 //

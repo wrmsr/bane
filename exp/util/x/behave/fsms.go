@@ -1,15 +1,17 @@
 package behave
 
-import opt "github.com/wrmsr/bane/pkg/util/optional"
+import (
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
 //
 
 type State[E, T any] interface {
 	Equals(o State[E, T]) bool
-	Enter(entity opt.Optional[E])
-	Update(entity opt.Optional[E])
-	Exit(entity opt.Optional[E])
-	OnMessage(entity opt.Optional[E], telegram Telegram[T]) bool
+	Enter(entity bt.Optional[E])
+	Update(entity bt.Optional[E])
+	Exit(entity bt.Optional[E])
+	OnMessage(entity bt.Optional[E], telegram Telegram[T]) bool
 }
 
 //
@@ -17,12 +19,12 @@ type State[E, T any] interface {
 type StateMachine[E, T any] struct {
 	generatedIdentity
 
-	owner opt.Optional[E]
+	owner bt.Optional[E]
 
-	current, previous, global opt.Optional[State[E, T]]
+	current, previous, global bt.Optional[State[E, T]]
 }
 
-func NewStateMachine[E, T any](owner opt.Optional[E], initial, global opt.Optional[State[E, T]]) *StateMachine[E, T] {
+func NewStateMachine[E, T any](owner bt.Optional[E], initial, global bt.Optional[State[E, T]]) *StateMachine[E, T] {
 	return &StateMachine[E, T]{
 		owner: owner,
 
@@ -31,11 +33,11 @@ func NewStateMachine[E, T any](owner opt.Optional[E], initial, global opt.Option
 	}
 }
 
-func (sm *StateMachine[E, T]) Owner() opt.Optional[E] { return sm.owner }
+func (sm *StateMachine[E, T]) Owner() bt.Optional[E] { return sm.owner }
 
-func (sm *StateMachine[E, T]) Current() opt.Optional[State[E, T]]  { return sm.current }
-func (sm *StateMachine[E, T]) Previous() opt.Optional[State[E, T]] { return sm.previous }
-func (sm *StateMachine[E, T]) Global() opt.Optional[State[E, T]]   { return sm.global }
+func (sm *StateMachine[E, T]) Current() bt.Optional[State[E, T]]  { return sm.current }
+func (sm *StateMachine[E, T]) Previous() bt.Optional[State[E, T]] { return sm.previous }
+func (sm *StateMachine[E, T]) Global() bt.Optional[State[E, T]]   { return sm.global }
 
 var _ Telegraph[int] = &StateMachine[string, int]{}
 
@@ -57,7 +59,7 @@ func (sm *StateMachine[E, T]) change(ns State[E, T]) {
 	if sm.current.Present() {
 		sm.current.Value().Exit(sm.owner)
 	}
-	sm.current = opt.Just(ns)
+	sm.current = bt.Just(ns)
 	if sm.current.Present() {
 		sm.current.Value().Enter(sm.owner)
 	}

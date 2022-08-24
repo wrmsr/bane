@@ -7,8 +7,8 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/log"
-	opt "github.com/wrmsr/bane/pkg/util/optional"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -33,7 +33,7 @@ type Telegraph[T any] interface {
 
 type TelegramProvider[T any] interface {
 	Identity() uintptr
-	ProvideMessage(receiver Telegraph[T], messageType reflect.Type) opt.Optional[T]
+	ProvideMessage(receiver Telegraph[T], messageType reflect.Type) bt.Optional[T]
 }
 
 type Delayed[T any] struct {
@@ -73,7 +73,7 @@ func (d *Dispatcher[T]) onAddListener(receiver Telegraph[T], messageType reflect
 				if p, ok := provider.(Telegraph[T]); ok {
 					sender = p
 				}
-				d.Dispatch(sender, receiver, message, opt.None[time.Duration](), false)
+				d.Dispatch(sender, receiver, message, bt.None[time.Duration](), false)
 			})
 		}
 	}
@@ -83,7 +83,7 @@ func (d *Dispatcher[T]) Dispatch(
 	sender Telegraph[T],
 	receiver Telegraph[T],
 	message T,
-	delay opt.Optional[time.Duration],
+	delay bt.Optional[time.Duration],
 	needsReturnReceipt bool,
 ) {
 	if needsReturnReceipt {
