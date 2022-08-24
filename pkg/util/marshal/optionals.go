@@ -21,7 +21,7 @@ func NewOptionalMarshaler(ty reflect.Type, elem Marshaler) OptionalMarshaler {
 var _ Marshaler = OptionalMarshaler{}
 
 func (m OptionalMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
-	o := rv.Interface().(opt.Interface)
+	o := rv.Interface().(opt.AnyOptional)
 	if !o.Present() {
 		return _nullValue, nil
 	}
@@ -31,14 +31,14 @@ func (m OptionalMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value,
 
 //
 
-var _optionalInterfaceTy = rfl.TypeOf[opt.Interface]()
+var _optionalInterfaceTy = rfl.TypeOf[opt.AnyOptional]()
 
 var optionalMarshalerFactory = NewFuncFactory(func(ctx MarshalContext, ty reflect.Type) (Marshaler, error) {
 	if !ty.AssignableTo(_optionalInterfaceTy) {
 		return nil, nil
 	}
 
-	ety := reflect.TypeOf(reflect.New(ty).Interface().(opt.Interface).ZeroInterface())
+	ety := reflect.TypeOf(reflect.New(ty).Interface().(opt.AnyOptional).ZeroInterface())
 	elem, err := ctx.Make(ctx, ety)
 	if err != nil {
 		return nil, err
@@ -58,12 +58,12 @@ type OptionalUnmarshaler struct {
 	elem Unmarshaler
 
 	nv  reflect.Value
-	nvi opt.Interface
+	nvi opt.AnyOptional
 }
 
 func NewOptionalUnmarshaler(ty reflect.Type, elem Unmarshaler) OptionalUnmarshaler {
 	nv := rfl.ZeroFor(ty)
-	return OptionalUnmarshaler{ty: ty, elem: elem, nv: nv, nvi: nv.Interface().(opt.Interface)}
+	return OptionalUnmarshaler{ty: ty, elem: elem, nv: nv, nvi: nv.Interface().(opt.AnyOptional)}
 }
 
 var _ Unmarshaler = OptionalUnmarshaler{}
@@ -90,7 +90,7 @@ var optionalUnmarshalerFactory = NewFuncFactory(func(ctx UnmarshalContext, ty re
 		return nil, nil
 	}
 
-	ety := reflect.TypeOf(reflect.New(ty).Interface().(opt.Interface).ZeroInterface())
+	ety := reflect.TypeOf(reflect.New(ty).Interface().(opt.AnyOptional).ZeroInterface())
 	elem, err := ctx.Make(ctx, ety)
 	if err != nil {
 		return nil, err

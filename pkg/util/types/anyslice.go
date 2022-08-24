@@ -22,36 +22,44 @@ type AnySliceImpl[T any] struct {
 	s []T
 }
 
-type anySliceIterator[T any] struct {
-	s []T
+//
+
+type AnySliceIterator struct {
+	s AnySlice
 	c int
 }
 
-var _ Iterator[any] = &anySliceIterator[int]{}
+var _ Iterator[any] = &AnySliceIterator{}
 
-func (i *anySliceIterator[T]) Iterate() Iterator[any] {
+func (i *AnySliceIterator) Iterate() Iterator[any] {
 	return i
 }
 
-func (i *anySliceIterator[T]) HasNext() bool {
-	return i.c < len(i.s)
+func (i *AnySliceIterator) HasNext() bool {
+	return i.c < i.s.Len()
 }
 
-func (i *anySliceIterator[T]) Next() any {
+func (i *AnySliceIterator) Next() any {
 	if !i.HasNext() {
 		panic(IteratorExhaustedError{})
 	}
-	v := i.s[i.c]
+	v := i.s.Get(i.c)
 	i.c++
 	return v
 }
 
-func (a AnySliceImpl[T]) Iterate() Iterator[any] {
-	return &anySliceIterator[T]{s: a.s}
+func IterateAnySlice(s AnySlice) *AnySliceIterator {
+	return &AnySliceIterator{s: s}
 }
 
-func (a AnySliceImpl[T]) ForEach(fn func(v any) bool) bool {
-	for _, e := range a.s {
+func (s AnySliceImpl[T]) Iterate() Iterator[any] {
+	return IterateAnySlice(s)
+}
+
+//
+
+func (s AnySliceImpl[T]) ForEach(fn func(v any) bool) bool {
+	for _, e := range s.s {
 		if !fn(e) {
 			return false
 		}
@@ -65,26 +73,31 @@ func AnySliceOf[T any](s []T) AnySliceImpl[T] {
 
 var _ AnySlice = AnySliceImpl[int]{}
 
-func (a AnySliceImpl[T]) Len() int {
-	return len(a.s)
+func (s AnySliceImpl[T]) Len() int {
+	return len(s.s)
 }
 
-func (a AnySliceImpl[T]) Get(i int) any {
-	return a.s[i]
+func (s AnySliceImpl[T]) Get(i int) any {
+	return s.s[i]
 }
 
 //
 
 type MutAnySliceImpl[T any] struct {
-	AnySliceImpl[T]
+	s AnySliceImpl[T]
 }
-
-var _ MutAnySlice = MutAnySliceImpl[int]{}
 
 func MutAnySliceOf[T any](s []T) MutAnySliceImpl[T] {
 	return MutAnySliceImpl[T]{AnySliceImpl[T]{s: s}}
 }
 
-func (a MutAnySliceImpl[T]) Set(i int, e any) {
-	a.s[i] = e.(T)
+var _ MutAnySlice = MutAnySliceImpl[int]{}
+
+func (s MutAnySliceImpl[T]) Len() int                         { return s.s.Len() }
+func (s MutAnySliceImpl[T]) Get(i int) any                    { return s.s.Get(i) }
+func (s MutAnySliceImpl[T]) Iterate() Iterator[any]           { return s.s.Iterate() }
+func (s MutAnySliceImpl[T]) ForEach(fn func(v any) bool) bool { return s.s.ForEach(fn) }
+
+func (s MutAnySliceImpl[T]) Set(i int, e any) {
+	s.s.s[i] = e.(T)
 }

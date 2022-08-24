@@ -1,5 +1,9 @@
 package types
 
+import (
+	"errors"
+)
+
 //
 
 type Range[T Rational] struct {
@@ -48,6 +52,49 @@ func (r Range[T]) Slice() []T {
 		l = append(l, r.Start)
 	}
 	return l
+}
+
+//
+
+type RangeError[T Rational] struct {
+	Range Range[T]
+	Err   error
+}
+
+func (e RangeError[T]) Error() string {
+	return e.Err.Error()
+}
+
+func (e RangeError[T]) Unwrap() error {
+	return e.Err
+}
+
+func (r Range[T]) CheckNormal(n T) Range[T] {
+	if r.Step == 0 {
+		panic(RangeError[T]{Err: errors.New("step == 0"), Range: r})
+	}
+	if r.Step > 0 {
+		if r.Start < 0 {
+			panic(RangeError[T]{Err: errors.New("start < 0"), Range: r})
+		}
+		if r.Stop >= n {
+			panic(RangeError[T]{Err: errors.New("stop >= n"), Range: r})
+		}
+		if r.Stop < r.Start {
+			panic(RangeError[T]{Err: errors.New("stop < start"), Range: r})
+		}
+	} else {
+		if r.Start >= n {
+			panic(RangeError[T]{Err: errors.New("start >= n"), Range: r})
+		}
+		if r.Stop < 0 {
+			panic(RangeError[T]{Err: errors.New("stop < 0"), Range: r})
+		}
+		if r.Stop > r.Start {
+			panic(RangeError[T]{Err: errors.New("stop > start"), Range: r})
+		}
+	}
+	return r
 }
 
 //
@@ -102,4 +149,50 @@ func (r Range[T]) ForEach(fn func(T) bool) bool {
 		}
 	}
 	return true
+}
+
+//
+
+func (r Range[T]) AsSlice() []T {
+	return []T{
+		r.Start,
+		r.Stop,
+		r.Step,
+	}
+}
+
+//
+
+type rangeAnySlice[T Rational] struct {
+	r Range[T]
+}
+
+func (r Range[T]) AsAnySlice() AnySlice {
+	return rangeAnySlice[T]{r: r}
+}
+
+var _ AnySlice = rangeAnySlice[int]{}
+
+func (s rangeAnySlice[T]) Iterate() Iterator[any] {
+	return IterateAnySlice(s)
+}
+
+func (s rangeAnySlice[T]) ForEach(fn func(v any) bool) bool {
+	return fn(s.r.Start) && fn(s.r.Stop) && fn(s.r.Step)
+}
+
+func (s rangeAnySlice[T]) Len() int {
+	return 3
+}
+
+func (s rangeAnySlice[T]) Get(i int) any {
+	switch i {
+	case 0:
+		return s.r.Start
+	case 1:
+		return s.r.Stop
+	case 2:
+		return s.r.Step
+	}
+	panic(errors.New("index out of range"))
 }

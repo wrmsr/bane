@@ -31,26 +31,26 @@ func AnyMapOf[K comparable, V any](m map[K]V) AnyMapImpl[K, V] {
 
 var _ AnyMap = AnyMapImpl[int, string]{}
 
-func (a AnyMapImpl[K, V]) Len() int {
-	return len(a.m)
+func (m AnyMapImpl[K, V]) Len() int {
+	return len(m.m)
 }
 
-func (a AnyMapImpl[K, V]) Contains(k any) bool {
-	_, ok := a.m[k.(K)]
+func (m AnyMapImpl[K, V]) Contains(k any) bool {
+	_, ok := m.m[k.(K)]
 	return ok
 }
 
-func (a AnyMapImpl[K, V]) Get(k any) any {
-	return a.m[k.(K)]
+func (m AnyMapImpl[K, V]) Get(k any) any {
+	return m.m[k.(K)]
 }
 
-func (a AnyMapImpl[K, V]) TryGet(k any) (any, bool) {
-	v, ok := a.m[k.(K)]
+func (m AnyMapImpl[K, V]) TryGet(k any) (any, bool) {
+	v, ok := m.m[k.(K)]
 	return v, ok
 }
 
-func (a AnyMapImpl[K, V]) ForEach(fn func(kv Kv[any, any]) bool) bool {
-	for k, v := range a.m {
+func (m AnyMapImpl[K, V]) ForEach(fn func(kv Kv[any, any]) bool) bool {
+	for k, v := range m.m {
 		if !fn(KvOf[any, any](k, v)) {
 			return false
 		}
@@ -61,7 +61,7 @@ func (a AnyMapImpl[K, V]) ForEach(fn func(kv Kv[any, any]) bool) bool {
 //
 
 type MutAnyMapImpl[K comparable, V any] struct {
-	AnyMapImpl[K, V]
+	m AnyMapImpl[K, V]
 }
 
 func MutAnyMapOf[K comparable, V any](m map[K]V) MutAnyMapImpl[K, V] {
@@ -70,19 +70,25 @@ func MutAnyMapOf[K comparable, V any](m map[K]V) MutAnyMapImpl[K, V] {
 
 var _ MutAnyMap = MutAnyMapImpl[int, string]{}
 
+func (m MutAnyMapImpl[K, V]) ForEach(fn func(kv Kv[any, any]) bool) bool { return m.m.ForEach(fn) }
+func (m MutAnyMapImpl[K, V]) Len() int                                   { return m.m.Len() }
+func (m MutAnyMapImpl[K, V]) Contains(k any) bool                        { return m.m.Contains(k) }
+func (m MutAnyMapImpl[K, V]) Get(k any) any                              { return m.m.Get(k) }
+func (m MutAnyMapImpl[K, V]) TryGet(k any) (any, bool)                   { return m.m.TryGet(k) }
+
 func (m MutAnyMapImpl[K, V]) Put(k, v any) {
-	m.m[k.(K)] = v.(V)
+	m.m.m[k.(K)] = v.(V)
 }
 
 func (m MutAnyMapImpl[K, V]) Delete(k any) {
-	delete(m.m, k.(K))
+	delete(m.m.m, k.(K))
 }
 
 func (m MutAnyMapImpl[K, V]) Default(k, v any) bool {
 	k_ := k.(K)
-	if _, ok := m.m[k_]; ok {
+	if _, ok := m.m.m[k_]; ok {
 		return false
 	}
-	m.m[k_] = v.(V)
+	m.m.m[k_] = v.(V)
 	return true
 }

@@ -63,19 +63,12 @@ func (a NdArray[T]) Slice(bs ...any) NdArray[T] {
 		panic(fmt.Errorf("slice dimension mismatch"))
 	}
 
-	rs := make([]DimRange, nd)
-	for i, rb := range bs {
-		b := AsBound(rb)
-		r := b.Range(a.sh[i])
-		rs[i] = r
-	}
-
 	nsh := make(Shape, nd)
 	nst := make(Strides, nd)
 	no := a.o
 
 	for i := nd - 1; i >= 0; i-- {
-		r := rs[i]
+		r := CalcRange(bs[i], a.sh[i])
 		if r.Step == 1 {
 			nsh[i] = r.Stop - r.Start
 			nst[i] = a.st[i]
