@@ -70,6 +70,30 @@ func DimsOf(s ...Dim) Dims {
 	return ds
 }
 
+func (ds Dims) Equals(o Dims) bool {
+	if ds._l != o._l {
+		return false
+	}
+	n := _dimsWidth
+	if n > ds._l {
+		n = ds._l
+	}
+	for i := 0; i < n; i++ {
+		if ds._a[i] != o._a[i] {
+			return false
+		}
+	}
+	if ds._l > _dimsWidth {
+		for i := 0; i < ds._l-_dimsWidth; i++ {
+			if ds._s[i] != o._s[i] {
+				return false
+			}
+		}
+
+	}
+	return true
+}
+
 func (ds Dims) String() string {
 	var sb strings.Builder
 	sb.WriteRune('[')

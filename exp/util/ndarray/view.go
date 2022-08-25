@@ -36,15 +36,7 @@ func ViewOf(
 }
 
 func (v View) Equals(o View) bool {
-	if v.sh.Len() != o.sh.Len() || v.o != o.o {
-		return false
-	}
-	for i := 0; i < v.sh.Len(); i++ {
-		if v.sh.Get(i) != o.sh.Get(i) || v.st.Get(i) != o.st.Get(i) {
-			return false
-		}
-	}
-	return true
+	return v.sh.Equals(o.sh) && v.st.Equals(o.st) && v.o == o.o
 }
 
 func (v View) String() string {

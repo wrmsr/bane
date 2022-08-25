@@ -10,6 +10,10 @@ func StridesOf(s ...Dim) Strides {
 	return Strides{DimsOf(s...)}
 }
 
+func (st Strides) Equals(o Strides) bool {
+	return st.Dims.Equals(o.Dims)
+}
+
 func CalcStrides(shape Shape) Strides {
 	st := NewMutDims(shape.Len())
 	st.Set(shape.Len()-1, 1)
