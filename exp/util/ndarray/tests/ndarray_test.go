@@ -85,7 +85,9 @@ func BenchmarkSliceView(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		sv := v.Slice(o...)
-		if sv.Len() < 0 {
+		//sv := v.Slice(1, nil, []any{1, nil, 2})
+
+		if sv.Len() != 9 {
 			panic("oops")
 		}
 	}
