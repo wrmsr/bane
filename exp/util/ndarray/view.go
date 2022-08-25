@@ -63,6 +63,16 @@ func (v View) Index(idxs ...Dim) Dim {
 
 //
 
+//func (v View) Contiguous() bool {
+//	st := 0
+//	for i := v.sh.Len()-1; i > 0; i-- {
+//		if v.
+//
+//	}
+//}
+//
+//
+
 func (v View) Slice(bs ...any) View {
 	nd := v.sh.Len()
 

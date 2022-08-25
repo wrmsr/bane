@@ -46,6 +46,7 @@ func TestNdArray(t *testing.T) {
 		{[]any{1, nil}, 1},
 		{[]any{1, nil}, nil, 1},
 		{[]any{nil, nil, 2}},
+		{1, nil, []any{nil, nil, 2}},
 	} {
 		fmt.Println(sl)
 		fmt.Println("====")
@@ -66,4 +67,25 @@ func TestScalar(t *testing.T) {
 	sc := nd.Of[int](nd.ShapeOf(1), nd.Strides{}, 0, nil)
 	*sc.At(0) = 420
 	fmt.Println(sc)
+}
+
+func BenchmarkSliceView(b *testing.B) {
+	v := nd.ViewOf(
+		nd.ShapeOf(3, 3, 3),
+		nd.Strides{},
+		0,
+	)
+
+	o := []any{1, nil, []any{1, nil, 2}}
+	//o := []any{1}
+
+	b.ResetTimer()
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		sv := v.Slice(o...)
+		if sv.Len() < 0 {
+			panic("oops")
+		}
+	}
 }

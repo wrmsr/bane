@@ -15,7 +15,7 @@ func (a NdArray[T]) Render(w io.Writer, fn func(io.Writer, T)) {
 
 	var rec func(int, Dim)
 	rec = func(n int, o Dim) {
-		st := a.v.st.Get(n)
+		st := a.v.Strides().Get(n)
 
 		indent(n)
 		_, _ = w.Write([]byte("["))

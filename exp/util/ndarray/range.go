@@ -2,7 +2,6 @@ package ndarray
 
 import (
 	"github.com/wrmsr/bane/pkg/util/check"
-	fnu "github.com/wrmsr/bane/pkg/util/funcs"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -56,6 +55,7 @@ func CalcRange(o any, l Dim) Range {
 		if !v.Present() {
 			return d
 		}
+
 		i := v.Value()
 		if i < 0 {
 			i += l
@@ -63,9 +63,11 @@ func CalcRange(o any, l Dim) Range {
 				i = 0
 			}
 		}
+
 		if i > l {
 			return l
 		}
+
 		return i
 	}
 
@@ -77,34 +79,46 @@ func CalcRange(o any, l Dim) Range {
 		}
 	}
 
-	a := func() bt.AnySlice {
-		if o, ok := o.([]Dim); ok {
-			return bt.AnySliceOf(o)
-		}
-
-		if o, ok := o.([]any); ok {
-			return bt.AnySliceOf(o)
-		}
-
+	var al int
+	switch o := o.(type) {
+	case []Dim:
+		al = len(o)
+	case []any:
+		al = len(o)
+	default:
 		panic(o)
-	}()
+	}
 
-	check.Condition(a.Len() < 4)
+	check.Condition(al < 4)
+
+	ga := func(i int) any {
+		switch o := o.(type) {
+		case []Dim:
+			return o[i]
+		case []any:
+			return o[i]
+		default:
+			panic(o)
+		}
+	}
 
 	aclamp := func(i int, d Dim) Dim {
-		if i >= a.Len() {
+		if i >= al {
 			return d
 		}
-		return clamp(a.Get(i), d)
+		return clamp(ga(i), d)
 	}
 
 	r := Range{
 		Step: 1,
 	}
 
-	if a.Len() > 2 {
-		if astep := a.Get(2); astep != nil {
-			check.Ok1(AsDim(astep)).IfPresent(fnu.Store(&r.Step))
+	if al > 2 {
+		if astep := ga(2); astep != nil {
+			ostep := check.Ok1(AsDim(astep))
+			if ostep.Present() {
+				r.Step = ostep.Value()
+			}
 		}
 	}
 
