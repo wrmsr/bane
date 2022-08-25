@@ -17,7 +17,6 @@ func TestNdArray(t *testing.T) {
 		bt.RangeTo(27).Slice(),
 	)
 	fmt.Println(a)
-	fmt.Println("====")
 
 	n := 0
 	for i := nd.Dim(0); i < 3; i++ {
@@ -48,6 +47,7 @@ func TestNdArray(t *testing.T) {
 		{[]any{nil, nil, 2}},
 		{1, nil, []any{nil, nil, 2}},
 	} {
+		fmt.Println("========")
 		fmt.Println(sl)
 		fmt.Println("====")
 
@@ -59,7 +59,6 @@ func TestNdArray(t *testing.T) {
 		sqa := sa.Squeeze()
 		fmt.Println(sqa.View())
 		fmt.Println(sqa)
-		fmt.Println("====")
 	}
 }
 

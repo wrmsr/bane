@@ -19,6 +19,7 @@ BREW_DEPS=\
 clean:
 	rm -rf \
 		.cache \
+		.venv \
 		bin \
 
 	ds=$$(find ${SRC} -name parser -type d) && \
@@ -131,3 +132,30 @@ docker-invalidate:
 .PHONY: imports
 imports:
 	@${GO} run "${MOD}/pkg/util/dev/cmd/imports" ${SRC}
+
+
+### python
+
+PYTHON_VERSION:=3.10.4
+
+PYENV_ROOT:=$(shell sh -c "if [ -z '$${PYENV_ROOT}' ] ; then echo '$${HOME}/.pyenv' ; else echo '$${PYENV_ROOT%/}' ; fi")
+PYENV_BIN:=$(shell sh -c "if [ -f '$${HOME}/.pyenv/bin/pyenv' ] ; then echo '$${HOME}/.pyenv/bin/pyenv' ; else echo pyenv ; fi")
+
+PYTHON=.venv/bin/python
+
+PYTHON_DEPS=\
+	ipython \
+	numpy \
+	torch \
+
+.PHONY: py-venv
+py-venv:
+	if [ ! -d .venv ] ; then \
+		$(PYENV_BIN) install -s $(PYTHON_VERSION) && \
+		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -mvenv .venv && \
+		$(PYTHON) -mpip install --upgrade pip setuptools wheel ; \
+	fi
+
+.PHONY: py-deps
+py-deps: py-venv
+	$(PYTHON) -mpip install $(PYTHON_DEPS)

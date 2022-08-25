@@ -2,6 +2,7 @@
 .cache
 .git
 .idea
+.venv
 bin
 build
 

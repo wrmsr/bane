@@ -13,12 +13,16 @@ RUN ( \
     apt-get install -y \
 \
         apt-transport-https \
+        aria2 \
+        bison \
         build-essential \
         ca-certificates \
         clang \
         curl \
+        cvs \
         dnsutils \
         dumb-init \
+        flex \
         gcc \
         gdb \
         git \
@@ -28,29 +32,58 @@ RUN ( \
         iputils-tracepath \
         jq \
         less \
+        llvm \
         lsb-release \
         lsof \
         make \
         man-db \
+        mercurial \
         moreutils \
         nano \
         ncdu \
         net-tools \
         netcat \
+        nodejs \
+        npm \
+        perl \
         pkg-config \
+        postgresql-client \
         protobuf-compiler \
         python3 \
         silversearcher-ag \
         socat \
         software-properties-common \
         strace \
+        subversion \
+        sudo \
         tcpdump \
         telnet \
         tmux \
         unzip \
         vim \
         wget \
+        xsltproc  \
         zip \
+        zsh \
+\
+        build-essential \
+        gdb \
+        lcov \
+        libbz2-dev \
+        libffi-dev \
+        libgdbm-compat-dev \
+        libgdbm-dev \
+        liblzma-dev \
+        libncurses5-dev \
+        libreadline6-dev \
+        libsqlite3-dev \
+        libssl-dev \
+        lzma \
+        lzma-dev \
+        pkg-config \
+        tk-dev \
+        uuid-dev \
+        zlib1g-dev \
 \
 )
 
@@ -86,10 +119,21 @@ RUN ( \
 )
 
 
+## python
+
+RUN ( \
+    PYTHON_VERSION=3.10.4 && \
+    \
+    git clone 'https://github.com/pyenv/pyenv' "$HOME/.pyenv" && \
+    "$HOME/.pyenv/bin/pyenv" install -s "$PYTHON_VERSION" \
+)
+
+
 ## go
 
 RUN ( \
     GO_VERSION="1.19" && \
+    \
     mkdir /build && cd /build && \
     if [ "$(uname -m)" = "aarch64" ] ; then GO_ARCH="arm64" ; else GO_ARCH="amd64" ; fi && \
     GO_FILE="go$GO_VERSION.linux-$GO_ARCH.tar.gz" && \
