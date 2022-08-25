@@ -4,24 +4,24 @@ import (
 	"fmt"
 	"testing"
 
-	nd "github.com/wrmsr/bane/exp/util/ndarray"
 	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
+	"github.com/wrmsr/bane/pkg/util/ndarray"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func TestNdArray(t *testing.T) {
-	a := nd.Of[int](
-		nd.ShapeOf(3, 3, 3),
-		nd.Strides{},
+	a := ndarray.Of[int](
+		ndarray.ShapeOf(3, 3, 3),
+		ndarray.Strides{},
 		0,
 		bt.RangeTo(27).Slice(),
 	)
 	fmt.Println(a)
 
 	n := 0
-	for i := nd.Dim(0); i < 3; i++ {
-		for j := nd.Dim(0); j < 3; j++ {
-			for k := nd.Dim(0); k < 3; k++ {
+	for i := ndarray.Dim(0); i < 3; i++ {
+		for j := ndarray.Dim(0); j < 3; j++ {
+			for k := ndarray.Dim(0); k < 3; k++ {
 				tu.AssertEqual(t, a.Get(i, j, k), n)
 				n++
 			}
@@ -63,15 +63,15 @@ func TestNdArray(t *testing.T) {
 }
 
 func TestScalar(t *testing.T) {
-	sc := nd.Of[int](nd.ShapeOf(1), nd.Strides{}, 0, nil)
+	sc := ndarray.Of[int](ndarray.ShapeOf(1), ndarray.Strides{}, 0, nil)
 	*sc.At(0) = 420
 	fmt.Println(sc)
 }
 
 func BenchmarkSliceView(b *testing.B) {
-	v := nd.ViewOf(
-		nd.ShapeOf(3, 3, 3),
-		nd.Strides{},
+	v := ndarray.ViewOf(
+		ndarray.ShapeOf(3, 3, 3),
+		ndarray.Strides{},
 		0,
 	)
 
