@@ -79,6 +79,7 @@ func BenchmarkSliceView(b *testing.B) {
 	o := []any{1, nil, []any{1, nil, 2}}
 	//o := []any{1}
 
+	fmt.Println(b.N)
 	b.ResetTimer()
 	b.ReportAllocs()
 
