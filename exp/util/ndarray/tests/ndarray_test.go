@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	nd "github.com/wrmsr/bane/exp/util/ndarray"
+	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -17,6 +18,16 @@ func TestNdArray(t *testing.T) {
 	)
 	fmt.Println(a)
 	fmt.Println("====")
+
+	n := 0
+	for i := nd.Dim(0); i < 3; i++ {
+		for j := nd.Dim(0); j < 3; j++ {
+			for k := nd.Dim(0); k < 3; k++ {
+				tu.AssertEqual(t, a.Get(i, j, k), n)
+				n++
+			}
+		}
+	}
 
 	//idx := []Dim{1, 2, 0}
 	//fmt.Println(a.Get(idx...))
@@ -49,4 +60,10 @@ func TestNdArray(t *testing.T) {
 		fmt.Println(sqa)
 		fmt.Println("====")
 	}
+}
+
+func TestScalar(t *testing.T) {
+	sc := nd.Of[int](nd.ShapeOf(1), nd.Strides{}, 0, nil)
+	*sc.At(0) = 420
+	fmt.Println(sc)
 }

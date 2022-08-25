@@ -105,6 +105,10 @@ func (v View) Slice(bs ...any) View {
 //
 
 func (v View) Squeeze() View {
+	if v.sh.Len() < 2 {
+		return v
+	}
+
 	nsd := v.sh.NumScalarDims()
 	if nsd < 1 {
 		return v
