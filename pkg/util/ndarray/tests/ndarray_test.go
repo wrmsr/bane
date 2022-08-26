@@ -158,4 +158,9 @@ func TestTranspose(t *testing.T) {
 		b := a.Transpose(axes...)
 		fmt.Println(b)
 	}
+
+	fmt.Println("========")
+	fmt.Println("0<->1")
+	fmt.Println("====")
+	fmt.Println(a.SwapAxes(0, 1))
 }

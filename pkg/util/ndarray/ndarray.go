@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -126,4 +127,10 @@ func (a NdArray[T]) Transpose(axes ...int) NdArray[T] {
 
 	rec(0)
 	return b
+}
+
+func (a NdArray[T]) SwapAxes(x, y int) NdArray[T] {
+	axes := bt.RangeTo[int](a.v.Order()).Slice()
+	axes[x], axes[y] = y, x
+	return a.Transpose(axes...)
 }
