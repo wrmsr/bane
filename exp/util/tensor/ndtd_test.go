@@ -5,23 +5,22 @@ import (
 	"testing"
 
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
-	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func TestNdTd(t *testing.T) {
 	// [[[[[[0.]]],,,   [[[3.]]],,,   [[[6.]]]],,,,  [[[[1.]]],,,   [[[4.]]],,,   [[[7.]]]],,,,  [[[[2.]]],,,   [[[5.]]],,,   [[[8.]]]]]]
 	txg := nd.Of[float32](
-		nd.ShapeOf(1, 3, 3, 1, 1, 1),
+		nd.ShapeOf(3, 3, 1, 1, 1), // cin, oy, ox, H, W,
 		nd.Strides{},
 		0,
-		bt.RangeTo[float32](9).Slice(),
+		[]float32{0, 3, 6, 1, 4, 7, 2, 5, 8},
 	)
 
 	fmt.Println(txg)
 
 	// [[[[10.]],,  [[13.]],,  [[16.]]],,, [[[11.]],,  [[14.]],,  [[17.]]],,, [[[12.]],,  [[15.]],,  [[18.]]]]
 	twg := nd.Of[float32](
-		nd.ShapeOf(3, 3, 1, 1),
+		nd.ShapeOf(3, 3, 1, 1), // cout, cin, H, W
 		nd.Strides{},
 		0,
 		[]float32{10, 13, 16, 11, 14, 17, 12, 15, 18},
@@ -31,7 +30,7 @@ func TestNdTd(t *testing.T) {
 
 	// [[[[ 45.  48.  51.]],,  [[162. 174. 186.]],,  [[279. 300. 321.]]]]
 	want := nd.Of[float32](
-		nd.ShapeOf(1, 3, 1, 3),
+		nd.ShapeOf(3, 1, 3),
 		nd.Strides{},
 		0,
 		[]float32{45, 48, 51, 162, 174, 186, 279, 300, 321},
@@ -39,5 +38,27 @@ func TestNdTd(t *testing.T) {
 
 	fmt.Println(want)
 
-	// np.tensordot(txg, twg, ((1, 4, 5), (1, 2, 3)))
+	// np.tensordot(txg, twg, ((0, 3, 4), (1, 2, 3)))
+
+	// (1, 4, 5)
+	// (1, 2, 3)
+	//                    0    1    2    3    4    5
+	// 0 = {tuple: 6} (   1, 784,  69,   1,   1,   1 )
+	// 1 = {tuple: 4} ( 128, 784,   1,   1)
+	// 2 = {tuple: 4} (   1,  69,   1, 128)
+	/*
+		H, W = 1, 1
+		groups = 1
+		rcout = 128
+		cin = 784
+		oy, ox = 69, 1
+		iy, ix = 69, 1
+		sy, sx = 1, 1
+		bs = 1
+		cout = 128
+		out_shape = (1, 128, 69, 1)
+		py, py_ = 0, 0
+		px, px_ = 0, 0
+		dy, dx = 1, 1
+	*/
 }
