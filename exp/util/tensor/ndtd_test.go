@@ -92,17 +92,12 @@ func TestNdTd(t *testing.T) {
 
 	/*
 		In [164]: a = np.asarray([0, 3, 6, 1, 4, 7, 2, 5, 8]).reshape(3,3)
-
 		In [165]: b = np.asarray([10, 13, 16, 11, 14, 17, 12, 15, 18]).reshape(3,3)
-
 		In [166]: np.tensordot(a.reshape(3,3,1,1,1), b.reshape(3,3,1,1), ((0, 3, 4), (1, 2, 3)))
 		Out[166]:
 		array([[[ 45,  48,  51]],
-
 		       [[162, 174, 186]],
-
 		       [[279, 300, 321]]])
-
 		In [167]: a.transpose() @ b.transpose()
 		Out[167]:
 		array([[ 45,  48,  51],
