@@ -167,6 +167,7 @@ func (t *Tensor) Conv2d(weight *Tensor, bias *Tensor, opts ConvOpts) *Tensor {
 }
 
 func (t *Tensor) Matmul(w *Tensor) *Tensor {
+	// NOTE: we use a 1x1 conv2d to do the matmul. mxk @ kxn = (1,k,m,1).conv2d(n,k,1,1)
 	xsh := t.Shape()
 	wsh := w.Shape()
 	bs, groups := bt.Prod[Dim](xsh[0:len(xsh)-2]...), bt.Prod[Dim](wsh[0:len(wsh)-2]...)
