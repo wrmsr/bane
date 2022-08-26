@@ -4,8 +4,58 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
 )
+
+func NdMatMul(a, b nd.NdArray[float32]) nd.NdArray[float32] {
+	check.Equal(a.View().Rank(), 2)
+	check.Equal(b.View().Rank(), 2)
+	check.Equal(a.View().Shape().Get(1), b.View().Shape().Get(0))
+
+	h := a.View().Shape().Get(0)
+	w := b.View().Shape().Get(1)
+	c := nd.New[float32](nd.ShapeOf(h, w))
+
+	for i := nd.Dim(0); i < h; i++ {
+		for j := nd.Dim(0); j < w; j++ {
+			var o float32
+			for k := nd.Dim(0); k < h; k++ {
+				o += a.Get(i, k) * b.Get(k, j)
+			}
+			*c.At(i, j) = o
+		}
+	}
+
+	return c
+}
+
+func TestNdMatMul(t *testing.T) {
+	a := nd.Of[float32](
+		nd.ShapeOf(3, 3),
+		nd.Strides{},
+		0,
+		[]float32{
+			0, 1, 2,
+			3, 4, 5,
+			6, 7, 8,
+		},
+	)
+
+	b := nd.Of[float32](
+		nd.ShapeOf(3, 2),
+		nd.Strides{},
+		0,
+		[]float32{
+			10, 11,
+			13, 14,
+			16, 17,
+		},
+	)
+
+	c := NdMatMul(a, b)
+	fmt.Println(c)
+}
 
 func TestNdTd(t *testing.T) {
 	// [[[[[[0.]]],,,   [[[3.]]],,,   [[[6.]]]],,,,  [[[[1.]]],,,   [[[4.]]],,,   [[[7.]]]],,,,  [[[[2.]]],,,   [[[5.]]],,,   [[[8.]]]]]]
