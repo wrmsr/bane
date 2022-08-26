@@ -9,8 +9,8 @@ import (
 )
 
 func NdMatMul(a, b nd.NdArray[float32]) nd.NdArray[float32] {
-	check.Equal(a.View().Rank(), 2)
-	check.Equal(b.View().Rank(), 2)
+	check.Equal(a.View().Order(), 2)
+	check.Equal(b.View().Order(), 2)
 	check.Equal(a.View().Shape().Get(1), b.View().Shape().Get(0))
 
 	h := a.View().Shape().Get(0)
