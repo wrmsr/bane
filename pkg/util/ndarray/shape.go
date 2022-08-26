@@ -12,6 +12,10 @@ func (sh Shape) Equals(o Shape) bool {
 	return sh.Dims.Equals(o.Dims)
 }
 
+func (sh Shape) IsScalar() bool {
+	return sh._l == 1 && sh._a[0] == 1
+}
+
 func (sh Shape) NumScalarDims() int {
 	i := 0
 	for n := 0; n < sh.Len(); n++ {

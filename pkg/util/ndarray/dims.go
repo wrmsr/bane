@@ -122,6 +122,22 @@ func NewMutDims(l int) MutDims {
 	return MutDims{ds}
 }
 
+func (ds Dims) Mutate() MutDims {
+	var s []Dim
+	if ds._s != nil {
+		s = make([]Dim, len(ds._s))
+		copy(s, ds._s)
+	}
+
+	return MutDims{
+		_ds: Dims{
+			_a: ds._a,
+			_s: s,
+			_l: ds._l,
+		},
+	}
+}
+
 func (ds *MutDims) Decay() Dims { return ds._ds }
 
 func (ds *MutDims) Len() int      { return ds._ds.Len() }
