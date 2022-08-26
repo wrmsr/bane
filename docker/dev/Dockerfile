@@ -18,6 +18,7 @@ RUN ( \
         build-essential \
         ca-certificates \
         clang \
+        cmake \
         curl \
         cvs \
         dnsutils \
@@ -27,6 +28,7 @@ RUN ( \
         gdb \
         git \
         gnupg \
+        graphviz \
         htop \
         iputils-ping \
         iputils-tracepath \
@@ -122,7 +124,7 @@ RUN ( \
 ## python
 
 RUN ( \
-    PYTHON_VERSION=3.10.4 && \
+    PYTHON_VERSION="3.10.4" && \
     \
     git clone 'https://github.com/pyenv/pyenv' "$HOME/.pyenv" && \
     "$HOME/.pyenv/bin/pyenv" install -s "$PYTHON_VERSION" \
