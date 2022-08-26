@@ -145,7 +145,12 @@ func TestTranspose(t *testing.T) {
 	fmt.Println(a)
 
 	for _, axes := range [][]int{
+		{0, 1, 2},
+		{0, 2, 1},
 		{1, 0, 2},
+		{1, 2, 0},
+		{2, 0, 1},
+		{2, 1, 0},
 	} {
 		fmt.Println("========")
 		fmt.Println(axes)
