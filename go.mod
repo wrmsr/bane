@@ -3,7 +3,7 @@ module github.com/wrmsr/bane
 go 1.18
 
 require (
-	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220816024939-bc8df83d7b9d
+	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220826213629-cd8f367ca010
 	github.com/aws/aws-sdk-go-v2/config v1.15.12
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.47.1
 	github.com/cespare/xxhash v1.1.0
@@ -15,7 +15,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.13
 	github.com/segmentio/asm v1.2.0
 	golang.org/x/arch v0.0.0-20220412001346-fc48f9fe4c15
-	golang.org/x/exp v0.0.0-20220826144839-4cc3b17fd1f1
+	golang.org/x/exp v0.0.0-20220826205824-bd9bcdd0b820
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde
 	golang.org/x/text v0.3.7
