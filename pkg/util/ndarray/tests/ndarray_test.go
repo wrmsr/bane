@@ -86,15 +86,15 @@ func BenchmarkSliceView(b *testing.B) {
 		sv := v.Slice(o...)
 		//sv := v.Slice(1, nil, []any{1, nil, 2})
 
-		if sv.Size() != 9 {
+		if sv.DataSize() != 9 {
 			panic("oops")
 		}
 	}
 }
 
 func NdMatMul(a, b nd.NdArray[float32]) nd.NdArray[float32] {
-	check.Equal(a.View().Order(), 2)
-	check.Equal(b.View().Order(), 2)
+	check.Equal(a.View().Shape().Order(), 2)
+	check.Equal(b.View().Shape().Order(), 2)
 	check.Equal(a.View().Shape().Get(1), b.View().Shape().Get(0))
 
 	h := a.View().Shape().Get(0)

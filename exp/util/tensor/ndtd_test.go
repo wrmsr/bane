@@ -6,12 +6,45 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
-	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type AxisPair struct {
 	A, B int
 }
+
+/*
+In [267]: np.tensordot(matrange(2,2,3),matrange(2,2),(0,1))
+Out[267]:
+array([[[ 6, 18],
+        [ 7, 23],
+        [ 8, 28]],
+       [[ 9, 33],
+        [10, 38],
+        [11, 43]]])
+
+In [268]: np.tensordot(matrange(2,2),matrange(2,2,3),(0,1))
+Out[268]:
+array([[[ 6,  8, 10],
+        [18, 20, 22]],
+       [[ 9, 13, 17],
+        [33, 37, 41]]])
+
+In [269]: np.tensordot(matrange(2,2,3),matrange(2,2),(1,0))
+Out[269]:
+array([[[ 6,  9],
+        [ 8, 13],
+        [10, 17]],
+       [[18, 33],
+        [20, 37],
+        [22, 41]]])
+
+In [270]: np.tensordot(matrange(2,2),matrange(2,2,3),(1,0))
+Out[270]:
+array([[[ 6,  7,  8],
+        [ 9, 10, 11]],
+       [[18, 23, 28],
+        [33, 38, 43]]])
+*/
 
 func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
 	ash, bsh := a.View().Shape(), b.View().Shape()
@@ -44,17 +77,10 @@ func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
 	panic(nsh)
 }
 
-func NdRange(sh nd.Shape) nd.NdArray[float32] {
-	return nd.Maker[float32]{
-		Shape: sh,
-		Data:  bt.RangeTo[float32](float32(sh.Size())).Slice(),
-	}.Make()
-}
-
 func TestNdTd2(t *testing.T) {
 	NdTd(
-		NdRange(nd.ShapeOf(2, 3, 5, 1)),
-		NdRange(nd.ShapeOf(3, 2, 4)),
+		nd.OfRange[float32](nd.ShapeOf(2, 3, 5)),
+		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
 		AxisPair{0, 1},
 	)
 }
