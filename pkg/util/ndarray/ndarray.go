@@ -28,7 +28,7 @@ func Of[T any](
 ) NdArray[T] {
 	v := ViewOf(shape, strides, offset)
 
-	l := v.Len()
+	l := v.DataSize()
 	if data == nil {
 		data = make([]T, l+v.o)
 	}
@@ -98,7 +98,7 @@ func (a NdArray[T]) Squeeze() NdArray[T] {
 }
 
 func (a NdArray[T]) Transpose(axes ...int) NdArray[T] {
-	check.Equal(len(axes), a.v.Order())
+	check.Equal(len(axes), a.v.sh.Order())
 
 	sh := a.v.Shape()
 	nsh := NewMutDims(len(axes))
@@ -130,7 +130,7 @@ func (a NdArray[T]) Transpose(axes ...int) NdArray[T] {
 }
 
 func (a NdArray[T]) SwapAxes(x, y int) NdArray[T] {
-	axes := bt.RangeTo[int](a.v.Order()).Slice()
+	axes := bt.RangeTo[int](a.v.sh.Order()).Slice()
 	axes[x], axes[y] = y, x
 	return a.Transpose(axes...)
 }

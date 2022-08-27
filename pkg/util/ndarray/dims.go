@@ -54,7 +54,7 @@ func (ds Dims) Equals(o Dims) bool {
 	}
 
 	if ds._l > _dimsWidth {
-		for i := 0; i < ds._l-_dimsWidth; i++ {
+		for i := 0; i < len(ds._s); i++ {
 			if ds._s[i] != o._s[i] {
 				return false
 			}

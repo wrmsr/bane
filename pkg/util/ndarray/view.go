@@ -55,8 +55,7 @@ func (v View) Shape() Shape     { return v.sh }
 func (v View) Strides() Strides { return v.st }
 func (v View) Offset() Dim      { return v.o }
 
-func (v View) Order() int { return v.sh.Len() }
-func (v View) Len() Dim   { return v.sh.Get(0) * v.st.Get(0) }
+func (v View) DataSize() Dim { return v.sh.Get(0) * v.st.Get(0) }
 
 func (v View) Index(idxs ...Dim) Dim {
 	return v.st.Offset(idxs) + v.o
