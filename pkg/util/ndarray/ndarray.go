@@ -134,3 +134,7 @@ func (a NdArray[T]) SwapAxes(x, y int) NdArray[T] {
 	axes[x], axes[y] = y, x
 	return a.Transpose(axes...)
 }
+
+func (a NdArray[T]) Reshape(sh ...Dim) NdArray[T] {
+	panic("nyi")
+}

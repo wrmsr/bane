@@ -6,6 +6,7 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
+	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 type AxisPair struct {
@@ -84,6 +85,9 @@ func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
 		aq := a.Slice(ax...).Squeeze()
 		bq := b.Slice(bx...).Squeeze()
 
+		fmt.Println(aq)
+		fmt.Println(bq)
+
 		l := aq.View().Shape().Get(0)
 		check.Equal(l, bq.View().Shape().Get(0))
 
@@ -132,18 +136,113 @@ func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
 	return c
 }
 
+func NdTd2(a, b nd.NdArray[float32], axes_a, axes_b []int) nd.NdArray[float32] {
+	na := len(axes_a)
+	nb := len(axes_b)
+
+	as_ := a.View().Shape()
+	nda := as_.Order()
+
+	bs := b.View().Shape()
+	ndb := bs.Order()
+
+	equal := true
+	if na != nb {
+		equal = false
+	} else {
+		for k := 0; k < na; k++ {
+			if as_.Get(axes_a[k]) != bs.Get(axes_b[k]) {
+				equal = false
+				break
+			}
+			if axes_a[k] < 0 {
+				axes_a[k] += nda
+			}
+			if axes_b[k] < 0 {
+				axes_b[k] += ndb
+			}
+		}
+	}
+
+	if !equal {
+		panic("shape-mismatch for sum")
+	}
+
+	// Move the axes to sum over to the end of "a" and to the front of "b"
+	var notin []int
+	for k := 0; k < nda; k++ {
+		if !slices.Contains(axes_a, k) {
+			notin = append(notin, k)
+		}
+	}
+	newaxes_a := slices.Join(notin, axes_a)
+
+	N2 := nd.Dim(1)
+	for _, axis := range axes_a {
+		N2 *= as_.Get(axis)
+	}
+	newshape_a := []nd.Dim{1, N2}
+	for _, ax := range notin {
+		newshape_a[0] *= as_.Get(ax)
+	}
+	var olda []nd.Dim
+	for _, axis := range notin {
+		olda = append(olda, as_.Get(axis))
+	}
+
+	notin = nil
+	for k := 0; k < ndb; k++ {
+		if !slices.Contains(axes_b, k) {
+			notin = append(notin, k)
+		}
+	}
+	newaxes_b := slices.Join(axes_b, notin)
+	N2 = 1
+	for _, axis := range axes_b {
+		N2 *= bs.Get(axis)
+	}
+	newshape_b := []nd.Dim{N2, 1}
+	for _, ax := range notin {
+		newshape_b[1] *= bs.Get(ax)
+	}
+	var oldb []nd.Dim
+	for _, axis := range notin {
+		oldb = append(oldb, bs.Get(axis))
+	}
+
+	at := a.Transpose(newaxes_a...).Reshape(newshape_a...)
+	bt := b.Transpose(newaxes_b...).Reshape(newshape_b...)
+	res := NdDot(at, bt)
+	return res.Reshape(slices.Join(olda, oldb)...)
+}
+
+func NdDot(a, b nd.NdArray[float32]) nd.NdArray[float32] {
+	panic("nyi")
+}
+
 func TestNdTd2(t *testing.T) {
 	fmt.Println(NdTd(
 		nd.OfRange[float32](nd.ShapeOf(2, 3, 5)),
 		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
 		AxisPair{0, 1},
 	))
+}
 
+func TestNdTd3(t *testing.T) {
 	fmt.Println(NdTd(
 		nd.OfRange[float32](nd.ShapeOf(2, 3, 5)),
 		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
 		AxisPair{0, 1},
 		AxisPair{1, 0},
+	))
+}
+
+func TestNdTdX(t *testing.T) {
+	fmt.Println(NdTd2(
+		nd.OfRange[float32](nd.ShapeOf(2, 3, 5)),
+		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
+		[]int{0, 1},
+		[]int{1, 0},
 	))
 }
 
