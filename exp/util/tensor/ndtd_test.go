@@ -47,7 +47,8 @@ array([[[ 6,  7,  8],
 */
 
 func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
-	ash, bsh := a.View().Shape(), b.View().Shape()
+	ash := a.View().Shape()
+	bsh := b.View().Shape()
 
 	var amsk, bmsk int64
 	for _, x := range axes {
@@ -71,10 +72,53 @@ func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
 		}
 	}
 	check.Equal(p, nshm.Len())
-	nsh := nshm.Decay()
+	nsh := nd.Shape{nshm.Decay()}
 
-	fmt.Println(nsh)
-	panic(nsh)
+	c := nd.New[float32](nsh)
+
+	//var brec func(int)
+	//brec = func(i int) {
+	//
+	//}
+
+	ax := make([]any, ash.Order())
+	bx := make([]any, bsh.Order())
+
+	var brec func(int)
+	brec = func(i int) {
+		if i >= bsh.Order() {
+			fmt.Println(ax)
+			fmt.Println(bx)
+			fmt.Println()
+		} else if bmsk&(1<<i) != 0 {
+			brec(i + 1)
+		} else {
+			n := bsh.Get(i)
+			for j := nd.Dim(0); j < n; j++ {
+				bx[i] = j
+				brec(i + 1)
+			}
+		}
+	}
+
+	var arec func(int)
+	arec = func(i int) {
+		if i >= ash.Order() {
+			brec(0)
+		} else if amsk&(1<<i) != 0 {
+			arec(i + 1)
+		} else {
+			n := ash.Get(i)
+			for j := nd.Dim(0); j < n; j++ {
+				ax[i] = j
+				arec(i + 1)
+			}
+		}
+	}
+
+	arec(0)
+
+	panic(c)
 }
 
 func TestNdTd2(t *testing.T) {
