@@ -65,6 +65,7 @@ func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
 			p++
 		}
 	}
+	cbo := p
 	for i := 0; i < bsh.Len(); i++ {
 		if bmsk&(1<<i) == 0 {
 			nshm.Set(p, bsh.Get(i))
@@ -83,6 +84,7 @@ func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
 
 	ax := make([]any, ash.Order())
 	bx := make([]any, bsh.Order())
+	cx := make([]any, nsh.Order())
 
 	var brec func(int)
 	brec = func(i int) {
@@ -90,12 +92,23 @@ func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
 			fmt.Println(ax)
 			fmt.Println(bx)
 			fmt.Println()
+
+			aq := a.Slice(ax...).Squeeze()
+			bq := b.Slice(bx...).Squeeze()
+			cq := c.Slice(cx...).Squeeze()
+
+			fmt.Println(aq)
+			fmt.Println(bq)
+			fmt.Println(cq)
+			fmt.Println()
+
 		} else if bmsk&(1<<i) != 0 {
 			brec(i + 1)
 		} else {
 			n := bsh.Get(i)
 			for j := nd.Dim(0); j < n; j++ {
 				bx[i] = j
+				cx[i+cbo] = j
 				brec(i + 1)
 			}
 		}
@@ -111,6 +124,7 @@ func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
 			n := ash.Get(i)
 			for j := nd.Dim(0); j < n; j++ {
 				ax[i] = j
+				cx[i] = j
 				arec(i + 1)
 			}
 		}
