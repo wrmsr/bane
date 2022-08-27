@@ -65,7 +65,6 @@ func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
 			p++
 		}
 	}
-	cbo := p
 	for i := 0; i < bsh.Len(); i++ {
 		if bmsk&(1<<i) == 0 {
 			nshm.Set(p, bsh.Get(i))
@@ -77,70 +76,75 @@ func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
 
 	c := nd.New[float32](nsh)
 
-	//var brec func(int)
-	//brec = func(i int) {
-	//
-	//}
-
 	ax := make([]any, ash.Order())
 	bx := make([]any, bsh.Order())
-	cx := make([]any, nsh.Order())
+	cx := make([]nd.Dim, nsh.Order())
 
-	var brec func(int)
-	brec = func(i int) {
+	sum := func() {
+		aq := a.Slice(ax...).Squeeze()
+		bq := b.Slice(bx...).Squeeze()
+
+		l := aq.View().Shape().Get(0)
+		check.Equal(l, bq.View().Shape().Get(0))
+
+		var x float32
+		for j := nd.Dim(0); j < l; j++ {
+			ae := aq.Get(j)
+			be := bq.Get(j)
+			x += ae * be
+		}
+		*c.At(cx...) = x
+	}
+
+	var brec func(int, int)
+	brec = func(i, o int) {
 		if i >= bsh.Order() {
-			fmt.Println(ax)
-			fmt.Println(bx)
-			fmt.Println()
-
-			aq := a.Slice(ax...).Squeeze()
-			bq := b.Slice(bx...).Squeeze()
-			cq := c.Slice(cx...).Squeeze()
-
-			fmt.Println(aq)
-			fmt.Println(bq)
-			fmt.Println(cq)
-			fmt.Println()
-
+			sum()
 		} else if bmsk&(1<<i) != 0 {
-			brec(i + 1)
+			brec(i+1, o)
 		} else {
 			n := bsh.Get(i)
 			for j := nd.Dim(0); j < n; j++ {
 				bx[i] = j
-				cx[i+cbo] = j
-				brec(i + 1)
+				cx[o] = j
+				brec(i+1, o+1)
 			}
 		}
 	}
 
-	var arec func(int)
-	arec = func(i int) {
+	var arec func(int, int)
+	arec = func(i, o int) {
 		if i >= ash.Order() {
-			brec(0)
+			brec(0, o)
 		} else if amsk&(1<<i) != 0 {
-			arec(i + 1)
+			arec(i+1, o)
 		} else {
 			n := ash.Get(i)
 			for j := nd.Dim(0); j < n; j++ {
 				ax[i] = j
-				cx[i] = j
-				arec(i + 1)
+				cx[o] = j
+				arec(i+1, o+1)
 			}
 		}
 	}
 
-	arec(0)
-
-	panic(c)
+	arec(0, 0)
+	return c
 }
 
 func TestNdTd2(t *testing.T) {
-	NdTd(
+	fmt.Println(NdTd(
 		nd.OfRange[float32](nd.ShapeOf(2, 3, 5)),
 		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
 		AxisPair{0, 1},
-	)
+	))
+
+	fmt.Println(NdTd(
+		nd.OfRange[float32](nd.ShapeOf(2, 3, 5)),
+		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
+		AxisPair{0, 1},
+		AxisPair{1, 0},
+	))
 }
 
 func TestNdTd(t *testing.T) {
