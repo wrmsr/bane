@@ -213,9 +213,6 @@ func NdTd2(a, b nd.NdArray[float32], axes_a, axes_b []int) nd.NdArray[float32] {
 	at_ := a.Transpose(nd.DimsOf(nd.IntDims(newaxes_a...)...))
 	bt_ := b.Transpose(nd.DimsOf(nd.IntDims(newaxes_b...)...))
 
-	fmt.Println(at_)
-	fmt.Println(bt_)
-
 	at := at_.Reshape(nd.ShapeOf(newshape_a...))
 	bt := bt_.Reshape(nd.ShapeOf(newshape_b...))
 
@@ -243,7 +240,28 @@ func NdDot(a, b nd.NdArray[float32]) nd.NdArray[float32] {
 		  second-to-last axis of b:
 			dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])
 	*/
-	panic("nyi")
+	fmt.Println(a)
+	fmt.Println(b)
+
+	check.Equal(a.View().Shape().Order(), 2)
+	check.Equal(b.View().Shape().Order(), 2)
+	check.Equal(a.View().Shape().Get(1), b.View().Shape().Get(0))
+
+	h := a.View().Shape().Get(0)
+	w := b.View().Shape().Get(1)
+	c := nd.New[float32](nd.ShapeOf(h, w))
+
+	for i := nd.Dim(0); i < h; i++ {
+		for j := nd.Dim(0); j < w; j++ {
+			var o float32
+			for k := nd.Dim(0); k < h; k++ {
+				o += a.Get(i, k) * b.Get(k, j)
+			}
+			*c.At(i, j) = o
+		}
+	}
+
+	return c
 }
 
 func TestNdTd2(t *testing.T) {
@@ -269,6 +287,15 @@ func TestNdTdX(t *testing.T) {
 		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
 		[]int{0, 1},
 		[]int{1, 0},
+	))
+}
+
+func TestNdTdX2(t *testing.T) {
+	fmt.Println(NdTd2(
+		nd.OfRange[float32](nd.ShapeOf(2, 3, 5)),
+		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
+		[]int{0},
+		[]int{1},
 	))
 }
 

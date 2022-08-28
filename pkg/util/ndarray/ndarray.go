@@ -120,9 +120,7 @@ func (a NdArray[T]) Transpose(axes Dims) NdArray[T] {
 				rec(i + 1)
 			}
 		} else {
-			v := a.Get(asl...)
-			fmt.Printf("b[%v] = a[%v] = %v\n", bsl, asl, v)
-			*b.At(bsl...) = v
+			*b.At(bsl...) = a.Get(asl...)
 		}
 	}
 
@@ -138,10 +136,33 @@ func (a NdArray[T]) SwapAxes(x, y Dim) NdArray[T] {
 }
 
 func (a NdArray[T]) Reshape(nsh Shape) NdArray[T] {
-	check.Equal(a.View().Shape().Prod(), nsh.Prod())
+	l := a.v.sh.Prod()
+	check.Equal(l, nsh.Prod())
 
 	// FIXME: everything lol (contiguous)
-	n :=
+	s := make([]T, l)
 
-		panic("nyi")
+	o := a.v.sh.Order()
+	sl := make([]Dim, a.v.sh.Order())
+	p := 0
+
+	var rec func(int)
+	rec = func(i int) {
+		if i < o {
+			n := a.v.sh.Get(i)
+			for j := Dim(0); j < n; j++ {
+				sl[i] = j
+				rec(i + 1)
+			}
+		} else {
+			s[p] = a.Get(sl...)
+			p++
+		}
+	}
+	rec(0)
+
+	return Maker[T]{
+		Shape: nsh,
+		Data:  s,
+	}.Make()
 }
