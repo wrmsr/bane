@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -135,6 +136,32 @@ func (a NdArray[T]) SwapAxes(x, y Dim) NdArray[T] {
 	return a.Transpose(axes.Decay())
 }
 
+func (a NdArray[T]) MoveAxis(src, dst int) NdArray[T] {
+	if src == dst {
+		return a
+	}
+
+	o := a.v.sh.Order()
+	axes := NewMutDims(o)
+	var p Dim
+	for i := 0; i < o; i++ {
+		if i == src {
+			if src < dst {
+				p++
+			}
+			axes.Set(i, p)
+			p++
+		} else if i == dst {
+			axes.Set(i, Dim(src))
+		} else {
+			axes.Set(i, p)
+			p++
+		}
+	}
+
+	return a.Transpose(axes.Decay())
+}
+
 func (a NdArray[T]) Reshape(nsh Shape) NdArray[T] {
 	l := a.v.sh.Prod()
 	check.Equal(l, nsh.Prod())
@@ -165,4 +192,25 @@ func (a NdArray[T]) Reshape(nsh Shape) NdArray[T] {
 		Shape: nsh,
 		Data:  s,
 	}.Make()
+}
+
+func (a NdArray[T]) Assign(src NdArray[T]) {
+	check.Equal(a.v.sh.Order(), src.v.sh.Order())
+
+	o := a.v.sh.Order()
+	sl := make([]Dim, o)
+
+	var rec func(int)
+	rec = func(i int) {
+		if i < o {
+			n := bt.Min(a.v.sh.Get(i), src.v.sh.Get(i))
+			for j := Dim(0); j < n; j++ {
+				sl[i] = j
+				rec(i + 1)
+			}
+		} else {
+			*a.At(sl...) = src.Get(sl...)
+		}
+	}
+	rec(0)
 }

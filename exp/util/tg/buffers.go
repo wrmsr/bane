@@ -315,26 +315,20 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 		ndtmp := tmp.Nd()
 
 		for g := Dim(0); g < ca.groups; g++ {
-			// tmp[:, g] = np.tensordot(tx[:, g], tw[g], ((1, 4, 5), (1, 2, 3)))
-			// q        := np.tensordot(tx[:, g], tw[g], ((1, 4, 5), (1, 2, 3)))
 			txg := ndtx.Slice(nil, g)
 			twg := ndtw.Slice(g)
 			q := NdTensorDot(txg, twg, nd.DimsOf(1, 4, 5), nd.DimsOf(1, 2, 3))
-
-			fmt.Println(q)
-			fmt.Println(ndtmp)
+			ndtmp.Slice(nil, g).Assign(q)
 		}
 
-		_ = tx
-		_ = tw
-		_ = tmp
+		fmt.Println(ndtmp)
 
-		/*
-		   for g in range(ca.groups):
-		       // ijyxyx,kjyx -> iyxk -> ikyx
-		       tmp[:, g] = np.tensordot(tx[:, g], tw[g], ((1, 4, 5), (1, 2, 3)))
-		   return np.moveaxis(tmp, 4, 2).reshape(ca.bs, ca.groups * ca.rcout, ca.oy, ca.ox).view(CPUBuffer)
-		*/
+		tmp2 := ndtmp.MoveAxis(4, 2)
+		//tmp2 := ndtmp.MoveAxis(2, 4)
+		fmt.Println(tmp2)
+
+		tmp3 := tmp2.Reshape(nd.ShapeOf(ca.bs, ca.groups*ca.rcout, ca.oy, ca.ox))
+		fmt.Println(tmp3)
 
 		panic("nyi")
 	}
