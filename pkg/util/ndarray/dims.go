@@ -122,6 +122,19 @@ func NewMutDims(l int) MutDims {
 	return MutDims{ds}
 }
 
+func MutDimsTo(l int) MutDims {
+	m := NewMutDims(l)
+	for i := 0; i < l; i++ {
+		m.Set(i, Dim(i))
+	}
+	return m
+}
+
+func DimsTo(l int) Dims {
+	md := MutDimsTo(l)
+	return md.Decay()
+}
+
 func (ds Dims) Mutate() MutDims {
 	var s []Dim
 	if ds._s != nil {

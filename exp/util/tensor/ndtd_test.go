@@ -210,10 +210,16 @@ func NdTd2(a, b nd.NdArray[float32], axes_a, axes_b []int) nd.NdArray[float32] {
 		oldb = append(oldb, bs.Get(axis))
 	}
 
-	at := a.Transpose(newaxes_a...).Reshape(newshape_a...)
-	bt := b.Transpose(newaxes_b...).Reshape(newshape_b...)
+	at_ := a.Transpose(nd.DimsOf(nd.IntDims(newaxes_a...)...))
+	bt_ := b.Transpose(nd.DimsOf(nd.IntDims(newaxes_b...)...))
+
+	at := at_.Reshape(nd.ShapeOf(newshape_a...))
+	bt := bt_.Reshape(nd.ShapeOf(newshape_b...))
+
 	res := NdDot(at, bt)
-	return res.Reshape(slices.Join(olda, oldb)...)
+
+	nsh := nd.ShapeOf(slices.Join(olda, oldb)...)
+	return res.Reshape(nsh)
 }
 
 func TestNdTranspose(t *testing.T) {

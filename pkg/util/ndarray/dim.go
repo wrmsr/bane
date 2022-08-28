@@ -36,3 +36,11 @@ func AsDim(o any) (bt.Optional[Dim], bool) {
 	}
 	return bt.None[Dim](), false
 }
+
+func IntDims(s ...int) []Dim {
+	r := make([]Dim, len(s))
+	for i, d := range s {
+		r[i] = Dim(d)
+	}
+	return r
+}

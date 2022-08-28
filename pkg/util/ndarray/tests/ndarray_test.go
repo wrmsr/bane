@@ -144,7 +144,7 @@ func TestTranspose(t *testing.T) {
 	}.Make()
 	fmt.Println(a)
 
-	for _, axes := range [][]int{
+	for _, axes := range [][]nd.Dim{
 		{0, 1, 2},
 		{0, 2, 1},
 		{1, 0, 2},
@@ -155,7 +155,7 @@ func TestTranspose(t *testing.T) {
 		fmt.Println("========")
 		fmt.Println(axes)
 		fmt.Println("====")
-		b := a.Transpose(axes...)
+		b := a.Transpose(nd.DimsOf(axes...))
 		fmt.Println(b)
 	}
 

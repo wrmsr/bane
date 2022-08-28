@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -97,26 +96,26 @@ func (a NdArray[T]) Squeeze() NdArray[T] {
 	}
 }
 
-func (a NdArray[T]) Transpose(axes ...int) NdArray[T] {
-	check.Equal(len(axes), a.v.sh.Order())
+func (a NdArray[T]) Transpose(axes Dims) NdArray[T] {
+	check.Equal(axes.Len(), a.v.sh.Order())
 
 	sh := a.v.Shape()
-	nsh := NewMutDims(len(axes))
-	for i, axis := range axes {
-		nsh.Set(i, sh.Get(axis))
+	nsh := NewMutDims(axes.Len())
+	for i := 0; i < axes.Len(); i++ {
+		nsh.Set(i, sh.Get(int(axes.Get(i))))
 	}
 
 	b := New[T](Shape{nsh.Decay()})
 
-	asl := make([]Dim, len(axes))
-	bsl := make([]Dim, len(axes))
+	asl := make([]Dim, axes.Len())
+	bsl := make([]Dim, axes.Len())
 
 	var rec func(i int)
 	rec = func(i int) {
-		if i < len(axes) {
+		if i < axes.Len() {
 			n := nsh.Get(i)
 			for j := Dim(0); j < n; j++ {
-				asl[axes[i]] = j
+				asl[axes.Get(i)] = j
 				bsl[i] = j
 				rec(i + 1)
 			}
@@ -131,12 +130,13 @@ func (a NdArray[T]) Transpose(axes ...int) NdArray[T] {
 	return b
 }
 
-func (a NdArray[T]) SwapAxes(x, y int) NdArray[T] {
-	axes := bt.RangeTo[int](a.v.sh.Order()).Slice()
-	axes[x], axes[y] = y, x
-	return a.Transpose(axes...)
+func (a NdArray[T]) SwapAxes(x, y Dim) NdArray[T] {
+	axes := MutDimsTo(a.v.sh.Order())
+	axes.Set(int(x), y)
+	axes.Set(int(y), x)
+	return a.Transpose(axes.Decay())
 }
 
-func (a NdArray[T]) Reshape(sh ...Dim) NdArray[T] {
+func (a NdArray[T]) Reshape(nsh Shape) NdArray[T] {
 	panic("nyi")
 }
