@@ -1,8 +1,6 @@
 package tg
 
 import (
-	"fmt"
-
 	"github.com/wrmsr/bane/pkg/util/check"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -321,16 +319,15 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 			ndtmp.Slice(nil, g).Assign(q)
 		}
 
-		fmt.Println(ndtmp)
-
 		tmp2 := ndtmp.MoveAxis(4, 2)
-		//tmp2 := ndtmp.MoveAxis(2, 4)
-		fmt.Println(tmp2)
-
 		tmp3 := tmp2.Reshape(nd.ShapeOf(ca.bs, ca.groups*ca.rcout, ca.oy, ca.ox))
-		fmt.Println(tmp3)
+		check.Condition(tmp3.View().Offset() == 0)
 
-		panic("nyi")
+		return &Buffer{
+			s:       tmp3.Data(),
+			shape:   tmp3.View().Shape().Slice(),
+			strides: bt.Just(Strides(tmp3.View().Strides().Slice())),
+		}
 	}
 	panic("nyi")
 }
