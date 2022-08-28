@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	nd "github.com/wrmsr/bane/pkg/util/ndarray"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -261,6 +262,14 @@ func (b *Buffer) MovementOp(op Op, arg any) *Buffer {
 	panic("nyi")
 }
 
+func (b *Buffer) Nd() nd.NdArray[float32] {
+	return nd.Maker[float32]{
+		Shape:   nd.ShapeOf(b.shape...),
+		Strides: nd.StridesOf(b.Strides()...),
+		Data:    b.s,
+	}.Make()
+}
+
 func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 	switch op {
 	case ConvOp:
@@ -301,10 +310,19 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 
 		tmp := NewBuffer(Shape{ca.bs, ca.groups, ca.oy, ca.ox, ca.rcout})
 
+		ndtx := tx.Nd()
+		ndtw := tw.Nd()
+		ndtmp := tmp.Nd()
+
 		for g := Dim(0); g < ca.groups; g++ {
 			// tmp[:, g] = np.tensordot(tx[:, g], tw[g], ((1, 4, 5), (1, 2, 3)))
 			// q        := np.tensordot(tx[:, g], tw[g], ((1, 4, 5), (1, 2, 3)))
-			fmt.Println(g)
+			txg := ndtx.Slice(nil, g)
+			twg := ndtw.Slice(g)
+			q := NdTensorDot(txg, twg, nd.DimsOf(1, 4, 5), nd.DimsOf(1, 2, 3))
+
+			fmt.Println(q)
+			fmt.Println(ndtmp)
 		}
 
 		_ = tx

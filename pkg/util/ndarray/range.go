@@ -7,10 +7,18 @@ import (
 
 //
 
-type Range bt.Range[Dim]
+type Range struct {
+	Start, Stop, Step Dim
+
+	Squeeze bool
+}
 
 func (r Range) Range() bt.Range[Dim] {
-	return bt.Range[Dim](r)
+	return bt.Range[Dim]{
+		Start: r.Start,
+		Stop:  r.Stop,
+		Step:  r.Step,
+	}
 }
 
 func (r Range) Check(l Dim) Range {
@@ -33,6 +41,18 @@ func (r Range) Scalar() bt.Optional[Dim] {
 
 //
 
+func IsSqueezedRange(o any) bool {
+	if o, ok := o.(Range); ok {
+		return o.Squeeze
+	}
+
+	if o, ok := AsDim(o); ok {
+		return o.Present()
+	}
+
+	return false
+}
+
 func CalcRange(o any, l Dim) Range {
 	if o == nil {
 		return Range{
@@ -47,7 +67,11 @@ func CalcRange(o any, l Dim) Range {
 	}
 
 	if o, ok := o.(bt.Range[Dim]); ok {
-		return Range(o)
+		return Range{
+			Start: o.Start,
+			Stop:  o.Stop,
+			Step:  o.Step,
+		}
 	}
 
 	clamp := func(o any, d Dim) Dim {
@@ -76,6 +100,8 @@ func CalcRange(o any, l Dim) Range {
 			Start: clamp(o, 0),
 			Stop:  clamp(o.Map(func(d Dim) Dim { return d + 1 }), l),
 			Step:  1,
+
+			Squeeze: true,
 		}
 	}
 

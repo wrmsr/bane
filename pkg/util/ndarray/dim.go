@@ -4,7 +4,7 @@ import (
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
-type Dim int64
+type Dim = int64
 
 func AsDim(o any) (bt.Optional[Dim], bool) {
 	if o == nil {
@@ -13,8 +13,6 @@ func AsDim(o any) (bt.Optional[Dim], bool) {
 	switch o := o.(type) {
 	case bt.Optional[Dim]:
 		return o, true
-	case Dim:
-		return bt.Just(o), true
 	case int:
 		return bt.Just(Dim(o)), true
 	case int8:

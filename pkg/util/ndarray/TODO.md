@@ -1,1 +1,2 @@
-- 0alloc slicing - Bring back Bound struct
+- DimSet bitvec
+- Contiguous

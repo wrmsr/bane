@@ -75,12 +75,18 @@ func (v View) Index(idxs ...Dim) Dim {
 
 func (v View) Slice(bs ...any) View {
 	nd := v.sh.Len()
+	for _, b := range bs {
+		if IsSqueezedRange(b) {
+			nd--
+		}
+	}
 
 	nsh := NewMutDims(nd)
 	nst := NewMutDims(nd)
 	no := v.o
 
-	for i := nd - 1; i >= 0; i-- {
+	p := nd - 1
+	for i := v.sh.Len() - 1; i >= 0; i-- {
 		var r Range
 		if i < len(bs) {
 			r = CalcRange(bs[i], v.sh.Get(i))
@@ -100,9 +106,15 @@ func (v View) Slice(bs ...any) View {
 			rnd = r.Step - 1
 		}
 
-		nsh.Set(i, (r.Stop-r.Start+rnd)/r.Step)
-		nst.Set(i, v.st.Get(i)*r.Step)
 		no += r.Start * (v.st.Get(i) * r.Step)
+
+		if r.Squeeze {
+			check.Condition(r.Scalar().Present())
+		} else {
+			nsh.Set(p, (r.Stop-r.Start+rnd)/r.Step)
+			nst.Set(p, v.st.Get(i)*r.Step)
+			p--
+		}
 	}
 
 	return View{
