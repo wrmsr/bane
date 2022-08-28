@@ -213,6 +213,9 @@ func NdTd2(a, b nd.NdArray[float32], axes_a, axes_b []int) nd.NdArray[float32] {
 	at_ := a.Transpose(nd.DimsOf(nd.IntDims(newaxes_a...)...))
 	bt_ := b.Transpose(nd.DimsOf(nd.IntDims(newaxes_b...)...))
 
+	fmt.Println(at_)
+	fmt.Println(bt_)
+
 	at := at_.Reshape(nd.ShapeOf(newshape_a...))
 	bt := bt_.Reshape(nd.ShapeOf(newshape_b...))
 
@@ -224,7 +227,7 @@ func NdTd2(a, b nd.NdArray[float32], axes_a, axes_b []int) nd.NdArray[float32] {
 
 func TestNdTranspose(t *testing.T) {
 	a := nd.OfRange[float32](nd.ShapeOf(2, 3, 5))
-	at := a.Transpose(2, 0, 1)
+	at := a.Transpose(nd.DimsOf(2, 0, 1))
 	fmt.Println(at)
 }
 

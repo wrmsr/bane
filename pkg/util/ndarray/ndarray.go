@@ -138,5 +138,10 @@ func (a NdArray[T]) SwapAxes(x, y Dim) NdArray[T] {
 }
 
 func (a NdArray[T]) Reshape(nsh Shape) NdArray[T] {
-	panic("nyi")
+	check.Equal(a.View().Shape().Prod(), nsh.Prod())
+
+	// FIXME: everything lol (contiguous)
+	n :=
+
+		panic("nyi")
 }

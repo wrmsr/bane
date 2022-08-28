@@ -104,6 +104,22 @@ func (ds Dims) Get(i int) Dim {
 	}
 }
 
+func (ds Dims) Sum() Dim {
+	var r Dim
+	for i := 0; i < ds._l; i++ {
+		r += ds.Get(i)
+	}
+	return r
+}
+
+func (ds Dims) Prod() Dim {
+	var r Dim = 1
+	for i := 0; i < ds._l; i++ {
+		r *= ds.Get(i)
+	}
+	return r
+}
+
 //
 
 type MutDims struct {
