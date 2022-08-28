@@ -88,6 +88,15 @@ func (ds Dims) String() string {
 	return sb.String()
 }
 
+func (ds Dims) Slice() []Dim {
+	s := make([]Dim, ds._l)
+	copy(s[:ds._l], ds._a[:ds._l])
+	if ds._l > _dimsWidth {
+		copy(s[_dimsWidth:], ds._s)
+	}
+	return s
+}
+
 func (ds Dims) Len() int {
 	return ds._l
 }
@@ -102,6 +111,20 @@ func (ds Dims) Get(i int) Dim {
 	} else {
 		return ds._s[i-_dimsWidth]
 	}
+}
+
+func (ds Dims) Find(d Dim) (int, bool) {
+	for i := 0; i < ds._l; i++ {
+		if ds.Get(i) == d {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+func (ds Dims) Contains(d Dim) bool {
+	_, ok := ds.Find(d)
+	return ok
 }
 
 func (ds Dims) Sum() Dim {

@@ -47,119 +47,35 @@ array([[[ 6,  7,  8],
         [33, 38, 43]]])
 */
 
-func NdTd(a, b nd.NdArray[float32], axes ...AxisPair) nd.NdArray[float32] {
-	ash := a.View().Shape()
-	bsh := b.View().Shape()
+//
 
-	var amsk, bmsk int64
-	for _, x := range axes {
-		check.Equal(ash.Get(x.A), bsh.Get(x.B))
-		amsk |= int64(1) << x.A
-		bmsk |= int64(1) << x.B
-	}
+func NdTd2(a, b nd.NdArray[float32], axes_a, axes_b nd.Dims) nd.NdArray[float32] {
+	mutaxes_a := axes_a.Mutate()
+	mutaxes_b := axes_b.Mutate()
 
-	nshm := nd.NewMutDims(a.View().Shape().Order() + b.View().Shape().Order() - 2*len(axes))
-	p := 0
-	for i := 0; i < ash.Len(); i++ {
-		if amsk&(1<<i) == 0 {
-			nshm.Set(p, ash.Get(i))
-			p++
-		}
-	}
-	for i := 0; i < bsh.Len(); i++ {
-		if bmsk&(1<<i) == 0 {
-			nshm.Set(p, bsh.Get(i))
-			p++
-		}
-	}
-	check.Equal(p, nshm.Len())
-	nsh := nd.Shape{nshm.Decay()}
-
-	c := nd.New[float32](nsh)
-
-	ax := make([]any, ash.Order())
-	bx := make([]any, bsh.Order())
-	cx := make([]nd.Dim, nsh.Order())
-
-	sum := func() {
-		aq := a.Slice(ax...).Squeeze()
-		bq := b.Slice(bx...).Squeeze()
-
-		fmt.Println(aq)
-		fmt.Println(bq)
-
-		l := aq.View().Shape().Get(0)
-		check.Equal(l, bq.View().Shape().Get(0))
-
-		var x float32
-		for j := nd.Dim(0); j < l; j++ {
-			ae := aq.Get(j)
-			be := bq.Get(j)
-			x += ae * be
-		}
-		*c.At(cx...) = x
-	}
-
-	var brec func(int, int)
-	brec = func(i, o int) {
-		if i >= bsh.Order() {
-			sum()
-		} else if bmsk&(1<<i) != 0 {
-			brec(i+1, o)
-		} else {
-			n := bsh.Get(i)
-			for j := nd.Dim(0); j < n; j++ {
-				bx[i] = j
-				cx[o] = j
-				brec(i+1, o+1)
-			}
-		}
-	}
-
-	var arec func(int, int)
-	arec = func(i, o int) {
-		if i >= ash.Order() {
-			brec(0, o)
-		} else if amsk&(1<<i) != 0 {
-			arec(i+1, o)
-		} else {
-			n := ash.Get(i)
-			for j := nd.Dim(0); j < n; j++ {
-				ax[i] = j
-				cx[o] = j
-				arec(i+1, o+1)
-			}
-		}
-	}
-
-	arec(0, 0)
-	return c
-}
-
-func NdTd2(a, b nd.NdArray[float32], axes_a, axes_b []int) nd.NdArray[float32] {
-	na := len(axes_a)
-	nb := len(axes_b)
+	na := mutaxes_a.Len()
+	nb := mutaxes_b.Len()
 
 	as_ := a.View().Shape()
-	nda := as_.Order()
+	nda := nd.Dim(as_.Order())
 
 	bs := b.View().Shape()
-	ndb := bs.Order()
+	ndb := nd.Dim(bs.Order())
 
 	equal := true
 	if na != nb {
 		equal = false
 	} else {
 		for k := 0; k < na; k++ {
-			if as_.Get(axes_a[k]) != bs.Get(axes_b[k]) {
+			if as_.Get(int(mutaxes_a.Get(k))) != bs.Get(int(mutaxes_b.Get(k))) {
 				equal = false
 				break
 			}
-			if axes_a[k] < 0 {
-				axes_a[k] += nda
+			if mutaxes_a.Get(k) < 0 {
+				mutaxes_a.Set(k, mutaxes_a.Get(k)+nda)
 			}
-			if axes_b[k] < 0 {
-				axes_b[k] += ndb
+			if mutaxes_b.Get(k) < 0 {
+				mutaxes_b.Set(k, mutaxes_b.Get(k)+ndb)
 			}
 		}
 	}
@@ -168,50 +84,55 @@ func NdTd2(a, b nd.NdArray[float32], axes_a, axes_b []int) nd.NdArray[float32] {
 		panic("shape-mismatch for sum")
 	}
 
+	axes_a = mutaxes_a.Decay()
+	axes_b = mutaxes_b.Decay()
+
 	// Move the axes to sum over to the end of "a" and to the front of "b"
-	var notin []int
-	for k := 0; k < nda; k++ {
-		if !slices.Contains(axes_a, k) {
+	var notin []nd.Dim
+	for k := nd.Dim(0); k < nda; k++ {
+		if !axes_a.Contains(k) {
 			notin = append(notin, k)
 		}
 	}
-	newaxes_a := slices.Join(notin, axes_a)
+	newaxes_a := slices.Join(notin, axes_a.Slice())
 
 	N2 := nd.Dim(1)
-	for _, axis := range axes_a {
-		N2 *= as_.Get(axis)
+	for i := 0; i < axes_a.Len(); i++ {
+		axis := axes_a.Get(i)
+		N2 *= as_.Get(int(axis))
 	}
 	newshape_a := []nd.Dim{1, N2}
 	for _, ax := range notin {
-		newshape_a[0] *= as_.Get(ax)
+		newshape_a[0] *= as_.Get(int(ax))
 	}
 	var olda []nd.Dim
 	for _, axis := range notin {
-		olda = append(olda, as_.Get(axis))
+		olda = append(olda, as_.Get(int(axis)))
 	}
 
 	notin = nil
-	for k := 0; k < ndb; k++ {
-		if !slices.Contains(axes_b, k) {
+	for k := nd.Dim(0); k < ndb; k++ {
+		if !axes_b.Contains(k) {
 			notin = append(notin, k)
 		}
 	}
-	newaxes_b := slices.Join(axes_b, notin)
+	newaxes_b := slices.Join(axes_b.Slice(), notin)
 	N2 = 1
-	for _, axis := range axes_b {
-		N2 *= bs.Get(axis)
+	for i := 0; i < axes_b.Len(); i++ {
+		axis := axes_b.Get(i)
+		N2 *= bs.Get(int(axis))
 	}
 	newshape_b := []nd.Dim{N2, 1}
 	for _, ax := range notin {
-		newshape_b[1] *= bs.Get(ax)
+		newshape_b[1] *= bs.Get(int(ax))
 	}
 	var oldb []nd.Dim
 	for _, axis := range notin {
-		oldb = append(oldb, bs.Get(axis))
+		oldb = append(oldb, bs.Get(int(axis)))
 	}
 
-	at_ := a.Transpose(nd.DimsOf(nd.IntDims(newaxes_a...)...))
-	bt_ := b.Transpose(nd.DimsOf(nd.IntDims(newaxes_b...)...))
+	at_ := a.Transpose(nd.DimsOf(newaxes_a...))
+	bt_ := b.Transpose(nd.DimsOf(newaxes_b...))
 
 	at := at_.Reshape(nd.ShapeOf(newshape_a...))
 	bt := bt_.Reshape(nd.ShapeOf(newshape_b...))
@@ -220,12 +141,6 @@ func NdTd2(a, b nd.NdArray[float32], axes_a, axes_b []int) nd.NdArray[float32] {
 
 	nsh := nd.ShapeOf(slices.Join(olda, oldb)...)
 	return res.Reshape(nsh)
-}
-
-func TestNdTranspose(t *testing.T) {
-	a := nd.OfRange[float32](nd.ShapeOf(2, 3, 5))
-	at := a.Transpose(nd.DimsOf(2, 0, 1))
-	fmt.Println(at)
 }
 
 func NdDot(a, b nd.NdArray[float32]) nd.NdArray[float32] {
@@ -240,13 +155,12 @@ func NdDot(a, b nd.NdArray[float32]) nd.NdArray[float32] {
 		  second-to-last axis of b:
 			dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])
 	*/
-	fmt.Println(a)
-	fmt.Println(b)
 
 	check.Equal(a.View().Shape().Order(), 2)
 	check.Equal(b.View().Shape().Order(), 2)
 	check.Equal(a.View().Shape().Get(1), b.View().Shape().Get(0))
 
+	z := a.View().Shape().Get(1)
 	h := a.View().Shape().Get(0)
 	w := b.View().Shape().Get(1)
 	c := nd.New[float32](nd.ShapeOf(h, w))
@@ -254,8 +168,10 @@ func NdDot(a, b nd.NdArray[float32]) nd.NdArray[float32] {
 	for i := nd.Dim(0); i < h; i++ {
 		for j := nd.Dim(0); j < w; j++ {
 			var o float32
-			for k := nd.Dim(0); k < h; k++ {
-				o += a.Get(i, k) * b.Get(k, j)
+			for k := nd.Dim(0); k < z; k++ {
+				av := a.Get(i, k)
+				bv := b.Get(k, j)
+				o += av * bv
 			}
 			*c.At(i, j) = o
 		}
@@ -264,29 +180,12 @@ func NdDot(a, b nd.NdArray[float32]) nd.NdArray[float32] {
 	return c
 }
 
-func TestNdTd2(t *testing.T) {
-	fmt.Println(NdTd(
-		nd.OfRange[float32](nd.ShapeOf(2, 3, 5)),
-		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
-		AxisPair{0, 1},
-	))
-}
-
-func TestNdTd3(t *testing.T) {
-	fmt.Println(NdTd(
-		nd.OfRange[float32](nd.ShapeOf(2, 3, 5)),
-		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
-		AxisPair{0, 1},
-		AxisPair{1, 0},
-	))
-}
-
 func TestNdTdX(t *testing.T) {
 	fmt.Println(NdTd2(
 		nd.OfRange[float32](nd.ShapeOf(2, 3, 5)),
 		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
-		[]int{0, 1},
-		[]int{1, 0},
+		nd.DimsOf(0, 1),
+		nd.DimsOf(1, 0),
 	))
 }
 
@@ -294,10 +193,12 @@ func TestNdTdX2(t *testing.T) {
 	fmt.Println(NdTd2(
 		nd.OfRange[float32](nd.ShapeOf(2, 3, 5)),
 		nd.OfRange[float32](nd.ShapeOf(3, 2, 4)),
-		[]int{0},
-		[]int{1},
+		nd.DimsOf(0),
+		nd.DimsOf(1),
 	))
 }
+
+//
 
 func TestNdTd(t *testing.T) {
 	// [[[[[[0.]]],,,   [[[3.]]],,,   [[[6.]]]],,,,  [[[[1.]]],,,   [[[4.]]],,,   [[[7.]]]],,,,  [[[[2.]]],,,   [[[5.]]],,,   [[[8.]]]]]]
