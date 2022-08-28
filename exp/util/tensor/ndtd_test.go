@@ -216,7 +216,24 @@ func NdTd2(a, b nd.NdArray[float32], axes_a, axes_b []int) nd.NdArray[float32] {
 	return res.Reshape(slices.Join(olda, oldb)...)
 }
 
+func TestNdTranspose(t *testing.T) {
+	a := nd.OfRange[float32](nd.ShapeOf(2, 3, 5))
+	at := a.Transpose(2, 0, 1)
+	fmt.Println(at)
+}
+
 func NdDot(a, b nd.NdArray[float32]) nd.NdArray[float32] {
+	/*
+		Dot product of two arrays. Specifically,
+		- If both a and b are 1-D arrays, it is inner product of vectors (without complex conjugation).
+		- If both a and b are 2-D arrays, it is matrix multiplication, but using matmul or a @ b is preferred.
+		- If either a or b is 0-D (scalar), it is equivalent to multiply and using numpy.multiply(a, b) or a * b is
+		  preferred.
+		- If a is an N-D array and b is a 1-D array, it is a sum product over the last axis of a and b.
+		- If a is an N-D array and b is an M-D array (where M>=2), it is a sum product over the last axis of a and the
+		  second-to-last axis of b:
+			dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])
+	*/
 	panic("nyi")
 }
 

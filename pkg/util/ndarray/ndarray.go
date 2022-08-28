@@ -114,14 +114,16 @@ func (a NdArray[T]) Transpose(axes ...int) NdArray[T] {
 	var rec func(i int)
 	rec = func(i int) {
 		if i < len(axes) {
-			n := sh.Get(i)
+			n := nsh.Get(i)
 			for j := Dim(0); j < n; j++ {
-				asl[i] = j
-				bsl[axes[i]] = j
+				asl[axes[i]] = j
+				bsl[i] = j
 				rec(i + 1)
 			}
 		} else {
-			*b.At(asl...) = a.Get(bsl...)
+			v := a.Get(asl...)
+			fmt.Printf("b[%v] = a[%v] = %v\n", bsl, asl, v)
+			*b.At(bsl...) = v
 		}
 	}
 
