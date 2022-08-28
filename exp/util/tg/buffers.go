@@ -1,6 +1,8 @@
 package tg
 
 import (
+	"fmt"
+
 	"github.com/wrmsr/bane/pkg/util/check"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -29,6 +31,15 @@ func BufferOf(shape Shape, s []float32) *Buffer {
 		s: s,
 
 		shape: shape,
+	}
+}
+
+func BufferOfNd(a nd.NdArray[float32]) *Buffer {
+	check.Condition(a.View().Offset() == 0)
+	return &Buffer{
+		s:       a.Data(),
+		shape:   a.View().Shape().Slice(),
+		strides: bt.Just(Strides(a.View().Strides().Slice())),
 	}
 }
 
@@ -156,6 +167,7 @@ func (b *Buffer) Transpose(order []Dim) *Buffer {
 }
 
 func (b *Buffer) Permute(order []Dim) *Buffer {
+	fmt.Println(b.s)
 	return b.Transpose(order)
 }
 
@@ -321,13 +333,72 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 
 		tmp2 := ndtmp.MoveAxis(4, 2)
 		tmp3 := tmp2.Reshape(nd.ShapeOf(ca.bs, ca.groups*ca.rcout, ca.oy, ca.ox))
-		check.Condition(tmp3.View().Offset() == 0)
 
-		return &Buffer{
-			s:       tmp3.Data(),
-			shape:   tmp3.View().Shape().Slice(),
-			strides: bt.Just(Strides(tmp3.View().Strides().Slice())),
+		return BufferOfNd(tmp3)
+	}
+	panic("nyi")
+}
+
+func (b *Buffer) Amax(axis int) *Buffer {
+	bnd := b.Nd()
+
+	mnsh := bnd.View().Shape().Mutate()
+	mnsh.Set(axis, 1)
+	nsh := nd.Shape{mnsh.Decay()}
+
+	o := nsh.Order()
+	sl := make([]nd.Dim, o)
+	c := nd.New[float32](nsh)
+
+	var rec func(int)
+	rec = func(i int) {
+		if i == axis {
+			rec(i + 1)
+		} else if i < o {
+			n := bnd.View().Shape().Get(i)
+			for j := nd.Dim(0); j < n; j++ {
+				sl[i] = j
+				rec(i + 1)
+			}
+		} else {
+			n := bnd.View().Shape().Get(axis)
+			var r bt.Optional[float32]
+			for j := nd.Dim(0); j < n; j++ {
+				sl[axis] = j
+				v := bnd.Get(sl...)
+				if !r.Present() || r.Value() < v {
+					r = bt.Just(v)
+				}
+			}
+			sl[axis] = 0
+			*c.At(sl...) = r.Value()
 		}
 	}
+	rec(0)
+
+	panic("nyi")
+}
+
+func (b *Buffer) ReduceOp(op Op, nsh Shape) *Buffer {
+	check.Equal(len(b.shape), len(nsh))
+
+	var axis []int
+	for i := 0; i < len(nsh); i++ {
+		if b.shape[i] != nsh[i] {
+			axis = append(axis, i)
+		}
+	}
+
+	if len(axis) < 1 {
+		return b
+	}
+
+	switch op {
+
+	case MaxOp:
+		return b.Amax(check.Single(axis))
+
+	}
+
 	panic("nyi")
 }
