@@ -1,2 +1,3 @@
+- Negative stride transposition
 - DimSet bitvec
 - Contiguous

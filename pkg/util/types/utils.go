@@ -57,3 +57,7 @@ func CloneSlice[T any](s []T) []T {
 	copy(r, s)
 	return r
 }
+
+func CastRat[F, T Rational](f F) T {
+	return T(f)
+}

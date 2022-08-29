@@ -26,6 +26,10 @@ func Of[T any](
 	offset Dim,
 	data []T,
 ) NdArray[T] {
+	if shape.Len() < 1 && strides.Len() < 1 && data != nil {
+		shape = ShapeOf(Dim(len(data)))
+	}
+
 	v := ViewOf(shape, strides, offset)
 
 	l := v.DataSize()
@@ -163,6 +167,24 @@ func (a NdArray[T]) MoveAxis(src, dst int) NdArray[T] {
 }
 
 func (a NdArray[T]) Reshape(nsh Shape) NdArray[T] {
+	if dd, ok := nsh.Find(-1); ok {
+		x := Dim(1)
+		for i := 0; i < nsh.Len(); i++ {
+			if i != dd {
+				x *= nsh.Get(i)
+			}
+		}
+
+		z := a.View().Shape().Prod()
+		if z%x != 0 {
+			panic(fmt.Errorf("reshape error: %d %% %d != 0", z, x))
+		}
+
+		mnsh := nsh.Mutate()
+		mnsh.Set(dd, z/x)
+		nsh = Shape{mnsh.Decay()}
+	}
+
 	l := a.v.sh.Prod()
 	check.Equal(l, nsh.Prod())
 
@@ -213,4 +235,26 @@ func (a NdArray[T]) Assign(src NdArray[T]) {
 		}
 	}
 	rec(0)
+}
+
+//
+
+func Map[F, T any](fn func(F) T, f NdArray[F]) NdArray[T] {
+	t := New[T](f.v.sh)
+	o := f.v.sh.Order()
+	sl := make([]Dim, o)
+	var rec func(int)
+	rec = func(i int) {
+		if i < o {
+			l := f.v.sh.Get(i)
+			for j := Dim(0); j < l; j++ {
+				sl[i] = j
+				rec(i + 1)
+			}
+		} else {
+			*t.At(sl...) = fn(f.Get(sl...))
+		}
+	}
+	rec(0)
+	return t
 }

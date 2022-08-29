@@ -1,14 +1,18 @@
 package tg
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
+	nd "github.com/wrmsr/bane/pkg/util/ndarray"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -135,4 +139,28 @@ func TestBobNet2(t *testing.T) {
 
 	fmt.Println(len(l1m))
 	fmt.Println(len(l2m))
+}
+
+func TestMnistData(t *testing.T) {
+	/*
+		# In the labels file, the number of items is 32-bit big-endian integer at offset 4.
+		# The labels are one byte each, binary 0..9, starting at offset 8.
+
+		# In the images file, the number of items is 32-bit big-endian integer at offset 4.
+		# The image height is 32-bit big-endian integer at offset 8.
+		# The image width is 32-bit big-endian integer at offset 0xc.
+		# The images are height*width bytes each, starting at offset 0x10.
+	*/
+	p := filepath.Join(
+		paths.FindProjectRoot(),
+		"../../geohot/tinygrad/datasets/mnist/train-images-idx3-ubyte.gz",
+	)
+	gb := check.Must1(os.ReadFile(p))
+	gr := check.Must1(gzip.NewReader(bytes.NewReader(gb)))
+	b := check.Must1(io.ReadAll(gr))[0x10:]
+	fmt.Println(len(b))
+
+	ndb := nd.Maker[byte]{Data: b}.Make().Reshape(nd.ShapeOf(-1, 28*28))
+	f := nd.Map(func(b byte) float32 { return float32(b) }, ndb)
+	fmt.Println(f.View())
 }
