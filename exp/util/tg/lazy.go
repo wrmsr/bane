@@ -172,6 +172,8 @@ func (b *LazyBuffer) ReduceOp(op Op, newShape Shape) *LazyBuffer {
 	)
 }
 
+var numMoves = 0
+
 func (b *LazyBuffer) MovementOp(op Op, arg any) *LazyBuffer {
 	st := b.st.Clone()
 	st.MovementOp(op, arg)
@@ -191,9 +193,8 @@ func (b *LazyBuffer) MovementOp(op Op, arg any) *LazyBuffer {
 		},
 	)
 
-	fmt.Println(ret.st.views[0])
-	fmt.Println(ret.st.Contiguous())
-	fmt.Println()
+	// FIXME: ?!?! - does tg relu mutate in place? tg gets transposed strides (st[0]<st[1]), we don't - being transposed
+	//   means it's not contiguous so this isn't taken, in ours it *is* taken and the transpose erroneously disappears
 	//if b.realized == nil && ret.st.Contiguous() {
 	//	root := ret.op.GetBuffers()[0]
 	//	if ret.st.Shape().Equals(root.Shape()) {
