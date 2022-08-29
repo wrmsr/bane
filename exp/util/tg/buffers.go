@@ -362,7 +362,7 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 	panic("nyi")
 }
 
-func (b *Buffer) reduce(axis int, fn func(float32, bt.Optional[float32]) float32) *Buffer {
+func (b *Buffer) reduce1(axis int, fn func(float32, bt.Optional[float32]) float32) *Buffer {
 	bnd := b.Nd()
 
 	mnsh := bnd.View().Shape().Mutate()
@@ -400,13 +400,12 @@ func (b *Buffer) reduce(axis int, fn func(float32, bt.Optional[float32]) float32
 	return BufferOfNd(c)
 }
 
-func (b *Buffer) Amax(axis int) *Buffer {
-	return b.reduce(axis, func(f float32, b bt.Optional[float32]) float32 {
-		if b.Present() && !(f > b.Value()) {
-			return b.Value()
-		}
-		return f
-	})
+func (b *Buffer) reduce(axes []int, fn func(float32, bt.Optional[float32]) float32) *Buffer {
+	r := b
+	for _, axis := range axes {
+		r = r.reduce1(axis, fn)
+	}
+	return r
 }
 
 func (b *Buffer) ReduceOp(op Op, nsh Shape) *Buffer {
@@ -426,10 +425,15 @@ func (b *Buffer) ReduceOp(op Op, nsh Shape) *Buffer {
 	switch op {
 
 	case MaxOp:
-		return b.Amax(check.Single(axis))
+		return b.reduce(axis, func(f float32, b bt.Optional[float32]) float32 {
+			if b.Present() && !(f > b.Value()) {
+				return b.Value()
+			}
+			return f
+		})
 
 	case SumOp:
-		return b.reduce(check.Single(axis), func(f float32, b bt.Optional[float32]) float32 {
+		return b.reduce(axis, func(f float32, b bt.Optional[float32]) float32 {
 			return f + b.Or(0)
 		})
 

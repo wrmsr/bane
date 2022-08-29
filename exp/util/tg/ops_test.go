@@ -62,17 +62,7 @@ func TestOpsRelu(t *testing.T) {
 	}
 }
 
-func TestBobNet(t *testing.T) {
-	sh := Shape{3, 3}
-
-	xt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](9.).Slice()), Shape{9}), true).Reshape(sh)
-	l1t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice()), Shape{9}), true).Reshape(sh)
-	l2t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](20., 29., 1.).Slice()), Shape{9}), true).Reshape(sh)
-
-	zt := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
-	//zt := xt.Dot(l1t).Relu().Dot(l2t)
-	fmt.Println("====")
-
+func dumpObj(o any) {
 	var rec func(any, string)
 	rec = func(o any, p string) {
 		switch o := o.(type) {
@@ -89,24 +79,32 @@ func TestBobNet(t *testing.T) {
 			panic(o)
 		}
 	}
-	rec(zt, "")
+	rec(o, "")
+}
 
-	fmt.Println(zt.Data().Realize())
+func TestBobNet(t *testing.T) {
+	sh := Shape{3, 3}
+
+	xt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](9.).Slice()), Shape{9}), true).Reshape(sh)
+	l1t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice()), Shape{9}), true).Reshape(sh)
+	l2t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](20., 29., 1.).Slice()), Shape{9}), true).Reshape(sh)
+
+	zt := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
+	//zt := xt.Dot(l1t).Relu().Dot(l2t)
+	fmt.Println("====")
+
+	dumpObj(zt)
+
+	//fmt.Println(zt.Mean(nil, false).Data().Realize())
+	fmt.Println(zt.Mean(nil, false).Data().Realize())
 
 	// garbage
 
-	scc := func(out, y *Tensor) *Tensor {
-		num_classes := out.Shape()[len(out.Shape())-1]
-		yy := y.Flatten(0)
-		// y = np.zeros((YY.shape[0], num_classes), np.float32)
-		// # correct loss for NLL, torch NLL loss returns one per row
-		// y[range(y.shape[0]), YY] = -1.0 * num_classes
-		// y = y.reshape(list(Y.shape) + [num_classes])
-		// y = Tensor(y)
-		// return out.mul(y).mean()
-	}
-
-	y := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](3.).Slice()), Shape{3}), true)
+	//scc := func(out, y *Tensor) *Tensor {
+	//	// return out.mul(y).mean()
+	//}
+	//
+	//y := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](3.).Slice()), Shape{3}), true)
 
 	//zt.Mean(nil, false).Backward()
 	//zg := zt.grad.Data()
