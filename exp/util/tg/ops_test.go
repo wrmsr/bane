@@ -1,9 +1,14 @@
 package tg
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/dev/paths"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -88,10 +93,33 @@ func TestBobNet(t *testing.T) {
 
 	fmt.Println(zt.Data().Realize())
 
-	zt.Mean(nil, false).Backward()
+	//zt.Mean(nil, false).Backward()
+	//zg := zt.grad.Data()
+	//zgt := zg.Realize()
+	//fmt.Println(zgt)
+}
 
-	zg := zt.grad.Data()
+func TestBobNet2(t *testing.T) {
+	rj := func(n string) []byte {
+		p := filepath.Join(
+			paths.FindProjectRoot(),
+			fmt.Sprintf("../../geohot/tinygrad/%s.json", n),
+		)
 
-	zgt := zg.Realize()
-	fmt.Println(zgt)
+		return check.Must1(os.ReadFile(p))
+	}
+
+	rm := func(n string) [][]float32 {
+		b := rj(n)
+
+		var m [][]float32
+		check.Must(json.Unmarshal(b, &m))
+		return m
+	}
+
+	l1m := rm("l1")
+	l2m := rm("l2")
+
+	fmt.Println(len(l1m))
+	fmt.Println(len(l2m))
 }
