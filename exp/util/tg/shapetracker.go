@@ -1,6 +1,8 @@
 package tg
 
 import (
+	"fmt"
+
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/maps"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -22,6 +24,10 @@ type View struct {
 
 func NewView(shape Shape, strides Strides, offset Dim) View {
 	check.Equal(len(shape), len(strides))
+
+	if len(strides) > 1 && strides[0] < strides[1] {
+		fmt.Println(strides)
+	}
 
 	return View{
 		shape:   shape,

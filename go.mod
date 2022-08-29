@@ -20,7 +20,6 @@ require (
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde
 	golang.org/x/text v0.3.7
 	golang.org/x/tools v0.1.12
-	gonum.org/v1/gonum v0.11.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

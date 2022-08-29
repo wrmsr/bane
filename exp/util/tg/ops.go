@@ -1,8 +1,6 @@
 package tg
 
 import (
-	"fmt"
-
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
@@ -206,11 +204,11 @@ func realizeBinary(data *LazyBuffer) RealizedOp {
 
 func realizeMovement(data *LazyBuffer) RealizedOp {
 	realSrc := data.op.GetBuffers()[0].Realize()
-	x := realSrc
 	ops := slices.Reversed(data.op.GetOps())
-	fmt.Println(len(ops))
-	for _, o := range ops {
+	x := realSrc
+	for i, o := range ops {
 		x = x.MovementOp(o.op, o.arg)
+		_ = i
 	}
 	return RealizedOp{
 		data: x,

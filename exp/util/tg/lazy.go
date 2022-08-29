@@ -2,6 +2,9 @@ package tg
 
 import "C"
 import (
+	"fmt"
+	"strings"
+
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/maps"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -99,7 +102,13 @@ func (b *LazyBuffer) isLazy() {}
 func (b *LazyBuffer) Shape() Shape { return b.st.Shape() }
 
 func logOp(opType OpType, op []Op, ret *Buffer, inp []*Buffer) {
-
+	fmt.Printf(
+		"[%s] : %s -> %v\n",
+		strings.Join(slices.Map(Op.String, op), ", "),
+		strings.Join(slices.Map(func(b *Buffer) string { return fmt.Sprintf("%v", b.Shape()) }, inp), ", "),
+		ret.Shape(),
+	)
+	fmt.Println(ret.Nd())
 }
 
 func (b *LazyBuffer) Realize() *Buffer {
@@ -110,7 +119,13 @@ func (b *LazyBuffer) Realize() *Buffer {
 	ro := realize[b.ot](b)
 	b.realized = ro.data
 
-	// logOp(ro.ot, [x.op for x in getLazyOps(self.op)], ro.data, ro.srcs)
+	var ops []Op
+	b.op.ForEachOp(func(op *LazyOp) bool {
+		ops = append(ops, op.op)
+		return true
+	})
+
+	logOp(ro.ot, ops, ro.data, ro.srcs)
 
 	return b.realized
 }
@@ -176,6 +191,9 @@ func (b *LazyBuffer) MovementOp(op Op, arg any) *LazyBuffer {
 		},
 	)
 
+	fmt.Println(ret.st.views[0])
+	fmt.Println(ret.st.Contiguous())
+	fmt.Println()
 	if b.realized == nil && ret.st.Contiguous() {
 		root := ret.op.GetBuffers()[0]
 		if ret.st.Shape().Equals(root.Shape()) {

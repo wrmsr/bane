@@ -183,7 +183,10 @@ func (t *Tensor) Matmul(w *Tensor) *Tensor {
 	worder := slices.Join(bt.RangeTo(Dim(len(wsh)-2)).Slice(), []Dim{Dim(len(wsh) - 1), Dim(len(wsh) - 2)})
 	cx := t.Transpose(order).Reshape(Shape{bs / groups, groups * cin, -1, 1})
 	cw := w.Transpose(worder).Reshape(Shape{groups * cout, cin, 1, 1})
-	return cx.Conv2d(cw, nil, ConvOpts{Groups: groups}).Reshape(outShapeT).Transpose(order)
+	cx0 := cx.Conv2d(cw, nil, ConvOpts{Groups: groups})
+	cx1 := cx0.Reshape(outShapeT)
+	cx2 := cx1.Transpose(order)
+	return cx2
 }
 
 func (t *Tensor) Dot(w *Tensor) *Tensor {

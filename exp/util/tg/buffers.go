@@ -1,7 +1,7 @@
 package tg
 
 import (
-	"fmt"
+	"math"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
@@ -82,6 +82,20 @@ func (b *Buffer) UnaryOp(op Op) *Buffer {
 		}
 		return z
 
+	case ExpOp:
+		z := NewBuffer(b.shape)
+		for i, x := range b.s {
+			z.s[i] = float32(math.Exp(float64(x)))
+		}
+		return z
+
+	case LogOp:
+		z := NewBuffer(b.shape)
+		for i, x := range b.s {
+			z.s[i] = float32(math.Log(float64(x)))
+		}
+		return z
+
 	}
 	panic("nyi")
 }
@@ -139,10 +153,20 @@ func MakeConstBuffer(c float32, shape Shape) *Buffer {
 }
 
 func (b *Buffer) Expand(newShape Shape) *Buffer {
-	if b.shape.Dim() != 1 {
-		panic("nyi")
+	if b.shape.Dim() == 1 {
+		return MakeConstBuffer(b.s[0], newShape)
 	}
-	return MakeConstBuffer(b.s[0], newShape)
+	if len(b.shape) == 2 && len(newShape) == 2 && b.shape[0] == newShape[0] && b.shape[1] == 1 {
+		r := NewBuffer(newShape)
+		for i := Dim(0); i < b.shape[0]; i++ {
+			v := b.Get(i, 0)
+			for j := Dim(0); j < newShape[1]; j++ {
+				r.set(v, i, j)
+			}
+		}
+		return r
+	}
+	panic("nyi")
 }
 
 func (b *Buffer) Reshape(newShape Shape) *Buffer {
@@ -167,7 +191,6 @@ func (b *Buffer) Transpose(order []Dim) *Buffer {
 }
 
 func (b *Buffer) Permute(order []Dim) *Buffer {
-	fmt.Println(b.s)
 	return b.Transpose(order)
 }
 
@@ -339,7 +362,7 @@ func (b *Buffer) ProcessingOp(op Op, w *Buffer, arg any) *Buffer {
 	panic("nyi")
 }
 
-func (b *Buffer) Amax(axis int) *Buffer {
+func (b *Buffer) reduce(axis int, fn func(float32, bt.Optional[float32]) float32) *Buffer {
 	bnd := b.Nd()
 
 	mnsh := bnd.View().Shape().Mutate()
@@ -366,9 +389,7 @@ func (b *Buffer) Amax(axis int) *Buffer {
 			for j := nd.Dim(0); j < n; j++ {
 				sl[axis] = j
 				v := bnd.Get(sl...)
-				if !r.Present() || r.Value() < v {
-					r = bt.Just(v)
-				}
+				r = bt.Just(fn(v, r))
 			}
 			sl[axis] = 0
 			*c.At(sl...) = r.Value()
@@ -376,7 +397,16 @@ func (b *Buffer) Amax(axis int) *Buffer {
 	}
 	rec(0)
 
-	panic("nyi")
+	return BufferOfNd(c)
+}
+
+func (b *Buffer) Amax(axis int) *Buffer {
+	return b.reduce(axis, func(f float32, b bt.Optional[float32]) float32 {
+		if b.Present() && !(f > b.Value()) {
+			return b.Value()
+		}
+		return f
+	})
 }
 
 func (b *Buffer) ReduceOp(op Op, nsh Shape) *Buffer {
@@ -398,7 +428,11 @@ func (b *Buffer) ReduceOp(op Op, nsh Shape) *Buffer {
 	case MaxOp:
 		return b.Amax(check.Single(axis))
 
-	}
+	case SumOp:
+		return b.reduce(check.Single(axis), func(f float32, b bt.Optional[float32]) float32 {
+			return f + b.Or(0)
+		})
 
+	}
 	panic("nyi")
 }
