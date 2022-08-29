@@ -214,11 +214,11 @@ func TestBobNet(t *testing.T) {
 	sh := Shape{3, 3}
 
 	xt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](9.).Slice()), Shape{9}), true).Reshape(sh)
-	//l1t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice()), Shape{9}), true).Reshape(sh)
-	//l2t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](20., 29., 1.).Slice()), Shape{9}), true).Reshape(sh)
+	l1t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice()), Shape{9}), true).Reshape(sh)
+	l2t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](20., 29., 1.).Slice()), Shape{9}), true).Reshape(sh)
 
-	//zt := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
-	zt := xt.LogSoftmax()
+	zt := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
+	//zt := xt.Dot(l1t).Relu().Dot(l2t)
 	fmt.Println("====")
 
 	var rec func(any, string)

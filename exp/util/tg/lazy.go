@@ -194,12 +194,12 @@ func (b *LazyBuffer) MovementOp(op Op, arg any) *LazyBuffer {
 	fmt.Println(ret.st.views[0])
 	fmt.Println(ret.st.Contiguous())
 	fmt.Println()
-	if b.realized == nil && ret.st.Contiguous() {
-		root := ret.op.GetBuffers()[0]
-		if ret.st.Shape().Equals(root.Shape()) {
-			return root
-		}
-	}
+	//if b.realized == nil && ret.st.Contiguous() {
+	//	root := ret.op.GetBuffers()[0]
+	//	if ret.st.Shape().Equals(root.Shape()) {
+	//		return root
+	//	}
+	//}
 
 	return ret
 }
