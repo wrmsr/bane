@@ -5,8 +5,13 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"image"
+	"image/color"
+	"image/jpeg"
 	"io"
+	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 
@@ -141,6 +146,36 @@ func TestBobNet2(t *testing.T) {
 	fmt.Println(len(l2m))
 }
 
+//
+
+type Float32GrayscaleImage struct {
+	a nd.NdArray[float32]
+}
+
+var _ image.Image = Float32GrayscaleImage{}
+
+func (i Float32GrayscaleImage) ColorModel() color.Model {
+	return color.GrayModel
+}
+
+func (i Float32GrayscaleImage) Bounds() image.Rectangle {
+	return image.Rectangle{
+		Min: image.Point{
+			X: 0,
+			Y: 0,
+		},
+		Max: image.Point{
+			X: int(i.a.View().Shape().Get(1)),
+			Y: int(i.a.View().Shape().Get(0)),
+		},
+	}
+}
+
+func (i Float32GrayscaleImage) At(x, y int) color.Color {
+	v := i.a.Get(nd.Dim(y), nd.Dim(x))
+	return color.Gray{uint8(v)}
+}
+
 func TestMnistData(t *testing.T) {
 	/*
 		# In the labels file, the number of items is 32-bit big-endian integer at offset 4.
@@ -160,7 +195,20 @@ func TestMnistData(t *testing.T) {
 	b := check.Must1(io.ReadAll(gr))[0x10:]
 	fmt.Println(len(b))
 
-	ndb := nd.Maker[byte]{Data: b}.Make().Reshape(nd.ShapeOf(-1, 28*28))
+	ndb := nd.Maker[byte]{Data: b}.Make().Reshape(nd.ShapeOf(-1, 28, 28))
 	f := nd.Map(func(b byte) float32 { return float32(b) }, ndb)
-	fmt.Println(f.View())
+
+	i := Float32GrayscaleImage{f.Slice(0)}
+	wb := bytes.NewBuffer(nil)
+	check.Must(jpeg.Encode(wb, i, nil))
+
+	tf := check.Must1(ioutil.TempFile("", "foo"))
+	//check.Must1(os.CreateTemp("", "foo.jpg"))
+
+	_ = check.Must1(tf.Write(check.Must1(io.ReadAll(wb))))
+
+	nn := tf.Name() + ".jpg"
+	check.Must(os.Rename(tf.Name(), nn))
+
+	check.Must(exec.Command("open", nn).Run())
 }
