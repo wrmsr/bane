@@ -172,8 +172,6 @@ func (b *LazyBuffer) ReduceOp(op Op, newShape Shape) *LazyBuffer {
 	)
 }
 
-var numMoves = 0
-
 func (b *LazyBuffer) MovementOp(op Op, arg any) *LazyBuffer {
 	st := b.st.Clone()
 	st.MovementOp(op, arg)
