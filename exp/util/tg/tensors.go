@@ -158,6 +158,11 @@ func (t *Tensor) Transpose(order []Dim) *Tensor {
 	return t.Permute(order)
 }
 
+func (t *Tensor) Flatten(startDim int) *Tensor {
+	/*
+		return self.reshape(shape=tuple(list(self.shape[0:start_dim]) + [-1]))
+	*/
+}
 func (t *Tensor) Conv2d(weight *Tensor, bias *Tensor, opts ConvOpts) *Tensor {
 	ret := Apply(Conv2dFunc{co: opts}, []*Tensor{t, weight})
 	if bias != nil {

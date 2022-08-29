@@ -93,6 +93,21 @@ func TestBobNet(t *testing.T) {
 
 	fmt.Println(zt.Data().Realize())
 
+	// garbage
+
+	scc := func(out, y *Tensor) *Tensor {
+		num_classes := out.Shape()[len(out.Shape())-1]
+		yy := y.Flatten(0)
+		// y = np.zeros((YY.shape[0], num_classes), np.float32)
+		// # correct loss for NLL, torch NLL loss returns one per row
+		// y[range(y.shape[0]), YY] = -1.0 * num_classes
+		// y = y.reshape(list(Y.shape) + [num_classes])
+		// y = Tensor(y)
+		// return out.mul(y).mean()
+	}
+
+	y := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](3.).Slice()), Shape{3}), true)
+
 	//zt.Mean(nil, false).Backward()
 	//zg := zt.grad.Data()
 	//zgt := zg.Realize()
