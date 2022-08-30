@@ -203,6 +203,13 @@ func AsCons(v Value) (*Cons, bool) {
 	return r, ok || v == nil
 }
 
+func AsPair(car, cdr Value) *Cons {
+	return &Cons{
+		Car: car,
+		Cdr: cdr,
+	}
+}
+
 func AsString(v Value) string {
 	if v == nil {
 		return "()"
@@ -217,6 +224,19 @@ func MakeList(vs ...Value) *Cons {
 		AppendValue(&p, &q, v)
 	}
 	return p
+}
+
+func AsDisplay(v Value) string {
+	switch vv := v.(type) {
+	case nil:
+		return "()"
+	case Char:
+		return string(vv)
+	case String:
+		return string(vv)
+	default:
+		return v.String()
+	}
 }
 
 func AppendValue(p **Cons, q **Cons, v Value) {

@@ -10,11 +10,15 @@ import (
 
 func TestEvalSimple(t *testing.T) {
 	src := `
-(if (> (+ 1 2) 3) 4 3)
+(define (add1 x) (+ 1 x))
+(display (add1 2))
     `
 
-	prog := NewCompiler().Compile(check.Must1(NewParser(strings.NewReader(src)).Parse()))
+	p := check.Must1(NewParser(strings.NewReader(src)).Parse())
+
+	prog := NewCompiler().Compile(p)
 	fmt.Println(prog)
+
 	ret := Evaluate(addIntrinsics(NewScope(nil)), prog)
 	fmt.Println(ret)
 }

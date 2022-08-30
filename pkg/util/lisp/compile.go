@@ -64,12 +64,12 @@ func (co *Compiler) compileBlock(p *Program, v *Cons) {
 		co.compileValue(p, v.Car)
 
 		if v.Cdr != nil {
-			panic("nyi")
+			p.add(mkIns(OpDrop, nil))
 		}
 
 		var ok bool
 		if v, ok = AsCons(v.Cdr); !ok {
-			panic(fmt.Sprintf("block must be a proper list: %s", v))
+			panic(fmt.Errorf("block must be a proper list: %s", v))
 		}
 	}
 }
@@ -79,7 +79,7 @@ func (co Compiler) compileArgs(p *Program, v *Cons, n int) int {
 	for s := v; s != nil; {
 		vv, ok := AsCons(s.Cdr)
 		if !ok {
-			panic(fmt.Sprintf("list is not applicable: %s", v))
+			panic(fmt.Errorf("list is not applicable: %s", v))
 		}
 
 		co.compileValue(p, s.Car)
@@ -88,7 +88,7 @@ func (co Compiler) compileArgs(p *Program, v *Cons, n int) int {
 	}
 
 	if !(n < 0 || n == na) {
-		panic(fmt.Sprintf("expect %d arguments, got %d.", n, na))
+		panic(fmt.Errorf("expect %d arguments, got %d.", n, na))
 	}
 	return na
 }
@@ -127,6 +127,75 @@ func (co Compiler) compileCondition(p *Program, v *Cons) {
 	p.pin(j)
 }
 
+func (co *Compiler) compileDefine(p *Program, v *Cons) {
+	var name Atom
+	var decl *Cons
+
+	pp := v
+	ok := false
+
+	if pp, ok = v.Cdr.(*Cons); !ok {
+		panic("malformed define construct: " + v.String())
+	}
+	if name, ok = v.Car.(Atom); ok && pp.Cdr != nil {
+		panic("malformed define construct: " + v.String())
+	}
+
+	if ok {
+		co.compileValue(p, pp.Car)
+		p.add(mkIns(OpDefine, name))
+		return
+	}
+
+	if decl, ok = v.Car.(*Cons); !ok {
+		panic("malformed define construct: " + v.String())
+	}
+	if name, ok = decl.Car.(Atom); !ok {
+		panic("malformed define construct: " + v.String())
+	}
+	if decl, ok = AsCons(decl.Cdr); !ok {
+		panic("malformed define construct: " + v.String())
+	}
+
+	co.compileLambda(p, AsPair(decl, pp), name.String())
+	p.add(mkIns(OpDefine, name))
+}
+
+func (co *Compiler) compileLambda(p *Program, v *Cons, name string) {
+	var atom Atom
+	var decl *Cons
+	var proc *Cons
+	var args []string
+
+	pp := v
+	ok := true
+
+	if decl, ok = pp.Car.(*Cons); !ok {
+		panic("malformed proc construct: " + v.String())
+	}
+	if proc, ok = AsCons(pp.Cdr); !ok {
+		panic("malformed proc construct: " + v.String())
+	}
+
+	for q := decl; ok && q != nil; q, ok = AsCons(q.Cdr) {
+		if atom, ok = q.Car.(Atom); ok {
+			args = append(args, string(atom))
+		} else {
+			panic("malformed proc construct: " + v.String())
+		}
+	}
+
+	if !ok {
+		panic("malformed proc construct: " + v.String())
+	}
+
+	p.add(mkIns(OpLdProc, &Proc{
+		Args: args,
+		Name: name,
+		Code: co.Compile(AsPair(Atom("begin"), proc)),
+	}))
+}
+
 func (co *Compiler) compileList(p *Program, v *Cons) {
 	if v == nil {
 		p.add(mkIns(OpLdConst, nil))
@@ -142,7 +211,7 @@ func (co *Compiler) compileList(p *Program, v *Cons) {
 
 	vv, ok := AsCons(v.Cdr)
 	if !ok {
-		panic(fmt.Sprintf("not applicable: %s", v))
+		panic(fmt.Errorf("not applicable: %s", v))
 	}
 
 	switch at {
@@ -150,6 +219,8 @@ func (co *Compiler) compileList(p *Program, v *Cons) {
 		co.compileBlock(p, vv)
 	case "if":
 		co.compileCondition(p, vv)
+	case "define":
+		co.compileDefine(p, vv)
 	default:
 		na := co.compileArgs(p, v, -1)
 		p.add(mkIns(OpApply, AsValue(na)))

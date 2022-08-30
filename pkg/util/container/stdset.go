@@ -16,7 +16,7 @@ func NewStdSet[T comparable](it bt.Iterable[T]) StdSet[T] {
 	if it != nil {
 		m := make(map[T]struct{})
 		for it := it.Iterate(); it.HasNext(); {
-			s.m[it.Next()] = struct{}{}
+			m[it.Next()] = struct{}{}
 		}
 		s.m = m
 	}

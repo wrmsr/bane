@@ -14,6 +14,9 @@ const (
 	OpGoto
 	OpApply
 	OpReturn
+	OpDrop
+	OpDefine
+	OpLdProc
 )
 
 func (o Op) String() string {
@@ -30,6 +33,12 @@ func (o Op) String() string {
 		return "apply"
 	case OpReturn:
 		return "return"
+	case OpDrop:
+		return "drop"
+	case OpDefine:
+		return "define"
+	case OpLdProc:
+		return "ldproc"
 	}
 	panic("unreachable")
 }

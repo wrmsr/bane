@@ -27,6 +27,27 @@ func (sc *Scope) Set(key string, val Value) {
 	sc.defs[key] = val
 }
 
+func (sc *Scope) Merge(proc *Proc, vals []Value) {
+	argv := len(vals)
+	argc := len(proc.Args)
+
+	if argv != argc {
+		panic(fmt.Errorf("proc %s takes %d arguments, got %d", proc.Name, argc, argv))
+	}
+
+	for i, v := range proc.Args {
+		sc.Set(v, vals[i])
+	}
+}
+
+func (sc *Scope) Derive(proc *Proc, vals []Value) (ret *Scope) {
+	ret = new(Scope)
+	ret.parent = sc
+	ret.defs = make(map[string]Value, len(proc.Args))
+	ret.Merge(proc, vals)
+	return
+}
+
 //
 
 func stackRemove(st *[]Value, nb int) (v []Value) {
@@ -51,6 +72,14 @@ func stackPop(st *[]Value) (v Value) {
 
 	v, *st = (*st)[i], (*st)[:i]
 	return
+}
+
+func stackTop(st []Value) Value {
+	if nb := len(st); nb == 0 {
+		panic("stack underflow")
+	} else {
+		return st[nb-1]
+	}
 }
 
 func isTrue(v Value) bool {
@@ -119,6 +148,15 @@ func Evaluate(s *Scope, p Program) Value {
 				panic("unbalanced stack")
 			}
 			return st[0]
+
+		case OpDrop:
+			stackPop(&st)
+
+		case OpDefine:
+			s.Set(ins.arg.String(), stackTop(st))
+
+		case OpLdProc:
+			st = append(st, ins.arg.(*Proc).LoadWithScope(s))
 
 		default:
 			panic(fmt.Sprintf("invalid instruction: %s", ins))

@@ -66,6 +66,15 @@ var intrinsics = []*Intrinsic{
 			return Bool(reduceConvolution(args, NumberGt))
 		}
 	}},
+
+	{"display", func(args []Value) Value {
+		if len(args) != 1 && len(args) != 2 {
+			panic("display: proc requires 1 or 2 arguments")
+		}
+
+		fmt.Println(AsDisplay(args[0]))
+		return nil
+	}},
 }
 
 func addIntrinsics(sc *Scope) *Scope {
