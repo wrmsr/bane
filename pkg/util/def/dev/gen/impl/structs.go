@@ -50,7 +50,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 		fsName := gg.IdentOf(fmt.Sprintf("field_spec__%s__%s", sn, fs.Name()))
 
-		initStmts.Append(
+		fg.initStmts.Append(
 			gg.Blank{},
 
 			gg.ShortVarOf(
@@ -68,7 +68,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 			dflVds = append(dflVds,
 				gg.VarOf(dflName, fg.ti.importedType(fs.Type())))
 
-			initStmts.Append(
+			fg.initStmts.Append(
 				gg.Blank{},
 
 				gg.AssignOf(
