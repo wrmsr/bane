@@ -16,6 +16,9 @@ const (
 	OpApply
 	OpAsFalse
 	OpAsTrue
+	OpCar
+	OpCdr
+	OpCons
 	OpDefine
 	OpDrop
 	OpGoto
@@ -24,12 +27,16 @@ const (
 	OpLdProc
 	OpLdVar
 	OpReturn
+	OpSet
 )
 
 var opNames = map[Op]string{
 	OpApply:   "apply",
 	OpAsFalse: "asfalse",
 	OpAsTrue:  "astrue",
+	OpCar:     "car",
+	OpCdr:     "cdr",
+	OpCons:    "cons",
 	OpDefine:  "define",
 	OpDrop:    "drop",
 	OpGoto:    "goto",
@@ -38,6 +45,7 @@ var opNames = map[Op]string{
 	OpLdProc:  "ldproc",
 	OpLdVar:   "ldvar",
 	OpReturn:  "return",
+	OpSet:     "set",
 }
 
 func (o Op) String() string {

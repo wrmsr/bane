@@ -48,6 +48,35 @@ func (sc *Scope) Derive(proc *Proc, vals []Value) (ret *Scope) {
 	return
 }
 
+type valueRef struct {
+	refs *Scope
+	name string
+}
+
+func (r valueRef) update(v Value) {
+	if r.refs == nil {
+		panic("undefined reference: " + r.name)
+	} else {
+		r.refs.defs[r.name] = v
+	}
+}
+
+func (sc *Scope) resolve(name string) valueRef {
+	var ok bool
+	var nsc *Scope
+
+	for nsc = sc; nsc != nil; nsc = nsc.parent {
+		if _, ok = nsc.defs[name]; ok {
+			break
+		}
+	}
+
+	return valueRef{
+		refs: nsc,
+		name: name,
+	}
+}
+
 //
 
 func stackRemove(st *[]Value, nb int) (v []Value) {
@@ -80,6 +109,10 @@ func stackTop(st []Value) Value {
 	} else {
 		return st[nb-1]
 	}
+}
+
+func stackSub(st []Value, vv Value) {
+	st[len(st)-1] = vv
 }
 
 func isTrue(v Value) bool {
@@ -135,6 +168,25 @@ func Evaluate(s *Scope, p Program) Value {
 				panic("fatal: branch out of scope: " + ins.String())
 			}
 
+		case OpCar:
+			if r, ok := stackTop(st).(*Cons); ok {
+				stackSub(st, r.Car)
+			} else {
+				panic("eval: invalid argument type for car: " + AsString(stackTop(st)))
+			}
+
+		case OpCdr:
+			if r, ok := stackTop(st).(*Cons); ok {
+				stackSub(st, r.Cdr)
+			} else {
+				panic("eval: invalid argument type for cdr: " + AsString(stackTop(st)))
+			}
+
+		case OpCons:
+			cdr := stackPop(&st)
+			car := stackTop(st)
+			stackSub(st, AsPair(car, cdr))
+
 		case OpDefine:
 			s.Set(ins.arg.String(), stackTop(st))
 
@@ -171,6 +223,9 @@ func Evaluate(s *Scope, p Program) Value {
 				panic("unbalanced stack")
 			}
 			return st[0]
+
+		case OpSet:
+			s.resolve(string(ins.arg.(Atom))).update(stackTop(st))
 
 		default:
 			panic(fmt.Errorf("invalid instruction: %s", ins))

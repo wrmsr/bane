@@ -3,9 +3,16 @@ package lisp
 import (
 	"fmt"
 	"strings"
-
-	fnu "github.com/wrmsr/bane/pkg/util/funcs"
+	"sync/atomic"
 )
+
+//
+
+var _nextId int64
+
+func nextId() int64 {
+	return atomic.AddInt64(&_nextId, 1)
+}
 
 //
 
@@ -179,20 +186,7 @@ func (co *Compiler) compileLambda(p *Program, v *Cons, name string) {
 	}))
 }
 
-var compilerIntrinsicMap map[string]func(*Compiler, *Program, *Cons)
-
-func init() {
-	compilerIntrinsicMap = map[string]func(*Compiler, *Program, *Cons){
-		"and":    fnu.BindR3x1x0((*Compiler).compileShortCircuit, conj),
-		"begin":  (*Compiler).compileBlock,
-		"define": (*Compiler).compileDefine,
-		"if":     (*Compiler).compileCondition,
-		"or":     fnu.BindR3x1x0((*Compiler).compileShortCircuit, disj),
-	}
-}
-
 func (co *Compiler) compileList(p *Program, v *Cons) {
-
 	if v == nil {
 		p.add(mkIns(OpLdConst, nil))
 		return
@@ -210,13 +204,77 @@ func (co *Compiler) compileList(p *Program, v *Cons) {
 		panic(fmt.Errorf("not applicable: %s", v))
 	}
 
-	if cfn, ok := compilerIntrinsicMap[at.String()]; ok {
-		cfn(co, p, vv)
-		return
+	switch at {
+
+	case "begin":
+		co.compileBlock(p, vv)
+	case "define":
+		co.compileDefine(p, vv)
+	case "if":
+		co.compileCondition(p, vv)
+	case "quote":
+		co.compileQuote(p, vv)
+	case "set!":
+		co.compileSet(p, vv)
+
+	case "and":
+		co.compileShortCircuit(p, vv, conj)
+	case "or":
+		co.compileShortCircuit(p, vv, disj)
+
+	case "lambda":
+		co.compileLambda(p, vv, fmt.Sprintf("#[lambda-%d]", nextId()))
+
+	case "car":
+		co.compileArgs(p, vv, 1)
+		p.add(mkIns(OpCar, nil))
+	case "cdr":
+		co.compileArgs(p, vv, 1)
+		p.add(mkIns(OpCdr, nil))
+	case "cons":
+		co.compileArgs(p, vv, 2)
+		p.add(mkIns(OpCons, nil))
+
+	case "do":
+		co.compileList(p, desugarDo(vv))
+
+	case "let":
+		co.compileList(p, desugarLet(vv, let))
+	case "let*":
+		co.compileList(p, desugarLet(vv, letStar))
+	case "letrec":
+		co.compileList(p, desugarLet(vv, letRec))
+
+	default:
+		na := co.compileArgs(p, v, -1)
+		p.add(mkIns(OpApply, AsValue(na)))
+	}
+}
+
+func (co *Compiler) compileQuote(p *Program, v *Cons) {
+	if v == nil || v.Cdr != nil {
+		panic("`quote` takes exact 1 argument: " + v.String())
+	}
+	p.add(mkIns(OpLdConst, v.Car))
+}
+
+func (co *Compiler) compileSet(p *Program, v *Cons) {
+	var ok bool
+	var sn Atom
+	var vv *Cons
+
+	if sn, ok = v.Car.(Atom); !ok {
+		panic("malformed set! construct: " + v.String())
+	}
+	if vv, ok = v.Cdr.(*Cons); !ok {
+		panic("malformed set! construct: " + v.String())
+	}
+	if vv.Cdr != nil {
+		panic("malformed set! construct: " + v.String())
 	}
 
-	na := co.compileArgs(p, v, -1)
-	p.add(mkIns(OpApply, AsValue(na)))
+	co.compileValue(p, vv.Car)
+	p.add(mkIns(OpSet, sn))
 }
 
 type relKind int8
