@@ -40,40 +40,6 @@ func NewCompiler() *Compiler {
 	return &Compiler{}
 }
 
-func (co *Compiler) compileValue(p *Program, v Value) {
-	if v.IsIdentity() {
-		p.add(mkIns(OpLdConst, v))
-		return
-	}
-
-	if at, ok := v.(Atom); ok {
-		p.add(mkIns(OpLdVar, at))
-		return
-	}
-
-	if sl, ok := AsCons(v); ok {
-		co.compileList(p, sl)
-		return
-	}
-
-	panic("invalid value type")
-}
-
-func (co *Compiler) compileBlock(p *Program, v *Cons) {
-	for v != nil {
-		co.compileValue(p, v.Car)
-
-		if v.Cdr != nil {
-			p.add(mkIns(OpDrop, nil))
-		}
-
-		var ok bool
-		if v, ok = AsCons(v.Cdr); !ok {
-			panic(fmt.Errorf("block must be a proper list: %s", v))
-		}
-	}
-}
-
 func (co Compiler) compileArgs(p *Program, v *Cons, n int) int {
 	na := 0
 	for s := v; s != nil; {
@@ -91,6 +57,21 @@ func (co Compiler) compileArgs(p *Program, v *Cons, n int) int {
 		panic(fmt.Errorf("expect %d arguments, got %d.", n, na))
 	}
 	return na
+}
+
+func (co *Compiler) compileBlock(p *Program, v *Cons) {
+	for v != nil {
+		co.compileValue(p, v.Car)
+
+		if v.Cdr != nil {
+			p.add(mkIns(OpDrop, nil))
+		}
+
+		var ok bool
+		if v, ok = AsCons(v.Cdr); !ok {
+			panic(fmt.Errorf("block must be a proper list: %s", v))
+		}
+	}
 }
 
 func (co Compiler) compileCondition(p *Program, v *Cons) {
@@ -225,6 +206,25 @@ func (co *Compiler) compileList(p *Program, v *Cons) {
 		na := co.compileArgs(p, v, -1)
 		p.add(mkIns(OpApply, AsValue(na)))
 	}
+}
+
+func (co *Compiler) compileValue(p *Program, v Value) {
+	if v.IsIdentity() {
+		p.add(mkIns(OpLdConst, v))
+		return
+	}
+
+	if at, ok := v.(Atom); ok {
+		p.add(mkIns(OpLdVar, at))
+		return
+	}
+
+	if sl, ok := AsCons(v); ok {
+		co.compileList(p, sl)
+		return
+	}
+
+	panic("invalid value type")
 }
 
 func (co *Compiler) Compile(src *Cons) (p Program) {

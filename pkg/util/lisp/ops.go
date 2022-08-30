@@ -1,6 +1,10 @@
 package lisp
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/wrmsr/bane/pkg/util/check"
+)
 
 //
 
@@ -8,39 +12,34 @@ type Op int8
 
 const (
 	OpInvalid Op = iota
-	OpLdConst
-	OpLdVar
-	OpIfFalse
-	OpGoto
+
 	OpApply
-	OpReturn
-	OpDrop
 	OpDefine
+	OpDrop
+	OpGoto
+	OpIfFalse
+	OpLdConst
 	OpLdProc
+	OpLdVar
+	OpReturn
 )
 
+var opNames = map[Op]string{
+	OpApply:   "apply",
+	OpDefine:  "define",
+	OpDrop:    "drop",
+	OpGoto:    "goto",
+	OpIfFalse: "iffalse",
+	OpLdConst: "ldconst",
+	OpLdProc:  "ldproc",
+	OpLdVar:   "ldvar",
+	OpReturn:  "return",
+}
+
 func (o Op) String() string {
-	switch o {
-	case OpLdConst:
-		return "ldconst"
-	case OpLdVar:
-		return "ldvar"
-	case OpIfFalse:
-		return "iffalse"
-	case OpGoto:
-		return "goto"
-	case OpApply:
-		return "apply"
-	case OpReturn:
-		return "return"
-	case OpDrop:
-		return "drop"
-	case OpDefine:
-		return "define"
-	case OpLdProc:
-		return "ldproc"
-	}
-	panic("unreachable")
+	s, ok := opNames[o]
+	check.Ok(ok)
+	return s
 }
 
 //

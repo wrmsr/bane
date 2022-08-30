@@ -27,6 +27,7 @@ func (k NumKind) Coerce(vt NumKind) NumKind {
 
 type Number interface {
 	Value
+
 	Kind() NumKind
 	AsInt() Int
 	AsFloat() Float
@@ -37,7 +38,7 @@ func AsNumber(v Value) Number {
 	if r, ok := v.(Number); ok {
 		return r
 	}
-	panic(fmt.Sprintf("object is not a number: %s", v))
+	panic(fmt.Errorf("object is not a number: %s", v))
 }
 
 func AsNumbers(v1 Value, v2 Value) (Number, Number, NumKind) {

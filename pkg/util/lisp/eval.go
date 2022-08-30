@@ -111,37 +111,46 @@ func Evaluate(s *Scope, p Program) Value {
 		ins := p.insns[pc]
 		switch pc++; ins.op {
 
-		case OpLdConst:
-			st = append(st, ins.arg.(Value))
-
-		case OpLdVar:
-			vv, ok := s.Get(string(ins.arg.(Atom)))
-			if !ok {
-				panic(fmt.Sprintf("undefined reference: %s", ins.arg))
-			}
-			st = append(st, vv)
-
-		case OpIfFalse:
-			if !isTrue(stackPop(&st)) {
-				if pc = int(ins.arg.(Int)); pc < 0 || pc >= len(p.insns) {
-					panic(fmt.Sprintf("branch out of scope: %s", ins.arg))
-				}
-			}
-
-		case OpGoto:
-			if pc = int(ins.arg.(Int)); pc < 0 || pc >= len(p.insns) {
-				panic(fmt.Sprintf("branch out of scope: %s", ins.arg))
-			}
-
 		case OpApply:
 			nb := int(ins.arg.(Int))
 			vv := stackRemove(&st, nb)
 
 			fn, ok := vv[0].(Callable)
 			if !ok {
-				panic(fmt.Sprintf("object is not applicable: %s", AsString(vv[0])))
+				panic(fmt.Errorf("object is not applicable: %s", AsString(vv[0])))
 			}
 			st = append(st, fn.Call(vv[1:]))
+
+		case OpDefine:
+			s.Set(ins.arg.String(), stackTop(st))
+
+		case OpDrop:
+			stackPop(&st)
+
+		case OpGoto:
+			if pc = int(ins.arg.(Int)); pc < 0 || pc >= len(p.insns) {
+				panic(fmt.Errorf("branch out of scope: %s", ins.arg))
+			}
+
+		case OpIfFalse:
+			if !isTrue(stackPop(&st)) {
+				if pc = int(ins.arg.(Int)); pc < 0 || pc >= len(p.insns) {
+					panic(fmt.Errorf("branch out of scope: %s", ins.arg))
+				}
+			}
+
+		case OpLdConst:
+			st = append(st, ins.arg.(Value))
+
+		case OpLdProc:
+			st = append(st, ins.arg.(*Proc).LoadWithScope(s))
+
+		case OpLdVar:
+			vv, ok := s.Get(string(ins.arg.(Atom)))
+			if !ok {
+				panic(fmt.Errorf("undefined reference: %s", ins.arg))
+			}
+			st = append(st, vv)
 
 		case OpReturn:
 			if len(st) != 1 {
@@ -149,19 +158,10 @@ func Evaluate(s *Scope, p Program) Value {
 			}
 			return st[0]
 
-		case OpDrop:
-			stackPop(&st)
-
-		case OpDefine:
-			s.Set(ins.arg.String(), stackTop(st))
-
-		case OpLdProc:
-			st = append(st, ins.arg.(*Proc).LoadWithScope(s))
-
 		default:
-			panic(fmt.Sprintf("invalid instruction: %s", ins))
+			panic(fmt.Errorf("invalid instruction: %s", ins))
 		}
 	}
 
-	panic(fmt.Sprintf("program not returned properly:\n%s", p))
+	panic(fmt.Errorf("program not returned properly:\n%s", p))
 }

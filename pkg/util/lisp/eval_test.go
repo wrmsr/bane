@@ -10,8 +10,9 @@ import (
 
 func TestEvalSimple(t *testing.T) {
 	src := `
-(define (add1 x) (+ 1 x))
-(display (add1 2))
+(define y 2)
+(define (addy x) (+ y x))
+(display (addy 2))
     `
 
 	p := check.Must1(NewParser(strings.NewReader(src)).Parse())
@@ -19,6 +20,5 @@ func TestEvalSimple(t *testing.T) {
 	prog := NewCompiler().Compile(p)
 	fmt.Println(prog)
 
-	ret := Evaluate(addIntrinsics(NewScope(nil)), prog)
-	fmt.Println(ret)
+	Evaluate(addIntrinsics(NewScope(nil)), prog)
 }
