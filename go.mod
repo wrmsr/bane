@@ -43,6 +43,6 @@ require (
 	github.com/jackc/pgtype v1.12.0 // indirect
 	github.com/jackc/puddle v1.3.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	golang.org/x/crypto v0.0.0-20220826181053-bd7e27e6170d // indirect
-	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
+	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
+	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 )
