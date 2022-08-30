@@ -89,7 +89,7 @@ func (pa *Parser) parseSimple() Value {
 	} else if cv, err := strconv.ParseComplex(val, 128); err == nil {
 		return Complex(cv)
 	} else {
-		return Atom(internedStrings.Intern(val))
+		return Atom(internedStrings.Get(val))
 	}
 }
 

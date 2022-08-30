@@ -12,7 +12,15 @@ func Intern(ss ...string) Interner {
 	return Interner{m}
 }
 
-func (i Interner) Intern(s string) string {
+func (i Interner) Add(s string) string {
+	if s, ok := i.m[s]; ok {
+		return s
+	}
+	i.m[s] = s
+	return s
+}
+
+func (i Interner) Get(s string) string {
 	if s, ok := i.m[s]; ok {
 		return s
 	}

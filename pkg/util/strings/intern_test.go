@@ -14,12 +14,12 @@ func TestIntern(t *testing.T) {
 	mk := func() string { return p + "!" }
 	trn := Intern(mk())
 
-	tu.AssertEqual(t, trn.Intern(mk()), mk())
+	tu.AssertEqual(t, trn.Get(mk()), mk())
 
 	ct := 1_000_000
 	a := make([]string, ct)
 	for i := range a {
-		a[i] = trn.Intern(mk())
+		a[i] = trn.Get(mk())
 		//a[i] = mk()
 	}
 }
