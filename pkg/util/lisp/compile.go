@@ -3,6 +3,8 @@ package lisp
 import (
 	"fmt"
 	"strings"
+
+	fnu "github.com/wrmsr/bane/pkg/util/funcs"
 )
 
 //
@@ -40,7 +42,7 @@ func NewCompiler() *Compiler {
 	return &Compiler{}
 }
 
-func (co Compiler) compileArgs(p *Program, v *Cons, n int) int {
+func (co *Compiler) compileArgs(p *Program, v *Cons, n int) int {
 	na := 0
 	for s := v; s != nil; {
 		vv, ok := AsCons(s.Cdr)
@@ -54,7 +56,7 @@ func (co Compiler) compileArgs(p *Program, v *Cons, n int) int {
 	}
 
 	if !(n < 0 || n == na) {
-		panic(fmt.Errorf("expect %d arguments, got %d.", n, na))
+		panic(fmt.Errorf("expect %d arguments, got %d", n, na))
 	}
 	return na
 }
@@ -74,7 +76,7 @@ func (co *Compiler) compileBlock(p *Program, v *Cons) {
 	}
 }
 
-func (co Compiler) compileCondition(p *Program, v *Cons) {
+func (co *Compiler) compileCondition(p *Program, v *Cons) {
 	var ok bool
 	var al *Cons
 	var pp *Cons
@@ -177,7 +179,20 @@ func (co *Compiler) compileLambda(p *Program, v *Cons, name string) {
 	}))
 }
 
+var compilerIntrinsicMap map[string]func(*Compiler, *Program, *Cons)
+
+func init() {
+	compilerIntrinsicMap = map[string]func(*Compiler, *Program, *Cons){
+		"and":    fnu.BindR3x1x0((*Compiler).compileShortCircuit, conj),
+		"begin":  (*Compiler).compileBlock,
+		"define": (*Compiler).compileDefine,
+		"if":     (*Compiler).compileCondition,
+		"or":     fnu.BindR3x1x0((*Compiler).compileShortCircuit, disj),
+	}
+}
+
 func (co *Compiler) compileList(p *Program, v *Cons) {
+
 	if v == nil {
 		p.add(mkIns(OpLdConst, nil))
 		return
@@ -195,16 +210,57 @@ func (co *Compiler) compileList(p *Program, v *Cons) {
 		panic(fmt.Errorf("not applicable: %s", v))
 	}
 
-	switch at {
-	case "begin":
-		co.compileBlock(p, vv)
-	case "if":
-		co.compileCondition(p, vv)
-	case "define":
-		co.compileDefine(p, vv)
-	default:
-		na := co.compileArgs(p, v, -1)
-		p.add(mkIns(OpApply, AsValue(na)))
+	if cfn, ok := compilerIntrinsicMap[at.String()]; ok {
+		cfn(co, p, vv)
+		return
+	}
+
+	na := co.compileArgs(p, v, -1)
+	p.add(mkIns(OpApply, AsValue(na)))
+}
+
+type relKind int8
+
+const (
+	conj relKind = iota
+	disj
+)
+
+func (co *Compiler) compileShortCircuit(p *Program, v *Cons, kind relKind) {
+	var ok bool
+	var pp *Cons
+	var br []int
+
+	if v == nil {
+		panic("empty condition")
+	}
+
+	co.compileValue(p, v.Car)
+	pp, ok = AsCons(v.Cdr)
+
+	for ok && pp != nil {
+		car := pp.Car
+		cdr := pp.Cdr
+
+		switch br = append(br, p.pc()); kind {
+		case conj:
+			p.add(mkIns(OpAsTrue, nil))
+		case disj:
+			p.add(mkIns(OpAsFalse, nil))
+		default:
+			panic("invalid relationship kind")
+		}
+
+		pp, ok = AsCons(cdr)
+		co.compileValue(p, car)
+	}
+
+	if !ok {
+		panic("malformed short-circuit construct: " + v.String())
+	}
+
+	for _, pc := range br {
+		p.pin(pc)
 	}
 }
 

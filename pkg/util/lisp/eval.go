@@ -121,6 +121,20 @@ func Evaluate(s *Scope, p Program) Value {
 			}
 			st = append(st, fn.Call(vv[1:]))
 
+		case OpAsFalse:
+			if !isTrue(stackTop(st)) {
+				stackPop(&st)
+			} else if pc = int(AsNumber(ins.arg).AsInt()); pc < 0 || pc >= len(p.insns) {
+				panic("fatal: branch out of scope: " + ins.String())
+			}
+
+		case OpAsTrue:
+			if isTrue(stackTop(st)) {
+				stackPop(&st)
+			} else if pc = int(AsNumber(ins.arg).AsInt()); pc < 0 || pc >= len(p.insns) {
+				panic("fatal: branch out of scope: " + ins.String())
+			}
+
 		case OpDefine:
 			s.Set(ins.arg.String(), stackTop(st))
 

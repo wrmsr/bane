@@ -14,6 +14,8 @@ const (
 	OpInvalid Op = iota
 
 	OpApply
+	OpAsFalse
+	OpAsTrue
 	OpDefine
 	OpDrop
 	OpGoto
@@ -26,6 +28,8 @@ const (
 
 var opNames = map[Op]string{
 	OpApply:   "apply",
+	OpAsFalse: "asfalse",
+	OpAsTrue:  "astrue",
 	OpDefine:  "define",
 	OpDrop:    "drop",
 	OpGoto:    "goto",

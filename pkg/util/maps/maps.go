@@ -79,6 +79,13 @@ func ComputeDefault[K comparable, V any](m map[K]V, k K, d func() V) V {
 	return v
 }
 
+func Update[K comparable, V any](dst, src map[K]V) map[K]V {
+	for k, v := range src {
+		dst[k] = v
+	}
+	return dst
+}
+
 //
 
 func Clone[K comparable, V any](m map[K]V) map[K]V {
