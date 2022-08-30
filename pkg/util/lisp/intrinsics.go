@@ -1,6 +1,10 @@
 package lisp
 
-import "fmt"
+import (
+	"fmt"
+
+	fnu "github.com/wrmsr/bane/pkg/util/funcs"
+)
 
 //
 
@@ -27,45 +31,44 @@ func (it *Intrinsic) IsIdentity() bool {
 
 //
 
+func intrinsicNumBinOp(fn func(Value, Value) Value, args []Value) Value {
+	switch len(args) {
+	case 0:
+		return Int(0)
+	case 1:
+		return AsNumber(args[0])
+	case 2:
+		return fn(args[0], args[1])
+	default:
+		panic("nyi")
+	}
+}
+
+func intrinsicBoolReduce(fn func(Value, Value) bool, args []Value) Value {
+	switch len(args) {
+	case 0:
+		fallthrough
+	case 1:
+		return Bool(true)
+	case 2:
+		return Bool(fn(args[0], args[1]))
+	default:
+		return Bool(reduceConvolution(args, fn))
+	}
+}
+
 var intrinsics = []*Intrinsic{
-	{"+", func(args []Value) Value {
-		switch len(args) {
-		case 0:
-			return Int(0)
-		case 1:
-			return AsNumber(args[0])
-		case 2:
-			return NumberAdd(args[0], args[1])
-		default:
-			panic("nyi")
-		}
-	}},
+	{"+", fnu.Bind1x1x1(intrinsicNumBinOp, NumberAdd)},
+	{"-", fnu.Bind1x1x1(intrinsicNumBinOp, NumberSub)},
+	{"*", fnu.Bind1x1x1(intrinsicNumBinOp, NumberMul)},
+	{"/", fnu.Bind1x1x1(intrinsicNumBinOp, NumberDiv)},
 
-	{"<", func(args []Value) Value {
-		switch len(args) {
-		case 0:
-			fallthrough
-		case 1:
-			return Bool(true)
-		case 2:
-			return Bool(NumberLt(args[0], args[1]))
-		default:
-			return Bool(reduceConvolution(args, NumberLt))
-		}
-	}},
-
-	{">", func(args []Value) Value {
-		switch len(args) {
-		case 0:
-			fallthrough
-		case 1:
-			return Bool(true)
-		case 2:
-			return Bool(NumberGt(args[0], args[1]))
-		default:
-			return Bool(reduceConvolution(args, NumberGt))
-		}
-	}},
+	{"==", fnu.Bind1x1x1(intrinsicBoolReduce, NumberEq)},
+	{"!=", fnu.Bind1x1x1(intrinsicBoolReduce, NumberNe)},
+	{"<", fnu.Bind1x1x1(intrinsicBoolReduce, NumberLt)},
+	{"<=", fnu.Bind1x1x1(intrinsicBoolReduce, NumberLe)},
+	{">", fnu.Bind1x1x1(intrinsicBoolReduce, NumberGt)},
+	{">=", fnu.Bind1x1x1(intrinsicBoolReduce, NumberGe)},
 
 	{"display", func(args []Value) Value {
 		if len(args) != 1 && len(args) != 2 {

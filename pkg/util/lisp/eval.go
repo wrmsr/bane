@@ -2,119 +2,6 @@ package lisp
 
 import "fmt"
 
-//
-
-type Scope struct {
-	parent *Scope
-	defs   map[string]Value
-}
-
-func NewScope(parent *Scope) *Scope {
-	return &Scope{
-		parent: parent,
-		defs:   make(map[string]Value),
-	}
-}
-
-func (sc *Scope) Get(key string) (v Value, ok bool) {
-	for p := sc; !ok && p != nil; p = p.parent {
-		v, ok = p.defs[key]
-	}
-	return
-}
-
-func (sc *Scope) Set(key string, val Value) {
-	sc.defs[key] = val
-}
-
-func (sc *Scope) Merge(proc *Proc, vals []Value) {
-	argv := len(vals)
-	argc := len(proc.Args)
-
-	if argv != argc {
-		panic(fmt.Errorf("proc %s takes %d arguments, got %d", proc.Name, argc, argv))
-	}
-
-	for i, v := range proc.Args {
-		sc.Set(v, vals[i])
-	}
-}
-
-func (sc *Scope) Derive(proc *Proc, vals []Value) (ret *Scope) {
-	ret = new(Scope)
-	ret.parent = sc
-	ret.defs = make(map[string]Value, len(proc.Args))
-	ret.Merge(proc, vals)
-	return
-}
-
-type valueRef struct {
-	refs *Scope
-	name string
-}
-
-func (r valueRef) update(v Value) {
-	if r.refs == nil {
-		panic("undefined reference: " + r.name)
-	} else {
-		r.refs.defs[r.name] = v
-	}
-}
-
-func (sc *Scope) resolve(name string) valueRef {
-	var ok bool
-	var nsc *Scope
-
-	for nsc = sc; nsc != nil; nsc = nsc.parent {
-		if _, ok = nsc.defs[name]; ok {
-			break
-		}
-	}
-
-	return valueRef{
-		refs: nsc,
-		name: name,
-	}
-}
-
-//
-
-func stackRemove(st *[]Value, nb int) (v []Value) {
-	if nb == 0 {
-		panic("taking nothing")
-	}
-
-	i := len(*st) - nb
-	if i < 0 {
-		panic("stack underflow")
-	}
-
-	v, *st = (*st)[i:], (*st)[:i]
-	return
-}
-
-func stackPop(st *[]Value) (v Value) {
-	i := len(*st) - 1
-	if i < 0 {
-		panic("stack underflow")
-	}
-
-	v, *st = (*st)[i], (*st)[:i]
-	return
-}
-
-func stackTop(st []Value) Value {
-	if nb := len(st); nb == 0 {
-		panic("stack underflow")
-	} else {
-		return st[nb-1]
-	}
-}
-
-func stackSub(st []Value, vv Value) {
-	st[len(st)-1] = vv
-}
-
 func isTrue(v Value) bool {
 	switch vv := v.(type) {
 	case nil:
@@ -138,7 +25,7 @@ func isTrue(v Value) bool {
 
 func Evaluate(s *Scope, p Program) Value {
 	pc := 0
-	st := make([]Value, 0, 16)
+	st := make(stack, 0, 16)
 
 	for pc < len(p.insns) {
 		ins := p.insns[pc]
@@ -146,7 +33,7 @@ func Evaluate(s *Scope, p Program) Value {
 
 		case OpApply:
 			nb := int(ins.arg.(Int))
-			vv := stackRemove(&st, nb)
+			vv := st.remove(nb)
 
 			fn, ok := vv[0].(Callable)
 			if !ok {
@@ -155,43 +42,43 @@ func Evaluate(s *Scope, p Program) Value {
 			st = append(st, fn.Call(vv[1:]))
 
 		case OpAsFalse:
-			if !isTrue(stackTop(st)) {
-				stackPop(&st)
+			if !isTrue(st.top()) {
+				st.pop()
 			} else if pc = int(AsNumber(ins.arg).AsInt()); pc < 0 || pc >= len(p.insns) {
-				panic("fatal: branch out of scope: " + ins.String())
+				panic("branch out of scope: " + ins.String())
 			}
 
 		case OpAsTrue:
-			if isTrue(stackTop(st)) {
-				stackPop(&st)
+			if isTrue(st.top()) {
+				st.pop()
 			} else if pc = int(AsNumber(ins.arg).AsInt()); pc < 0 || pc >= len(p.insns) {
-				panic("fatal: branch out of scope: " + ins.String())
+				panic("branch out of scope: " + ins.String())
 			}
 
 		case OpCar:
-			if r, ok := stackTop(st).(*Cons); ok {
-				stackSub(st, r.Car)
+			if r, ok := st.top().(*Cons); ok {
+				st.sub(r.Car)
 			} else {
-				panic("eval: invalid argument type for car: " + AsString(stackTop(st)))
+				panic("invalid argument type for car: " + AsString(st.top()))
 			}
 
 		case OpCdr:
-			if r, ok := stackTop(st).(*Cons); ok {
-				stackSub(st, r.Cdr)
+			if r, ok := st.top().(*Cons); ok {
+				st.sub(r.Cdr)
 			} else {
-				panic("eval: invalid argument type for cdr: " + AsString(stackTop(st)))
+				panic("invalid argument type for cdr: " + AsString(st.top()))
 			}
 
 		case OpCons:
-			cdr := stackPop(&st)
-			car := stackTop(st)
-			stackSub(st, AsPair(car, cdr))
+			cdr := st.pop()
+			car := st.top()
+			st.sub(AsPair(car, cdr))
 
 		case OpDefine:
-			s.Set(ins.arg.String(), stackTop(st))
+			s.Set(ins.arg.String(), st.top())
 
 		case OpDrop:
-			stackPop(&st)
+			st.pop()
 
 		case OpGoto:
 			if pc = int(ins.arg.(Int)); pc < 0 || pc >= len(p.insns) {
@@ -199,14 +86,14 @@ func Evaluate(s *Scope, p Program) Value {
 			}
 
 		case OpIfFalse:
-			if !isTrue(stackPop(&st)) {
+			if !isTrue(st.pop()) {
 				if pc = int(ins.arg.(Int)); pc < 0 || pc >= len(p.insns) {
 					panic(fmt.Errorf("branch out of scope: %s", ins.arg))
 				}
 			}
 
 		case OpLdConst:
-			st = append(st, ins.arg.(Value))
+			st = append(st, ins.arg)
 
 		case OpLdProc:
 			st = append(st, ins.arg.(*Proc).LoadWithScope(s))
@@ -225,7 +112,7 @@ func Evaluate(s *Scope, p Program) Value {
 			return st[0]
 
 		case OpSet:
-			s.resolve(string(ins.arg.(Atom))).update(stackTop(st))
+			s.resolve(string(ins.arg.(Atom))).update(st.top())
 
 		default:
 			panic(fmt.Errorf("invalid instruction: %s", ins))
