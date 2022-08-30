@@ -258,7 +258,17 @@ func TestMnistData(t *testing.T) {
 	fmt.Println(len(b))
 
 	ndb := nd.Maker[byte]{Data: b}.Make().Reshape(nd.ShapeOf(-1, 28, 28))
-	f := nd.Map(func(b byte) float32 { return float32(b) }, ndb)
+
+	//f := nd.Map(func(b byte) float32 { return float32(b) }, ndb)
+
+	f := func() nd.NdArray[float32] {
+		t := nd.New[float32](ndb.View().Shape())
+		s := t.Data()
+		for i, v := range ndb.Data() {
+			s[i] = float32(v)
+		}
+		return t
+	}()
 
 	i := Float32GrayscaleImage{f.Slice(0)}
 	wb := bytes.NewBuffer(nil)
