@@ -31,8 +31,8 @@ func TestOps1(t *testing.T) {
 		{9, 1},
 		{3, 3},
 	} {
-		xt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](9.).Slice()), sh), true)
-		yt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice()), sh), true)
+		xt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](9.).Slice())), true)
+		yt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice())), true)
 
 		zt := xt.Add(yt)
 		fmt.Println(zt)
@@ -55,7 +55,7 @@ func TestOpsRelu(t *testing.T) {
 	} {
 		xs := BufferOf(sh, slices.Map(func(v float32) float32 { return (v / 9) - .5 }, bt.RangeTo[float32](9.).Slice()))
 
-		xt := NewTensor(MakeLoadBuffer(xs, sh), true)
+		xt := NewTensor(MakeLoadBuffer(xs), true)
 
 		zt := xt.Relu()
 		fmt.Println(zt)
@@ -94,9 +94,9 @@ func dumpObj(o any) {
 func TestBobNet(t *testing.T) {
 	sh := Shape{3, 3}
 
-	xt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](9.).Slice()), Shape{9}), true).Reshape(sh)
-	l1t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice()), Shape{9}), true).Reshape(sh)
-	l2t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](20., 29., 1.).Slice()), Shape{9}), true).Reshape(sh)
+	xt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](9.).Slice())), true).Reshape(sh)
+	l1t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice())), true).Reshape(sh)
+	l2t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](20., 29., 1.).Slice())), true).Reshape(sh)
 
 	zt := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
 	//zt := xt.Dot(l1t).Relu().Dot(l2t)
@@ -105,14 +105,35 @@ func TestBobNet(t *testing.T) {
 	dumpObj(zt)
 
 	//fmt.Println(zt.Mean(nil, false).Data().Realize())
-	fmt.Println(zt.Mean(nil, false).Data().Realize())
+	//fmt.Println(zt.Mean(nil, false).Data().Realize())
 
 	// garbage
 
-	//scc := func(out, y *Tensor) *Tensor {
-	//	// return out.mul(y).mean()
-	//}
-	//
+	scc := func(out *Tensor, y_ []int) *Tensor {
+		check.Equal(Dim(len(y_)), out.Shape()[0])
+		check.Equal(out.Shape()[0], Dim(len(y_)))
+		num_classes := out.Shape()[len(out.Shape())-1]
+		yb := NewBuffer(out.Shape())
+		for i := Dim(0); i < Dim(len(y_)); i++ {
+			yb.set(float32(-1*num_classes), i, Dim(y_[i]))
+		}
+		y := NewTensor(MakeLoadBuffer(yb), false)
+		return out.Mul(y).Mean(nil, false)
+	}
+
+	y := make([]int, 3)
+	for i := 0; i < 3; i++ {
+		y[i] = i % 3
+	}
+
+	z := scc(
+		zt,
+		y,
+	)
+
+	fmt.Println(z.Data().Realize().Nd())
+	z.Backward()
+
 	//y := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](3.).Slice()), Shape{3}), true)
 
 	//zt.Mean(nil, false).Backward()

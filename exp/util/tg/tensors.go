@@ -253,7 +253,6 @@ func (t *Tensor) Backward() {
 				t.Shape(),
 				slices.Repeat([]float32{1.}, int(t.Shape().Dim())),
 			),
-			t.Shape(),
 		),
 		false,
 	)

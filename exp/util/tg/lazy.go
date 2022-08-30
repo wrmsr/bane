@@ -222,9 +222,9 @@ func (b *LazyBuffer) ProcessingOp(op Op, w *LazyBuffer, arg any) *LazyBuffer {
 
 //
 
-func MakeLoadBuffer(data *Buffer, shape Shape) *LazyBuffer {
+func MakeLoadBuffer(data *Buffer) *LazyBuffer {
 	return NewLazyBuffer(
-		NewShapeTracker(shape),
+		NewShapeTracker(data.Shape()),
 		LoadOpType,
 		&LazyOp{
 			op:   FromCpuOp,
@@ -235,5 +235,5 @@ func MakeLoadBuffer(data *Buffer, shape Shape) *LazyBuffer {
 }
 
 func MakeLoadConstBuffer(c float32, shape Shape) *LazyBuffer {
-	return MakeLoadBuffer(MakeConstBuffer(c, shape), shape)
+	return MakeLoadBuffer(MakeConstBuffer(c, shape))
 }
