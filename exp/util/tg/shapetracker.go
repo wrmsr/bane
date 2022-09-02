@@ -100,6 +100,18 @@ func (st *ShapeTracker) Permute(axis ...Dim) {
 	)
 }
 
+func (st *ShapeTracker) Flip(axes ...Dim) {
+	s := make([]Dim, len(st.Shape()))
+	for i := range s {
+		if slices.Contains(axes, Dim(i)) {
+			s[i] = -1
+		} else {
+			s[i] = 1
+		}
+	}
+	st.Stride(s...)
+}
+
 func (st *ShapeTracker) MovementOp(op Op, arg any) {
 	switch op {
 	case ReshapeOp:
@@ -108,6 +120,8 @@ func (st *ShapeTracker) MovementOp(op Op, arg any) {
 		st.Expand(arg.(Shape))
 	case PermuteOp:
 		st.Permute(arg.([]Dim)...)
+	case FlipOp:
+		st.Flip(arg.([]Dim)...)
 	default:
 		panic(op)
 	}
