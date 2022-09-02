@@ -212,6 +212,38 @@ func (b *Buffer) Permute(order []Dim) *Buffer {
 	return b.Transpose(order)
 }
 
+func (b *Buffer) Flip(axes []Dim) *Buffer {
+	q := make([]bool, len(b.shape))
+	for _, a := range axes {
+		q[a] = true
+	}
+
+	r := BufferOf(b.shape, make([]float32, b.shape.Dim()))
+
+	bsl := make([]Dim, len(b.shape))
+	rsl := make([]Dim, len(b.shape))
+
+	var rec func(int)
+	rec = func(a int) {
+		if a < len(b.shape) {
+			l := b.shape[a]
+			for i := Dim(0); i < l; i++ {
+				if q[a] {
+					bsl[a] = l - i - 1
+				} else {
+					bsl[a] = i
+				}
+				rsl[a] = i
+				rec(a + 1)
+			}
+		} else {
+			r.set(b.Get(bsl...), rsl...)
+		}
+	}
+	rec(0)
+	return r
+}
+
 func (b *Buffer) Pad(padding []SliceBound) *Buffer {
 	check.Condition(len(padding) == len(b.shape))
 	if slices.All(padding, func(b SliceBound) bool {
@@ -310,6 +342,7 @@ func (b *Buffer) MovementOp(op Op, arg any) *Buffer {
 		return xp.Slice(ps...)
 
 	case FlipOp:
+		return b.Flip(arg.([]Dim))
 
 	}
 	panic("nyi")

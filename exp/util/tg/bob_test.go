@@ -70,6 +70,8 @@ func TestBobNet2(t *testing.T) {
 
 	//lr := MakeConstBuffer(0.001, Shape{1})
 
-	fmt.Println(l1t.grad.data.Realize())
+	fmt.Println(l1t.grad.data.Realize().Nd().Slice([]any{100, 130}))
+	fmt.Println(l2t.grad.data.Realize().Nd().Slice([]any{100, 130}))
+
 	//l1t.grad.Mul(lr)
 }
