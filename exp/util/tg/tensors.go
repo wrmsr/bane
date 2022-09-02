@@ -31,6 +31,11 @@ func (t *Tensor) Shape() Shape {
 	return t.data.st.Shape()
 }
 
+func (t *Tensor) Assign(x *Tensor) {
+	check.Condition(t.Shape().Equals(x.Shape()))
+	t.data = x.data
+}
+
 func BroadcastedTensor(fn func(x, y *Tensor) *Tensor, x, y *Tensor) *Tensor {
 	xsh := x.Shape()
 	ysh := y.Shape()

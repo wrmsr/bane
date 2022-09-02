@@ -68,10 +68,13 @@ func TestBobNet2(t *testing.T) {
 	loss := out.Mul(yt).Mean(nil, false)
 	loss.Backward()
 
-	//lr := MakeConstBuffer(0.001, Shape{1})
-
-	fmt.Println(l1t.grad.data.Realize().Nd().Slice([]any{100, 130}))
-	fmt.Println(l2t.grad.data.Realize().Nd().Slice([]any{100, 130}))
-
-	//l1t.grad.Mul(lr)
+	lr := NewTensor(MakeLoadBuffer(MakeConstBuffer(0.001, Shape{1})), false)
+	for _, t := range []*Tensor{
+		l1t,
+		l2t,
+	} {
+		g := t.grad
+		t.Assign(t.Sub(g.Mul(lr.Reshape(Shape{1, 1}).Expand(g.Shape()))))
+		t.Data().Realize()
+	}
 }
