@@ -96,6 +96,13 @@ func (b *Buffer) UnaryOp(op Op) *Buffer {
 		}
 		return z
 
+	case NegOp:
+		z := NewBuffer(b.shape)
+		for i, x := range b.s {
+			z.s[i] = -x
+		}
+		return z
+
 	}
 	panic("nyi")
 }
@@ -132,6 +139,16 @@ func (b *Buffer) BinaryOp(op Op, y *Buffer) *Buffer {
 		z := NewBuffer(b.shape)
 		for i, x := range b.s {
 			z.s[i] = x / y.s[i]
+		}
+		return z
+
+	case CmpEqOp:
+		check.Condition(b.shape.Equals(y.shape))
+		z := NewBuffer(b.shape)
+		for i, x := range b.s {
+			if x == y.s[i] {
+				z.s[i] = 1.
+			}
 		}
 		return z
 
@@ -291,6 +308,8 @@ func (b *Buffer) MovementOp(op Op, arg any) *Buffer {
 			}
 		}
 		return xp.Slice(ps...)
+
+	case FlipOp:
 
 	}
 	panic("nyi")
