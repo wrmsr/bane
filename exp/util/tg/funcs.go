@@ -218,7 +218,7 @@ func (f ReluFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 }
 
 func (f ReluFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
-	return []*LazyBuffer{ctx.savedBuffers[0].UnaryOp(SignOp).UnaryOp(ReluOp).BinaryOp(MulOp, g)}
+	return []*LazyBuffer{check.Single(ctx.savedBuffers).UnaryOp(SignOp).UnaryOp(ReluOp).BinaryOp(MulOp, g)}
 }
 
 //
@@ -257,7 +257,154 @@ func (f Conv2dFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 }
 
 func (f Conv2dFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
-	panic("implement me")
+	x, w := check.Pair(ctx.savedBuffers)
+	ca := ctx.convArgs.Value()
+
+	var dx, dw *LazyBuffer
+
+	// compute derivative of inputs using ProcessingOps.CONV (this is a transposed conv)
+	if ctx.needsInputGrad[0] {
+		xt := g
+		// unstride. NOTE: this is really memory intensive for big strides.
+		if ca.sx > 1 || ca.sy > 1 {
+			xt = xt.MovementOp(
+				ReshapeOp,
+				[]Dim{
+					g.Shape()[0],
+					g.Shape()[1],
+					g.Shape()[2],
+					1,
+					g.Shape()[3],
+					1,
+				},
+			)
+
+			xt = xt.MovementOp(
+				SliceOp,
+				[]SliceBound{
+					{0, xt.Shape()[0]},
+					{0, xt.Shape()[1]},
+					{0, xt.Shape()[2]},
+					{0, ca.sy},
+					{0, xt.Shape()[4]},
+					{0, ca.sx},
+				},
+			)
+
+			xt = xt.MovementOp(
+				ReshapeOp,
+				[]Dim{
+					xt.Shape()[0],
+					xt.Shape()[1],
+					xt.Shape()[2] * ca.sy,
+					xt.Shape()[4] * ca.sx,
+				},
+			)
+		}
+
+		wt := w.MovementOp(
+			ReshapeOp,
+			Shape{
+				ca.groups,
+				ca.rcout,
+				ca.cin,
+				ca.h,
+				ca.w,
+			},
+		).MovementOp(
+			PermuteOp,
+			[]Dim{
+				0,
+				2,
+				1,
+				3,
+				4,
+			},
+		)
+
+		wt = wt.MovementOp(
+			ReshapeOp,
+			Shape{
+				ca.groups * ca.cin,
+				ca.rcout,
+				ca.h,
+				ca.w,
+			},
+		).MovementOp(
+			FlipOp,
+			[]Dim{2, 3},
+		)
+
+		py, px := (ca.h-1)*ca.dy-ca.py, (ca.w-1)*ca.dx-ca.px
+		cdx := BuildConvArgs(
+			xt.Shape(),
+			wt.Shape(),
+			ConvOpts{
+				OutShape: x.Shape(),
+				Dilation: []Dim{ca.dy, ca.dx},
+				Padding:  []Dim{py, px},
+				Groups:   ca.groups,
+			},
+		)
+
+		dx = xt.ProcessingOp(ConvOp, wt, cdx)
+	}
+
+	// compute derivative of weights using ProcessingOps.CONV
+	if ctx.needsInputGrad[1] {
+		xdw := x.MovementOp(
+			ReshapeOp,
+			Shape{
+				ca.bs,
+				ca.groups,
+				ca.cin,
+				ca.iy,
+				ca.ix,
+			},
+		).MovementOp(
+			PermuteOp,
+			[]Dim{
+				2,
+				1,
+				0,
+				3,
+				4,
+			},
+		)
+
+		xdw = xdw.MovementOp(
+			ReshapeOp,
+			Shape{
+				ca.cin,
+				ca.groups * ca.bs,
+				ca.iy,
+				ca.ix,
+			},
+		)
+
+		grad_output_dw := g.MovementOp(PermuteOp, []Dim{1, 0, 2, 3})
+
+		cdw := BuildConvArgs(
+			xdw.Shape(),
+			grad_output_dw.Shape(),
+			ConvOpts{
+				OutShape: []Dim{
+					w.Shape()[1],
+					w.Shape()[0],
+					w.Shape()[2],
+					w.Shape()[3],
+				},
+				Padding:  []Dim{ca.py, ca.px},
+				Stride:   []Dim{ca.dy, ca.dx},
+				Dilation: []Dim{ca.sy, ca.sx},
+				Groups:   ca.groups,
+			},
+		)
+
+		dw = xdw.ProcessingOp(ConvOp, grad_output_dw, cdw).MovementOp(PermuteOp, []Dim{1, 0, 2, 3})
+	}
+
+	return []*LazyBuffer{dx, dw}
 }
 
 //
