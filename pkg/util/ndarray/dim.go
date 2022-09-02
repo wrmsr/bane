@@ -35,10 +35,10 @@ func AsDim(o any) (bt.Optional[Dim], bool) {
 	return bt.None[Dim](), false
 }
 
-func IntDims(s ...int) []Dim {
-	r := make([]Dim, len(s))
-	for i, d := range s {
-		r[i] = Dim(d)
-	}
-	return r
-}
+//func AsDims(s ...any) []Dim {
+//	r := make([]Dim, len(s))
+//	for i, d := range s {
+//		r[i] = check.Ok1(AsDim(d)).Value()
+//	}
+//	return r
+//}

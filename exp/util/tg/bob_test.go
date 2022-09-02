@@ -66,6 +66,10 @@ func TestBobNet2(t *testing.T) {
 	out := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
 
 	loss := out.Mul(yt).Mean(nil, false)
-
 	loss.Backward()
+
+	//lr := MakeConstBuffer(0.001, Shape{1})
+
+	fmt.Println(l1t.grad.data.Realize())
+	//l1t.grad.Mul(lr)
 }

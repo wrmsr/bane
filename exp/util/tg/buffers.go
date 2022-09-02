@@ -179,7 +179,8 @@ func (b *Buffer) Reshape(newShape Shape) *Buffer {
 
 func (b *Buffer) Transpose(order []Dim) *Buffer {
 	if len(b.shape) != 2 || len(order) != 2 || order[0] != 1 || order[1] != 0 {
-		panic("nyi")
+		t := b.Nd().Transpose(nd.DimsOf(order...))
+		return BufferOfNd(t)
 	}
 	r := BufferOf(Shape{b.shape[1], b.shape[0]}, make([]float32, b.shape.Dim()))
 	for i := Dim(0); i < b.shape[0]; i++ {
