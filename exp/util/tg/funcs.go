@@ -197,7 +197,7 @@ type ExpandFunc struct {
 
 func (f ExpandFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 	input := check.Single(bs)
-	ctx.inputShape = bt.Just(f.Shape)
+	ctx.inputShape = bt.Just(input.Shape())
 	return input.MovementOp(ExpandOp, f.Shape)
 }
 

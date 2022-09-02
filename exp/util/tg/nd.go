@@ -1,6 +1,8 @@
 package tg
 
 import (
+	"math"
+
 	"github.com/wrmsr/bane/pkg/util/check"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -37,6 +39,31 @@ func NdDot(a, b nd.NdArray[float32]) nd.NdArray[float32] {
 				o += av * bv
 			}
 			*c.At(i, j) = o
+		}
+	}
+
+	return c
+}
+
+func NdDotFma(a, b nd.NdArray[float32]) nd.NdArray[float32] {
+	check.Equal(a.View().Shape().Order(), 2)
+	check.Equal(b.View().Shape().Order(), 2)
+	check.Equal(a.View().Shape().Get(1), b.View().Shape().Get(0))
+
+	z := a.View().Shape().Get(1)
+	h := a.View().Shape().Get(0)
+	w := b.View().Shape().Get(1)
+	c := nd.New[float32](nd.ShapeOf(h, w))
+
+	for i := nd.Dim(0); i < h; i++ {
+		for j := nd.Dim(0); j < w; j++ {
+			var o float64
+			for k := nd.Dim(0); k < z; k++ {
+				av := a.Get(i, k)
+				bv := b.Get(k, j)
+				o = math.FMA(float64(av), float64(bv), o)
+			}
+			*c.At(i, j) = float32(o)
 		}
 	}
 

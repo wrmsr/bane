@@ -108,7 +108,7 @@ func logOp(opType OpType, op []Op, ret *Buffer, inp []*Buffer) {
 		strings.Join(slices.Map(func(b *Buffer) string { return fmt.Sprintf("%v", b.Shape()) }, inp), ", "),
 		ret.Shape(),
 	)
-	fmt.Println(ret.Nd())
+	//fmt.Println(ret.Nd())
 }
 
 func (b *LazyBuffer) Realize() *Buffer {
