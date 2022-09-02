@@ -3,6 +3,7 @@ package tg
 import (
 	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
@@ -141,72 +142,76 @@ func TestBobNet(t *testing.T) {
 	//fmt.Println(zgt)
 }
 
-//func TestBobNet2(t *testing.T) {
-//	rj := func(n string) []byte {
-//		p := filepath.Join(
-//			paths.FindProjectRoot(),
-//			fmt.Sprintf("../../geohot/tinygrad/%s.json", n),
-//		)
-//
-//		return check.Must1(os.ReadFile(p))
-//	}
-//
-//	rm := func(n string) [][]float32 {
-//		b := rj(n)
-//
-//		var m [][]float32
-//		check.Must(json.Unmarshal(b, &m))
-//		return m
-//	}
-//
-//	l1m := rm("l1")
-//	l2m := rm("l2")
-//
-//	m2t := func(m [][]float32) nd.NdArray[float32] {
-//
-//	}
-//
-//	xt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](9.).Slice())), true).Reshape(sh)
-//	l1t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice())), true).Reshape(sh)
-//	l2t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](20., 29., 1.).Slice())), true).Reshape(sh)
-//
-//	zt := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
-//	//zt := xt.Dot(l1t).Relu().Dot(l2t)
-//	fmt.Println("====")
-//
-//	dumpObj(zt)
-//
-//	//fmt.Println(zt.Mean(nil, false).Data().Realize())
-//	//fmt.Println(zt.Mean(nil, false).Data().Realize())
-//
-//	// garbage
-//
-//	scc := func(out *Tensor, y_ []int) *Tensor {
-//		check.Equal(Dim(len(y_)), out.Shape()[0])
-//		check.Equal(out.Shape()[0], Dim(len(y_)))
-//		num_classes := out.Shape()[len(out.Shape())-1]
-//		yb := NewBuffer(out.Shape())
-//		for i := Dim(0); i < Dim(len(y_)); i++ {
-//			yb.set(float32(-1*num_classes), i, Dim(y_[i]))
-//		}
-//		y := NewTensor(MakeLoadBuffer(yb), false)
-//		return out.Mul(y).Mean(nil, false)
-//	}
-//
-//	y := make([]int, 3)
-//	for i := 0; i < 3; i++ {
-//		y[i] = i % 3
-//	}
-//
-//	z := scc(
-//		zt,
-//		y,
-//	)
-//
-//	fmt.Println(z.Data().Realize().Nd())
-//	z.Backward()
-//
-//}
+func TestBobNet2(t *testing.T) {
+	rj := func(n string) []byte {
+		p := filepath.Join(
+			paths.FindProjectRoot(),
+			fmt.Sprintf("../../geohot/tinygrad/%s.json", n),
+		)
+
+		return check.Must1(os.ReadFile(p))
+	}
+
+	rm := func(n string) [][]float32 {
+		b := rj(n)
+
+		var m [][]float32
+		check.Must(json.Unmarshal(b, &m))
+		return m
+	}
+
+	l1m := rm("l1")
+	l2m := rm("l2")
+
+	l1t := nd.Unnest2(l1m)
+	l2t := nd.Unnest2(l2m)
+
+	fmt.Println(l1t.Get(33, 52))
+
+	fmt.Println(l1t.View().Shape())
+	fmt.Println(l2t.View().Shape())
+
+	//xt := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeTo[float32](9.).Slice())), true).Reshape(sh)
+	//l1t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](10., 19., 1.).Slice())), true).Reshape(sh)
+	//l2t := NewTensor(MakeLoadBuffer(BufferOf(sh, bt.RangeOf[float32](20., 29., 1.).Slice())), true).Reshape(sh)
+	//
+	//zt := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
+	////zt := xt.Dot(l1t).Relu().Dot(l2t)
+	//fmt.Println("====")
+	//
+	//dumpObj(zt)
+	//
+	////fmt.Println(zt.Mean(nil, false).Data().Realize())
+	////fmt.Println(zt.Mean(nil, false).Data().Realize())
+	//
+	//// garbage
+	//
+	//scc := func(out *Tensor, y_ []int) *Tensor {
+	//	check.Equal(Dim(len(y_)), out.Shape()[0])
+	//	check.Equal(out.Shape()[0], Dim(len(y_)))
+	//	num_classes := out.Shape()[len(out.Shape())-1]
+	//	yb := NewBuffer(out.Shape())
+	//	for i := Dim(0); i < Dim(len(y_)); i++ {
+	//		yb.set(float32(-1*num_classes), i, Dim(y_[i]))
+	//	}
+	//	y := NewTensor(MakeLoadBuffer(yb), false)
+	//	return out.Mul(y).Mean(nil, false)
+	//}
+	//
+	//y := make([]int, 3)
+	//for i := 0; i < 3; i++ {
+	//	y[i] = i % 3
+	//}
+	//
+	//z := scc(
+	//	zt,
+	//	y,
+	//)
+	//
+	//fmt.Println(z.Data().Realize().Nd())
+	//z.Backward()
+
+}
 
 //
 
