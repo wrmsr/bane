@@ -13,6 +13,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
 	ju "github.com/wrmsr/bane/pkg/util/json"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func readTgFile(name string) []byte {
@@ -66,15 +67,30 @@ func TestBobNet2(t *testing.T) {
 	out := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
 
 	loss := out.Mul(yt).Mean(nil, false)
+
+	fmt.Println(loss.Data().Realize().Nd())
+
 	loss.Backward()
 
-	lr := NewTensor(MakeLoadBuffer(MakeConstBuffer(0.001, Shape{1})), false)
+	lr := float32(0.001)
 	for _, t := range []*Tensor{
 		l1t,
 		l2t,
 	} {
 		g := t.grad
-		t.Assign(t.Sub(g.Mul(lr.Reshape(Shape{1, 1}).Expand(g.Shape()))))
+
+		lrt := NewTensor(
+			MakeLoadBuffer(
+				BufferOfNd(
+					nd.Maker[float32]{
+						Shape:   nd.ShapeOf(g.Shape()...),
+						Default: bt.Just[float32](lr),
+					}.Make()),
+			),
+			false,
+		)
+
+		t.Assign(t.Sub(g.Mul(lrt)))
 		t.Data().Realize()
 	}
 }

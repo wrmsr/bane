@@ -16,27 +16,36 @@ type NdArray[T any] struct {
 
 //
 
-func New[T any](shape Shape) NdArray[T] {
-	return Of[T](shape, Strides{}, 0, nil)
+type Maker[T any] struct {
+	Shape   Shape
+	Strides Strides
+	Offset  Dim
+	Data    []T
+	Default bt.Optional[T]
 }
 
-func Of[T any](
-	shape Shape,
-	strides Strides,
-	offset Dim,
-	data []T,
-) NdArray[T] {
-	if shape.Len() < 1 && strides.Len() < 1 && data != nil {
+func (m Maker[T]) Make() NdArray[T] {
+	shape := m.Shape
+	data := m.Data
+
+	if shape.Len() < 1 && m.Strides.Len() < 1 && data != nil {
 		shape = ShapeOf(Dim(len(data)))
 	}
 
-	v := ViewOf(shape, strides, offset)
+	v := ViewOf(shape, m.Strides, m.Offset)
 
 	l := v.DataSize()
 	if data == nil {
 		data = make([]T, l+v.o)
+		if m.Default.Present() {
+			d := m.Default.Value()
+			for i := range data {
+				data[i] = d
+			}
+		}
 	}
-	if Dim(len(data))-offset < l {
+
+	if Dim(len(data))-m.Offset < l {
 		panic(fmt.Errorf("size mismatch"))
 	}
 
@@ -46,20 +55,8 @@ func Of[T any](
 	}
 }
 
-type Maker[T any] struct {
-	Shape   Shape
-	Strides Strides
-	Offset  Dim
-	Data    []T
-}
-
-func (m Maker[T]) Make() NdArray[T] {
-	return Of[T](
-		m.Shape,
-		m.Strides,
-		m.Offset,
-		m.Data,
-	)
+func New[T any](shape Shape) NdArray[T] {
+	return Maker[T]{Shape: shape}.Make()
 }
 
 //
