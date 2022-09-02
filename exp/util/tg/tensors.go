@@ -1,8 +1,6 @@
 package tg
 
 import (
-	"fmt"
-
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/maps"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -260,8 +258,7 @@ func (t *Tensor) Backward() {
 	)
 
 	ps := slices.Reverse(t.deepWalk())
-	for j, t0 := range ps {
-		fmt.Printf("%d %v\n", j, t0.Shape())
+	for _, t0 := range ps {
 		var hg bool
 		for _, p := range t0.ctx.parents {
 			if p.requiresGrad {
@@ -285,7 +282,6 @@ func (t *Tensor) Backward() {
 		}
 
 		for i, p := range t0.ctx.parents {
-			fmt.Printf("    %d %v\n", i, p.Shape())
 			g := grads[i]
 			if g == nil || !p.requiresGrad {
 				continue
