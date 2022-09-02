@@ -49,6 +49,13 @@ func Single[T any](s []T, details ...any) T {
 	return s[0]
 }
 
+func Pair[T any](s []T, details ...any) (T, T) {
+	if len(s) != 2 {
+		panic(checkError("must be pair", []any{s}, details...))
+	}
+	return s[0], s[1]
+}
+
 func NotEmptySlice[T any](s []T, details ...any) []T {
 	if len(s) < 1 {
 		panic(checkError("must not be empty slice", []any{s}, details...))

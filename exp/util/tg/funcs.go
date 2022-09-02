@@ -1,6 +1,8 @@
 package tg
 
 import (
+	"sort"
+
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -232,7 +234,12 @@ func (f PermuteFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 }
 
 func (f PermuteFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
-	panic("implement me")
+	ds := ctx.inputOrder.Value()
+	a := bt.RangeTo(Dim(len(ds))).Slice()
+	sort.Slice(a, func(i, j int) bool {
+		return ds[i] < ds[j]
+	})
+	return []*LazyBuffer{g.MovementOp(PermuteOp, a)}
 }
 
 //
@@ -267,21 +274,19 @@ func (f MaxFunc) Forward(ctx *FuncContext, bs []*LazyBuffer) *LazyBuffer {
 }
 
 func (f MaxFunc) Backward(ctx *FuncContext, g *LazyBuffer) []*LazyBuffer {
-	/*
-	   input, ret = ctx.saved_tensors
+	input, ret := check.Pair(ctx.savedBuffers)
 
-	   # 1s in locations where the max was chosen (can be two locations)
-	   max_is_1s = input.binary_op(BinaryOps.CMPEQ, ret.movement_op(MovementOps.EXPAND, input.shape))
+	// 1s in locations where the max was chosen (can be two locations)
+	max_is_1s := input.BinaryOp(CmpEqOp, ret.MovementOp(ExpandOp, input.Shape()))
 
-	   # sum of locations, averaged
-	   div = max_is_1s.reduce_op(ReduceOps.SUM, grad_output.shape)
-	   div = div.movement_op(MovementOps.EXPAND, input.shape)
-	   max_is_amount = max_is_1s.binary_op(BinaryOps.DIV, div)
+	// sum of locations, averaged
+	div := max_is_1s.ReduceOp(SumOp, g.Shape())
+	div = div.MovementOp(ExpandOp, input.Shape())
 
-	   grad_output_expanded = grad_output.movement_op(MovementOps.EXPAND, input.shape)
-	   return max_is_amount.binary_op(BinaryOps.MUL, grad_output_expanded)
-	*/
-	panic("implement me")
+	max_is_amount := max_is_1s.BinaryOp(DivOp, div)
+	grad_output_expanded := g.MovementOp(ExpandOp, input.Shape())
+
+	return []*LazyBuffer{max_is_amount.BinaryOp(MulOp, grad_output_expanded)}
 }
 
 //
