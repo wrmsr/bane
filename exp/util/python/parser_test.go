@@ -180,7 +180,7 @@ func (v *parseVisitor) VisitDictOrSetMaker(ctx *parser.DictOrSetMakerContext) an
 }
 
 func TestParser(t *testing.T) {
-	testExpr := `420 * 69`
+	testExpr := `{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`
 
 	is := antlr.NewInputStream(testExpr)
 	lexer := parser.NewExprLexer(is)
