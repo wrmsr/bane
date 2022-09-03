@@ -27,9 +27,19 @@ func TestVenvRun(t *testing.T) {
 		`
 import json, sys
 vi = sys.version_info
-print(json.dumps({a: getattr(vi, a) for a in ['major', 'minor', 'micro', 'releaselevel', 'serial']}))
+print(json.dumps({
+    a: getattr(vi, a)
+    for a in [
+        'major',
+        'minor',
+        'micro',
+        'releaselevel',
+        'serial',
+    ]
+}))
 `,
 	)
+
 	var outb, errb bytes.Buffer
 	cmd.Stdout = &outb
 	cmd.Stderr = &errb
