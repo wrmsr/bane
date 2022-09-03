@@ -47,51 +47,53 @@ func readMnistLabels(name string) nd.NdArray[byte] {
 func TestBobNet2(t *testing.T) {
 	l1t := NewTensor(MakeLoadBuffer(BufferOfNd(readTgMat2("l1.json"))), true)
 	l2t := NewTensor(MakeLoadBuffer(BufferOfNd(readTgMat2("l2.json"))), true)
-	samp := check.Must1(ju.UnmarshalAs[[]int](readTgFile("samp.json")))
 
 	x_train := readMnistImages("datasets/mnist/train-images-idx3-ubyte.gz")
 	y_train := readMnistLabels("datasets/mnist/train-labels-idx1-ubyte.gz")
 
 	num_classes := 10
-	x := nd.New[float32](nd.ShapeOf(69, 784))
-	y := nd.New[float32](nd.ShapeOf(69, nd.Dim(num_classes)))
-	for i, s := range samp {
-		x.Slice(i).Assign(x_train.Slice(s).Reshape(nd.ShapeOf(784)))
-		c := y_train.Get(nd.Dim(s))
-		*y.At(nd.Dim(i), nd.Dim(c)) = -float32(num_classes)
-	}
 
-	xt := NewTensor(MakeLoadBuffer(BufferOfNd(x)), false)
-	yt := NewTensor(MakeLoadBuffer(BufferOfNd(y)), false)
+	for e := 0; e < 10; e++ {
+		x := nd.New[float32](nd.ShapeOf(69, 784))
+		y := nd.New[float32](nd.ShapeOf(69, nd.Dim(num_classes)))
+		samp := check.Must1(ju.UnmarshalAs[[]int](readTgFile(fmt.Sprintf("samp_%d.json", e))))
+		for i, s := range samp {
+			x.Slice(i).Assign(x_train.Slice(s).Reshape(nd.ShapeOf(784)))
+			c := y_train.Get(nd.Dim(s))
+			*y.At(nd.Dim(i), nd.Dim(c)) = -float32(num_classes)
+		}
 
-	out := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
+		xt := NewTensor(MakeLoadBuffer(BufferOfNd(x)), false)
+		yt := NewTensor(MakeLoadBuffer(BufferOfNd(y)), false)
 
-	loss := out.Mul(yt).Mean(nil, false)
-	dumpObj(loss)
+		out := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
 
-	fmt.Println(loss.Data().Realize().Nd())
+		loss := out.Mul(yt).Mean(nil, false)
 
-	loss.Backward()
+		fmt.Println(loss.Data().Realize().Nd())
 
-	lr := float32(0.001)
-	for _, t := range []*Tensor{
-		l1t,
-		l2t,
-	} {
-		g := t.grad
+		loss.Backward()
 
-		lrt := NewTensor(
-			MakeLoadBuffer(
-				BufferOfNd(
-					nd.Maker[float32]{
-						Shape:   nd.ShapeOf(g.Shape()...),
-						Default: bt.Just[float32](lr),
-					}.Make()),
-			),
-			false,
-		)
+		lr := float32(0.001)
+		for _, t := range []*Tensor{
+			l1t,
+			l2t,
+		} {
+			g := t.grad
 
-		t.Assign(t.Sub(g.Mul(lrt)))
-		t.Data().Realize()
+			lrt := NewTensor(
+				MakeLoadBuffer(
+					BufferOfNd(
+						nd.Maker[float32]{
+							Shape:   nd.ShapeOf(g.Shape()...),
+							Default: bt.Just[float32](lr),
+						}.Make()),
+				),
+				false,
+			)
+
+			t.Assign(t.Sub(g.Mul(lrt)))
+			t.Data().Realize()
+		}
 	}
 }
