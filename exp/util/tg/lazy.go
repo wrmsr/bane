@@ -8,6 +8,7 @@ import (
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/maps"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -22,6 +23,8 @@ type LazyOp struct {
 	op   Op
 	srcs []Lazy
 	arg  any
+
+	bt.NoCopy
 }
 
 var _ Lazy = &LazyOp{}
@@ -55,7 +58,7 @@ func (o *LazyOp) ForEachOp(fn func(*LazyOp) bool) bool {
 	for _, s := range o.srcs {
 		switch s := s.(type) {
 		case *LazyOp:
-			if !fn(s) {
+			if !s.ForEachOp(fn) {
 				return false
 			}
 		}
@@ -76,6 +79,8 @@ type LazyBuffer struct {
 
 	realized *Buffer
 	children maps.Set[*LazyBuffer]
+
+	bt.NoCopy
 }
 
 func NewLazyBuffer(st *ShapeTracker, ot OpType, op *LazyOp) *LazyBuffer {
@@ -177,9 +182,9 @@ func (b *LazyBuffer) MovementOp(op Op, arg any) *LazyBuffer {
 	st.MovementOp(op, arg)
 
 	var src Lazy = b
-	if op.Type() == MovementOpType && b.realized != nil {
-		src = b.op
-	}
+	//if op.Type() == MovementOpType && b.realized != nil {
+	//	src = b.op
+	//}
 
 	ret := NewLazyBuffer(
 		st,

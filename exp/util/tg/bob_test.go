@@ -67,6 +67,7 @@ func TestBobNet2(t *testing.T) {
 	out := xt.Dot(l1t).Relu().Dot(l2t).LogSoftmax()
 
 	loss := out.Mul(yt).Mean(nil, false)
+	dumpObj(loss)
 
 	fmt.Println(loss.Data().Realize().Nd())
 

@@ -63,11 +63,13 @@ func dumpObj(o any) {
 	rec = func(o any, p string) {
 		switch o := o.(type) {
 		case *Tensor:
-			rec(o.data, p)
+			fmt.Printf("%stn @%p\n", p, o)
+			rec(o.data, "  "+p)
 		case *LazyBuffer:
-			rec(o.op, p)
+			fmt.Printf("%slb @%p\n", p, o)
+			rec(o.op, "  "+p)
 		case *LazyOp:
-			fmt.Printf("%s%v\n", p, o.op)
+			fmt.Printf("%s%v @%p\n", p, o.op, o)
 			for _, c := range o.srcs {
 				rec(c, "  "+p)
 			}

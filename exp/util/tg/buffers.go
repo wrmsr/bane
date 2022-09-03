@@ -1,6 +1,7 @@
 package tg
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -478,6 +479,7 @@ func (b *Buffer) ReduceOp(op Op, nsh Shape) *Buffer {
 	switch op {
 
 	case MaxOp:
+		fmt.Println("max")
 		return b.reduce(axis, func(f float32, b bt.Optional[float32]) float32 {
 			if b.Present() && !(f > b.Value()) {
 				return b.Value()
