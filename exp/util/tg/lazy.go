@@ -2,6 +2,9 @@ package tg
 
 import "C"
 import (
+	"fmt"
+	"strings"
+
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/maps"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -104,13 +107,13 @@ func (b *LazyBuffer) isLazy() {}
 func (b *LazyBuffer) Shape() Shape { return b.st.Shape() }
 
 func logOp(opType OpType, op []Op, ret *Buffer, inp []*Buffer) {
-	//fmt.Printf(
-	//	"[%s] : %s -> %v\n",
-	//	strings.Join(slices.Map(Op.String, op), ", "),
-	//	strings.Join(slices.Map(func(b *Buffer) string { return fmt.Sprintf("%v", b.Shape()) }, inp), ", "),
-	//	ret.Shape(),
-	//)
-	//fmt.Println(ret.Nd())
+	fmt.Printf(
+		"[%s] : %s -> %v\n",
+		strings.Join(slices.Map(Op.String, op), ", "),
+		strings.Join(slices.Map(func(b *Buffer) string { return fmt.Sprintf("%v", b.Shape()) }, inp), ", "),
+		ret.Shape(),
+	)
+	fmt.Println(ret.Nd())
 }
 
 func (b *LazyBuffer) Realize() *Buffer {
