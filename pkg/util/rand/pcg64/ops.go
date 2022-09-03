@@ -68,3 +68,26 @@ func Mul128Low(a Uint128, b uint64) Uint128 {
 	result.High += h1
 	return result
 }
+
+// Muli-step advance functions (jump-ahead, jump-back)
+//
+// The method used here is based on Brown, "Random Number Generation with Arbitrary Stride,", Transactions of the
+// American Nuclear Society (Nov. 1994).  The algorithm is very similar to fast exponentiation.
+//
+// Even though delta is an unsigned integer, we can pass a signed integer to go backwards, it just goes "the long way
+// round".
+func AdvanceLcg128(state Uint128, delta Uint128, cur_mul Uint128, cur_plus Uint128) Uint128 {
+	acc_mul := Uint128{0, 1}
+	acc_plus := Uint128{0, 0}
+	for (delta.High > 0) || (delta.Low > 0) {
+		if (delta.Low & 1) != 0 {
+			acc_mul = Mul128(acc_mul, cur_mul)
+			acc_plus = Add128(Mul128(acc_plus, cur_mul), cur_plus)
+		}
+		cur_plus = Mul128(Add128(cur_mul, Uint128{0, 1}), cur_plus)
+		cur_mul = Mul128(cur_mul, cur_mul)
+		delta.Low = (delta.Low >> 1) | (delta.High << 63)
+		delta.High >>= 1
+	}
+	return Add128(Mul128(acc_mul, state), acc_plus)
+}

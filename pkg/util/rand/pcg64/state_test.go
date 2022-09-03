@@ -62,17 +62,15 @@ func TestPcg64(t *testing.T) {
 	} {
 		fmt.Printf("seed %x\n", c.seed)
 
-		state := State{
-			pcg_state: &pcg64_random_t{},
-		}
+		state := New()
+		state.Seed(c.seed_gen[:2], c.seed_gen[2:])
 
-		pcg64_set_seed(&state, c.seed_gen[:2], c.seed_gen[2:])
 		fmt.Printf("%+v\n", state)
-		fmt.Printf("state.state: %s\n", state.pcg_state.state)
-		fmt.Printf("state.inc: %s\n", state.pcg_state.inc)
+		fmt.Printf("state.state: %s\n", state.rng.state)
+		fmt.Printf("state.inc: %s\n", state.rng.inc)
 
 		for _, e := range c.expected {
-			a := state.pcg64_next64()
+			a := state.Next64()
 			fmt.Printf("a %x e %x\n", a, e)
 		}
 	}
