@@ -84,7 +84,7 @@ func ParseCmpOp(s string) CmpOp {
 }
 
 type Comparison struct {
-	Op    CmpOp
-	Left  Node
-	Right Node
+	Left   Node
+	Ops    []CmpOp
+	Rights []Node
 }
