@@ -1,4 +1,4 @@
-package rand
+package pcg64
 
 import (
 	"fmt"
@@ -7,8 +7,11 @@ import (
 
 func TestPcg64(t *testing.T) {
 	type tc struct {
-		seed     uint64
+		seed uint64
+
+		// ', '.join(map(hex, np.random.bit_generator.SeedSequence(1337).generate_state(4, np.uint64)))
 		seed_gen []uint64
+
 		expected []uint64
 	}
 
@@ -59,7 +62,7 @@ func TestPcg64(t *testing.T) {
 	} {
 		fmt.Printf("seed %x\n", c.seed)
 
-		state := pcg64_state{
+		state := State{
 			pcg_state: &pcg64_random_t{},
 		}
 
@@ -69,7 +72,7 @@ func TestPcg64(t *testing.T) {
 		fmt.Printf("state.inc: %s\n", state.pcg_state.inc)
 
 		for _, e := range c.expected {
-			a := pcg64_next64(&state)
+			a := state.pcg64_next64()
 			fmt.Printf("a %x e %x\n", a, e)
 		}
 	}
