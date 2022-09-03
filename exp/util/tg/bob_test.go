@@ -44,6 +44,32 @@ func readMnistLabels(name string) nd.NdArray[byte] {
 	return nd.Maker[byte]{Data: b}.Make()
 }
 
+/*
+Fma:
+[ 2.5077548 ]
+[ 2.299427 ]
+[ 2.8177679 ]
+[ 1.8951459 ]
+[ 2.7053564 ]
+[ 2.2945564 ]
+[ 1.388959 ]
+[ 4.608702 ]
+[ 1.5387887 ]
+[ 2.633925 ]
+
+Sep:
+[ 2.5077548 ]
+[ 2.299427 ]
+[ 2.8177683 ]
+[ 1.8951463 ]
+[ 2.7053568 ]
+[ 2.294557 ]
+[ 1.3889599 ]
+[ 4.608704 ]
+[ 1.5387893 ]
+[ 2.6339264 ]
+*/
+
 func TestBobNet2(t *testing.T) {
 	l1t := NewTensor(MakeLoadBuffer(BufferOfNd(readTgMat2("l1.json"))), true)
 	l2t := NewTensor(MakeLoadBuffer(BufferOfNd(readTgMat2("l2.json"))), true)

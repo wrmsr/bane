@@ -8,7 +8,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
-func NdDot(a, b nd.NdArray[float32]) nd.NdArray[float32] {
+func NdDotSep(a, b nd.NdArray[float32]) nd.NdArray[float32] {
 	/*
 		Dot product of two arrays. Specifically,
 		- If both a and b are 1-D arrays, it is inner product of vectors (without complex conjugation).
@@ -69,6 +69,8 @@ func NdDotFma(a, b nd.NdArray[float32]) nd.NdArray[float32] {
 
 	return c
 }
+
+var NdDot = NdDotSep
 
 func NdTensorDot(a, b nd.NdArray[float32], axes_a, axes_b nd.Dims) nd.NdArray[float32] {
 	mutaxes_a := axes_a.Mutate()
