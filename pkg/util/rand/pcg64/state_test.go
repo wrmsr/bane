@@ -5,6 +5,18 @@ import (
 	"testing"
 )
 
+func Ui64ToF64(rnd uint64) float64 {
+	return float64(rnd>>11) * (1.0 / 9007199254740992.0)
+}
+
+func nextDouble(st *State) float64 {
+	return Ui64ToF64(st.Next64())
+}
+
+func randomUniform(st *State, lower float64, rng float64) float64 {
+	return lower + rng*nextDouble(st)
+}
+
 func TestPcg64(t *testing.T) {
 	type tc struct {
 		seed uint64
@@ -60,18 +72,20 @@ func TestPcg64(t *testing.T) {
 			},
 		},
 	} {
-		fmt.Printf("seed %x\n", c.seed)
+		fmt.Printf("seed %d\n", c.seed)
 
-		state := New()
-		state.Seed(c.seed_gen[:2], c.seed_gen[2:])
+		st := New()
+		st.Seed(c.seed_gen[:2], c.seed_gen[2:])
 
-		fmt.Printf("%+v\n", state)
-		fmt.Printf("state.state: %s\n", state.rng.state)
-		fmt.Printf("state.inc: %s\n", state.rng.inc)
+		fmt.Printf("%+v\n", st)
+		fmt.Printf("state.state: %s\n", st.rng.state)
+		fmt.Printf("state.inc: %s\n", st.rng.inc)
 
-		for _, e := range c.expected {
-			a := state.Next64()
-			fmt.Printf("a %x e %x\n", a, e)
-		}
+		//for _, e := range c.expected {
+		//	a := state.Next64()
+		//	fmt.Printf("a %x e %x\n", a, e)
+		//}
+
+		fmt.Println(randomUniform(st, 0, 1))
 	}
 }
