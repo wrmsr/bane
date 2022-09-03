@@ -95,8 +95,21 @@ func (v *parseVisitor) VisitComparison(ctx *parser.ComparisonContext) any {
 	ems := ctx.AllExprMain()
 	cos := ctx.AllCompOp()
 	check.Equal(len(ems), len(cos)+1)
-
-	n := v.NodeVisit(ems[0])
+	left := v.NodeVisit(ems[0])
+	if len(cos) < 1 {
+		return left
+	}
+	ops := make([]CmpOp, len(cos))
+	rights := make([]Node, len(cos))
+	for i, co := range cos {
+		ops[i] = ParseCmpOp(co.GetText())
+		rights[i] = v.NodeVisit(ems[i+1])
+	}
+	return Comparison{
+		Left:   left,
+		Ops:    ops,
+		Rights: rights,
+	}
 }
 
 func (v *parseVisitor) VisitCompOp(ctx *parser.CompOpContext) any {
