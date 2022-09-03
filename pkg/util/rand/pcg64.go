@@ -20,9 +20,15 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 */
 package rand
 
+import "fmt"
+
 type pcg128_t struct {
 	high uint64
 	low  uint64
+}
+
+func (v pcg128_t) String() string {
+	return fmt.Sprintf("{%x, %x}", v.high, v.low)
 }
 
 func PCG_128BIT_CONSTANT(high uint64, low uint64) pcg128_t {
@@ -247,21 +253,23 @@ func pcg_advance_lcg_128(state pcg128_t, delta pcg128_t, cur_mult pcg128_t, cur_
 	return pcg128_add(pcg128_mult(acc_mult, state), acc_plus)
 }
 
-func pcg64_advance(state *pcg64_state, step *uint64) {
+//
+
+func pcg64_advance(state *pcg64_state, step []uint64) {
 	var delta pcg128_t
 	delta.high = step[0]
 	delta.low = step[1]
 	pcg64_advance_r(state.pcg_state, delta)
 }
 
-func pcg64_cm_advance(state *pcg64_state, step *uint64) {
+func pcg64_cm_advance(state *pcg64_state, step []uint64) {
 	var delta pcg128_t
 	delta.high = step[0]
 	delta.low = step[1]
 	pcg_cm_advance_r(state.pcg_state, delta)
 }
 
-func pcg64_set_seed(state *pcg64_state, seed *uint64, inc *uint64) {
+func pcg64_set_seed(state *pcg64_state, seed []uint64, inc []uint64) {
 	var s, i pcg128_t
 	s.high = seed[0]
 	s.low = seed[1]
@@ -270,22 +278,18 @@ func pcg64_set_seed(state *pcg64_state, seed *uint64, inc *uint64) {
 	pcg64_srandom_r(state.pcg_state, s, i)
 }
 
-func pcg64_get_state(state *pcg64_state, state_arr *uint64, has_uint32 *int, uinteger *uint32) {
+func pcg64_get_state(state *pcg64_state, state_arr []uint64, has_uint32 *int, uinteger []uint32) {
 	// state_arr contains state.high, state.low, inc.high, inc.low which are interpreted as the upper 64 bits (high) or
 	// lower 64 bits of a uint128_t variable
-	state_arr[0] = (uint64)
-	state.pcg_state.state.high
-	state_arr[1] = (uint64)
-	state.pcg_state.state.low
-	state_arr[2] = (uint64)
-	state.pcg_state.inc.high
-	state_arr[3] = (uint64)
-	state.pcg_state.inc.low
-	has_uint32[0] = state.has_uint32
+	state_arr[0] = state.pcg_state.state.high
+	state_arr[1] = state.pcg_state.state.low
+	state_arr[2] = state.pcg_state.inc.high
+	state_arr[3] = state.pcg_state.inc.low
+	*has_uint32 = state.has_uint32
 	uinteger[0] = state.uinteger
 }
 
-func pcg64_set_state(state *pcg64_state, state_arr *uint64, has_uint32 int, uinteger uint32) {
+func pcg64_set_state(state *pcg64_state, state_arr []uint64, has_uint32 int, uinteger uint32) {
 	// state_arr contains state.high, state.low, inc.high, inc.low which are interpreted as the upper 64 bits (high) or
 	// lower 64 bits of a uint128_t variable
 	state.pcg_state.state.high = state_arr[0]
