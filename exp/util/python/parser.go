@@ -117,7 +117,10 @@ func (v *parseVisitor) VisitCompOp(ctx *parser.CompOpContext) any {
 }
 
 func (v *parseVisitor) VisitExprMain(ctx *parser.ExprMainContext) any {
-	panic("implement me")
+	cs := ctx.AllExprCont()
+	check.EmptySlice(cs)
+
+	return v.Visit(ctx.XorExpr())
 }
 
 func (v *parseVisitor) VisitExprCont(ctx *parser.ExprContContext) any {
@@ -125,7 +128,10 @@ func (v *parseVisitor) VisitExprCont(ctx *parser.ExprContContext) any {
 }
 
 func (v *parseVisitor) VisitXorExpr(ctx *parser.XorExprContext) any {
-	panic("implement me")
+	cs := ctx.AllXorExprCont()
+	check.EmptySlice(cs)
+
+	return v.Visit(ctx.AndExpr())
 }
 
 func (v *parseVisitor) VisitXorExprCont(ctx *parser.XorExprContContext) any {
@@ -133,7 +139,10 @@ func (v *parseVisitor) VisitXorExprCont(ctx *parser.XorExprContContext) any {
 }
 
 func (v *parseVisitor) VisitAndExpr(ctx *parser.AndExprContext) any {
-	panic("implement me")
+	cs := ctx.AllAndExprCont()
+	check.EmptySlice(cs)
+
+	return v.Visit(ctx.ShiftExpr())
 }
 
 func (v *parseVisitor) VisitAndExprCont(ctx *parser.AndExprContContext) any {
@@ -141,7 +150,10 @@ func (v *parseVisitor) VisitAndExprCont(ctx *parser.AndExprContContext) any {
 }
 
 func (v *parseVisitor) VisitShiftExpr(ctx *parser.ShiftExprContext) any {
-	panic("implement me")
+	cs := ctx.AllShiftExprCont()
+	check.EmptySlice(cs)
+
+	return v.Visit(ctx.ArithExpr())
 }
 
 func (v *parseVisitor) VisitShiftExprCont(ctx *parser.ShiftExprContContext) any {
@@ -149,7 +161,10 @@ func (v *parseVisitor) VisitShiftExprCont(ctx *parser.ShiftExprContContext) any 
 }
 
 func (v *parseVisitor) VisitArithExpr(ctx *parser.ArithExprContext) any {
-	panic("implement me")
+	cs := ctx.AllArithExprCont()
+	check.EmptySlice(cs)
+
+	return v.Visit(ctx.Term())
 }
 
 func (v *parseVisitor) VisitArithExprCont(ctx *parser.ArithExprContContext) any {
@@ -157,7 +172,10 @@ func (v *parseVisitor) VisitArithExprCont(ctx *parser.ArithExprContContext) any 
 }
 
 func (v *parseVisitor) VisitTerm(ctx *parser.TermContext) any {
-	panic("implement me")
+	cs := ctx.AllTermCont()
+	check.EmptySlice(cs)
+
+	return v.Visit(ctx.Factor())
 }
 
 func (v *parseVisitor) VisitTermCont(ctx *parser.TermContContext) any {

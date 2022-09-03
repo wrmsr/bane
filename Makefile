@@ -3,7 +3,6 @@ GO=go
 MOD:=$(shell grep -o '^module .*' go.mod | awk '{print $$2}')
 
 SRC=\
-	cmd \
 	exp \
 	pkg \
 
@@ -96,16 +95,6 @@ test:
 .PHONY: test-verbose
 test-verbose:
 	go test -v ./...
-
-
-### build
-
-.PHONY: build
-build:
-	${GO} build \
-		-tags nodev \
-		-o bin/bane \
-		"${MOD}/cmd/bane"
 
 
 ### docker
