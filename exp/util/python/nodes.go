@@ -106,6 +106,8 @@ const (
 	ArithMul
 	ArithDiv
 	ArithMod
+	ArithFloorDiv
+	ArithMatMul
 
 	ArithAnd
 	ArithOr
@@ -124,6 +126,10 @@ func (o ArithOp) String() string {
 		return "/"
 	case ArithMod:
 		return "%"
+	case ArithFloorDiv:
+		return "//"
+	case ArithMatMul:
+		return "@"
 
 	case ArithAnd:
 		return "&"
@@ -145,6 +151,10 @@ func ParseArithOp(s string) ArithOp {
 		return ArithMul
 	case "/":
 		return ArithDiv
+	case "//":
+		return ArithFloorDiv
+	case "@":
+		return ArithMatMul
 
 	case "&":
 		return ArithAnd
@@ -159,6 +169,44 @@ type Arith struct {
 	Op    ArithOp
 	Left  Node
 	Right Node
+
+	node
+}
+
+//
+
+type UnaryOp int8
+
+const (
+	UnaryInvalid UnaryOp = iota
+
+	UnaryPlus
+	UnaryMinus
+)
+
+func (o UnaryOp) String() string {
+	switch o {
+	case UnaryPlus:
+		return "+"
+	case UnaryMinus:
+		return "-"
+	}
+	panic(fmt.Errorf("invalid UnaryOp: %d", o))
+}
+
+func ParseUnaryOp(s string) UnaryOp {
+	switch s {
+	case "+":
+		return UnaryPlus
+	case "-":
+		return UnaryMinus
+	}
+	panic(fmt.Errorf("unhandled UnaryOp: %v", s))
+}
+
+type Unary struct {
+	Op    UnaryOp
+	Child Node
 
 	node
 }

@@ -121,7 +121,6 @@ func (v *parseVisitor) VisitCompOp(ctx *parser.CompOpContext) any {
 func (v *parseVisitor) VisitExprMain(ctx *parser.ExprMainContext) any {
 	cs := ctx.AllExprCont()
 	check.EmptySlice(cs)
-
 	return v.Visit(ctx.XorExpr())
 }
 
@@ -132,7 +131,6 @@ func (v *parseVisitor) VisitExprCont(ctx *parser.ExprContContext) any {
 func (v *parseVisitor) VisitXorExpr(ctx *parser.XorExprContext) any {
 	cs := ctx.AllXorExprCont()
 	check.EmptySlice(cs)
-
 	return v.Visit(ctx.AndExpr())
 }
 
@@ -143,7 +141,6 @@ func (v *parseVisitor) VisitXorExprCont(ctx *parser.XorExprContContext) any {
 func (v *parseVisitor) VisitAndExpr(ctx *parser.AndExprContext) any {
 	cs := ctx.AllAndExprCont()
 	check.EmptySlice(cs)
-
 	return v.Visit(ctx.ShiftExpr())
 }
 
@@ -154,7 +151,6 @@ func (v *parseVisitor) VisitAndExprCont(ctx *parser.AndExprContContext) any {
 func (v *parseVisitor) VisitShiftExpr(ctx *parser.ShiftExprContext) any {
 	cs := ctx.AllShiftExprCont()
 	check.EmptySlice(cs)
-
 	return v.Visit(ctx.ArithExpr())
 }
 
@@ -199,18 +195,19 @@ func (v *parseVisitor) VisitTermCont(ctx *parser.TermContContext) any {
 }
 
 func (v *parseVisitor) VisitFactor(ctx *parser.FactorContext) any {
-	if ctx.GetOp() != nil {
-		panic("implement me")
+	if p := ctx.Power(); p != nil {
+		return v.Visit(p)
 	}
-
-	return v.Visit(ctx.Power())
+	return Unary{
+		Op:    ParseUnaryOp(ctx.GetOp().GetText()),
+		Child: v.NodeVisit(ctx.Factor()),
+	}
 }
 
 func (v *parseVisitor) VisitPower(ctx *parser.PowerContext) any {
 	if ctx.Factor() != nil {
 		panic("implement me")
 	}
-
 	return v.Visit(ctx.AtomExpr())
 }
 
