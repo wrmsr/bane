@@ -41,8 +41,6 @@ jobs:
           docker load -i ~/.cache/docker/bane-ci.tar ||: ;
           docker image history wrmsr/bane-ci ||: ;
 
-      # - uses: 'mxschmitt/action-tmate@v2'
-
       - name: 'Run tests'
         run: >
           BANE_CI_DOCKER_OPTS='-v ${{ github.workspace }}:/github/workspace'

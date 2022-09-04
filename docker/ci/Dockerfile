@@ -66,5 +66,3 @@ RUN ( \
 WORKDIR /bane
 
 COPY . /bane
-
-CMD ["bash", "-c", "make ci-test"]

@@ -97,25 +97,6 @@ test-verbose:
 	go test -v ./...
 
 
-### ci
-
-.PHONY: ci
-ci:
-	docker-compose run --rm $$BANE_CI_DOCKER_OPTS -e BANE_CI=1 -e BANE_CI_OUTPUT_DIR="$$BANE_CI_OUTPUT_DIR" _ci
-
-.PHONY: _ci
-_ci:
-	if [ -f test-results.xml ] ; then \
-		rm test-results.xml ; \
-	fi
-
-	pytest -v -n auto --ci --junitxml=test-results.xml $(PROJECT) && \
-	\
-	if [ ! -z "$$OMNIBUS_CI_OUTPUT_DIR" ] ; then \
-		cp test-results.xml "$$OMNIBUS_CI_OUTPUT_DIR/test-results.xml" ; \
-	fi
-
-
 ### docker
 
 DOCKER_COMPOSE=docker-compose -f docker/docker-compose.yml
@@ -137,6 +118,18 @@ docker-invalidate:
 .PHONY: docker-enable-ptrace
 docker-enable-ptrace:
 	docker run --platform linux/x86_64 --privileged -it ubuntu sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'
+
+
+### ci
+
+.PHONY: ci
+ci:
+	${DOCKER_COMPOSE} build bane-ci
+	${DOCKER_COMPOSE} run --rm $$BANE_CI_DOCKER_OPTS -e BANE_CI=1 -e BANE_CI_OUTPUT_DIR="$$BANE_CI_OUTPUT_DIR" bane-ci make _ci
+
+.PHONY: _ci
+_ci:
+	make test
 
 
 ### utils
