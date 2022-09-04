@@ -88,3 +88,31 @@ type Comparison struct {
 	Ops    []CmpOp
 	Rights []Node
 }
+
+//
+
+type String struct {
+	node
+	S []string
+}
+
+//
+
+type Number struct {
+	node
+	S string
+}
+
+//
+
+type True struct {
+	node
+}
+
+type False struct {
+	node
+}
+
+type None struct {
+	node
+}

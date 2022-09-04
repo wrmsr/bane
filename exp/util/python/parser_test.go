@@ -10,7 +10,8 @@ import (
 )
 
 func TestParser(t *testing.T) {
-	testExpr := `{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`
+	//testExpr := `{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`
+	testExpr := `420`
 
 	is := antlr.NewInputStream(testExpr)
 	lexer := parser.NewExprLexer(is)

@@ -1,6 +1,8 @@
 package python
 
 import (
+	"fmt"
+
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 
 	"github.com/wrmsr/bane/exp/util/python/parser"
@@ -183,15 +185,26 @@ func (v *parseVisitor) VisitTermCont(ctx *parser.TermContContext) any {
 }
 
 func (v *parseVisitor) VisitFactor(ctx *parser.FactorContext) any {
-	panic("implement me")
+	if ctx.GetOp() != nil {
+		panic("implement me")
+	}
+
+	return v.Visit(ctx.Power())
 }
 
 func (v *parseVisitor) VisitPower(ctx *parser.PowerContext) any {
-	panic("implement me")
+	if ctx.Factor() != nil {
+		panic("implement me")
+	}
+
+	return v.Visit(ctx.AtomExpr())
 }
 
 func (v *parseVisitor) VisitAtomExpr(ctx *parser.AtomExprContext) any {
-	panic("implement me")
+	ts := ctx.AllTrailer()
+	check.EmptySlice(ts)
+
+	return v.Visit(ctx.Atom())
 }
 
 func (v *parseVisitor) VisitParenAtom(ctx *parser.ParenAtomContext) any {
@@ -207,11 +220,26 @@ func (v *parseVisitor) VisitDictOrSetAtom(ctx *parser.DictOrSetAtomContext) any 
 }
 
 func (v *parseVisitor) VisitConstAtom(ctx *parser.ConstAtomContext) any {
-	panic("implement me")
+	return v.Visit(ctx.Const())
 }
 
 func (v *parseVisitor) VisitConst(ctx *parser.ConstContext) any {
-	panic("implement me")
+	if ss := ctx.AllSTRING(); len(ss) > 0 {
+		return String{S: slices.Map(antlr.TerminalNode.GetText, ss)}
+	}
+	if n := ctx.NUMBER(); n != nil {
+		return Number{S: n.GetText()}
+	}
+	txt := ctx.GetText()
+	switch txt {
+	case "True":
+		return True{}
+	case "False":
+		return False{}
+	case "None":
+		return None{}
+	}
+	panic(fmt.Errorf("invalid const value: %s", txt))
 }
 
 func (v *parseVisitor) VisitTestListComp(ctx *parser.TestListCompContext) any {
