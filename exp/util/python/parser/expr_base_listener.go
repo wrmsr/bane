@@ -1,8 +1,11 @@
-// Code generated from Expr.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from java-escape by ANTLR 4.11.1. DO NOT EDIT.
 
 package parser // Expr
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import (
+	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
+)
 
 // BaseExprListener is a complete listener for a parse tree produced by ExprParser.
 type BaseExprListener struct{}
@@ -153,11 +156,11 @@ func (s *BaseExprListener) EnterParenAtom(ctx *ParenAtomContext) {}
 // ExitParenAtom is called when production parenAtom is exited.
 func (s *BaseExprListener) ExitParenAtom(ctx *ParenAtomContext) {}
 
-// EnterBraacketAtom is called when production braacketAtom is entered.
-func (s *BaseExprListener) EnterBraacketAtom(ctx *BraacketAtomContext) {}
+// EnterBracketAtom is called when production bracketAtom is entered.
+func (s *BaseExprListener) EnterBracketAtom(ctx *BracketAtomContext) {}
 
-// ExitBraacketAtom is called when production braacketAtom is exited.
-func (s *BaseExprListener) ExitBraacketAtom(ctx *BraacketAtomContext) {}
+// ExitBracketAtom is called when production bracketAtom is exited.
+func (s *BaseExprListener) ExitBracketAtom(ctx *BracketAtomContext) {}
 
 // EnterDictOrSetAtom is called when production dictOrSetAtom is entered.
 func (s *BaseExprListener) EnterDictOrSetAtom(ctx *DictOrSetAtomContext) {}

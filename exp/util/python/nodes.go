@@ -106,11 +106,14 @@ const (
 	ArithMul
 	ArithDiv
 	ArithMod
+	ArithPow
 	ArithFloorDiv
 	ArithMatMul
 
 	ArithAnd
 	ArithOr
+	ArithShl
+	ArithShr
 )
 
 func (o ArithOp) String() string {
@@ -126,6 +129,8 @@ func (o ArithOp) String() string {
 		return "/"
 	case ArithMod:
 		return "%"
+	case ArithPow:
+		return "**"
 	case ArithFloorDiv:
 		return "//"
 	case ArithMatMul:
@@ -135,6 +140,10 @@ func (o ArithOp) String() string {
 		return "&"
 	case ArithOr:
 		return "|"
+	case ArithShl:
+		return "<<"
+	case ArithShr:
+		return ">>"
 
 	}
 	panic(fmt.Errorf("invalid ArithOp: %d", o))
@@ -151,6 +160,10 @@ func ParseArithOp(s string) ArithOp {
 		return ArithMul
 	case "/":
 		return ArithDiv
+	case "%":
+		return ArithMod
+	case "**":
+		return ArithPow
 	case "//":
 		return ArithFloorDiv
 	case "@":
@@ -160,6 +173,10 @@ func ParseArithOp(s string) ArithOp {
 		return ArithAnd
 	case "|":
 		return ArithOr
+	case "<<":
+		return ArithShl
+	case ">>":
+		return ArithShr
 
 	}
 	panic(fmt.Errorf("unhandled ArithOp: %v", s))

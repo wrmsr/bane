@@ -155,7 +155,10 @@ func (v *parseVisitor) VisitShiftExpr(ctx *parser.ShiftExprContext) any {
 }
 
 func (v *parseVisitor) VisitShiftExprCont(ctx *parser.ShiftExprContContext) any {
-	panic("implement me")
+	return Arith{
+		Op:    ParseArithOp(ctx.GetOp().GetText()),
+		Right: v.NodeVisit(ctx.ArithExpr()),
+	}
 }
 
 func (v *parseVisitor) VisitArithExpr(ctx *parser.ArithExprContext) any {
@@ -205,10 +208,15 @@ func (v *parseVisitor) VisitFactor(ctx *parser.FactorContext) any {
 }
 
 func (v *parseVisitor) VisitPower(ctx *parser.PowerContext) any {
-	if ctx.Factor() != nil {
-		panic("implement me")
+	e := v.NodeVisit(ctx.AtomExpr())
+	if ctx.Factor() == nil {
+		return e
 	}
-	return v.Visit(ctx.AtomExpr())
+	return Arith{
+		Op:    ArithPow,
+		Left:  e,
+		Right: v.NodeVisit(ctx.Factor()),
+	}
 }
 
 func (v *parseVisitor) VisitAtomExpr(ctx *parser.AtomExprContext) any {
@@ -222,7 +230,7 @@ func (v *parseVisitor) VisitParenAtom(ctx *parser.ParenAtomContext) any {
 	panic("implement me")
 }
 
-func (v *parseVisitor) VisitBraacketAtom(ctx *parser.BraacketAtomContext) any {
+func (v *parseVisitor) VisitBracketAtom(ctx *parser.BracketAtomContext) any {
 	panic("implement me")
 }
 

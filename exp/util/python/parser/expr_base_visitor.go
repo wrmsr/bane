@@ -1,8 +1,8 @@
-// Code generated from Expr.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from java-escape by ANTLR 4.11.1. DO NOT EDIT.
 
 package parser // Expr
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import "github.com/antlr/antlr4/runtime/Go/antlr/v4"
 
 type BaseExprVisitor struct {
 	*antlr.BaseParseTreeVisitor
@@ -96,7 +96,7 @@ func (v *BaseExprVisitor) VisitParenAtom(ctx *ParenAtomContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitBraacketAtom(ctx *BraacketAtomContext) interface{} {
+func (v *BaseExprVisitor) VisitBracketAtom(ctx *BracketAtomContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

@@ -20,6 +20,8 @@ func TestParser(t *testing.T) {
 		`1+2+3`,
 		`1+2/3+4`,
 		`+1`,
+		`2**2`,
+		`1<<2`,
 		//`{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`,
 	} {
 		is := antlr.NewInputStream(testExpr)

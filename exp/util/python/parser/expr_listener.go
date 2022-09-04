@@ -1,8 +1,8 @@
-// Code generated from Expr.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from java-escape by ANTLR 4.11.1. DO NOT EDIT.
 
 package parser // Expr
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import "github.com/antlr/antlr4/runtime/Go/antlr/v4"
 
 // ExprListener is a complete listener for a parse tree produced by ExprParser.
 type ExprListener interface {
@@ -74,8 +74,8 @@ type ExprListener interface {
 	// EnterParenAtom is called when entering the parenAtom production.
 	EnterParenAtom(c *ParenAtomContext)
 
-	// EnterBraacketAtom is called when entering the braacketAtom production.
-	EnterBraacketAtom(c *BraacketAtomContext)
+	// EnterBracketAtom is called when entering the bracketAtom production.
+	EnterBracketAtom(c *BracketAtomContext)
 
 	// EnterDictOrSetAtom is called when entering the dictOrSetAtom production.
 	EnterDictOrSetAtom(c *DictOrSetAtomContext)
@@ -170,8 +170,8 @@ type ExprListener interface {
 	// ExitParenAtom is called when exiting the parenAtom production.
 	ExitParenAtom(c *ParenAtomContext)
 
-	// ExitBraacketAtom is called when exiting the braacketAtom production.
-	ExitBraacketAtom(c *BraacketAtomContext)
+	// ExitBracketAtom is called when exiting the bracketAtom production.
+	ExitBracketAtom(c *BracketAtomContext)
 
 	// ExitDictOrSetAtom is called when exiting the dictOrSetAtom production.
 	ExitDictOrSetAtom(c *DictOrSetAtomContext)

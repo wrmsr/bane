@@ -1,8 +1,8 @@
-// Code generated from Expr.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from java-escape by ANTLR 4.11.1. DO NOT EDIT.
 
 package parser // Expr
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import "github.com/antlr/antlr4/runtime/Go/antlr/v4"
 
 // A complete Visitor for a parse tree produced by ExprParser.
 type ExprVisitor interface {
@@ -74,8 +74,8 @@ type ExprVisitor interface {
 	// Visit a parse tree produced by ExprParser#parenAtom.
 	VisitParenAtom(ctx *ParenAtomContext) interface{}
 
-	// Visit a parse tree produced by ExprParser#braacketAtom.
-	VisitBraacketAtom(ctx *BraacketAtomContext) interface{}
+	// Visit a parse tree produced by ExprParser#bracketAtom.
+	VisitBracketAtom(ctx *BracketAtomContext) interface{}
 
 	// Visit a parse tree produced by ExprParser#dictOrSetAtom.
 	VisitDictOrSetAtom(ctx *DictOrSetAtomContext) interface{}
