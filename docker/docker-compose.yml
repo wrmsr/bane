@@ -56,3 +56,17 @@ services:
       - '8000'
     ports:
       - '33221:8000'
+
+  bane-ci:
+    build:
+      context: '../'
+      dockerfile: 'docker/ci/Dockerfile'
+    image: 'wrmsr/bane-ci:latest'
+    platform: 'linux/x86_64'
+    restart: 'no'
+    depends_on:
+      - 'bane-mysql'
+      - 'bane-postgres'
+    links:
+      - 'bane-mysql'
+      - 'bane-postgres'
