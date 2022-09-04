@@ -18,7 +18,7 @@ BREW_DEPS=\
 clean:
 	rm -rf \
 		.cache \
-		.venv \
+		.venv* \
 		bin \
 
 	ds=$$(find ${SRC} -name parser -type d) && \
@@ -53,7 +53,7 @@ dep-tidy:
 .PHONY: gen
 gen: gen-antlr gen-go
 
-ANTLR_VERSION=4.11.1
+ANTLR_VERSION=4.10.1
 
 .PHONY: gen-antlr
 gen-antlr:

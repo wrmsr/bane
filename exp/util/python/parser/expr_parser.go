@@ -1,4 +1,4 @@
-// Code generated from java-escape by ANTLR 4.11.1. DO NOT EDIT.
+// Code generated from Expr.g4 by ANTLR 4.10.1. DO NOT EDIT.
 
 package parser // Expr
 
@@ -226,7 +226,7 @@ func NewExprParser(input antlr.TokenStream) *ExprParser {
 	this.RuleNames = staticData.ruleNames
 	this.LiteralNames = staticData.literalNames
 	this.SymbolicNames = staticData.symbolicNames
-	this.GrammarFileName = "java-escape"
+	this.GrammarFileName = "Expr.g4"
 
 	return this
 }
@@ -1153,7 +1153,7 @@ func (p *ExprParser) Comparison() (localctx IComparisonContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1511828488446) != 0 {
+	for (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<ExprParserT__0)|(1<<ExprParserT__1)|(1<<ExprParserT__2)|(1<<ExprParserT__3)|(1<<ExprParserT__4)|(1<<ExprParserT__5)|(1<<ExprParserT__6))) != 0) || (((_la-37)&-(0x1f+1)) == 0 && ((1<<uint((_la-37)))&((1<<(ExprParserIN-37))|(1<<(ExprParserIS-37))|(1<<(ExprParserNOT-37)))) != 0) {
 		{
 			p.SetState(93)
 			p.CompOp()
@@ -3079,7 +3079,7 @@ func (p *ExprParser) Term() (localctx ITermContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1015808) != 0 {
+	for ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<ExprParserT__14)|(1<<ExprParserT__15)|(1<<ExprParserT__16)|(1<<ExprParserT__17)|(1<<ExprParserT__18))) != 0 {
 		{
 			p.SetState(167)
 			p.TermCont()
@@ -3222,7 +3222,7 @@ func (p *ExprParser) TermCont() (localctx ITermContContext) {
 
 		_la = p.GetTokenStream().LA(1)
 
-		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1015808) != 0) {
+		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<ExprParserT__14)|(1<<ExprParserT__15)|(1<<ExprParserT__16)|(1<<ExprParserT__17)|(1<<ExprParserT__18))) != 0) {
 			var _ri = p.GetErrorHandler().RecoverInline(p)
 
 			localctx.(*TermContContext).op = _ri
@@ -3389,7 +3389,7 @@ func (p *ExprParser) Factor() (localctx IFactorContext) {
 
 			_la = p.GetTokenStream().LA(1)
 
-			if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1073152) != 0) {
+			if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<ExprParserT__12)|(1<<ExprParserT__13)|(1<<ExprParserT__19))) != 0) {
 				var _ri = p.GetErrorHandler().RecoverInline(p)
 
 				localctx.(*FactorContext).op = _ri
@@ -3931,7 +3931,7 @@ func (s *ConstAtomContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *ConstAtomContext) Const_() IConstContext {
+func (s *ConstAtomContext) Const() IConstContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IConstContext); ok {
@@ -4064,7 +4064,7 @@ func (p *ExprParser) Atom() (localctx IAtomContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&32517554987008) != 0 {
+		if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNEWLINE-13))|(1<<(ExprParserNAME-13)))) != 0 {
 			{
 				p.SetState(194)
 				p.TestListComp()
@@ -4087,7 +4087,7 @@ func (p *ExprParser) Atom() (localctx IAtomContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&32517554987008) != 0 {
+		if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNEWLINE-13))|(1<<(ExprParserNAME-13)))) != 0 {
 			{
 				p.SetState(199)
 				p.TestListComp()
@@ -4110,7 +4110,7 @@ func (p *ExprParser) Atom() (localctx IAtomContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&32517557084160) != 0 {
+		if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__20-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNEWLINE-13))|(1<<(ExprParserNAME-13)))) != 0 {
 			{
 				p.SetState(204)
 				p.DictOrSetMaker()
@@ -4127,7 +4127,7 @@ func (p *ExprParser) Atom() (localctx IAtomContext) {
 		p.EnterOuterAlt(localctx, 4)
 		{
 			p.SetState(208)
-			p.Const_()
+			p.Const()
 		}
 
 	default:
@@ -4233,7 +4233,7 @@ func (s *ConstContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 	}
 }
 
-func (p *ExprParser) Const_() (localctx IConstContext) {
+func (p *ExprParser) Const() (localctx IConstContext) {
 	this := p
 	_ = this
 
@@ -4991,7 +4991,7 @@ func (p *ExprParser) Subscript() (localctx ISubscriptContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&32517554987008) != 0 {
+		if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNEWLINE-13))|(1<<(ExprParserNAME-13)))) != 0 {
 			{
 				p.SetState(255)
 				p.Expr()
@@ -5006,7 +5006,7 @@ func (p *ExprParser) Subscript() (localctx ISubscriptContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&32517554987008) != 0 {
+		if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNEWLINE-13))|(1<<(ExprParserNAME-13)))) != 0 {
 			{
 				p.SetState(259)
 				p.Expr()
@@ -5147,7 +5147,7 @@ func (p *ExprParser) SliceOp() (localctx ISliceOpContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&32517554987008) != 0 {
+	if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNEWLINE-13))|(1<<(ExprParserNAME-13)))) != 0 {
 		{
 			p.SetState(268)
 			p.Expr()

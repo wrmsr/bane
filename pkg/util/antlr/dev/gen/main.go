@@ -30,7 +30,9 @@ func main() {
 
 	check.Must(flags.Parse(os.Args[1:]))
 
-	check.Condition(check.Must1(os.Stat(".cache")).IsDir())
+	if !check.Must1(osu.Exists(".cache")) {
+		check.Must(os.Mkdir(".cache", 0744))
+	}
 
 	antlrVer := flags.Args()[0]
 	jarName := fmt.Sprintf("antlr-%s-complete.jar", antlrVer)
