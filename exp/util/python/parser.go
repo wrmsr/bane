@@ -164,21 +164,17 @@ func (v *parseVisitor) VisitShiftExprCont(ctx *parser.ShiftExprContContext) any 
 
 func (v *parseVisitor) VisitArithExpr(ctx *parser.ArithExprContext) any {
 	cs := ctx.AllArithExprCont()
-	var rec func(Node, int) Node
-	rec = func(l Node, i int) Node {
-		if i >= len(cs) {
-			return l
-		}
-		Arith{
-			Left:  l,
-			Right: r,
-		}
+	l := v.NodeVisit(ctx.Term())
+	if len(cs) < 1 {
+		return l
 	}
-	return rec(v.NodeVisit(ctx.Term()), 0)
 }
 
 func (v *parseVisitor) VisitArithExprCont(ctx *parser.ArithExprContContext) any {
-	panic("not implemented")
+	return Arith{
+		Op:    ParseArithOp(ctx.GetOp().GetText()),
+		Right: v.NodeVisit(ctx.Term()),
+	}
 }
 
 func (v *parseVisitor) VisitTerm(ctx *parser.TermContext) any {
