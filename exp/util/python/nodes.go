@@ -1,6 +1,8 @@
 package python
 
-import "fmt"
+import (
+	"fmt"
+)
 
 //
 
@@ -15,22 +17,25 @@ func (n node) isNode() {}
 //
 
 type And struct {
-	node
 	Children []Node
+
+	node
 }
 
 //
 
 type Or struct {
-	node
 	Children []Node
+
+	node
 }
 
 //
 
 type Not struct {
-	node
 	Child Node
+
+	node
 }
 
 //
@@ -83,7 +88,7 @@ func ParseCmpOp(s string) CmpOp {
 	panic(fmt.Errorf("unhandled CmpOp: %v", s))
 }
 
-type Comparison struct {
+type Cmp struct {
 	Left   Node
 	Ops    []CmpOp
 	Rights []Node
@@ -91,16 +96,87 @@ type Comparison struct {
 
 //
 
-type String struct {
+type ArithOp int8
+
+const (
+	ArithInvalid ArithOp = iota
+
+	ArithAdd
+	ArithSub
+	ArithMul
+	ArithDiv
+	ArithMod
+
+	ArithAnd
+	ArithOr
+)
+
+func (o ArithOp) String() string {
+	switch o {
+
+	case ArithAdd:
+		return "+"
+	case ArithSub:
+		return "-"
+	case ArithMul:
+		return "*"
+	case ArithDiv:
+		return "/"
+	case ArithMod:
+		return "%"
+
+	case ArithAnd:
+		return "&"
+	case ArithOr:
+		return "|"
+
+	}
+	panic(fmt.Errorf("invalid ArithOp: %d", o))
+}
+
+func ParseArithOp(s string) ArithOp {
+	switch s {
+
+	case "+":
+		return ArithAdd
+	case "-":
+		return ArithSub
+	case "*":
+		return ArithMul
+	case "/":
+		return ArithDiv
+
+	case "&":
+		return ArithAnd
+	case "|":
+		return ArithOr
+
+	}
+	panic(fmt.Errorf("unhandled ArithOp: %v", s))
+}
+
+type Arith struct {
+	Op    ArithOp
+	Left  Node
+	Right Node
+
 	node
+}
+
+//
+
+type String struct {
 	S []string
+
+	node
 }
 
 //
 
 type Number struct {
-	node
 	S string
+
+	node
 }
 
 //

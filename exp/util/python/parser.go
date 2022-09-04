@@ -107,7 +107,7 @@ func (v *parseVisitor) VisitComparison(ctx *parser.ComparisonContext) any {
 		ops[i] = ParseCmpOp(co.GetText())
 		rights[i] = v.NodeVisit(ems[i+1])
 	}
-	return Comparison{
+	return Cmp{
 		Left:   left,
 		Ops:    ops,
 		Rights: rights,
@@ -164,13 +164,21 @@ func (v *parseVisitor) VisitShiftExprCont(ctx *parser.ShiftExprContContext) any 
 
 func (v *parseVisitor) VisitArithExpr(ctx *parser.ArithExprContext) any {
 	cs := ctx.AllArithExprCont()
-	check.EmptySlice(cs)
-
-	return v.Visit(ctx.Term())
+	var rec func(Node, int) Node
+	rec = func(l Node, i int) Node {
+		if i >= len(cs) {
+			return l
+		}
+		Arith{
+			Left:  l,
+			Right: r,
+		}
+	}
+	return rec(v.NodeVisit(ctx.Term()), 0)
 }
 
 func (v *parseVisitor) VisitArithExprCont(ctx *parser.ArithExprContContext) any {
-	panic("implement me")
+	panic("not implemented")
 }
 
 func (v *parseVisitor) VisitTerm(ctx *parser.TermContext) any {
