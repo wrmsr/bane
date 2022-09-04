@@ -12,8 +12,6 @@ import (
 
 func TestParser(t *testing.T) {
 	for _, testExpr := range []string{
-		`1+2/3+4`,
-
 		`420`,
 		`None`,
 		`"abc"`,
