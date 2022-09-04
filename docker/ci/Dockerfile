@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 COPY docker/.dockertimestamp /
 
 
-# deps
+## deps
 
 RUN ( \
     export DEBIAN_FRONTEND=noninteractive && \
@@ -56,7 +56,7 @@ export PATH="'$'"PATH:/usr/local/go/bin:"'$'"GOPATH/bin\n\
 )
 
 
-# entrypoint
+## entrypoint
 
 RUN ( \
     touch ~/.bashrc && \
