@@ -165,9 +165,12 @@ func (v *parseVisitor) VisitShiftExprCont(ctx *parser.ShiftExprContContext) any 
 func (v *parseVisitor) VisitArithExpr(ctx *parser.ArithExprContext) any {
 	cs := ctx.AllArithExprCont()
 	l := v.NodeVisit(ctx.Term())
-	if len(cs) < 1 {
-		return l
+	for _, c := range cs {
+		a := v.Visit(c).(Arith)
+		a.Left = l
+		l = a
 	}
+	return l
 }
 
 func (v *parseVisitor) VisitArithExprCont(ctx *parser.ArithExprContContext) any {
