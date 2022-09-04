@@ -22,7 +22,7 @@ clean:
 		bin \
 
 	ds=$$(find ${SRC} -name parser -type d) && \
-	for d in "$$ds" ; do rm -rf "$$d" ; done
+	for d in $$ds ; do rm -rf "$$d" ; done
 
 
 ### sys
