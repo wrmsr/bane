@@ -182,13 +182,20 @@ func (v *parseVisitor) VisitArithExprCont(ctx *parser.ArithExprContContext) any 
 
 func (v *parseVisitor) VisitTerm(ctx *parser.TermContext) any {
 	cs := ctx.AllTermCont()
-	check.EmptySlice(cs)
-
-	return v.Visit(ctx.Factor())
+	l := v.NodeVisit(ctx.Factor())
+	for _, c := range cs {
+		a := v.Visit(c).(Arith)
+		a.Left = l
+		l = a
+	}
+	return l
 }
 
 func (v *parseVisitor) VisitTermCont(ctx *parser.TermContContext) any {
-	panic("implement me")
+	return Arith{
+		Op:    ParseArithOp(ctx.GetOp().GetText()),
+		Right: v.NodeVisit(ctx.Factor()),
+	}
 }
 
 func (v *parseVisitor) VisitFactor(ctx *parser.FactorContext) any {

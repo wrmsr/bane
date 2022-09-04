@@ -12,12 +12,15 @@ import (
 
 func TestParser(t *testing.T) {
 	for _, testExpr := range []string{
+		`1+2/3+4`,
+
 		`420`,
 		`None`,
 		`"abc"`,
 		`'def'`,
 		`1+2`,
 		`1+2+3`,
+		`1+2/3+4`,
 		//`{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`,
 	} {
 		is := antlr.NewInputStream(testExpr)
