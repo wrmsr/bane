@@ -26,10 +26,10 @@ jobs:
         id: 'cache'
         with:
           path: '~/.cache'
-          key: >
+          key:
             bane-ci-${{ github.ref }}-${{ hashFiles(
               '.dockertimestamp',
-              'docker/bane-ci/Dockerfile',
+              'docker/ci/Dockerfile'
             ) }}
           restore-keys: |
             bane-ci-${{ github.ref }}-
@@ -37,8 +37,8 @@ jobs:
 
       - name: 'Docker cache load'
         run: >
-          tar -tvf ~/.cache/docker/bane-ci.tar ||: ;
-          docker load -i ~/.cache/docker/bane-ci.tar ||: ;
+          tar -tvf ~/.cache/docker/ci.tar ||: ;
+          docker load -i ~/.cache/docker/ci.tar ||: ;
           docker image history wrmsr/bane-ci ||: ;
 
       - name: 'Run tests'
@@ -53,7 +53,7 @@ jobs:
           mkdir -p ~/.cache/docker/ &&
           docker image history wrmsr/bane-ci &&
           docker history wrmsr/bane-ci | tail -n+2 | awk '{print $1}' | egrep -v '<missing>' |
-            xargs docker save -o ~/.cache/docker/bane-ci.tar wrmsr/bane-ci
+            xargs docker save -o ~/.cache/docker/ci.tar wrmsr/bane-ci
 
       - uses: 'ashley-taylor/junit-report-annotations-action@1.3'
         if: 'always()'

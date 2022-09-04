@@ -24,5 +24,6 @@ func TestParser(t *testing.T) {
 	fmt.Println(tree)
 
 	v := parseVisitor{}
-	tree.Accept(&v)
+	n := tree.Accept(&v).(Node)
+	fmt.Printf("%+v\n", n)
 }
