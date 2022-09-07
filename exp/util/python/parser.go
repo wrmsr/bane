@@ -90,6 +90,19 @@ func visitArithCont(v *parseVisitor, op antlr.Token, rctx antlr.ParserRuleContex
 	}
 }
 
+func (v *parseVisitor) nodeVisitTestListComp(ctx parser.ITestListCompContext) []Node {
+	if ctx == nil {
+		return nil
+	}
+	return slices.Map(func(c parser.IExprContext) Node {
+		return v.NodeVisit(c)
+	}, ctx.(*parser.TestListCompContext).AllExpr())
+}
+
+func (v *parseVisitor) unimplemented(ctx antlr.ParserRuleContext) any {
+	panic(fmt.Errorf("unimplemented: %s", ctx))
+}
+
 //
 
 func (v *parseVisitor) VisitExpr(ctx *parser.ExprContext) any {
@@ -151,17 +164,15 @@ func (v *parseVisitor) VisitComparison(ctx *parser.ComparisonContext) any {
 }
 
 func (v *parseVisitor) VisitCompOp(ctx *parser.CompOpContext) any {
-	panic("implement me")
+	return v.unimplemented(ctx)
 }
 
 func (v *parseVisitor) VisitExprMain(ctx *parser.ExprMainContext) any {
-	cs := ctx.AllExprCont()
-	check.EmptySlice(cs)
-	return v.Visit(ctx.XorExpr())
+	return visitArithWithCont[parser.IXorExprContext, parser.IExprContContext](v, ctx)
 }
 
 func (v *parseVisitor) VisitExprCont(ctx *parser.ExprContContext) any {
-	panic("implement me")
+	return visitArithCont(v, ctx.GetOp(), ctx.XorExpr())
 }
 
 func (v *parseVisitor) VisitXorExpr(ctx *parser.XorExprContext) any {
@@ -234,11 +245,15 @@ func (v *parseVisitor) VisitAtomExpr(ctx *parser.AtomExprContext) any {
 }
 
 func (v *parseVisitor) VisitParenAtom(ctx *parser.ParenAtomContext) any {
-	panic("implement me")
+	return Parens{
+		Children: v.nodeVisitTestListComp(ctx.TestListComp()),
+	}
 }
 
 func (v *parseVisitor) VisitBracketAtom(ctx *parser.BracketAtomContext) any {
-	panic("implement me")
+	return Brackets{
+		Children: v.nodeVisitTestListComp(ctx.TestListComp()),
+	}
 }
 
 func (v *parseVisitor) VisitDictOrSetAtom(ctx *parser.DictOrSetAtomContext) any {
@@ -269,7 +284,7 @@ func (v *parseVisitor) VisitConst(ctx *parser.ConstContext) any {
 }
 
 func (v *parseVisitor) VisitTestListComp(ctx *parser.TestListCompContext) any {
-	panic("implement me")
+	return v.unimplemented(ctx)
 }
 
 func (v *parseVisitor) VisitTrailer(ctx *parser.TrailerContext) any {

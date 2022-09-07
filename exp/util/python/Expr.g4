@@ -125,7 +125,6 @@ atomExpr
 atom
     : '(' testListComp? ')'    #parenAtom
     | '[' testListComp? ']'    #bracketAtom
-    | '{' dictOrSetMaker? '}'  #dictOrSetAtom
     | const                    #constAtom
     ;
 
