@@ -26,8 +26,12 @@ grammar Expr;
 
 tokens { INDENT, DEDENT }
 
+singleExpr
+    : expr EOF
+    ;
+
 expr
-    : NEWLINE* orTest NEWLINE*
+    : orTest
     ;
 
 orTest

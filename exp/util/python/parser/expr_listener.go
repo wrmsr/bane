@@ -8,6 +8,9 @@ import "github.com/antlr/antlr4/runtime/Go/antlr"
 type ExprListener interface {
 	antlr.ParseTreeListener
 
+	// EnterSingleExpr is called when entering the singleExpr production.
+	EnterSingleExpr(c *SingleExprContext)
+
 	// EnterExpr is called when entering the expr production.
 	EnterExpr(c *ExprContext)
 
@@ -115,6 +118,9 @@ type ExprListener interface {
 
 	// EnterStarsDictItem is called when entering the starsDictItem production.
 	EnterStarsDictItem(c *StarsDictItemContext)
+
+	// ExitSingleExpr is called when exiting the singleExpr production.
+	ExitSingleExpr(c *SingleExprContext)
 
 	// ExitExpr is called when exiting the expr production.
 	ExitExpr(c *ExprContext)

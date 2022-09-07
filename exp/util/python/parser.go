@@ -6,6 +6,7 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 
 	"github.com/wrmsr/bane/exp/util/python/parser"
+	antlru "github.com/wrmsr/bane/pkg/util/antlr"
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
@@ -49,11 +50,11 @@ func (v *parseVisitor) VisitChildren(node antlr.RuleNode) any {
 }
 
 func (v *parseVisitor) VisitTerminal(node antlr.TerminalNode) any {
-	panic("implement me")
+	return v.error(fmt.Errorf("%s", node))
 }
 
 func (v *parseVisitor) VisitErrorNode(node antlr.ErrorNode) any {
-	panic("implement me")
+	return v.error(fmt.Errorf("%s", node))
 }
 
 //
@@ -62,20 +63,9 @@ func (v *parseVisitor) NodeVisit(tree antlr.ParseTree) Node {
 	return v.Visit(tree).(Node)
 }
 
-func findTreeChildren[T antlr.ParserRuleContext](parent antlr.Tree) []T {
-	var cs []T
-	for _, ctx := range parent.GetChildren() {
-		if c, ok := ctx.(T); ok {
-			cs = append(cs, c)
-			break
-		}
-	}
-	return cs
-}
-
 func visitArithWithCont[L, R antlr.ParserRuleContext](v *parseVisitor, ctx antlr.ParserRuleContext) Node {
-	l := v.NodeVisit(check.Single(findTreeChildren[L](ctx)))
-	for _, rctx := range findTreeChildren[R](ctx) {
+	l := v.NodeVisit(check.Single(antlru.FindTreeChildren[L](ctx)))
+	for _, rctx := range antlru.FindTreeChildren[R](ctx) {
 		a := v.Visit(rctx).(Arith)
 		a.Left = l
 		l = a
@@ -108,6 +98,10 @@ func (v *parseVisitor) unimplemented(ctx antlr.ParserRuleContext) any {
 }
 
 //
+
+func (v *parseVisitor) VisitSingleExpr(ctx *parser.SingleExprContext) any {
+	return v.Visit(ctx.Expr())
+}
 
 func (v *parseVisitor) VisitExpr(ctx *parser.ExprContext) any {
 	return v.Visit(ctx.OrTest())
@@ -142,6 +136,9 @@ func (v *parseVisitor) VisitNotTest(ctx *parser.NotTestContext) any {
 		return Not{
 			Child: v.NodeVisit(nt),
 		}
+	}
+	if ctx.Comparison() == nil {
+		fmt.Println(ctx)
 	}
 	return v.Visit(ctx.Comparison())
 }

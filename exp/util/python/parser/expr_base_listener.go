@@ -21,6 +21,12 @@ func (s *BaseExprListener) EnterEveryRule(ctx antlr.ParserRuleContext) {}
 // ExitEveryRule is called when any rule is exited.
 func (s *BaseExprListener) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 
+// EnterSingleExpr is called when production singleExpr is entered.
+func (s *BaseExprListener) EnterSingleExpr(ctx *SingleExprContext) {}
+
+// ExitSingleExpr is called when production singleExpr is exited.
+func (s *BaseExprListener) ExitSingleExpr(ctx *SingleExprContext) {}
+
 // EnterExpr is called when production expr is entered.
 func (s *BaseExprListener) EnterExpr(ctx *ExprContext) {}
 

@@ -8,6 +8,9 @@ import "github.com/antlr/antlr4/runtime/Go/antlr"
 type ExprVisitor interface {
 	antlr.ParseTreeVisitor
 
+	// Visit a parse tree produced by ExprParser#singleExpr.
+	VisitSingleExpr(ctx *SingleExprContext) interface{}
+
 	// Visit a parse tree produced by ExprParser#expr.
 	VisitExpr(ctx *ExprContext) interface{}
 

@@ -8,6 +8,10 @@ type BaseExprVisitor struct {
 	*antlr.BaseParseTreeVisitor
 }
 
+func (v *BaseExprVisitor) VisitSingleExpr(ctx *SingleExprContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseExprVisitor) VisitExpr(ctx *ExprContext) interface{} {
 	return v.VisitChildren(ctx)
 }
