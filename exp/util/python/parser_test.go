@@ -25,7 +25,7 @@ func TestParser(t *testing.T) {
 		`[1,2]`,
 		`1+(2,3)`,
 		`{'descr':'<f4','fortran_order':False,'shape':(3,3),}`,
-		//`{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`,
+		`{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`,
 	} {
 		is := antlr.NewInputStream(testExpr)
 		lexer := parser.NewExprLexer(is)

@@ -110,7 +110,7 @@ func (v *parseVisitor) unimplemented(ctx antlr.ParserRuleContext) any {
 //
 
 func (v *parseVisitor) VisitExpr(ctx *parser.ExprContext) any {
-	return v.VisitChildren(ctx)
+	return v.Visit(ctx.OrTest())
 }
 
 func (v *parseVisitor) VisitOrTest(ctx *parser.OrTestContext) any {
