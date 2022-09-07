@@ -92,6 +92,12 @@ type ExprListener interface {
 	// EnterTestListComp is called when entering the testListComp production.
 	EnterTestListComp(c *TestListCompContext)
 
+	// EnterExprOrStarExpr is called when entering the exprOrStarExpr production.
+	EnterExprOrStarExpr(c *ExprOrStarExprContext)
+
+	// EnterStarExpr is called when entering the starExpr production.
+	EnterStarExpr(c *StarExprContext)
+
 	// EnterTrailer is called when entering the trailer production.
 	EnterTrailer(c *TrailerContext)
 
@@ -202,6 +208,12 @@ type ExprListener interface {
 
 	// ExitTestListComp is called when exiting the testListComp production.
 	ExitTestListComp(c *TestListCompContext)
+
+	// ExitExprOrStarExpr is called when exiting the exprOrStarExpr production.
+	ExitExprOrStarExpr(c *ExprOrStarExprContext)
+
+	// ExitStarExpr is called when exiting the starExpr production.
+	ExitStarExpr(c *StarExprContext)
 
 	// ExitTrailer is called when exiting the trailer production.
 	ExitTrailer(c *TrailerContext)

@@ -84,9 +84,9 @@ func (v *parseVisitor) nodeVisitTestListComp(ctx parser.ITestListCompContext) []
 	if ctx == nil {
 		return nil
 	}
-	return slices.Map(func(c parser.IExprContext) Node {
+	return slices.Map(func(c parser.IExprOrStarExprContext) Node {
 		return v.NodeVisit(c)
-	}, ctx.(*parser.TestListCompContext).AllExpr())
+	}, ctx.(*parser.TestListCompContext).AllExprOrStarExpr())
 }
 
 func (v *parseVisitor) error(e error) any {
@@ -331,6 +331,19 @@ func (v *parseVisitor) VisitConst(ctx *parser.ConstContext) any {
 
 func (v *parseVisitor) VisitTestListComp(ctx *parser.TestListCompContext) any {
 	return v.unimplemented(ctx)
+}
+
+func (v *parseVisitor) VisitExprOrStarExpr(ctx *parser.ExprOrStarExprContext) interface{} {
+	if se := ctx.StarExpr(); se != nil {
+		return v.Visit(se)
+	}
+	return v.Visit(ctx.Expr())
+}
+
+func (v *parseVisitor) VisitStarExpr(ctx *parser.StarExprContext) interface{} {
+	return Star{
+		Child: v.NodeVisit(ctx.Expr()),
+	}
 }
 
 func (v *parseVisitor) VisitTrailer(ctx *parser.TrailerContext) any {

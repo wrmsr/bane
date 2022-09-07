@@ -290,6 +290,14 @@ type Subscript struct {
 
 //
 
+type Star struct {
+	Child Node
+
+	node
+}
+
+//
+
 type Attr struct {
 	Child Node
 	Attr  string

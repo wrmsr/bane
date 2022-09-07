@@ -92,6 +92,12 @@ type ExprVisitor interface {
 	// Visit a parse tree produced by ExprParser#testListComp.
 	VisitTestListComp(ctx *TestListCompContext) interface{}
 
+	// Visit a parse tree produced by ExprParser#exprOrStarExpr.
+	VisitExprOrStarExpr(ctx *ExprOrStarExprContext) interface{}
+
+	// Visit a parse tree produced by ExprParser#starExpr.
+	VisitStarExpr(ctx *StarExprContext) interface{}
+
 	// Visit a parse tree produced by ExprParser#trailer.
 	VisitTrailer(ctx *TrailerContext) interface{}
 

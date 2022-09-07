@@ -120,6 +120,14 @@ func (v *BaseExprVisitor) VisitTestListComp(ctx *TestListCompContext) interface{
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseExprVisitor) VisitExprOrStarExpr(ctx *ExprOrStarExprContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseExprVisitor) VisitStarExpr(ctx *StarExprContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseExprVisitor) VisitTrailer(ctx *TrailerContext) interface{} {
 	return v.VisitChildren(ctx)
 }

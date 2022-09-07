@@ -111,6 +111,10 @@ func Render(w *iou.IndentWriter, n Node) {
 	case Subscript:
 		panic(n)
 
+	case Star:
+		w.WriteString("*")
+		Render(w, n.Child)
+
 	case True:
 		w.WriteString("True")
 

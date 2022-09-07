@@ -189,6 +189,18 @@ func (s *BaseExprListener) EnterTestListComp(ctx *TestListCompContext) {}
 // ExitTestListComp is called when production testListComp is exited.
 func (s *BaseExprListener) ExitTestListComp(ctx *TestListCompContext) {}
 
+// EnterExprOrStarExpr is called when production exprOrStarExpr is entered.
+func (s *BaseExprListener) EnterExprOrStarExpr(ctx *ExprOrStarExprContext) {}
+
+// ExitExprOrStarExpr is called when production exprOrStarExpr is exited.
+func (s *BaseExprListener) ExitExprOrStarExpr(ctx *ExprOrStarExprContext) {}
+
+// EnterStarExpr is called when production starExpr is entered.
+func (s *BaseExprListener) EnterStarExpr(ctx *StarExprContext) {}
+
+// ExitStarExpr is called when production starExpr is exited.
+func (s *BaseExprListener) ExitStarExpr(ctx *StarExprContext) {}
+
 // EnterTrailer is called when production trailer is entered.
 func (s *BaseExprListener) EnterTrailer(ctx *TrailerContext) {}
 

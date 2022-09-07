@@ -30,6 +30,7 @@ func TestParser(t *testing.T) {
 		`1+(2,3)`,
 		`{'descr':'<f4','fortran_order':False,'shape':(3,3),}`,
 		`{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`,
+		`[1, *[2, 3]]`,
 	} {
 		fmt.Println(testExpr)
 
@@ -42,7 +43,7 @@ func TestParser(t *testing.T) {
 		p.BuildParseTrees = true
 		tree := p.SingleExpr()
 
-		antlru.Dump(tree, "")
+		//antlru.Dump(tree, "")
 
 		v := parseVisitor{}
 		n := tree.Accept(&v).(Node)

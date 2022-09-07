@@ -144,7 +144,16 @@ const
     ;
 
 testListComp
-    : expr ((',' expr)* ','?)
+    : exprOrStarExpr ((',' exprOrStarExpr)* ','?)
+    ;
+
+exprOrStarExpr
+    : expr
+    | starExpr
+    ;
+
+starExpr
+    : '*' expr
     ;
 
 trailer
