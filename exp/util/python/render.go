@@ -21,7 +21,11 @@ func Render(w *iou.IndentWriter, n Node) {
 		}
 
 	case Arith:
-		panic(n)
+		Render(w, n.Left)
+		w.WriteString(" ")
+		w.WriteString(n.Op.String())
+		w.WriteString(" ")
+		Render(w, n.Right)
 
 	case Attr:
 		w.WriteString("(")
@@ -84,7 +88,14 @@ func Render(w *iou.IndentWriter, n Node) {
 		}
 
 	case Parens:
-		panic(n)
+		w.WriteString("(")
+		for i, c := range n.Children {
+			if i > 0 {
+				w.WriteString(", ")
+			}
+			Render(w, c)
+		}
+		w.WriteString(")")
 
 	case Set:
 		panic(n)
@@ -104,7 +115,8 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString("True")
 
 	case Unary:
-		panic(n)
+		w.WriteString(n.Op.String())
+		Render(w, n.Child)
 
 	default:
 		panic(fmt.Errorf("unhandled node type: %T", n))

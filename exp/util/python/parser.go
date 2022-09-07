@@ -277,7 +277,11 @@ func (v *parseVisitor) VisitDictOrSetAtom(ctx *parser.DictOrSetAtomContext) any 
 }
 
 func (v *parseVisitor) VisitDictMaker(ctx *parser.DictMakerContext) any {
-	return v.VisitChildren(ctx)
+	return Dict{
+		Items: slices.Map(func(c parser.IDictItemContext) DictItem {
+			return v.Visit(c).(DictItem)
+		}, ctx.AllDictItem()),
+	}
 }
 
 func (v *parseVisitor) VisitSetMaker(ctx *parser.SetMakerContext) any {
