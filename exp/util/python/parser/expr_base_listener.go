@@ -195,11 +195,17 @@ func (s *BaseExprListener) EnterSubscriptList(ctx *SubscriptListContext) {}
 // ExitSubscriptList is called when production subscriptList is exited.
 func (s *BaseExprListener) ExitSubscriptList(ctx *SubscriptListContext) {}
 
-// EnterSubscript is called when production subscript is entered.
-func (s *BaseExprListener) EnterSubscript(ctx *SubscriptContext) {}
+// EnterExprSubscript is called when production exprSubscript is entered.
+func (s *BaseExprListener) EnterExprSubscript(ctx *ExprSubscriptContext) {}
 
-// ExitSubscript is called when production subscript is exited.
-func (s *BaseExprListener) ExitSubscript(ctx *SubscriptContext) {}
+// ExitExprSubscript is called when production exprSubscript is exited.
+func (s *BaseExprListener) ExitExprSubscript(ctx *ExprSubscriptContext) {}
+
+// EnterSliceSubscript is called when production sliceSubscript is entered.
+func (s *BaseExprListener) EnterSliceSubscript(ctx *SliceSubscriptContext) {}
+
+// ExitSliceSubscript is called when production sliceSubscript is exited.
+func (s *BaseExprListener) ExitSliceSubscript(ctx *SliceSubscriptContext) {}
 
 // EnterSliceOp is called when production sliceOp is entered.
 func (s *BaseExprListener) EnterSliceOp(ctx *SliceOpContext) {}
@@ -207,8 +213,26 @@ func (s *BaseExprListener) EnterSliceOp(ctx *SliceOpContext) {}
 // ExitSliceOp is called when production sliceOp is exited.
 func (s *BaseExprListener) ExitSliceOp(ctx *SliceOpContext) {}
 
-// EnterDictOrSetMaker is called when production dictOrSetMaker is entered.
-func (s *BaseExprListener) EnterDictOrSetMaker(ctx *DictOrSetMakerContext) {}
+// EnterDictMaker is called when production dictMaker is entered.
+func (s *BaseExprListener) EnterDictMaker(ctx *DictMakerContext) {}
 
-// ExitDictOrSetMaker is called when production dictOrSetMaker is exited.
-func (s *BaseExprListener) ExitDictOrSetMaker(ctx *DictOrSetMakerContext) {}
+// ExitDictMaker is called when production dictMaker is exited.
+func (s *BaseExprListener) ExitDictMaker(ctx *DictMakerContext) {}
+
+// EnterSetMaker is called when production setMaker is entered.
+func (s *BaseExprListener) EnterSetMaker(ctx *SetMakerContext) {}
+
+// ExitSetMaker is called when production setMaker is exited.
+func (s *BaseExprListener) ExitSetMaker(ctx *SetMakerContext) {}
+
+// EnterKvDictItem is called when production kvDictItem is entered.
+func (s *BaseExprListener) EnterKvDictItem(ctx *KvDictItemContext) {}
+
+// ExitKvDictItem is called when production kvDictItem is exited.
+func (s *BaseExprListener) ExitKvDictItem(ctx *KvDictItemContext) {}
+
+// EnterStarsDictItem is called when production starsDictItem is entered.
+func (s *BaseExprListener) EnterStarsDictItem(ctx *StarsDictItemContext) {}
+
+// ExitStarsDictItem is called when production starsDictItem is exited.
+func (s *BaseExprListener) ExitStarsDictItem(ctx *StarsDictItemContext) {}

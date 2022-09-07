@@ -124,7 +124,11 @@ func (v *BaseExprVisitor) VisitSubscriptList(ctx *SubscriptListContext) interfac
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitSubscript(ctx *SubscriptContext) interface{} {
+func (v *BaseExprVisitor) VisitExprSubscript(ctx *ExprSubscriptContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseExprVisitor) VisitSliceSubscript(ctx *SliceSubscriptContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -132,6 +136,18 @@ func (v *BaseExprVisitor) VisitSliceOp(ctx *SliceOpContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitDictOrSetMaker(ctx *DictOrSetMakerContext) interface{} {
+func (v *BaseExprVisitor) VisitDictMaker(ctx *DictMakerContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseExprVisitor) VisitSetMaker(ctx *SetMakerContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseExprVisitor) VisitKvDictItem(ctx *KvDictItemContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseExprVisitor) VisitStarsDictItem(ctx *StarsDictItemContext) interface{} {
 	return v.VisitChildren(ctx)
 }

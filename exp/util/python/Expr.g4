@@ -125,6 +125,7 @@ atomExpr
 atom
     : '(' testListComp? ')'    #parenAtom
     | '[' testListComp? ']'    #bracketAtom
+    | '{' dictOrSetMaker? '}'  #dictOrSetAtom
     | const                    #constAtom
     ;
 
@@ -152,8 +153,8 @@ subscriptList
     ;
 
 subscript
-    : expr
-    | expr? ':' expr? sliceOp?
+    : expr                                  #exprSubscript
+    | sta=expr? ':' sto=expr? ste=sliceOp?  #sliceSubscript
     ;
 
 sliceOp
@@ -161,8 +162,13 @@ sliceOp
     ;
 
 dictOrSetMaker
-    : (expr ':' expr | '**' exprMain) (',' (expr ':' expr | '**' exprMain))* ','?
-    | expr (',' expr)* ','?
+    : dictItem (',' dictItem)* ','?  #dictMaker
+    | expr (',' expr)* ','?          #setMaker
+    ;
+
+dictItem
+    : k=expr ':' v=expr  #kvDictItem
+    | '**' exprMain      #starsDictItem
     ;
 
 STRING

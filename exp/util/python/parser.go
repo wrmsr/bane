@@ -36,10 +36,6 @@ func (v *parseVisitor) Visit(tree antlr.ParseTree) any {
 	return tree.Accept(v)
 }
 
-func (v *parseVisitor) NodeVisit(tree antlr.ParseTree) Node {
-	return v.Visit(tree).(Node)
-}
-
 func (v *parseVisitor) VisitChildren(node antlr.RuleNode) any {
 	var result = v.defaultResult()
 	for i := 0; i < node.GetChildCount(); i++ {
@@ -61,6 +57,10 @@ func (v *parseVisitor) VisitErrorNode(node antlr.ErrorNode) any {
 }
 
 //
+
+func (v *parseVisitor) NodeVisit(tree antlr.ParseTree) Node {
+	return v.Visit(tree).(Node)
+}
 
 func findTreeChildren[T antlr.ParserRuleContext](parent antlr.Tree) []T {
 	var cs []T
@@ -99,8 +99,12 @@ func (v *parseVisitor) nodeVisitTestListComp(ctx parser.ITestListCompContext) []
 	}, ctx.(*parser.TestListCompContext).AllExpr())
 }
 
+func (v *parseVisitor) error(e error) any {
+	panic(e)
+}
+
 func (v *parseVisitor) unimplemented(ctx antlr.ParserRuleContext) any {
-	panic(fmt.Errorf("unimplemented: %s", ctx))
+	return v.error(fmt.Errorf("unimplemented: %s", ctx))
 }
 
 //
@@ -238,10 +242,22 @@ func (v *parseVisitor) VisitPower(ctx *parser.PowerContext) any {
 }
 
 func (v *parseVisitor) VisitAtomExpr(ctx *parser.AtomExprContext) any {
+	ret := v.NodeVisit(ctx.Atom())
 	ts := ctx.AllTrailer()
-	check.EmptySlice(ts)
-
-	return v.Visit(ctx.Atom())
+	for _, t := range ts {
+		c := v.NodeVisit(t)
+		switch c := c.(type) {
+		case Subscript:
+			c.Child = ret
+			ret = c
+		case Attr:
+			c.Child = ret
+			ret = c
+		default:
+			v.error(fmt.Errorf("unhandled trailer: %v", c))
+		}
+	}
+	return ret
 }
 
 func (v *parseVisitor) VisitParenAtom(ctx *parser.ParenAtomContext) any {
@@ -257,7 +273,30 @@ func (v *parseVisitor) VisitBracketAtom(ctx *parser.BracketAtomContext) any {
 }
 
 func (v *parseVisitor) VisitDictOrSetAtom(ctx *parser.DictOrSetAtomContext) any {
-	panic("implement me")
+	return v.Visit(ctx.DictOrSetMaker())
+}
+
+func (v *parseVisitor) VisitDictMaker(ctx *parser.DictMakerContext) any {
+	return v.VisitChildren(ctx)
+}
+
+func (v *parseVisitor) VisitSetMaker(ctx *parser.SetMakerContext) any {
+	return Set{
+		Children: slices.Map(func(c parser.IExprContext) Node {
+			return v.NodeVisit(c)
+		}, ctx.AllExpr()),
+	}
+}
+
+func (v *parseVisitor) VisitKvDictItem(ctx *parser.KvDictItemContext) any {
+	return DictItem{
+		K: v.NodeVisit(ctx.GetK()),
+		V: v.NodeVisit(ctx.GetV()),
+	}
+}
+
+func (v *parseVisitor) VisitStarsDictItem(ctx *parser.StarsDictItemContext) any {
+	return DictItem{IsStars: true}
 }
 
 func (v *parseVisitor) VisitConstAtom(ctx *parser.ConstAtomContext) any {
@@ -279,8 +318,10 @@ func (v *parseVisitor) VisitConst(ctx *parser.ConstContext) any {
 		return False{}
 	case "None":
 		return None{}
+	case "...":
+		return Ellipsis{}
 	}
-	panic(fmt.Errorf("invalid const value: %s", txt))
+	return v.error(fmt.Errorf("invalid const value: %s", txt))
 }
 
 func (v *parseVisitor) VisitTestListComp(ctx *parser.TestListCompContext) any {
@@ -288,21 +329,46 @@ func (v *parseVisitor) VisitTestListComp(ctx *parser.TestListCompContext) any {
 }
 
 func (v *parseVisitor) VisitTrailer(ctx *parser.TrailerContext) any {
-	panic("implement me")
+	if sl := ctx.SubscriptList(); sl != nil {
+		return v.Visit(sl)
+	}
+	return Attr{
+		Attr: ctx.NAME().GetText(),
+	}
 }
 
 func (v *parseVisitor) VisitSubscriptList(ctx *parser.SubscriptListContext) any {
-	panic("implement me")
+	cs := ctx.AllSubscript()
+	ret := Subscript{
+		Items: make([]Node, len(cs)),
+	}
+	for i, c := range cs {
+		ret.Items[i] = v.NodeVisit(c)
+	}
+	return ret
 }
 
-func (v *parseVisitor) VisitSubscript(ctx *parser.SubscriptContext) any {
-	panic("implement me")
+func (v *parseVisitor) VisitExprSubscript(ctx *parser.ExprSubscriptContext) any {
+	return v.Visit(ctx.Expr())
+}
+
+func (v *parseVisitor) VisitSliceSubscript(ctx *parser.SliceSubscriptContext) any {
+	r := Slice{}
+	if ctx.GetSta() != nil {
+		r.Start = v.NodeVisit(ctx.GetSta())
+	}
+	if ctx.GetSto() != nil {
+		r.Stop = v.NodeVisit(ctx.GetSto())
+	}
+	if ctx.GetSte() != nil {
+		ste := ctx.GetSte().(*parser.SliceOpContext)
+		if stex := ste.Expr(); stex != nil {
+			r.Step = v.NodeVisit(stex)
+		}
+	}
+	return r
 }
 
 func (v *parseVisitor) VisitSliceOp(ctx *parser.SliceOpContext) any {
-	panic("implement me")
-}
-
-func (v *parseVisitor) VisitDictOrSetMaker(ctx *parser.DictOrSetMakerContext) any {
-	panic("implement me")
+	return v.unimplemented(ctx)
 }

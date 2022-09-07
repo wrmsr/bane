@@ -95,12 +95,24 @@ type ExprVisitor interface {
 	// Visit a parse tree produced by ExprParser#subscriptList.
 	VisitSubscriptList(ctx *SubscriptListContext) interface{}
 
-	// Visit a parse tree produced by ExprParser#subscript.
-	VisitSubscript(ctx *SubscriptContext) interface{}
+	// Visit a parse tree produced by ExprParser#exprSubscript.
+	VisitExprSubscript(ctx *ExprSubscriptContext) interface{}
+
+	// Visit a parse tree produced by ExprParser#sliceSubscript.
+	VisitSliceSubscript(ctx *SliceSubscriptContext) interface{}
 
 	// Visit a parse tree produced by ExprParser#sliceOp.
 	VisitSliceOp(ctx *SliceOpContext) interface{}
 
-	// Visit a parse tree produced by ExprParser#dictOrSetMaker.
-	VisitDictOrSetMaker(ctx *DictOrSetMakerContext) interface{}
+	// Visit a parse tree produced by ExprParser#dictMaker.
+	VisitDictMaker(ctx *DictMakerContext) interface{}
+
+	// Visit a parse tree produced by ExprParser#setMaker.
+	VisitSetMaker(ctx *SetMakerContext) interface{}
+
+	// Visit a parse tree produced by ExprParser#kvDictItem.
+	VisitKvDictItem(ctx *KvDictItemContext) interface{}
+
+	// Visit a parse tree produced by ExprParser#starsDictItem.
+	VisitStarsDictItem(ctx *StarsDictItemContext) interface{}
 }

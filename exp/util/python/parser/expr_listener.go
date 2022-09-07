@@ -95,14 +95,26 @@ type ExprListener interface {
 	// EnterSubscriptList is called when entering the subscriptList production.
 	EnterSubscriptList(c *SubscriptListContext)
 
-	// EnterSubscript is called when entering the subscript production.
-	EnterSubscript(c *SubscriptContext)
+	// EnterExprSubscript is called when entering the exprSubscript production.
+	EnterExprSubscript(c *ExprSubscriptContext)
+
+	// EnterSliceSubscript is called when entering the sliceSubscript production.
+	EnterSliceSubscript(c *SliceSubscriptContext)
 
 	// EnterSliceOp is called when entering the sliceOp production.
 	EnterSliceOp(c *SliceOpContext)
 
-	// EnterDictOrSetMaker is called when entering the dictOrSetMaker production.
-	EnterDictOrSetMaker(c *DictOrSetMakerContext)
+	// EnterDictMaker is called when entering the dictMaker production.
+	EnterDictMaker(c *DictMakerContext)
+
+	// EnterSetMaker is called when entering the setMaker production.
+	EnterSetMaker(c *SetMakerContext)
+
+	// EnterKvDictItem is called when entering the kvDictItem production.
+	EnterKvDictItem(c *KvDictItemContext)
+
+	// EnterStarsDictItem is called when entering the starsDictItem production.
+	EnterStarsDictItem(c *StarsDictItemContext)
 
 	// ExitExpr is called when exiting the expr production.
 	ExitExpr(c *ExprContext)
@@ -191,12 +203,24 @@ type ExprListener interface {
 	// ExitSubscriptList is called when exiting the subscriptList production.
 	ExitSubscriptList(c *SubscriptListContext)
 
-	// ExitSubscript is called when exiting the subscript production.
-	ExitSubscript(c *SubscriptContext)
+	// ExitExprSubscript is called when exiting the exprSubscript production.
+	ExitExprSubscript(c *ExprSubscriptContext)
+
+	// ExitSliceSubscript is called when exiting the sliceSubscript production.
+	ExitSliceSubscript(c *SliceSubscriptContext)
 
 	// ExitSliceOp is called when exiting the sliceOp production.
 	ExitSliceOp(c *SliceOpContext)
 
-	// ExitDictOrSetMaker is called when exiting the dictOrSetMaker production.
-	ExitDictOrSetMaker(c *DictOrSetMakerContext)
+	// ExitDictMaker is called when exiting the dictMaker production.
+	ExitDictMaker(c *DictMakerContext)
+
+	// ExitSetMaker is called when exiting the setMaker production.
+	ExitSetMaker(c *SetMakerContext)
+
+	// ExitKvDictItem is called when exiting the kvDictItem production.
+	ExitKvDictItem(c *KvDictItemContext)
+
+	// ExitStarsDictItem is called when exiting the starsDictItem production.
+	ExitStarsDictItem(c *StarsDictItemContext)
 }

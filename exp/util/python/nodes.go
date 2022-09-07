@@ -246,6 +246,57 @@ type Brackets struct {
 
 //
 
+type DictItem struct {
+	IsStars bool
+
+	K Node
+	V Node
+}
+
+type Dict struct {
+	Items []DictItem
+
+	node
+}
+
+//
+
+type Set struct {
+	Children []Node
+
+	node
+}
+
+//
+
+type Slice struct {
+	Start Node
+	Stop  Node
+	Step  Node
+
+	node
+}
+
+//
+
+type Subscript struct {
+	Child Node
+	Items []Node
+
+	node
+}
+
+//
+
+type Attr struct {
+	Child Node
+	Attr  string
+
+	node
+}
+
+//
+
 type String struct {
 	S []string
 
@@ -271,5 +322,9 @@ type False struct {
 }
 
 type None struct {
+	node
+}
+
+type Ellipsis struct {
 	node
 }
