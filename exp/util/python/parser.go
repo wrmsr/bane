@@ -296,7 +296,11 @@ func (v *parseVisitor) VisitKvDictItem(ctx *parser.KvDictItemContext) any {
 }
 
 func (v *parseVisitor) VisitStarsDictItem(ctx *parser.StarsDictItemContext) any {
-	return DictItem{IsStars: true}
+	return DictItem{
+		IsStars: true,
+
+		K: v.NodeVisit(ctx.ExprMain()),
+	}
 }
 
 func (v *parseVisitor) VisitConstAtom(ctx *parser.ConstAtomContext) any {

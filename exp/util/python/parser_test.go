@@ -51,10 +51,12 @@ func TestParser(t *testing.T) {
 
 			panic(o)
 		}
-		dump(tree, "")
+		//dump(tree, "")
 
 		v := parseVisitor{}
 		n := tree.Accept(&v).(Node)
 		fmt.Printf("%#v\n", n)
+
+		fmt.Println(RenderString(n))
 	}
 }

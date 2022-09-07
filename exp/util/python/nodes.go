@@ -92,6 +92,8 @@ type Cmp struct {
 	Left   Node
 	Ops    []CmpOp
 	Rights []Node
+
+	node
 }
 
 //
