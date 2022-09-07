@@ -304,7 +304,15 @@ type Star struct {
 
 type Attr struct {
 	Child Node
-	Attr  string
+	Name  string
+
+	node
+}
+
+//
+
+type Name struct {
+	S string
 
 	node
 }

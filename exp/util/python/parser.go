@@ -312,6 +312,9 @@ func (v *parseVisitor) VisitConst(ctx *parser.ConstContext) any {
 	if n := ctx.NUMBER(); n != nil {
 		return Number{S: n.GetText()}
 	}
+	if na := ctx.NAME(); na != nil {
+		return Name{S: na.GetText()}
+	}
 	txt := ctx.GetText()
 	switch txt {
 	case "True":
@@ -348,7 +351,7 @@ func (v *parseVisitor) VisitTrailer(ctx *parser.TrailerContext) any {
 		return v.Visit(sl)
 	}
 	return Attr{
-		Attr: ctx.NAME().GetText(),
+		Name: ctx.NAME().GetText(),
 	}
 }
 

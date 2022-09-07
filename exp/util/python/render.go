@@ -30,7 +30,7 @@ func Render(w *iou.IndentWriter, n Node) {
 	case Attr:
 		w.WriteString("(")
 		w.WriteString(").")
-		w.WriteString(n.Attr)
+		w.WriteString(n.Name)
 
 	case Brackets:
 		w.WriteString("[")
@@ -127,6 +127,9 @@ func Render(w *iou.IndentWriter, n Node) {
 		if n.Step != nil {
 			Render(w, n.Step)
 		}
+
+	case Name:
+		w.WriteString(n.S)
 
 	case String:
 		for _, s := range n.S {
