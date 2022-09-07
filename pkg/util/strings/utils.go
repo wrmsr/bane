@@ -2,6 +2,7 @@ package strings
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"strings"
 
@@ -123,6 +124,14 @@ func LastCut(s, sep string) (before, after string, found bool) {
 	return "", s, false
 }
 
+func Append(l, r string) string {
+	return l + r
+}
+
+func AppendNewline(l string) string {
+	return l + "\n"
+}
+
 //
 
 func IndexAllFunc(s string, f func(rune) bool) []int {
@@ -155,4 +164,14 @@ func SplitFunc(f func(rune) bool, s string) []string {
 
 func SplitAny(ds []rune, s string) []string {
 	return SplitFunc(fnu.Bind1x1x1(slices.Contains[rune], ds), s)
+}
+
+//
+
+func ToString(o any) string {
+	return fmt.Sprintf("%s", o)
+}
+
+func ToValue(o any) string {
+	return fmt.Sprintf("%v", o)
 }

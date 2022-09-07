@@ -12,24 +12,24 @@ import (
 
 func TestParser(t *testing.T) {
 	for _, testExpr := range []string{
-		`1+2`,
-		` 1 + 1  `,
-		//`{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`,
+		`{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`,
 
-		//`420`,
-		//`None`,
-		//`"abc"`,
-		//`'def'`,
-		//`1+2`,
-		//`1+2+3`,
-		//`1+2/3+4`,
-		//`+1`,
-		//`2**2`,
-		//`1<<2`,
-		//`[1,2]`,
-		//`1+(2,3)`,
-		//`{'descr':'<f4','fortran_order':False,'shape':(3,3),}`,
-		//`{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`,
+		`420`,
+		`None`,
+		`"abc"`,
+		`'def'`,
+		`1+2`,
+		`1 + 2`,
+		` 1 + 2 `,
+		`1+2+3`,
+		`1+2/3+4`,
+		`+1`,
+		`2**2`,
+		`1<<2`,
+		`[1,2]`,
+		`1+(2,3)`,
+		`{'descr':'<f4','fortran_order':False,'shape':(3,3),}`,
+		`{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`,
 	} {
 		fmt.Println(testExpr)
 
@@ -38,6 +38,7 @@ func TestParser(t *testing.T) {
 		stream := antlr.NewCommonTokenStream(lexer, 0)
 		p := parser.NewExprParser(stream)
 		p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
+		p.AddErrorListener(antlru.PanicErrorListener{})
 		p.BuildParseTrees = true
 		tree := p.SingleExpr()
 

@@ -43,7 +43,7 @@ func exprParserInit() {
 		"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
 		"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "STRING",
 		"NUMBER", "INTEGER", "AND", "FALSE", "IN", "IS", "NONE", "NOT", "OR",
-		"TRUE", "NEWLINE", "NAME", "STRING_LITERAL", "BYTES_LITERAL", "DECIMAL_INTEGER",
+		"TRUE", "NAME", "STRING_LITERAL", "BYTES_LITERAL", "DECIMAL_INTEGER",
 		"OCT_INTEGER", "HEX_INTEGER", "BIN_INTEGER", "FLOAT_NUMBER", "IMAG_NUMBER",
 		"SKIP_", "UNKNOWN_CHAR", "INDENT", "DEDENT",
 	}
@@ -57,7 +57,7 @@ func exprParserInit() {
 	}
 	staticData.predictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
-		4, 1, 56, 300, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
+		4, 1, 55, 300, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
 		4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7,
 		10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15,
 		2, 16, 7, 16, 2, 17, 7, 17, 2, 18, 7, 18, 2, 19, 7, 19, 2, 20, 7, 20, 2,
@@ -152,7 +152,7 @@ func exprParserInit() {
 		0, 0, 199, 201, 5, 26, 0, 0, 200, 202, 3, 58, 29, 0, 201, 200, 1, 0, 0,
 		0, 201, 202, 1, 0, 0, 0, 202, 203, 1, 0, 0, 0, 203, 206, 5, 27, 0, 0, 204,
 		206, 3, 46, 23, 0, 205, 189, 1, 0, 0, 0, 205, 194, 1, 0, 0, 0, 205, 199,
-		1, 0, 0, 0, 205, 204, 1, 0, 0, 0, 206, 45, 1, 0, 0, 0, 207, 219, 5, 44,
+		1, 0, 0, 0, 205, 204, 1, 0, 0, 0, 206, 45, 1, 0, 0, 0, 207, 219, 5, 43,
 		0, 0, 208, 219, 5, 33, 0, 0, 209, 211, 5, 32, 0, 0, 210, 209, 1, 0, 0,
 		0, 211, 212, 1, 0, 0, 0, 212, 210, 1, 0, 0, 0, 212, 213, 1, 0, 0, 0, 213,
 		219, 1, 0, 0, 0, 214, 219, 5, 28, 0, 0, 215, 219, 5, 39, 0, 0, 216, 219,
@@ -164,7 +164,7 @@ func exprParserInit() {
 		0, 0, 226, 229, 1, 0, 0, 0, 227, 225, 1, 0, 0, 0, 228, 230, 5, 29, 0, 0,
 		229, 228, 1, 0, 0, 0, 229, 230, 1, 0, 0, 0, 230, 49, 1, 0, 0, 0, 231, 232,
 		5, 24, 0, 0, 232, 233, 3, 52, 26, 0, 233, 234, 5, 25, 0, 0, 234, 238, 1,
-		0, 0, 0, 235, 236, 5, 30, 0, 0, 236, 238, 5, 44, 0, 0, 237, 231, 1, 0,
+		0, 0, 0, 235, 236, 5, 30, 0, 0, 236, 238, 5, 43, 0, 0, 237, 231, 1, 0,
 		0, 0, 237, 235, 1, 0, 0, 0, 238, 51, 1, 0, 0, 0, 239, 244, 3, 54, 27, 0,
 		240, 241, 5, 29, 0, 0, 241, 243, 3, 54, 27, 0, 242, 240, 1, 0, 0, 0, 243,
 		246, 1, 0, 0, 0, 244, 242, 1, 0, 0, 0, 244, 245, 1, 0, 0, 0, 245, 248,
@@ -271,20 +271,19 @@ const (
 	ExprParserNOT             = 40
 	ExprParserOR              = 41
 	ExprParserTRUE            = 42
-	ExprParserNEWLINE         = 43
-	ExprParserNAME            = 44
-	ExprParserSTRING_LITERAL  = 45
-	ExprParserBYTES_LITERAL   = 46
-	ExprParserDECIMAL_INTEGER = 47
-	ExprParserOCT_INTEGER     = 48
-	ExprParserHEX_INTEGER     = 49
-	ExprParserBIN_INTEGER     = 50
-	ExprParserFLOAT_NUMBER    = 51
-	ExprParserIMAG_NUMBER     = 52
-	ExprParserSKIP_           = 53
-	ExprParserUNKNOWN_CHAR    = 54
-	ExprParserINDENT          = 55
-	ExprParserDEDENT          = 56
+	ExprParserNAME            = 43
+	ExprParserSTRING_LITERAL  = 44
+	ExprParserBYTES_LITERAL   = 45
+	ExprParserDECIMAL_INTEGER = 46
+	ExprParserOCT_INTEGER     = 47
+	ExprParserHEX_INTEGER     = 48
+	ExprParserBIN_INTEGER     = 49
+	ExprParserFLOAT_NUMBER    = 50
+	ExprParserIMAG_NUMBER     = 51
+	ExprParserSKIP_           = 52
+	ExprParserUNKNOWN_CHAR    = 53
+	ExprParserINDENT          = 54
+	ExprParserDEDENT          = 55
 )
 
 // ExprParser rules.

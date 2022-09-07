@@ -202,11 +202,6 @@ NOT : 'not';
 OR : 'or';
 TRUE : 'True';
 
-NEWLINE
-    : SPACES
-    | ('\r'? '\n' | '\r' | '\f') SPACES?
-    ;
-
 NAME
     : ID_START ID_CONTINUE*
     ;
@@ -246,7 +241,7 @@ IMAG_NUMBER
     ;
 
 SKIP_
-    : (SPACES | COMMENT | LINE_JOINING) -> channel(HIDDEN)
+    : (WS | COMMENT | LINE_JOINING) -> channel(HIDDEN)
     ;
 
 UNKNOWN_CHAR
@@ -274,7 +269,7 @@ fragment LONG_STRING_CHAR
 
 fragment STRING_ESCAPE_SEQ
     : '\\' .
-    | '\\' NEWLINE
+    | '\\' WS
     ;
 
 fragment NON_ZERO_DIGIT
@@ -360,6 +355,11 @@ fragment BYTES_ESCAPE_SEQ
 
 fragment SPACES
     : [ \t]+
+    ;
+
+fragment WS
+    : SPACES
+    | ('\r'? '\n' | '\r' | '\f') SPACES?
     ;
 
 fragment COMMENT
