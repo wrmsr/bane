@@ -36,10 +36,15 @@ RUN ( \
 )
 
 
+## versions
+
+COPY .versions /root/
+
+
 ## go
 
 RUN ( \
-    GO_VERSION="1.19" && \
+    GO_VERSION=$(grep '^GO=' /root/.versions | cut -d= -f2) && \
     \
     mkdir /build && cd /build && \
     if [ "$(uname -m)" = "aarch64" ] ; then GO_ARCH="arm64" ; else GO_ARCH="amd64" ; fi && \

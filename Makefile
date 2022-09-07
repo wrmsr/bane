@@ -1,3 +1,5 @@
+### project
+
 GO=go
 
 MOD:=$(shell grep -o '^module .*' go.mod | awk '{print $$2}')
@@ -6,10 +8,26 @@ SRC=\
 	exp \
 	pkg \
 
+
+### versions
+
+get-version=$(shell grep '^$(1)=' .versions | cut -d= -f2)
+
+GO_VERSION:=$(call get-version,'GO')
+PYTHON_VERSION:=$(call get-version,'PYTHON')
+
+
+### deps
+
 BREW_DEPS=\
 	graphviz \
 	socat \
 	sqlite3 \
+
+PYTHON_DEPS=\
+	ipython \
+	numpy \
+	torch \
 
 
 ### clean
@@ -141,17 +159,10 @@ imports:
 
 ### python
 
-PYTHON_VERSION:=3.10.4
-
 PYENV_ROOT:=$(shell sh -c "if [ -z '$${PYENV_ROOT}' ] ; then echo '$${HOME}/.pyenv' ; else echo '$${PYENV_ROOT%/}' ; fi")
 PYENV_BIN:=$(shell sh -c "if [ -f '$${HOME}/.pyenv/bin/pyenv' ] ; then echo '$${HOME}/.pyenv/bin/pyenv' ; else echo pyenv ; fi")
 
 PYTHON=.venv/bin/python
-
-PYTHON_DEPS=\
-	ipython \
-	numpy \
-	torch \
 
 .PHONY: py-venv
 py-venv:

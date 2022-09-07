@@ -10,7 +10,11 @@ import (
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
+//
+
 type parseVisitor struct{}
+
+//
 
 var _ parser.ExprVisitor = &parseVisitor{}
 
@@ -55,6 +59,38 @@ func (v *parseVisitor) VisitTerminal(node antlr.TerminalNode) any {
 func (v *parseVisitor) VisitErrorNode(node antlr.ErrorNode) any {
 	panic("implement me")
 }
+
+//
+
+func findTreeChildren[T antlr.ParserRuleContext](parent antlr.Tree) []T {
+	var cs []T
+	for _, ctx := range parent.GetChildren() {
+		if c, ok := ctx.(T); ok {
+			cs = append(cs, c)
+			break
+		}
+	}
+	return cs
+}
+
+func visitArithWithCont[L, R antlr.ParserRuleContext](v *parseVisitor, ctx antlr.ParserRuleContext) Node {
+	l := v.NodeVisit(check.Single(findTreeChildren[L](ctx)))
+	for _, rctx := range findTreeChildren[R](ctx) {
+		a := v.Visit(rctx).(Arith)
+		a.Left = l
+		l = a
+	}
+	return l
+}
+
+func visitArithCont(v *parseVisitor, op antlr.Token, rctx antlr.ParserRuleContext) Node {
+	return Arith{
+		Op:    ParseArithOp(op.GetText()),
+		Right: v.NodeVisit(rctx),
+	}
+}
+
+//
 
 func (v *parseVisitor) VisitExpr(ctx *parser.ExprContext) any {
 	return v.VisitChildren(ctx)
@@ -129,72 +165,43 @@ func (v *parseVisitor) VisitExprCont(ctx *parser.ExprContContext) any {
 }
 
 func (v *parseVisitor) VisitXorExpr(ctx *parser.XorExprContext) any {
-	cs := ctx.AllXorExprCont()
-	check.EmptySlice(cs)
-	return v.Visit(ctx.AndExpr())
+	return visitArithWithCont[parser.IAndExprContext, parser.IXorExprContContext](v, ctx)
 }
 
 func (v *parseVisitor) VisitXorExprCont(ctx *parser.XorExprContContext) any {
-	panic("implement me")
+	return visitArithCont(v, ctx.GetOp(), ctx.AndExpr())
 }
 
 func (v *parseVisitor) VisitAndExpr(ctx *parser.AndExprContext) any {
-	cs := ctx.AllAndExprCont()
-	check.EmptySlice(cs)
-	return v.Visit(ctx.ShiftExpr())
+	return visitArithWithCont[parser.IShiftExprContext, parser.IAndExprContContext](v, ctx)
 }
 
 func (v *parseVisitor) VisitAndExprCont(ctx *parser.AndExprContContext) any {
-	panic("implement me")
+	return visitArithCont(v, ctx.GetOp(), ctx.ShiftExpr())
 }
 
 func (v *parseVisitor) VisitShiftExpr(ctx *parser.ShiftExprContext) any {
-	cs := ctx.AllShiftExprCont()
-	check.EmptySlice(cs)
-	return v.Visit(ctx.ArithExpr())
+	return visitArithWithCont[parser.IArithExprContext, parser.IShiftExprContContext](v, ctx)
 }
 
 func (v *parseVisitor) VisitShiftExprCont(ctx *parser.ShiftExprContContext) any {
-	return Arith{
-		Op:    ParseArithOp(ctx.GetOp().GetText()),
-		Right: v.NodeVisit(ctx.ArithExpr()),
-	}
+	return visitArithCont(v, ctx.GetOp(), ctx.ArithExpr())
 }
 
 func (v *parseVisitor) VisitArithExpr(ctx *parser.ArithExprContext) any {
-	cs := ctx.AllArithExprCont()
-	l := v.NodeVisit(ctx.Term())
-	for _, c := range cs {
-		a := v.Visit(c).(Arith)
-		a.Left = l
-		l = a
-	}
-	return l
+	return visitArithWithCont[parser.ITermContext, parser.IArithExprContContext](v, ctx)
 }
 
 func (v *parseVisitor) VisitArithExprCont(ctx *parser.ArithExprContContext) any {
-	return Arith{
-		Op:    ParseArithOp(ctx.GetOp().GetText()),
-		Right: v.NodeVisit(ctx.Term()),
-	}
+	return visitArithCont(v, ctx.GetOp(), ctx.Term())
 }
 
 func (v *parseVisitor) VisitTerm(ctx *parser.TermContext) any {
-	cs := ctx.AllTermCont()
-	l := v.NodeVisit(ctx.Factor())
-	for _, c := range cs {
-		a := v.Visit(c).(Arith)
-		a.Left = l
-		l = a
-	}
-	return l
+	return visitArithWithCont[parser.IFactorContext, parser.ITermContContext](v, ctx)
 }
 
 func (v *parseVisitor) VisitTermCont(ctx *parser.TermContContext) any {
-	return Arith{
-		Op:    ParseArithOp(ctx.GetOp().GetText()),
-		Right: v.NodeVisit(ctx.Factor()),
-	}
+	return visitArithCont(v, ctx.GetOp(), ctx.Factor())
 }
 
 func (v *parseVisitor) VisitFactor(ctx *parser.FactorContext) any {
