@@ -137,9 +137,6 @@ func (v *parseVisitor) VisitNotTest(ctx *parser.NotTestContext) any {
 			Child: v.NodeVisit(nt),
 		}
 	}
-	if ctx.Comparison() == nil {
-		fmt.Println(ctx)
-	}
 	return v.Visit(ctx.Comparison())
 }
 
@@ -151,16 +148,16 @@ func (v *parseVisitor) VisitComparison(ctx *parser.ComparisonContext) any {
 	if len(cos) < 1 {
 		return left
 	}
-	ops := make([]CmpOp, len(cos))
-	rights := make([]Node, len(cos))
+	items := make([]CmpItem, len(cos))
 	for i, co := range cos {
-		ops[i] = ParseCmpOp(co.GetText())
-		rights[i] = v.NodeVisit(ems[i+1])
+		items[i] = CmpItem{
+			Op:    ParseCmpOp(co.GetText()),
+			Right: v.NodeVisit(ems[i+1]),
+		}
 	}
 	return Cmp{
-		Left:   left,
-		Ops:    ops,
-		Rights: rights,
+		Left:  left,
+		Items: items,
 	}
 }
 

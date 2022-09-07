@@ -43,12 +43,13 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString("]")
 
 	case Cmp:
-		//Render(w, n.Left)
-		//for i, r := range n.Rights {
-		//	w.WriteString(n.Ops[])
-		//
-		//}
-		panic(n)
+		Render(w, n.Left)
+		for _, c := range n.Items {
+			w.WriteString(" ")
+			w.WriteString(c.Op.String())
+			w.WriteString(" ")
+			Render(w, c.Right)
+		}
 
 	case Dict:
 		w.WriteString("{")
@@ -113,7 +114,19 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString("}")
 
 	case Slice:
-		panic(n)
+		if n.Start != nil {
+			Render(w, n.Start)
+		}
+		w.WriteString(":")
+		if n.Stop != nil {
+			Render(w, n.Stop)
+		}
+		if n.Stop != nil || n.Step != nil {
+			w.WriteString(":")
+		}
+		if n.Step != nil {
+			Render(w, n.Step)
+		}
 
 	case String:
 		for _, s := range n.S {

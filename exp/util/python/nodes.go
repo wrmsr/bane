@@ -88,10 +88,14 @@ func ParseCmpOp(s string) CmpOp {
 	panic(fmt.Errorf("unhandled CmpOp: %v", s))
 }
 
+type CmpItem struct {
+	Op    CmpOp
+	Right Node
+}
+
 type Cmp struct {
-	Left   Node
-	Ops    []CmpOp
-	Rights []Node
+	Left  Node
+	Items []CmpItem
 
 	node
 }

@@ -31,6 +31,7 @@ func TestParser(t *testing.T) {
 		`{'descr':'<f4','fortran_order':False,'shape':(3,3),}`,
 		`{'descr': '<f4', 'fortran_order': False, 'shape': (3, 3), }`,
 		`[1, *[2, 3]]`,
+		`x`,
 	} {
 		fmt.Println(testExpr)
 
