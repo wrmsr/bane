@@ -390,3 +390,21 @@ func (v *parseVisitor) VisitSliceSubscript(ctx *parser.SliceSubscriptContext) an
 func (v *parseVisitor) VisitSliceOp(ctx *parser.SliceOpContext) any {
 	return v.unimplemented(ctx)
 }
+
+//
+
+func ParseNode(s string) Node {
+	is := antlr.NewInputStream(s)
+	lexer := parser.NewExprLexer(is)
+	stream := antlr.NewCommonTokenStream(lexer, 0)
+
+	p := parser.NewExprParser(stream)
+	p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
+	p.AddErrorListener(antlru.PanicErrorListener{})
+	p.BuildParseTrees = true
+
+	tree := p.SingleExpr()
+
+	v := parseVisitor{}
+	return tree.Accept(&v).(Node)
+}

@@ -1,6 +1,19 @@
 package numpy
 
-import "testing"
+import (
+	"encoding/binary"
+	"fmt"
+	"os"
+	"path/filepath"
+	"testing"
+
+	"github.com/wrmsr/bane/exp/util/python"
+	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/dev/paths"
+	"github.com/wrmsr/bane/pkg/util/log"
+	osu "github.com/wrmsr/bane/pkg/util/os"
+	"github.com/wrmsr/bane/pkg/util/slices"
+)
 
 /*
 https://numpy.org/devdocs/reference/generated/numpy.lib.format.html
@@ -59,5 +72,36 @@ types with any unicode field names.
 */
 
 func TestNumpy(t *testing.T) {
+	pth := filepath.Join(paths.FindProjectRoot(), "exp/util/numpy/dev/mat.npy")
+	check.Ok(check.Must1(osu.Exists(pth)))
 
+	f := check.Must1(os.Open(pth))
+	defer log.OrError(f.Close)
+
+	hdrsz := 0xFF
+	ohdr := make([]byte, hdrsz)
+	hdr := ohdr
+	_ = check.Must1(f.Read(hdr))
+
+	read := func(n int) []byte {
+		ret := hdr[:n]
+		hdr = hdr[n:]
+		return ret
+	}
+
+	check.Ok(slices.Equal(read(6), []byte("\x93NUMPY")))
+
+	check.Equal(read(1)[0], byte(1))
+	check.Equal(read(1)[0], byte(0))
+
+	l := binary.LittleEndian.Uint16(read(2))
+	fmt.Println(l)
+
+	pyhdr := string(read(int(l)))
+	n := python.ParseNode(pyhdr)
+
+	fmt.Println(python.RenderString(n))
+
+	ofs := len(ohdr) - len(hdr)
+	fmt.Println(ofs)
 }
