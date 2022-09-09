@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 
+	"github.com/wrmsr/bane/exp/util/python"
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/log"
 	"github.com/wrmsr/bane/pkg/util/slices"
@@ -33,12 +34,12 @@ func ShittyReadFloat32s(pth string) []float32 {
 
 	hl := binary.LittleEndian.Uint16(read(2))
 
-	//pyhdr := string(read(int(hl)))
-	//n := python.ParseNode(pyhdr)
+	pyhdr := string(read(int(hl)))
+	_ = python.ParseNode(pyhdr)
 
-	ofs := len(ohdr) - len(hdr)
+	ofs := int(hl) + 10
 
-	dl := int(check.Must1(os.Stat(pth)).Size()) - int(hl) - 10
+	dl := int(check.Must1(os.Stat(pth)).Size()) - ofs
 	check.Equal(dl%4, 0)
 
 	check.Must1(f.Seek(int64(ofs), io.SeekStart))

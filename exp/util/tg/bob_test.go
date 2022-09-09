@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/wrmsr/bane/exp/util/numpy"
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
 	ju "github.com/wrmsr/bane/pkg/util/json"
@@ -24,6 +25,14 @@ func readTgFile(name string) []byte {
 		fmt.Sprintf("../../geohot/tinygrad/%s", name),
 	)
 	return check.Must1(os.ReadFile(p))
+}
+
+func readTgNpy(name string) nd.NdArray[float32] {
+	p := filepath.Join(
+		paths.FindProjectRoot(),
+		fmt.Sprintf("../../geohot/tinygrad/%s", name),
+	)
+	return nd.Maker[float32]{Data: numpy.ShittyReadFloat32s(p)}.Make()
 }
 
 func readTgMat2(name string) nd.NdArray[float32] {
@@ -73,8 +82,14 @@ Sep:
 */
 
 func TestBobNet2(t *testing.T) {
-	l1t := NewTensor(MakeLoadBuffer(BufferOfNd(readTgMat2("l1.json"))), true)
-	l2t := NewTensor(MakeLoadBuffer(BufferOfNd(readTgMat2("l2.json"))), true)
+	l1t := NewTensor(MakeLoadBuffer(BufferOfNd(
+		//readTgMat2("l1.json"),
+		readTgNpy("l1.npy").Reshape(nd.ShapeOf(784, 128)),
+	)), true)
+	l2t := NewTensor(MakeLoadBuffer(BufferOfNd(
+		//readTgMat2("l2.json"),
+		readTgNpy("l2.npy").Reshape(nd.ShapeOf(128, 10)),
+	)), true)
 
 	x_train := readMnistImages("datasets/mnist/train-images-idx3-ubyte.gz")
 	y_train := readMnistLabels("datasets/mnist/train-labels-idx1-ubyte.gz")
