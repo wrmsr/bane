@@ -113,4 +113,6 @@ func TestNumpy(t *testing.T) {
 	check.Must1(f.Read(b))
 
 	fmt.Println(len(b))
+
+	fmt.Println(len(ShittyReadFloat32s(pth)))
 }
