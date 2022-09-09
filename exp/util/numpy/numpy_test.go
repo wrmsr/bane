@@ -3,6 +3,7 @@ package numpy
 import (
 	"encoding/binary"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -104,4 +105,12 @@ func TestNumpy(t *testing.T) {
 
 	ofs := len(ohdr) - len(hdr)
 	fmt.Println(ofs)
+
+	dl := int(check.Must1(os.Stat(pth)).Size()) - ofs
+	check.Must1(f.Seek(int64(ofs), io.SeekStart))
+
+	b := make([]byte, dl)
+	check.Must1(f.Read(b))
+
+	fmt.Println(len(b))
 }

@@ -2,8 +2,12 @@ package tg
 
 import "C"
 import (
+	"fmt"
+	"math"
+
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/maps"
+	nd "github.com/wrmsr/bane/pkg/util/ndarray"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -111,6 +115,14 @@ func logOp(opType OpType, op []Op, ret *Buffer, inp []*Buffer) {
 	//	ret.Shape(),
 	//)
 	//fmt.Println(ret.Nd())
+
+	flat := ret.Nd().Reshape(nd.ShapeOf(-1))
+	l := flat.View().Shape().Sum()
+	var s float32
+	for i := nd.Dim(0); i < l; i++ {
+		s += flat.Get(i)
+	}
+	fmt.Printf("%f %x\n", s, math.Float32bits(s))
 }
 
 func (b *LazyBuffer) Realize() *Buffer {

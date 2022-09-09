@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"testing"
@@ -13,6 +14,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
 	ju "github.com/wrmsr/bane/pkg/util/json"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
+	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -79,10 +81,26 @@ func TestBobNet2(t *testing.T) {
 
 	num_classes := 10
 
-	for e := 0; e < 10; e++ {
+	for e := 0; e < 1; e++ {
 		x := nd.New[float32](nd.ShapeOf(69, 784))
 		y := nd.New[float32](nd.ShapeOf(69, nd.Dim(num_classes)))
-		samp := check.Must1(ju.UnmarshalAs[[]int](readTgFile(fmt.Sprintf("samp_%d.json", e))))
+
+		var samp []int
+		if e < 10 {
+			samp = check.Must1(ju.UnmarshalAs[[]int](readTgFile(fmt.Sprintf("samp_%d.json", e))))
+		} else {
+			samp = make([]int, 69)
+			for i := 0; i < len(samp); i++ {
+				for {
+					s := rand.Int() % 60_000
+					if !slices.Contains(samp, s) {
+						samp[i] = s
+						break
+					}
+				}
+			}
+		}
+
 		for i, s := range samp {
 			x.Slice(i).Assign(x_train.Slice(s).Reshape(nd.ShapeOf(784)))
 			c := y_train.Get(nd.Dim(s))
@@ -96,7 +114,7 @@ func TestBobNet2(t *testing.T) {
 
 		loss := out.Mul(yt).Mean(nil, false)
 
-		fmt.Println(loss.Data().Realize().Nd())
+		fmt.Printf("loss: %s\n", loss.Data().Realize().Nd())
 
 		loss.Backward()
 
@@ -113,7 +131,8 @@ func TestBobNet2(t *testing.T) {
 						nd.Maker[float32]{
 							Shape:   nd.ShapeOf(g.Shape()...),
 							Default: bt.Just[float32](lr),
-						}.Make()),
+						}.Make(),
+					),
 				),
 				false,
 			)
