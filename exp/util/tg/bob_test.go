@@ -3,18 +3,23 @@ package tg
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"fmt"
 	"io"
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/wrmsr/bane/exp/util/numpy"
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
+	"github.com/wrmsr/bane/pkg/util/graphs/dot"
+	iou "github.com/wrmsr/bane/pkg/util/io"
 	ju "github.com/wrmsr/bane/pkg/util/json"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -81,6 +86,68 @@ Sep:
 [ 2.6339264 ]
 */
 
+func renderDot(t *Tensor) {
+	g := dot.Graph{}
+
+	name := func(l Lazy) string {
+		switch l := l.(type) {
+		case *LazyBuffer:
+			return fmt.Sprintf("b%x", rfl.AddressOf(l))
+		case *LazyOp:
+			return fmt.Sprintf("o%x", rfl.AddressOf(l))
+		default:
+			panic(l)
+		}
+	}
+
+	seen := make(map[uintptr]struct{})
+	var rec func(Lazy)
+	rec = func(l Lazy) {
+		a := rfl.AddressOf(l)
+		if _, ok := seen[a]; ok {
+			return
+		}
+		seen[a] = struct{}{}
+
+		switch l := l.(type) {
+
+		case *LazyBuffer:
+			n := name(l)
+			g.Stmts = append(g.Stmts,
+				dot.NewNode(n).SetAttr("label", fmt.Sprintf("%s %v", n, l.Shape())),
+				dot.NewEdge(n, name(l.op)).SetAttr("dir", "back"),
+			)
+			rec(l.op)
+
+		case *LazyOp:
+			n := name(l)
+			g.Stmts = append(g.Stmts,
+				dot.NewNode(n).SetAttr("label", fmt.Sprintf("%s %s", n, l.op.String())),
+			)
+			for _, s := range l.srcs {
+				g.Stmts = append(g.Stmts,
+					dot.NewEdge(n, name(s)).SetAttr("dir", "back"),
+				)
+			}
+			for _, s := range l.srcs {
+				rec(s)
+			}
+
+		default:
+			panic(l)
+		}
+	}
+	rec(t.data)
+
+	dot.NewEdge("a", "b")
+
+	var sb strings.Builder
+	dot.Render(iou.NewDiscardStringWriter(&sb), g)
+	fmt.Println(sb.String())
+
+	check.Must(dot.Open(context.Background(), sb.String()))
+}
+
 func TestBobNet2(t *testing.T) {
 	l1t := NewTensor(MakeLoadBuffer(BufferOfNd(
 		//readTgMat2("l1.json"),
@@ -132,6 +199,7 @@ func TestBobNet2(t *testing.T) {
 		fmt.Printf("loss: %s\n", loss.Data().Realize().Nd())
 
 		loss.Backward()
+		renderDot(loss)
 
 		lr := float32(0.001)
 		for _, t := range []*Tensor{

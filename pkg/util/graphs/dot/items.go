@@ -223,6 +223,11 @@ func NewEdge(left, right any) Edge {
 	return Edge{Left: AsId(left), Right: AsId(right)}
 }
 
+func (e Edge) SetAttr(k string, v any) Edge {
+	e.Attrs.Set(k, v)
+	return e
+}
+
 //
 
 type Node struct {
