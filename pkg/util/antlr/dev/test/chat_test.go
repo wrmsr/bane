@@ -8,6 +8,7 @@ import (
 
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 
+	antlru "github.com/wrmsr/bane/pkg/util/antlr"
 	"github.com/wrmsr/bane/pkg/util/antlr/dev/test/parser"
 )
 
@@ -82,8 +83,21 @@ xarf says: /* comment2 */ xi
 	p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
 	p.BuildParseTrees = true
 	tree := p.Chat()
+	toks := stream.GetAllTokens()
 
-	fmt.Println(tree)
+	ta := antlru.NewTokenAnalysis(tree, stream.GetAllTokens())
+
+	for _, c := range tree.GetChildren() {
+		if lc, ok := c.(*parser.LineContext); ok {
+			fmt.Println(lc.GetText())
+			l, r := lc.GetStart().GetTokenIndex(), lc.GetStop().GetTokenIndex()
+			for i := l; i < r; i++ {
+				fmt.Println(toks[i])
+			}
+			tok := antlru.GetTreeToken(lc)
+			_ = ta.TreeIdxsByStart()[tok.GetStart()]
+		}
+	}
 
 	v := MyChatVisitor{}
 	v.Super = &v

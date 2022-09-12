@@ -1,71 +1,79 @@
 package antlr
 
-/*
-class TokenAnalysis:
+import (
+	"github.com/antlr/antlr4/runtime/Go/antlr"
 
-    def __init__(self, root: antlr4.ParserRuleContext) -> None:
-        super().__init__()
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
-        self._root = check.isinstance(root, antlr4.ParserRuleContext)
+func GetTreeToken(t antlr.Tree) antlr.Token {
+	if s, ok := t.(antlr.TerminalNode); ok {
+		return s.GetSymbol()
+	}
+	if s, ok := t.(antlr.ParserRuleContext); ok {
+		return s.GetStart()
+	}
+	panic(t)
+}
 
-    @properties.cached
-    @property
-    def toks(self) -> ocol.IndexedSeq[antlr4.Token]:
-        return ocol.IndexedSeq(self._root.parser.getInputStream().tokens, identity=True)
+type TokenAnalysis struct {
+	root antlr.Tree
+	toks []antlr.Token
 
-    @properties.cached
-    @property
-    def ctxs(self) -> ocol.SortedMapping[int, ta.AbstractSet[antlr4.ParserRuleContext]]:
-        def rec(ctx):
-            if isinstance(ctx, antlr4.TerminalNode):
-                tok = ctx.symbol  # noqa
-            else:
-                tok = ctx.start
-            check.isinstance(tok, antlr4.Token)
-            dct.setdefault(self.toks.idx(tok), ocol.IdentitySet()).add(ctx)
+	tokIdxsByStart bt.Optional[map[int]int]
 
-            if not isinstance(ctx, antlr4.TerminalNode):
-                for cctx in ctx.children or []:
-                    rec(cctx)
+	trees           bt.Optional[[]antlr.Tree]
+	treeIdxsByStart bt.Optional[map[int]int]
+}
 
-        dct = ocol.SkipListDict()
-        rec(self._root)
-        return dct
+func NewTokenAnalysis(root antlr.Tree, toks []antlr.Token) TokenAnalysis {
+	return TokenAnalysis{
+		root: root,
+		toks: toks,
+	}
+}
 
-    @properties.cached
-    @property
-    def rctxs(self) -> ta.Mapping[antlr4.ParserRuleContext, int]:
-        return ocol.IdentityKeyDict((c, i) for i, cs in self.ctxs.items() for c in cs)
-*/
+func (a *TokenAnalysis) Root() antlr.Tree    { return a.root }
+func (a *TokenAnalysis) Toks() []antlr.Token { return a.toks }
 
-/*
-class TokenAnalysis:
+func (a *TokenAnalysis) TokIdxsByStart() map[int]int {
+	return bt.SetIfAbsent(&a.tokIdxsByStart, func() map[int]int {
+		m := make(map[int]int, len(a.toks))
+		for i, tok := range a.toks {
+			m[tok.GetChannel()] = i
+		}
+		return m
+	})
+}
 
-    def __init__(self, root: no.Node) -> None:
-        super().__init__()
+func (a *TokenAnalysis) Trees() []antlr.Tree {
+	return bt.SetIfAbsent(&a.trees, func() []antlr.Tree {
+		var s []antlr.Tree
+		var rec func(antlr.Tree)
+		rec = func(o antlr.Tree) {
+			s = append(s, o)
+			for _, c := range o.GetChildren() {
+				rec(c)
+			}
+		}
+		rec(a.root)
+		return s
+	})
+}
 
-        self._root = check.isinstance(root, no.Node)
-
-        self._basic = ana.basic(self._root)
-
-        self._tok_ana = tokens.TokenAnalysis(self._root.meeta[antlr4.ParserRuleContext])
-
-    @properties.cached
-    @property
-    def rnodes(self) -> ta.Mapping[no.Node, int]:
-        return ocol.IdentityKeyDict(
-            (n, self._tok_ana.rctxs[n.meta[antlr4.ParserRuleContext]])
-            for n in self._basic.nodes
-        )
-
-    def get_node_toks(self, node: no.Node) -> ta.Sequence[antlr4.Token]:
-        l = self.rnodes[node]
-        try:
-            r = next(self._tok_ana.ctxs.itemsfrom(l + 1))[0]
-        except StopIteration:
-            r = -1
-        return self._tok_ana.toks[l:r]
-
-    def get_node_comments(self, node: no.Node) -> ta.Sequence[str]:
-        return [t.text for t in self.get_node_toks(node) if t.channel == 1]
-*/
+func (a *TokenAnalysis) TreeIdxsByStart() map[int]int {
+	return bt.SetIfAbsent(&a.treeIdxsByStart, func() map[int]int {
+		m := make(map[int]int)
+		var last antlr.Token
+		for i, t := range a.Trees() {
+			cur := GetTreeToken(t)
+			if last == nil || cur.GetStart() > last.GetStart() {
+				m[cur.GetStart()] = i
+				last = cur
+			} else if last != nil && cur.GetStart() < last.GetStart() {
+				panic(cur)
+			}
+		}
+		return m
+	})
+}
