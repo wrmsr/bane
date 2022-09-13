@@ -70,7 +70,11 @@ func (v View) Index(idxs ...Dim) Dim {
 //
 //	}
 //}
-//
+
+func (v View) Linear() bool {
+	return v.st.Equals(CalcStrides(v.sh))
+}
+
 //
 
 func (v View) Slice(bs ...any) View {

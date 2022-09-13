@@ -81,7 +81,7 @@ func (ds Dims) String() string {
 			d = ds._s[i-_dimsWidth]
 		}
 
-		sb.WriteString(strconv.FormatInt(int64(d), 10))
+		sb.WriteString(strconv.FormatInt(d, 10))
 	}
 
 	sb.WriteRune(']')

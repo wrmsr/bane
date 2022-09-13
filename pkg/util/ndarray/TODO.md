@@ -5,6 +5,7 @@
 - Contiguous
 - Per-op tests (against py)
 - Numpy interop (import/export, rand?)
+- Get/At via Dims not ...Dim
 
 - https://cnugteren.github.io/tutorial/pages/page1.html
 - https://github.com/NVIDIA/cutlass

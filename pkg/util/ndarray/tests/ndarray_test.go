@@ -164,3 +164,13 @@ func TestTranspose(t *testing.T) {
 	fmt.Println("====")
 	fmt.Println(a.SwapAxes(0, 1))
 }
+
+func TestNest(t *testing.T) {
+	a := nd.Maker[int]{
+		Shape: nd.ShapeOf(2, 2, 2),
+		Data:  bt.RangeTo[int](8).Slice(),
+	}.Make()
+
+	n := a.NestArray()
+	fmt.Println(n)
+}
