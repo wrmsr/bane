@@ -114,6 +114,27 @@ class TinyBobNet:
         return x.dot(self.l1).relu().dot(self.l2).logsoftmax()
 
 
+class TinyConvNet:
+    def __init__(self):
+        # https://keras.io/examples/vision/mnist_convnet/
+        conv = 3
+        # inter_chan, out_chan = 32, 64
+        inter_chan, out_chan = 8, 16  # for speed
+        self.c1 = tg.tensor.Tensor.uniform(inter_chan, 1, conv, conv)
+        self.c2 = tg.tensor.Tensor.uniform(out_chan, inter_chan, conv, conv)
+        self.l1 = tg.tensor.Tensor.uniform(out_chan * 5 * 5, 10)
+
+    def parameters(self):
+        return get_parameters(self)
+
+    def forward(self, x):
+        x = x.reshape(shape=(-1, 1, 28, 28))  # hacks
+        x = x.conv2d(self.c1).relu().max_pool2d()
+        x = x.conv2d(self.c2).relu().max_pool2d()
+        x = x.reshape(shape=[x.shape[0], -1])
+        return x.dot(self.l1).logsoftmax()
+
+
 def fetch_mnist():
     def parse(file):
         return np.frombuffer(gzip.open(file).read(), dtype=np.uint8).copy()
@@ -129,7 +150,10 @@ def fetch_mnist():
 def _main():
     x_train, y_train, x_test, y_test = fetch_mnist()
     np.random.seed(1337)
+
     model = TinyBobNet()
+    # model = TinyConvNet()
+
     optimizer = tg.nn.optim.SGD(model.parameters(), lr=0.001)
     train(model, x_train, y_train, optimizer, bs=69, steps=10)
     for p in model.parameters():
