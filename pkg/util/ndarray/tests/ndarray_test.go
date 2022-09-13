@@ -171,6 +171,9 @@ func TestNest(t *testing.T) {
 		Data:  bt.RangeTo[int](8).Slice(),
 	}.Make()
 
-	n := a.NestArray()
-	fmt.Println(n)
+	fmt.Println(a.NestArray())
+
+	fmt.Println(a.Flat())
+	fmt.Println(a.Slice(1, nil).Flat())
+	fmt.Println(a.Slice(nil, 1).Flat())
 }

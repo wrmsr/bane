@@ -114,15 +114,15 @@ func (a NdArray[T]) Transpose(axes Dims) NdArray[T] {
 
 	var rec func(i int)
 	rec = func(i int) {
-		if i < axes.Len() {
-			n := nsh.Get(i)
-			for j := Dim(0); j < n; j++ {
-				asl[axes.Get(i)] = j
-				bsl[i] = j
+		n := nsh.Get(i)
+		for j := Dim(0); j < n; j++ {
+			asl[axes.Get(i)] = j
+			bsl[i] = j
+			if i < axes.Len()-1 {
 				rec(i + 1)
+			} else {
+				*b.At(bsl...) = a.Get(asl...)
 			}
-		} else {
-			*b.At(bsl...) = a.Get(asl...)
 		}
 	}
 
@@ -194,15 +194,15 @@ func (a NdArray[T]) Reshape(nsh Shape) NdArray[T] {
 
 	var rec func(int)
 	rec = func(i int) {
-		if i < o {
-			n := a.v.sh.Get(i)
-			for j := Dim(0); j < n; j++ {
-				sl[i] = j
+		n := a.v.sh.Get(i)
+		for j := Dim(0); j < n; j++ {
+			sl[i] = j
+			if i < o-1 {
 				rec(i + 1)
+			} else {
+				s[p] = a.Get(sl...)
+				p++
 			}
-		} else {
-			s[p] = a.Get(sl...)
-			p++
 		}
 	}
 	rec(0)
@@ -221,17 +221,44 @@ func (a NdArray[T]) Assign(src NdArray[T]) {
 
 	var rec func(int)
 	rec = func(i int) {
-		if i < o {
-			n := bt.Min(a.v.sh.Get(i), src.v.sh.Get(i))
-			for j := Dim(0); j < n; j++ {
-				sl[i] = j
+		n := bt.Min(a.v.sh.Get(i), src.v.sh.Get(i))
+		for j := Dim(0); j < n; j++ {
+			sl[i] = j
+			if i < o-1 {
 				rec(i + 1)
+			} else {
+				*a.At(sl...) = src.Get(sl...)
 			}
-		} else {
-			*a.At(sl...) = src.Get(sl...)
 		}
 	}
 	rec(0)
+}
+
+func (a NdArray[T]) Flat() []T {
+	if a.v.Linear() {
+		return a.d[a.v.o:]
+	}
+
+	sh := a.v.sh
+	o := sh.Order()
+	s := make([]T, sh.Prod())
+	p := 0
+	sl := make([]Dim, o)
+	var rec func(int)
+	rec = func(i int) {
+		l := sh.Get(i)
+		for j := Dim(0); j < l; j++ {
+			sl[i] = j
+			if i < o-1 {
+				rec(i + 1)
+			} else {
+				s[p] = a.Get(sl...)
+				p++
+			}
+		}
+	}
+	rec(0)
+	return s
 }
 
 //
@@ -242,14 +269,14 @@ func Map[F, T any](fn func(F) T, f NdArray[F]) NdArray[T] {
 	sl := make([]Dim, o)
 	var rec func(int)
 	rec = func(i int) {
-		if i < o {
-			l := f.v.sh.Get(i)
-			for j := Dim(0); j < l; j++ {
-				sl[i] = j
+		l := f.v.sh.Get(i)
+		for j := Dim(0); j < l; j++ {
+			sl[i] = j
+			if i < o-1 {
 				rec(i + 1)
+			} else {
+				*t.At(sl...) = fn(f.Get(sl...))
 			}
-		} else {
-			*t.At(sl...) = fn(f.Get(sl...))
 		}
 	}
 	rec(0)

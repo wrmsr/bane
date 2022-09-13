@@ -1,9 +1,11 @@
 package ndarray
 
-import "reflect"
+import (
+	"reflect"
+)
 
 func (a NdArray[T]) NestArray() any {
-	sh := a.View().Shape()
+	sh := a.v.sh
 	tys := make([]reflect.Type, sh.Len()+1)
 	var z T
 	tys[len(tys)-1] = reflect.TypeOf(z)
@@ -29,4 +31,16 @@ func (a NdArray[T]) NestArray() any {
 		return ret
 	}
 	return rec(0).Interface()
+}
+
+func (a NdArray[T]) NestSlice() any {
+	sh := a.v.sh
+	tys := make([]reflect.Type, sh.Len()+1)
+	var z T
+	tys[len(tys)-1] = reflect.TypeOf(z)
+	for i := len(tys) - 2; i >= 0; i-- {
+		tys[i] = reflect.SliceOf(tys[i+1])
+	}
+
+	panic("nyi")
 }
