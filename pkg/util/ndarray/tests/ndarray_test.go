@@ -176,4 +176,6 @@ func TestNest(t *testing.T) {
 	fmt.Println(a.Flat())
 	fmt.Println(a.Slice(1, nil).Flat())
 	fmt.Println(a.Slice(nil, 1).Flat())
+
+	fmt.Println(a.NestSlice())
 }

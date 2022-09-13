@@ -35,12 +35,33 @@ func (a NdArray[T]) NestArray() any {
 
 func (a NdArray[T]) NestSlice() any {
 	sh := a.v.sh
-	tys := make([]reflect.Type, sh.Len()+1)
-	var z T
-	tys[len(tys)-1] = reflect.TypeOf(z)
-	for i := len(tys) - 2; i >= 0; i-- {
-		tys[i] = reflect.SliceOf(tys[i+1])
+	atys := make([]reflect.Type, sh.Len())
+	stys := make([]reflect.Type, sh.Len())
+	var sz []T
+	atys[len(atys)-1] = reflect.TypeOf(sz)
+	stys[len(atys)-1] = reflect.TypeOf(sz)
+	for i := len(atys) - 2; i >= 0; i-- {
+		atys[i] = reflect.ArrayOf(int(sh.Get(i)), stys[i+1])
+		stys[i] = reflect.SliceOf(atys[i+1])
 	}
 
-	panic("nyi")
+	fl := a.Flat()
+	p := 0
+	var rec func(int) reflect.Value
+	rec = func(dim int) reflect.Value {
+		ln := sh.Get(dim)
+		if dim < sh.Len()-1 {
+			ret := reflect.New(atys[dim]).Elem()
+			for i := Dim(0); i < ln; i++ {
+				o := rec(dim + 1)
+				ret.Index(int(i)).Set(o)
+			}
+			return ret.Slice(0, int(ln))
+		} else {
+			c := fl[p : p+int(ln)]
+			p += int(ln)
+			return reflect.ValueOf(c)
+		}
+	}
+	return rec(0).Interface()
 }
