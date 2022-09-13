@@ -162,7 +162,9 @@ func TestBobNet2(t *testing.T) {
 
 	num_classes := 10
 
-	for e := 0; e < 3; e++ {
+	num_epochs := 10
+
+	for e := 0; e < num_epochs; e++ {
 		x := nd.New[float32](nd.ShapeOf(69, 784))
 		y := nd.New[float32](nd.ShapeOf(69, nd.Dim(num_classes)))
 
