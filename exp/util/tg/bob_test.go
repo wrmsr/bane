@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/wrmsr/bane/exp/util/numpy"
+	tgdev "github.com/wrmsr/bane/exp/util/tg/dev"
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
 	"github.com/wrmsr/bane/pkg/util/graphs/dot"
@@ -168,6 +169,8 @@ func TestBobNet2(t *testing.T) {
 	}
 
 	//num_epochs := 10
+
+	fmt.Println(tgdev.FetchDatasets())
 
 	for e, samp := range samps {
 		x := nd.New[float32](nd.ShapeOf(69, 784))

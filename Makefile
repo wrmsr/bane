@@ -29,7 +29,7 @@ PYTHON_DEPS=\
 	numpy \
 	torch \
 	\
-	'git+https://github.com/geohot/tinygrad@75f937227a7ab6500dd649a90cbaa8fac45d4c2b' \
+	'git+https://github.com/wrmsr/tinygrad' \
 
 
 ### clean
