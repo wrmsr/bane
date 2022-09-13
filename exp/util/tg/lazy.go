@@ -126,7 +126,7 @@ func logOp(opType OpType, op []Op, ret *Buffer, inp []*Buffer) {
 	fmt.Printf("%f %x\n", s, math.Float32bits(s))
 	if strings.HasPrefix(fmt.Sprintf("%f", s), "2721.") {
 		fmt.Printf("!!")
-		ret.Nd()
+		//check.Must(os.WriteFile("2721.json", []byte(check.Must1(ju.MarshalPretty(ret.Nd().NestArray()))), 0666))
 	}
 }
 
