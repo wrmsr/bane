@@ -149,6 +149,7 @@ def fetch_mnist():
 
 def _main():
     x_train, y_train, x_test, y_test = fetch_mnist()
+
     np.random.seed(1337)
 
     model = TinyBobNet()
