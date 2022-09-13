@@ -199,14 +199,16 @@ func TestBobNet2(t *testing.T) {
 
 		loss.Backward()
 		if e == 0 {
-			renderDot(loss)
+			//renderDot(loss)
 		}
 
 		lr := float32(0.001)
-		for _, t := range []*Tensor{
+		for i, t := range []*Tensor{
 			l1t,
 			l2t,
 		} {
+			fmt.Printf("step realize: %d\n", i)
+
 			g := t.grad
 
 			lrt := NewTensor(
@@ -223,6 +225,7 @@ func TestBobNet2(t *testing.T) {
 
 			t.Assign(t.Sub(g.Mul(lrt)))
 			t.Data().Realize()
+			t.ClearGrad()
 		}
 	}
 }

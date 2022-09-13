@@ -36,6 +36,10 @@ func (t *Tensor) Assign(x *Tensor) {
 	t.data = x.data
 }
 
+func (t *Tensor) ClearGrad() {
+	t.grad = nil
+}
+
 func BroadcastedTensor(fn func(x, y *Tensor) *Tensor, x, y *Tensor) *Tensor {
 	xsh := x.Shape()
 	ysh := y.Shape()

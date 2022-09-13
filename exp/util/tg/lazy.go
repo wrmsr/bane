@@ -2,13 +2,8 @@ package tg
 
 import "C"
 import (
-	"fmt"
-	"math"
-	"strings"
-
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/maps"
-	nd "github.com/wrmsr/bane/pkg/util/ndarray"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -117,17 +112,20 @@ func logOp(opType OpType, op []Op, ret *Buffer, inp []*Buffer) {
 	//)
 	//fmt.Println(ret.Nd())
 
-	flat := ret.Nd().Reshape(nd.ShapeOf(-1))
-	l := flat.View().Shape().Sum()
-	var s float32
-	for i := nd.Dim(0); i < l; i++ {
-		s += flat.Get(i)
-	}
-	fmt.Printf("%f %x\n", s, math.Float32bits(s))
-	if strings.HasPrefix(fmt.Sprintf("%f", s), "2721.") {
-		fmt.Printf("!!")
-		//check.Must(os.WriteFile("2721.json", []byte(check.Must1(ju.MarshalPretty(ret.Nd().NestArray()))), 0666))
-	}
+	//flat := ret.Nd().Reshape(nd.ShapeOf(-1))
+	//l := flat.View().Shape().Sum()
+	//var s float32
+	//for i := nd.Dim(0); i < l; i++ {
+	//	s += flat.Get(i)
+	//}
+	//fmt.Printf("%f %x\n", s, math.Float32bits(s))
+	//if op[0] == AddOp {
+	//	fmt.Printf("++")
+	//}
+	//if strings.HasPrefix(fmt.Sprintf("%f", s), "2721.") {
+	//	fmt.Printf("!!")
+	//	//check.Must(os.WriteFile("2721.json", []byte(check.Must1(ju.MarshalPretty(ret.Nd().NestArray()))), 0666))
+	//}
 }
 
 func (b *LazyBuffer) Realize() *Buffer {
