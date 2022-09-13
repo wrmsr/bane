@@ -166,16 +166,18 @@ func TestTranspose(t *testing.T) {
 }
 
 func TestNest(t *testing.T) {
-	a := nd.Maker[int]{
+	s := nd.Maker[int]{
 		Shape: nd.ShapeOf(2, 2, 2),
 		Data:  bt.RangeTo[int](8).Slice(),
 	}.Make()
 
-	fmt.Println(a.NestArray())
-
-	fmt.Println(a.Flat())
-	fmt.Println(a.Slice(1, nil).Flat())
-	fmt.Println(a.Slice(nil, 1).Flat())
-
-	fmt.Println(a.NestSlice())
+	for _, a := range []nd.NdArray[int]{
+		s,
+		s.Slice(1, nil),
+		s.Slice(nil, 1),
+	} {
+		fmt.Println(a.Flat())
+		fmt.Println(a.NestArray())
+		fmt.Println(a.NestSlice())
+	}
 }
