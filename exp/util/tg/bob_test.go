@@ -202,7 +202,7 @@ func TestBobNet2(t *testing.T) {
 
 		loss := out.Mul(yt).Mean(nil, false)
 
-		fmt.Printf("loss: %s\n", loss.Data().Realize().Nd())
+		fmt.Printf("loss %d: %s\n", e, loss.Data().Realize().Nd())
 
 		loss.Backward()
 		if e == 0 {
