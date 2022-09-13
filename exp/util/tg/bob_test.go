@@ -207,6 +207,8 @@ func TestBobNet2(t *testing.T) {
 			l1t,
 			l2t,
 		} {
+			_ = i
+
 			//fmt.Printf("step realize: %d\n", i)
 
 			g := t.grad
