@@ -6,9 +6,9 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"math/rand"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -162,27 +162,32 @@ func TestBobNet2(t *testing.T) {
 
 	num_classes := 10
 
-	num_epochs := 10
+	var samps [][]int
+	for _, l := range strings.Split(strings.TrimSpace(string(readTgFile("samp_log.txt"))), "\n") {
+		samps = append(samps, slices.Map(func(s string) int { return check.Must1(strconv.Atoi(s)) }, strings.Split(l, ",")))
+	}
 
-	for e := 0; e < num_epochs; e++ {
+	//num_epochs := 10
+
+	for e, samp := range samps {
 		x := nd.New[float32](nd.ShapeOf(69, 784))
 		y := nd.New[float32](nd.ShapeOf(69, nd.Dim(num_classes)))
 
-		var samp []int
-		if e < 10 {
-			samp = check.Must1(ju.UnmarshalAs[[]int](readTgFile(fmt.Sprintf("samp_%d.json", e))))
-		} else {
-			samp = make([]int, 69)
-			for i := 0; i < len(samp); i++ {
-				for {
-					s := rand.Int() % 60_000
-					if !slices.Contains(samp, s) {
-						samp[i] = s
-						break
-					}
-				}
-			}
-		}
+		//var samp []int
+		//if e < 10 {
+		//	samp = check.Must1(ju.UnmarshalAs[[]int](readTgFile(fmt.Sprintf("samp_%d.json", e))))
+		//} else {
+		//	samp = make([]int, 69)
+		//	for i := 0; i < len(samp); i++ {
+		//		for {
+		//			s := rand.Int() % 60_000
+		//			if !slices.Contains(samp, s) {
+		//				samp[i] = s
+		//				break
+		//			}
+		//		}
+		//	}
+		//}
 
 		for i, s := range samp {
 			x.Slice(i).Assign(x_train.Slice(s).Reshape(nd.ShapeOf(784)))
