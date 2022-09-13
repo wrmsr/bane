@@ -143,7 +143,6 @@ func renderDot(t *Tensor) {
 
 	var sb strings.Builder
 	dot.Render(iou.NewDiscardStringWriter(&sb), g)
-	fmt.Println(sb.String())
 
 	check.Must(dot.Open(context.Background(), sb.String()))
 }
@@ -163,7 +162,7 @@ func TestBobNet2(t *testing.T) {
 
 	num_classes := 10
 
-	for e := 0; e < 1; e++ {
+	for e := 0; e < 3; e++ {
 		x := nd.New[float32](nd.ShapeOf(69, 784))
 		y := nd.New[float32](nd.ShapeOf(69, nd.Dim(num_classes)))
 
@@ -199,7 +198,9 @@ func TestBobNet2(t *testing.T) {
 		fmt.Printf("loss: %s\n", loss.Data().Realize().Nd())
 
 		loss.Backward()
-		renderDot(loss)
+		if e == 0 {
+			renderDot(loss)
+		}
 
 		lr := float32(0.001)
 		for _, t := range []*Tensor{

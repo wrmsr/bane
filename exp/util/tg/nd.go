@@ -70,7 +70,8 @@ func NdDotFma(a, b nd.NdArray[float32]) nd.NdArray[float32] {
 	return c
 }
 
-var NdDot = NdDotSep
+// var NdDot = NdDotSep
+var NdDot = NdDotFma
 
 func NdTensorDot(a, b nd.NdArray[float32], axes_a, axes_b nd.Dims) nd.NdArray[float32] {
 	mutaxes_a := axes_a.Mutate()

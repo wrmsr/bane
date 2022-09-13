@@ -4,6 +4,7 @@ import "C"
 import (
 	"fmt"
 	"math"
+	"strings"
 
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/maps"
@@ -123,6 +124,9 @@ func logOp(opType OpType, op []Op, ret *Buffer, inp []*Buffer) {
 		s += flat.Get(i)
 	}
 	fmt.Printf("%f %x\n", s, math.Float32bits(s))
+	if strings.HasPrefix(fmt.Sprintf("%f", s), "2721.") {
+		fmt.Printf("!!")
+	}
 }
 
 func (b *LazyBuffer) Realize() *Buffer {
