@@ -28,6 +28,8 @@ PYTHON_DEPS=\
 	ipython \
 	numpy \
 	torch \
+	\
+	'git+https://github.com/geohot/tinygrad@75f937227a7ab6500dd649a90cbaa8fac45d4c2b' \
 
 
 ### clean
