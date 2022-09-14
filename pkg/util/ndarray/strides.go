@@ -32,8 +32,11 @@ func (st Strides) Offset(idxs Dims) Dim {
 	}
 
 	o := Dim(0)
-	for i := 0; i < l; i++ {
-		o += idxs.Get(i) * st.Get(i)
+	for i := 0; i < _dimsWidth; i++ {
+		o += idxs._a[i] * st._a[i]
+	}
+	for i := _dimsWidth; i < l; i++ {
+		o += idxs._s[i] * st._s[i]
 	}
 
 	return o
