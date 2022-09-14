@@ -25,8 +25,8 @@ jobs:
           path: '~/.cache'
           key:
             ci-${{ github.ref }}-${{ hashFiles(
-              '.dockertimestamp',
               '.versions',
+              'docker/.dockertimestamp',
               'docker/ci/Dockerfile',
               'docker/docker-compose-ext.yml',
               'go.mod',
