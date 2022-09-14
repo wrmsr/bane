@@ -61,4 +61,4 @@ jobs:
               echo "$IMG" ;
               docker history "$IMG" | tail -n+2 | awk '{print $1}' | egrep -v '<missing>' ;
             done
-          ) xargs docker save -o ~/.cache/docker/ci.tar
+          ) | xargs docker save -o ~/.cache/docker/ci.tar
