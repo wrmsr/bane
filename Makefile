@@ -156,7 +156,7 @@ ci:
 .PHONY: _ci
 _ci:
 	# FIXME: make test
-	go build ./...
+	go version
 
 
 ### utils

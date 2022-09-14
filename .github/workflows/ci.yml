@@ -29,6 +29,7 @@ jobs:
           key:
             bane-ci-${{ github.ref }}-${{ hashFiles(
               '.dockertimestamp',
+              '.versions',
               'docker/ci/Dockerfile',
               'go.mod',
               'go.sum'
