@@ -53,20 +53,27 @@ RUN ( \
     tar xzf "$GO_FILE" && \
     chown -R root:root ./go && \
     mv -v go /usr/local && \
-    echo "\n\
-export GOPATH="'$'"HOME/go\n\
-export PATH="'$'"PATH:/usr/local/go/bin:"'$'"GOPATH/bin\n\
-" >> /root/.bashrc && \
     cd / && rm -rf /build \
 )
+
+ENV GOPATH=/root/go
+ENV PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+
+
+## deps
+
+RUN mkdir /build
+COPY go.mod go.sum /build/
+RUN ( \
+    cd /build && \
+    go mod download \
+)
+RUN rm -rf /build
 
 
 ## entrypoint
 
-RUN ( \
-    touch ~/.bashrc && \
-    echo 'export BANE_CI=1' >> ~/.bashrc \
-)
+ENV BANE_CI=1
 
 WORKDIR /bane
 

@@ -148,12 +148,11 @@ RUN ( \
     tar xzf "$GO_FILE" && \
     chown -R root:root ./go && \
     mv -v go /usr/local && \
-    echo "\n\
-export GOPATH="'$'"HOME/go\n\
-export PATH="'$'"PATH:/usr/local/go/bin:"'$'"GOPATH/bin\n\
-" >> /root/.bashrc && \
     cd / && rm -rf /build \
 )
+
+ENV GOPATH=/root/go
+ENV PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 
 
 ## config
@@ -165,8 +164,6 @@ COPY \
     docker/dev/.vimrc \
 \
     /root/
-
-RUN sed -i '/^\[ -z \"\$PS1\" \]/d' /root/.bashrc
 
 
 ## entrypoint

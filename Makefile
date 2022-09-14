@@ -128,6 +128,7 @@ docker-stop:
 .PHONY: docker-reup
 docker-reup: docker-stop
 	${DOCKER_COMPOSE} rm -f
+	${DOCKER_COMPOSE} build bane-dev
 	${DOCKER_COMPOSE} up
 
 .PHONY: docker-invalidate
@@ -145,7 +146,12 @@ docker-enable-ptrace:
 .PHONY: ci
 ci:
 	${DOCKER_COMPOSE} build bane-ci
-	${DOCKER_COMPOSE} run --rm $$BANE_CI_DOCKER_OPTS -e BANE_CI=1 -e BANE_CI_OUTPUT_DIR="$$BANE_CI_OUTPUT_DIR" bane-ci make _ci
+	${DOCKER_COMPOSE} run \
+		--rm \
+		$$BANE_CI_DOCKER_OPTS \
+		-e BANE_CI_OUTPUT_DIR="$$BANE_CI_OUTPUT_DIR" \
+		bane-ci \
+		make _ci
 
 .PHONY: _ci
 _ci:
