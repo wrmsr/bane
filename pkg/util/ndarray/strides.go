@@ -1,7 +1,5 @@
 package ndarray
 
-import "fmt"
-
 type Strides struct {
 	Dims
 }
@@ -26,10 +24,13 @@ func CalcStrides(shape Shape) Strides {
 }
 
 func (st Strides) Offset(idxs Dims) Dim {
+	st.CheckEqualLen(idxs)
+
+	return st._offset(idxs)
+}
+
+func (st Strides) _offset(idxs Dims) Dim {
 	l := st.Len()
-	if idxs.Len() != l {
-		panic(fmt.Errorf("dim mismatch: got %d need %d", idxs.Len(), l))
-	}
 
 	o := Dim(0)
 	for i := 0; i < _dimsWidth; i++ {

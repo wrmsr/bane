@@ -90,6 +90,12 @@ func (ds Dims) String() string {
 	return sb.String()
 }
 
+func (ds Dims) CheckEqualLen(o Dims) {
+	if ds._l != o._l {
+		panic(fmt.Errorf("dim mismatch: got %d need %d", ds._l, o._l))
+	}
+}
+
 func (ds Dims) Slice() []Dim {
 	s := make([]Dim, ds._l)
 	copy(s[:ds._l], ds._a[:ds._l])
@@ -112,6 +118,14 @@ func (ds Dims) Get(i int) Dim {
 		return ds._a[i]
 	} else {
 		return ds._s[i-_dimsWidth]
+	}
+}
+
+func (ds *Dims) _set(i int, d Dim) {
+	if i < _dimsWidth {
+		ds._a[i] = d
+	} else {
+		ds._s[i-_dimsWidth] = d
 	}
 }
 
@@ -202,11 +216,7 @@ func (ds *MutDims) Set(i int, d Dim) {
 		panic(fmt.Errorf("index out of bounds: %d", i))
 	}
 
-	if i < _dimsWidth {
-		ds._ds._a[i] = d
-	} else {
-		ds._ds._s[i-_dimsWidth] = d
-	}
+	ds._ds._set(i, d)
 }
 
 //
