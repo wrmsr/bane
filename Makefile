@@ -155,7 +155,7 @@ ci:
 .PHONY: _ci
 _ci:
 	# FIXME: make test
-	echo hi
+	echo FIXME
 
 
 ### utils
