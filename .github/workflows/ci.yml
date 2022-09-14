@@ -31,7 +31,7 @@ jobs:
               '.dockertimestamp',
               'docker/ci/Dockerfile',
               'go.mod',
-              'go.sum',
+              'go.sum'
             ) }}
           restore-keys: |
             bane-ci-${{ github.ref }}-
