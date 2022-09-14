@@ -31,7 +31,7 @@ func (i Float32GrayscaleImage) Bounds() image.Rectangle {
 }
 
 func (i Float32GrayscaleImage) At(x, y int) color.Color {
-	v := i.a.Get(nd.Dim(y), nd.Dim(x))
+	v := i.a.Get(nd.DimsOf(nd.Dim(y), nd.Dim(x)))
 	return color.Gray{uint8(v)}
 }
 

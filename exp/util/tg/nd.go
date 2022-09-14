@@ -34,11 +34,11 @@ func NdDotSep(a, b nd.NdArray[float32]) nd.NdArray[float32] {
 		for j := nd.Dim(0); j < w; j++ {
 			var o float32
 			for k := nd.Dim(0); k < z; k++ {
-				av := a.Get(i, k)
-				bv := b.Get(k, j)
+				av := a.Get(nd.DimsOf(i, k))
+				bv := b.Get(nd.DimsOf(k, j))
 				o += av * bv
 			}
-			*c.At(i, j) = o
+			*c.At(nd.DimsOf(i, j)) = o
 		}
 	}
 
@@ -59,11 +59,11 @@ func NdDotFma(a, b nd.NdArray[float32]) nd.NdArray[float32] {
 		for j := nd.Dim(0); j < w; j++ {
 			var o float64
 			for k := nd.Dim(0); k < z; k++ {
-				av := a.Get(i, k)
-				bv := b.Get(k, j)
+				av := a.Get(nd.DimsOf(i, k))
+				bv := b.Get(nd.DimsOf(k, j))
 				o = math.FMA(float64(av), float64(bv), o)
 			}
-			*c.At(i, j) = float32(o)
+			*c.At(nd.DimsOf(i, j)) = float32(o)
 		}
 	}
 

@@ -194,8 +194,8 @@ func TestBobNet2(t *testing.T) {
 
 		for i, s := range samp {
 			x.Slice(i).Assign(x_train.Slice(s).Reshape(nd.ShapeOf(784)))
-			c := y_train.Get(nd.Dim(s))
-			*y.At(nd.Dim(i), nd.Dim(c)) = -float32(num_classes)
+			c := y_train.Get(nd.AsDims(s))
+			*y.At(nd.AsDims(i, c)) = -float32(num_classes)
 		}
 
 		xt := NewTensor(MakeLoadBuffer(BufferOfNd(x)), false)

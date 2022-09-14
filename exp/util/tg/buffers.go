@@ -423,7 +423,7 @@ func (b *Buffer) reduce1(axis int, fn func(float32, bt.Optional[float32]) float3
 	nsh := nd.Shape{mnsh.Decay()}
 
 	o := nsh.Order()
-	sl := make([]nd.Dim, o)
+	sl := nd.NewMutDims(o)
 	c := nd.New[float32](nsh)
 
 	var rec func(int)
@@ -433,19 +433,19 @@ func (b *Buffer) reduce1(axis int, fn func(float32, bt.Optional[float32]) float3
 		} else if i < o {
 			n := bnd.View().Shape().Get(i)
 			for j := nd.Dim(0); j < n; j++ {
-				sl[i] = j
+				sl.Set(i, j)
 				rec(i + 1)
 			}
 		} else {
 			n := bnd.View().Shape().Get(axis)
 			var r bt.Optional[float32]
 			for j := nd.Dim(0); j < n; j++ {
-				sl[axis] = j
-				v := bnd.Get(sl...)
+				sl.Set(axis, j)
+				v := bnd.Get(sl.Decay())
 				r = bt.Just(fn(v, r))
 			}
-			sl[axis] = 0
-			*c.At(sl...) = r.Value()
+			sl.Set(axis, 0)
+			*c.At(sl.Decay()) = r.Value()
 		}
 	}
 	rec(0)

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/wrmsr/bane/pkg/util/check"
 )
 
 //
@@ -205,4 +207,14 @@ func (ds *MutDims) Set(i int, d Dim) {
 	} else {
 		ds._ds._s[i-_dimsWidth] = d
 	}
+}
+
+//
+
+func AsDims(s ...any) Dims {
+	m := NewMutDims(len(s))
+	for i, d := range s {
+		m.Set(i, check.Ok1(AsDim(d)).Value())
+	}
+	return m.Decay()
 }
