@@ -134,7 +134,6 @@ docker-reup: docker-stop
 .PHONY: docker-invalidate
 docker-invalidate:
 	date +%s > docker/.dockertimestamp
-	docker rmi -f docker_bane-dev
 
 .PHONY: docker-enable-ptrace
 docker-enable-ptrace:
