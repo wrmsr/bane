@@ -3,8 +3,6 @@ version: '3'
 services:
 
   bane-mysql:
-    image: 'mysql:8'
-    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     environment:
       MYSQL_USER: 'bane'
@@ -16,7 +14,6 @@ services:
       - '33230:3306'
 
   bane-postgres:
-    image: 'postgres:14'
     restart: 'unless-stopped'
     environment:
       POSTGRES_USER: 'bane'

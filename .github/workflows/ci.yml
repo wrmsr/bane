@@ -8,9 +8,6 @@ on:
       - '*'
   pull_request:
 
-env:
-  IMAGE_NAME: 'bane-ci'
-
 jobs:
   test:
     runs-on: 'ubuntu-latest'
@@ -27,16 +24,17 @@ jobs:
         with:
           path: '~/.cache'
           key:
-            bane-ci-${{ github.ref }}-${{ hashFiles(
+            ci-${{ github.ref }}-${{ hashFiles(
               '.dockertimestamp',
               '.versions',
               'docker/ci/Dockerfile',
+              'docker/docker-compose-ext.yml',
               'go.mod',
               'go.sum'
             ) }}
           restore-keys: |
-            bane-ci-${{ github.ref }}-
-            bane-ci-
+            ci-${{ github.ref }}-
+            ci-
 
       - name: 'Docker cache load'
         run: >
@@ -55,5 +53,11 @@ jobs:
         run: >
           mkdir -p ~/.cache/docker/ &&
           docker image history wrmsr/bane-ci &&
-          docker history wrmsr/bane-ci | tail -n+2 | awk '{print $1}' | egrep -v '<missing>' |
-            xargs docker save -o ~/.cache/docker/ci.tar wrmsr/bane-ci
+          (
+            for IMG in $(
+              echo wrmsr/bane-ci ;
+              egrep '^\s*image:' docker/docker-compose-ext.yml | cut -d"'" -f2
+            ) ; do
+              echo "$IMG" ;
+              docker history "$IMG" | tail -n+2 | awk '{print $1}' | egrep -v '<missing>' ; done
+          ) | tee /dev/tty | xargs docker save -o ~/.cache/docker/ci.tar

@@ -119,7 +119,7 @@ test-verbose:
 
 ### docker
 
-DOCKER_COMPOSE=docker-compose -f docker/docker-compose.yml
+DOCKER_COMPOSE=docker-compose -f docker/docker-compose-ext.yml -f docker/docker-compose.yml
 
 .PHONY: docker-stop
 docker-stop:

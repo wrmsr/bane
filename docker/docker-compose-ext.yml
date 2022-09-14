@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+
+  bane-mysql:
+    image: 'mysql:8'
+    platform: 'linux/x86_64'
+
+  bane-postgres:
+    image: 'postgres:14'

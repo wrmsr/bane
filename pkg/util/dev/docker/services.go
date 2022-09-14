@@ -33,14 +33,17 @@ var _ = dev.Register(func() inj.Bindings {
 //
 
 type ServiceLocatorConfig struct {
-	Timeout     time.Duration
-	ComposePath string
+	Timeout      time.Duration
+	ComposePaths []string
 }
 
 func DefaultServiceLocatorConfig() ServiceLocatorConfig {
 	return ServiceLocatorConfig{
-		Timeout:     time.Duration(5) * time.Second,
-		ComposePath: filepath.Join("docker", "docker-compose.yml"),
+		Timeout: time.Duration(5) * time.Second,
+		ComposePaths: []string{
+			filepath.Join("docker", "docker-compose-ext.yml"),
+			filepath.Join("docker", "docker-compose.yml"),
+		},
 	}
 }
 
@@ -109,7 +112,8 @@ func (sl *ServiceLocator) Inspects() Inspects {
 
 func (sl *ServiceLocator) Compose() *ComposeConfig {
 	return bt.SetIfAbsent(&sl.cmp, func() *ComposeConfig {
-		fp := filepath.Join(paths.FindProjectRoot(), sl.cfg.ComposePath)
+		// FIXME: merge..
+		fp := filepath.Join(paths.FindProjectRoot(), sl.cfg.ComposePaths[len(sl.cfg.ComposePaths)-1])
 
 		cmp, err := ReadComposeConfig(fp)
 		if err != nil {
