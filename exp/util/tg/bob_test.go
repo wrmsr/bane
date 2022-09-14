@@ -169,6 +169,7 @@ func TestBobNet2(t *testing.T) {
 	}
 
 	//num_epochs := 10
+	samps = samps[:10]
 
 	fmt.Println(tgdev.FetchDatasets())
 
