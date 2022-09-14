@@ -25,14 +25,15 @@ func CalcStrides(shape Shape) Strides {
 	return Strides{st.Decay()}
 }
 
-func (st Strides) Offset(idxs []Dim) Dim {
-	if len(idxs) != st.Len() {
-		panic(fmt.Errorf("dim mismatch: got %d need %d", len(idxs), st.Len()))
+func (st Strides) Offset(idxs Dims) Dim {
+	l := st.Len()
+	if idxs.Len() != l {
+		panic(fmt.Errorf("dim mismatch: got %d need %d", idxs.Len(), l))
 	}
 
 	o := Dim(0)
-	for i, idx := range idxs {
-		o += idx * st.Get(i)
+	for i := 0; i < l; i++ {
+		o += idxs.Get(i) * st.Get(i)
 	}
 
 	return o

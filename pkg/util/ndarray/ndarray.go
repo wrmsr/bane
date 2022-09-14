@@ -64,12 +64,12 @@ func New[T any](shape Shape) NdArray[T] {
 func (a NdArray[T]) View() View { return a.v }
 func (a NdArray[T]) Data() []T  { return a.d }
 
-func (a NdArray[T]) At(idxs ...Dim) *T {
-	return &a.d[a.v.Index(idxs...)]
+func (a NdArray[T]) At(idxs Dims) *T {
+	return &a.d[a.v.Index(idxs)]
 }
 
-func (a NdArray[T]) Get(idxs ...Dim) T {
-	return *a.At(idxs...)
+func (a NdArray[T]) Get(idxs Dims) T {
+	return *a.At(idxs)
 }
 
 //
@@ -109,19 +109,19 @@ func (a NdArray[T]) Transpose(axes Dims) NdArray[T] {
 
 	b := New[T](Shape{nsh.Decay()})
 
-	asl := make([]Dim, axes.Len())
-	bsl := make([]Dim, axes.Len())
+	asl := NewMutDims(axes.Len())
+	bsl := NewMutDims(axes.Len())
 
 	var rec func(i int)
 	rec = func(i int) {
 		n := nsh.Get(i)
 		for j := Dim(0); j < n; j++ {
-			asl[axes.Get(i)] = j
-			bsl[i] = j
+			asl.Set(int(axes.Get(i)), j)
+			bsl.Set(i, j)
 			if i < axes.Len()-1 {
 				rec(i + 1)
 			} else {
-				*b.At(bsl...) = a.Get(asl...)
+				*b.At(bsl.Decay()) = a.Get(asl.Decay())
 			}
 		}
 	}
@@ -189,18 +189,18 @@ func (a NdArray[T]) Reshape(nsh Shape) NdArray[T] {
 	s := make([]T, l)
 
 	o := a.v.sh.Order()
-	sl := make([]Dim, a.v.sh.Order())
+	sl := NewMutDims(a.v.sh.Order())
 	p := 0
 
 	var rec func(int)
 	rec = func(i int) {
 		n := a.v.sh.Get(i)
 		for j := Dim(0); j < n; j++ {
-			sl[i] = j
+			sl.Set(i, j)
 			if i < o-1 {
 				rec(i + 1)
 			} else {
-				s[p] = a.Get(sl...)
+				s[p] = a.Get(sl.Decay())
 				p++
 			}
 		}
@@ -217,17 +217,18 @@ func (a NdArray[T]) Assign(src NdArray[T]) {
 	check.Equal(a.v.sh.Order(), src.v.sh.Order())
 
 	o := a.v.sh.Order()
-	sl := make([]Dim, o)
+	sl := NewMutDims(o)
 
 	var rec func(int)
 	rec = func(i int) {
 		n := bt.Min(a.v.sh.Get(i), src.v.sh.Get(i))
 		for j := Dim(0); j < n; j++ {
-			sl[i] = j
+			sl.Set(i, j)
 			if i < o-1 {
 				rec(i + 1)
 			} else {
-				*a.At(sl...) = src.Get(sl...)
+				ds := sl.Decay()
+				*a.At(ds) = src.Get(ds)
 			}
 		}
 	}
@@ -243,16 +244,16 @@ func (a NdArray[T]) Flat() []T {
 	o := sh.Order()
 	s := make([]T, sh.Prod())
 	p := 0
-	sl := make([]Dim, o)
+	sl := NewMutDims(o)
 	var rec func(int)
 	rec = func(i int) {
 		l := sh.Get(i)
 		for j := Dim(0); j < l; j++ {
-			sl[i] = j
+			sl.Set(i, j)
 			if i < o-1 {
 				rec(i + 1)
 			} else {
-				s[p] = a.Get(sl...)
+				s[p] = a.Get(sl.Decay())
 				p++
 			}
 		}
@@ -266,16 +267,17 @@ func (a NdArray[T]) Flat() []T {
 func Map[F, T any](fn func(F) T, f NdArray[F]) NdArray[T] {
 	t := New[T](f.v.sh)
 	o := f.v.sh.Order()
-	sl := make([]Dim, o)
+	sl := NewMutDims(o)
 	var rec func(int)
 	rec = func(i int) {
 		l := f.v.sh.Get(i)
 		for j := Dim(0); j < l; j++ {
-			sl[i] = j
+			sl.Set(i, j)
 			if i < o-1 {
 				rec(i + 1)
 			} else {
-				*t.At(sl...) = fn(f.Get(sl...))
+				ds := sl.Decay()
+				*t.At(ds) = fn(f.Get(ds))
 			}
 		}
 	}

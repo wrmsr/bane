@@ -13,18 +13,18 @@ func (a NdArray[T]) NestArray() any {
 		tys[i] = reflect.ArrayOf(int(sh.Get(i)), tys[i+1])
 	}
 
-	sl := make([]Dim, sh.Len())
+	sl := NewMutDims(sh.Len())
 	var rec func(int) reflect.Value
 	rec = func(dim int) reflect.Value {
 		l := sh.Get(dim)
 		ret := reflect.New(tys[dim]).Elem()
 		for i := Dim(0); i < l; i++ {
-			sl[dim] = i
+			sl.Set(dim, i)
 			var o reflect.Value
 			if dim < sh.Len()-1 {
 				o = rec(dim + 1)
 			} else {
-				o = reflect.ValueOf(a.Get(sl...))
+				o = reflect.ValueOf(a.Get(sl.Decay()))
 			}
 			ret.Index(int(i)).Set(o)
 		}

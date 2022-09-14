@@ -22,7 +22,7 @@ func TestNdArray(t *testing.T) {
 	for i := nd.Dim(0); i < d; i++ {
 		for j := nd.Dim(0); j < d; j++ {
 			for k := nd.Dim(0); k < d; k++ {
-				tu.AssertEqual(t, a.Get(i, j, k), n)
+				tu.AssertEqual(t, a.Get(nd.DimsOf(i, j, k)), n)
 				n++
 			}
 		}
@@ -64,7 +64,7 @@ func TestNdArray(t *testing.T) {
 
 func TestScalar(t *testing.T) {
 	sc := nd.New[int](nd.ShapeOf(1))
-	*sc.At(0) = 420
+	*sc.At(nd.DimsOf(0)) = 420
 	fmt.Println(sc)
 }
 
@@ -105,9 +105,9 @@ func NdMatMul(a, b nd.NdArray[float32]) nd.NdArray[float32] {
 		for j := nd.Dim(0); j < w; j++ {
 			var o float32
 			for k := nd.Dim(0); k < h; k++ {
-				o += a.Get(i, k) * b.Get(k, j)
+				o += a.Get(nd.DimsOf(i, k)) * b.Get(nd.DimsOf(k, j))
 			}
-			*c.At(i, j) = o
+			*c.At(nd.DimsOf(i, j)) = o
 		}
 	}
 

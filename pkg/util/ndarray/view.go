@@ -57,7 +57,7 @@ func (v View) Offset() Dim      { return v.o }
 
 func (v View) DataSize() Dim { return v.sh.Get(0) * v.st.Get(0) }
 
-func (v View) Index(idxs ...Dim) Dim {
+func (v View) Index(idxs Dims) Dim {
 	return v.st.Offset(idxs) + v.o
 }
 
