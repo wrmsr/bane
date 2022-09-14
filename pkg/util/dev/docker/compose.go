@@ -4,10 +4,14 @@ package docker
 
 import (
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"regexp"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
 type ComposeService struct {
@@ -31,11 +35,39 @@ type ComposeConfig struct {
 	X map[string]any `json:"-"`
 }
 
-func ReadComposeConfig(path string) (*ComposeConfig, error) {
-	b, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
+func ReadComposeConfig(paths []string) (*ComposeConfig, error) {
+	ms := slices.Map(func(p string) map[string]any {
+		b := check.Must1(ioutil.ReadFile(p))
+		var o map[string]any
+		check.Must(yaml.NewDecoder(bytes.NewReader(b)).Decode(&o))
+		return o
+	}, paths)
+
+	var merge func(l, r any) any
+	merge = func(l, r any) any {
+		lm, lok := l.(map[string]any)
+		rm, rok := r.(map[string]any)
+		if !lok || !rok {
+			return r
+		}
+		for k, rv := range rm {
+			if lv, ok := lm[k]; ok {
+				lm[k] = merge(lv, rv)
+			} else {
+				lm[k] = rv
+			}
+		}
+		return lm
 	}
+
+	m := ms[0]
+	for _, r := range ms[1:] {
+		if _, ok := r["services"]; ok {
+			m["services"] = merge(m["services"], r["services"])
+		}
+	}
+
+	b := check.Must1(json.Marshal(m))
 
 	var cfg ComposeConfig
 	if err := yaml.NewDecoder(bytes.NewReader(b)).Decode(&cfg); err != nil {

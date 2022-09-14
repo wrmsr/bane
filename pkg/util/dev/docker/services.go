@@ -112,10 +112,11 @@ func (sl *ServiceLocator) Inspects() Inspects {
 
 func (sl *ServiceLocator) Compose() *ComposeConfig {
 	return bt.SetIfAbsent(&sl.cmp, func() *ComposeConfig {
-		// FIXME: merge..
-		fp := filepath.Join(paths.FindProjectRoot(), sl.cfg.ComposePaths[len(sl.cfg.ComposePaths)-1])
+		fps := slices.Map(func(p string) string {
+			return filepath.Join(paths.FindProjectRoot(), p)
+		}, sl.cfg.ComposePaths)
 
-		cmp, err := ReadComposeConfig(fp)
+		cmp, err := ReadComposeConfig(fps)
 		if err != nil {
 			log.Error("docker error", log.E(err))
 			return nil
