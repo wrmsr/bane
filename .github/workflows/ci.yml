@@ -38,8 +38,8 @@ jobs:
 
       - name: 'Docker cache load'
         run: >
-          tar -tvf ~/.cache/docker/ci.tar ||: ;
-          docker load -i ~/.cache/docker/ci.tar ||: ;
+          tar -tvzf ~/.cache/docker/ci.tgz ||: ;
+          docker load -i ~/.cache/docker/ci.tgz ||: ;
           docker image history wrmsr/bane-ci ||: ;
 
       - name: 'Run tests'
@@ -61,4 +61,4 @@ jobs:
               echo "$IMG" ;
               docker history "$IMG" | tail -n+2 | awk '{print $1}' | egrep -v '<missing>' ;
             done
-          ) | tee /dev/tty | xargs docker save -o ~/.cache/docker/ci.tar
+          ) | tee /dev/tty | xargs docker save -o ~/.cache/docker/ci.tgz
