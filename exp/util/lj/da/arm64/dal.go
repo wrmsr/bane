@@ -1,5 +1,7 @@
 package arm64
 
+import "strconv"
+
 // Ext. register name -> int. name.
 var map_archdef = map[string]string{"xzr": "@x31", "wzr": "@w31", "lr": "x30"}
 
@@ -262,4 +264,14 @@ var map_op = map[string]any{
 
 	// TODO: crc32*, aes*, sha*, pmull
 	// TODO: SIMD instructions.
+}
+
+func tohex(i int) string {
+	return strconv.FormatInt(int64(i), 16)
+}
+
+func init() {
+	for cond, c := range map_cond {
+		map_op["b"+cond+"_1"] = tohex(0x54000000+c) + "B"
+	}
 }
