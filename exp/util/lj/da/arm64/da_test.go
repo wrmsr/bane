@@ -2,9 +2,15 @@ package arm64
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 )
 
 func TestDa(t *testing.T) {
-	fmt.Println(map_op["beq_1"])
+	otp := regexp.MustCompile("^(.+)_([0-9%*])$")
+
+	for k, _ := range map_op {
+		m := otp.FindStringSubmatch(k)
+		fmt.Printf("%s: %v\n", k, m[1])
+	}
 }
