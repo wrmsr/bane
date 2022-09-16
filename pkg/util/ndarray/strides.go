@@ -36,7 +36,7 @@ func (st Strides) _offset(idxs Dims) Dim {
 	for i := 0; i < _dimsWidth; i++ {
 		o += idxs._a[i] * st._a[i]
 	}
-	for i := _dimsWidth; i < l; i++ {
+	for i := 0; i < l-_dimsWidth; i++ {
 		o += idxs._s[i] * st._s[i]
 	}
 

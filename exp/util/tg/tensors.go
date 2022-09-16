@@ -10,8 +10,9 @@ import (
 type Tensor struct {
 	data *LazyBuffer
 
-	grad         *Tensor
 	requiresGrad bool
+
+	grad *Tensor
 
 	ctx *FuncContext
 }
@@ -27,6 +28,12 @@ func NewTensor(data *LazyBuffer, requiresGrad bool) *Tensor {
 func (t *Tensor) Data() *LazyBuffer  { return t.data }
 func (t *Tensor) RequiresGrad() bool { return t.requiresGrad }
 
+func (t *Tensor) Grad() *Tensor { return t.grad }
+
+func (t *Tensor) ClearGrad() {
+	t.grad = nil
+}
+
 func (t *Tensor) Shape() Shape {
 	return t.data.st.Shape()
 }
@@ -34,10 +41,6 @@ func (t *Tensor) Shape() Shape {
 func (t *Tensor) Assign(x *Tensor) {
 	check.Condition(t.Shape().Equals(x.Shape()))
 	t.data = x.data
-}
-
-func (t *Tensor) ClearGrad() {
-	t.grad = nil
 }
 
 func BroadcastedTensor(fn func(x, y *Tensor) *Tensor, x, y *Tensor) *Tensor {

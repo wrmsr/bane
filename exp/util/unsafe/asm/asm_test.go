@@ -1,5 +1,11 @@
 package asm
 
+import (
+	"fmt"
+	"math"
+	"testing"
+)
+
 type Op int16
 
 /*
@@ -16,4 +22,15 @@ const (
 
 type Inst struct {
 	Op Op
+}
+
+//go:noinline
+func someFloat() float64 {
+	return 420.69
+}
+
+func TestFloatBits(t *testing.T) {
+	f := someFloat()
+	b := math.Float64bits(f)
+	fmt.Println(b)
 }
