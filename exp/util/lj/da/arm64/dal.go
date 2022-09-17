@@ -392,7 +392,7 @@ func parse_number(s string) bt.Optional[int] {
 	return bt.None[int]()
 }
 
-func parse_imm(imm string, bits, shift, scale int, signed bool) any {
+func parse_imm(imm string, bits, shift, scale int, signed bool) int {
 	m := regexp.MustCompile(`^#(.*)$`).FindStringSubmatch(imm)
 	imm = m[1]
 	if imm == "" {
@@ -514,7 +514,7 @@ func parse_imm6(imm string) int {
 }
 
 // Handle opcodes defined with template strings.
-func parse_template(params []string, template string, nparams, pos any) any {
+func parse_template(params []string, template string, nparams, pos any) {
 	op := int(check.Must1(strconv.ParseInt(template[0:8], 16, 64)))
 	n := 1
 
@@ -582,31 +582,34 @@ func parse_template(params []string, template string, nparams, pos any) any {
 			       else
 			           waction("REL_" .. mode, v + m, s, 1)
 			       end
+			*/
 
-			   case 'I':
-			       op = op + parse_imm12(q);
-			       n = n + 1
-			   case 'i':
-			       op = op + parse_imm13(q);
-			       n = n + 1
-			   case 'W':
-			       op = op + parse_imm(q, 16, 5, 0, false);
-			       n = n + 1
-			   case 'T':
-			       op = op + parse_imm6(q);
-			       n = n + 1
-			   case '1':
-			       op = op + parse_imm(q, 6, 16, 0, false);
-			       n = n + 1
-			   case '2':
-			       op = op + parse_imm(q, 6, 10, 0, false);
-			       n = n + 1
-			   case '5':
-			       op = op + parse_imm(q, 5, 16, 0, false);
-			       n = n + 1
-			   case 'V':
-			       op = op + parse_imm(q, 4, 0, 0, false);
-			       n = n + 1
+		case 'I':
+			op = op + parse_imm12(q)
+			n = n + 1
+		case 'i':
+			op = op + parse_imm13(q)
+			n = n + 1
+		case 'W':
+			op = op + parse_imm(q, 16, 5, 0, false)
+			n = n + 1
+		case 'T':
+			op = op + parse_imm6(q)
+			n = n + 1
+		case '1':
+			op = op + parse_imm(q, 6, 16, 0, false)
+			n = n + 1
+		case '2':
+			op = op + parse_imm(q, 6, 10, 0, false)
+			n = n + 1
+		case '5':
+			op = op + parse_imm(q, 5, 16, 0, false)
+			n = n + 1
+		case 'V':
+			op = op + parse_imm(q, 4, 0, 0, false)
+			n = n + 1
+
+			/*
 			   case 'F':
 			       op = op + parse_fpimm(q);
 			       n = n + 1
