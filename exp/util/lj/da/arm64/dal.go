@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -357,4 +358,55 @@ func parse_reg(expr string, shift int, no_vreg bool) (int, any) {
 	}
 
 	panic(fmt.Errorf("bad register name `%v`", expr))
+}
+
+func parse_reg_base(expr string) (int, any) {
+	if expr == "sp" {
+		return 0x3e0, nil
+	}
+	base, tp := parse_reg(expr, 5, false)
+	if parse_reg_type != "x" {
+		panic("bad register type")
+	}
+	parse_reg_type = ""
+	return base, tp
+}
+
+func parse_number(s string) int {
+	if strings.HasPrefix(s, "0x") || strings.HasSuffix(s, "h") {
+		s = strings.TrimPrefix(s, "0x")
+		s = strings.TrimSuffix(s, "h")
+		return int(check.Must1(strconv.ParseInt(s, 16, 64)))
+	}
+	return check.Must1(strconv.Atoi(s))
+}
+
+func parse_imm(imm string, bits, shift, scale int, signed bool) any {
+	m := regexp.MustCompile(`^#(.*)$`).FindStringSubmatch(imm)
+	imm = m[1]
+	if imm == "" {
+		panic("expected immediate operand")
+	}
+	n := parse_number(imm)
+	if n != 0 {
+		m := n >> scale
+		if (m << scale) == n {
+			if signed {
+				s := m >> (bits - 1)
+				if s == 0 {
+					return m << shift
+				} else if s == -1 {
+					return (m + (1 << bits)) << shift
+				}
+			} else {
+				if (m >> bits) == 0 {
+					return m << shift
+				}
+			}
+		}
+		panic(fmt.Errorf("out of range immediate `%v`", imm))
+	} else {
+		waction("IMM", bt.Choose(signed, 32768, 0)+scale*1024+bits*32+shift, imm, nil)
+		return 0
+	}
 }
