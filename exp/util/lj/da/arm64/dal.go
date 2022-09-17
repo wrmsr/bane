@@ -360,6 +360,11 @@ func parse_reg(expr string, shift int, no_vreg bool) (int, any) {
 	panic(fmt.Errorf("bad register name `%v`", expr))
 }
 
+func parse_reg1(expr string, shift int, no_vreg bool) int {
+	reg, _ := parse_reg(expr, shift, no_vreg)
+	return reg
+}
+
 func parse_reg_base(expr string) (int, any) {
 	if expr == "sp" {
 		return 0x3e0, nil
@@ -509,62 +514,61 @@ func parse_imm6(imm string) int {
 }
 
 /*
--- Handle opcodes defined with template strings.
+// Handle opcodes defined with template strings.
 func parse_template(params, template, nparams, pos any) any {
-    op = check.Must1(strconv.Itoa(template:sub[0:8], 16))
+    op := check.Must1(strconv.Itoa(template:sub[0:8], 16))
     n := 1
 
     parse_reg_type = ""
 
     // Process each character.
-    for p in gmatch(template:sub(9), ".") do
+    for p := range []rune(s[8:]) {
         q := params[n]
 		switch p {
-        case "D":
-            op = op + parse_reg(q, 0);
+        case 'D':
+            op = op + parse_reg1(q, 0, false)
             n = n + 1
-        case "N":
-            op = op + parse_reg(q, 5);
+        case 'N':
+            op = op + parse_reg1(q, 5, false)
             n = n + 1
-        case "M":
-            op = op + parse_reg(q, 16);
+        case 'M':
+            op = op + parse_reg(q, 16, false)
             n = n + 1
-        case "A":
-            op = op + parse_reg(q, 10);
+        case 'A':
+            op = op + parse_reg(q, 10, false)
             n = n + 1
-        case "m":
+        case 'm':
             op = op + parse_reg(params[n - 1], 16)
 
-        case "p":
+        case 'p':
             if q == "sp" then
                 params[n] = "@x31"
             end
-        case "g":
+        case 'g':
             if parse_reg_type == "x" then
                 op = op + 0x80000000
             elseif parse_reg_type ~= "w" then
                 werror("bad register type")
             end
             parse_reg_type = false
-        case "f":
-            if parse_reg_type == "d" then
+        case 'f': if parse_reg_type == "d" then
                 op = op + 0x00400000
             elseif parse_reg_type ~= "s" then
                 werror("bad register type")
             end
             parse_reg_type = false
-        case "x" or p == "w" or p == "d" or p == "s":
+        case 'x' or p == "w" or p == "d" or p == "s":
             if parse_reg_type ~= p then
                 werror("register size mismatch")
             end
             parse_reg_type = false
 
-        case "L":
+        case 'L':
             op = parse_load(params, nparams, n, op)
-        case "P":
+        case 'P':
             op = parse_load_pair(params, nparams, n, op)
 
-        case "B":
+        case 'B':
             local mode, v, s = parse_label(q, false);
             n = n + 1
             if not mode then
@@ -578,59 +582,59 @@ func parse_template(params, template, nparams, pos any) any {
                 waction("REL_" .. mode, v + m, s, 1)
             end
 
-        case "I":
+        case 'I':
             op = op + parse_imm12(q);
             n = n + 1
-        case "i":
+        case 'i':
             op = op + parse_imm13(q);
             n = n + 1
-        case "W":
+        case 'W':
             op = op + parse_imm(q, 16, 5, 0, false);
             n = n + 1
-        case "T":
+        case 'T':
             op = op + parse_imm6(q);
             n = n + 1
-        case "1":
+        case '1':
             op = op + parse_imm(q, 6, 16, 0, false);
             n = n + 1
-        case "2":
+        case '2':
             op = op + parse_imm(q, 6, 10, 0, false);
             n = n + 1
-        case "5":
+        case '5':
             op = op + parse_imm(q, 5, 16, 0, false);
             n = n + 1
-        case "V":
+        case 'V':
             op = op + parse_imm(q, 4, 0, 0, false);
             n = n + 1
-        case "F":
+        case 'F':
             op = op + parse_fpimm(q);
             n = n + 1
-        case "Z":
+        case 'Z':
             if q ~= "#0" and q ~= "#0.0" then
                 werror("expected zero immediate")
             end
             n = n + 1
 
-        case "S":
+        case 'S':
             op = op + parse_shift(q);
             n = n + 1
-        case "X":
+        case 'X':
             op = op + parse_extend(q);
             n = n + 1
-        case "R":
+        case 'R':
             op = op + parse_lslx16(q);
             n = n + 1
-        case "C":
+        case 'C':
             op = op + parse_cond(q, 0);
             n = n + 1
-        case "c":
+        case 'c':
             op = op + parse_cond(q, 1);
             n = n + 1
 
-        else
+        default:
             assert(false)
-        end
-    end
+        }
+    }
     wputpos(pos, op)
 }
 */
