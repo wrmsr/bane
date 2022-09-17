@@ -513,128 +513,129 @@ func parse_imm6(imm string) int {
 	}
 }
 
-/*
 // Handle opcodes defined with template strings.
-func parse_template(params, template, nparams, pos any) any {
-    op := check.Must1(strconv.Itoa(template:sub[0:8], 16))
-    n := 1
+func parse_template(params []string, template string, nparams, pos any) any {
+	op := int(check.Must1(strconv.ParseInt(template[0:8], 16, 64)))
+	n := 1
 
-    parse_reg_type = ""
+	parse_reg_type = ""
 
-    // Process each character.
-    for p := range []rune(s[8:]) {
-        q := params[n]
+	// Process each character.
+	for p := range []rune(template[8:]) {
+		q := params[n]
 		switch p {
-        case 'D':
-            op = op + parse_reg1(q, 0, false)
-            n = n + 1
-        case 'N':
-            op = op + parse_reg1(q, 5, false)
-            n = n + 1
-        case 'M':
-            op = op + parse_reg(q, 16, false)
-            n = n + 1
-        case 'A':
-            op = op + parse_reg(q, 10, false)
-            n = n + 1
-        case 'm':
-            op = op + parse_reg(params[n - 1], 16)
+		case 'D':
+			op = op + parse_reg1(q, 0, false)
+			n = n + 1
+		case 'N':
+			op = op + parse_reg1(q, 5, false)
+			n = n + 1
+		case 'M':
+			op = op + parse_reg1(q, 16, false)
+			n = n + 1
+		case 'A':
+			op = op + parse_reg1(q, 10, false)
+			n = n + 1
+		case 'm':
+			op = op + parse_reg1(params[n-1], 16, false)
 
-        case 'p':
-            if q == "sp" then
-                params[n] = "@x31"
-            end
-        case 'g':
-            if parse_reg_type == "x" then
-                op = op + 0x80000000
-            elseif parse_reg_type ~= "w" then
-                werror("bad register type")
-            end
-            parse_reg_type = false
-        case 'f': if parse_reg_type == "d" then
-                op = op + 0x00400000
-            elseif parse_reg_type ~= "s" then
-                werror("bad register type")
-            end
-            parse_reg_type = false
-        case 'x' or p == "w" or p == "d" or p == "s":
-            if parse_reg_type ~= p then
-                werror("register size mismatch")
-            end
-            parse_reg_type = false
+			/*
+			   case 'p':
+			       if q == "sp" then
+			           params[n] = "@x31"
+			       end
+			   case 'g':
+			       if parse_reg_type == "x" then
+			           op = op + 0x80000000
+			       elseif parse_reg_type ~= "w" then
+			           werror("bad register type")
+			       end
+			       parse_reg_type = false
+			   case 'f': if parse_reg_type == "d" then
+			           op = op + 0x00400000
+			       elseif parse_reg_type ~= "s" then
+			           werror("bad register type")
+			       end
+			       parse_reg_type = false
+			   case 'x' or p == "w" or p == "d" or p == "s":
+			       if parse_reg_type ~= p then
+			           werror("register size mismatch")
+			       end
+			       parse_reg_type = false
 
-        case 'L':
-            op = parse_load(params, nparams, n, op)
-        case 'P':
-            op = parse_load_pair(params, nparams, n, op)
+			   case 'L':
+			       op = parse_load(params, nparams, n, op)
+			   case 'P':
+			       op = parse_load_pair(params, nparams, n, op)
 
-        case 'B':
-            local mode, v, s = parse_label(q, false);
-            n = n + 1
-            if not mode then
-                werror("bad label `" .. q .. "'")
-            end
-            local m = branch_type(op)
-            if mode == "A" then
-                waction("REL_" .. mode, v + m, format("(unsigned int)(%s)", s))
-                actargs[#actargs + 1] = format("(unsigned int)((%s)>>32)", s)
-            else
-                waction("REL_" .. mode, v + m, s, 1)
-            end
+			   case 'B':
+			       local mode, v, s = parse_label(q, false);
+			       n = n + 1
+			       if not mode then
+			           werror("bad label `" .. q .. "'")
+			       end
+			       local m = branch_type(op)
+			       if mode == "A" then
+			           waction("REL_" .. mode, v + m, format("(unsigned int)(%s)", s))
+			           actargs[#actargs + 1] = format("(unsigned int)((%s)>>32)", s)
+			       else
+			           waction("REL_" .. mode, v + m, s, 1)
+			       end
 
-        case 'I':
-            op = op + parse_imm12(q);
-            n = n + 1
-        case 'i':
-            op = op + parse_imm13(q);
-            n = n + 1
-        case 'W':
-            op = op + parse_imm(q, 16, 5, 0, false);
-            n = n + 1
-        case 'T':
-            op = op + parse_imm6(q);
-            n = n + 1
-        case '1':
-            op = op + parse_imm(q, 6, 16, 0, false);
-            n = n + 1
-        case '2':
-            op = op + parse_imm(q, 6, 10, 0, false);
-            n = n + 1
-        case '5':
-            op = op + parse_imm(q, 5, 16, 0, false);
-            n = n + 1
-        case 'V':
-            op = op + parse_imm(q, 4, 0, 0, false);
-            n = n + 1
-        case 'F':
-            op = op + parse_fpimm(q);
-            n = n + 1
-        case 'Z':
-            if q ~= "#0" and q ~= "#0.0" then
-                werror("expected zero immediate")
-            end
-            n = n + 1
+			   case 'I':
+			       op = op + parse_imm12(q);
+			       n = n + 1
+			   case 'i':
+			       op = op + parse_imm13(q);
+			       n = n + 1
+			   case 'W':
+			       op = op + parse_imm(q, 16, 5, 0, false);
+			       n = n + 1
+			   case 'T':
+			       op = op + parse_imm6(q);
+			       n = n + 1
+			   case '1':
+			       op = op + parse_imm(q, 6, 16, 0, false);
+			       n = n + 1
+			   case '2':
+			       op = op + parse_imm(q, 6, 10, 0, false);
+			       n = n + 1
+			   case '5':
+			       op = op + parse_imm(q, 5, 16, 0, false);
+			       n = n + 1
+			   case 'V':
+			       op = op + parse_imm(q, 4, 0, 0, false);
+			       n = n + 1
+			   case 'F':
+			       op = op + parse_fpimm(q);
+			       n = n + 1
+			   case 'Z':
+			       if q ~= "#0" and q ~= "#0.0" then
+			           werror("expected zero immediate")
+			       end
+			       n = n + 1
 
-        case 'S':
-            op = op + parse_shift(q);
-            n = n + 1
-        case 'X':
-            op = op + parse_extend(q);
-            n = n + 1
-        case 'R':
-            op = op + parse_lslx16(q);
-            n = n + 1
-        case 'C':
-            op = op + parse_cond(q, 0);
-            n = n + 1
-        case 'c':
-            op = op + parse_cond(q, 1);
-            n = n + 1
+			   case 'S':
+			       op = op + parse_shift(q);
+			       n = n + 1
+			   case 'X':
+			       op = op + parse_extend(q);
+			       n = n + 1
+			   case 'R':
+			       op = op + parse_lslx16(q);
+			       n = n + 1
+			   case 'C':
+			       op = op + parse_cond(q, 0);
+			       n = n + 1
+			   case 'c':
+			       op = op + parse_cond(q, 1);
+			       n = n + 1
+			*/
 
-        default:
-            assert(false)
-        }
-    }
-    wputpos(pos, op)
+		default:
+			panic("nyi")
+		}
+	}
+	//wputpos(pos, op)
+	fmt.Printf("%v %v\n", pos, op)
 }
-*/
