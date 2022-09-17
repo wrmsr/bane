@@ -614,9 +614,9 @@ func parse_template(params []string, template string, nparams, pos any) {
 			       op = op + parse_fpimm(q);
 			       n = n + 1
 			   case 'Z':
-			       if q != "#0" and q != "#0.0" then
+			       if q != "#0" and q != "#0.0" {
 			           werror("expected zero immediate")
-			       end
+			       }
 			       n = n + 1
 
 			   case 'S':
