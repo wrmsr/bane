@@ -372,13 +372,19 @@ func parse_reg_base(expr string) (int, any) {
 	return base, tp
 }
 
-func parse_number(s string) int {
+func parse_number(s string) bt.Optional[int] {
 	if strings.HasPrefix(s, "0x") || strings.HasSuffix(s, "h") {
 		s = strings.TrimPrefix(s, "0x")
 		s = strings.TrimSuffix(s, "h")
-		return int(check.Must1(strconv.ParseInt(s, 16, 64)))
+		if n, err := strconv.ParseInt(s, 16, 64); err == nil {
+			return bt.Just(int(n))
+		}
+	} else {
+		if n, err := strconv.Atoi(s); err == nil {
+			return bt.Just(n)
+		}
 	}
-	return check.Must1(strconv.Atoi(s))
+	return bt.None[int]()
 }
 
 func parse_imm(imm string, bits, shift, scale int, signed bool) any {
@@ -388,7 +394,8 @@ func parse_imm(imm string, bits, shift, scale int, signed bool) any {
 		panic("expected immediate operand")
 	}
 	n := parse_number(imm)
-	if n != 0 {
+	if n.Present() {
+		n := n.Value()
 		m := n >> scale
 		if (m << scale) == n {
 			if signed {
@@ -410,3 +417,91 @@ func parse_imm(imm string, bits, shift, scale int, signed bool) any {
 		return 0
 	}
 }
+
+func parse_imm12(imm string) int {
+	m := regexp.MustCompile(`^#(.*)$`).FindStringSubmatch(imm)
+	imm = m[1]
+	if imm == "" {
+		panic("expected immediate operand")
+	}
+	n := parse_number(imm)
+	if n.Present() {
+		n := n.Value()
+		if (n >> 12) == 0 {
+			return n << 10
+		} else if (n & 0xff000fff) == 0 {
+			return (n >> 2) + 0x00400000
+		}
+		panic(fmt.Errorf("out of range immediate `%v`", imm))
+	} else {
+		waction("IMM12", 0, imm, nil)
+		return 0
+	}
+}
+
+/*
+func parse_imm13(imm) int {
+	m := regexp.MustCompile(`^#(.*)$`).FindStringSubmatch(imm)
+	imm = m[1]
+    if imm == "" {
+        panic("expected immediate operand")
+    }
+    n := parse_number(imm)
+    local r64 = parse_reg_type == "x"
+    if n and n % 1 == 0 and n >= 0 and n <= 0xffffffff {
+        local inv = false
+        if band(n, 1) == 1 then
+            n = bit.bnot(n);
+            inv = true
+        end
+        local t = {}
+        for i = 1, 32 do
+            t[i] = band(n, 1);
+            n = shr(n, 1)
+        end
+        local b = table.concat(t)
+        b = b .. (r64 and (inv and "1" or "0"):rep(32) or b)
+        local p0, p1, p0a, p1a = b:match("^(0+)(1+)(0*)(1*)")
+        if p0 then
+            local w = p1a == "" and (r64 and 64 or 32) or #p1 + #p0a
+            if band(w, w - 1) == 0 and b == b:sub(1, w):rep(64 / w) then
+                local s = band(-2 * w, 0x3f) - 1
+                if w == 64 then
+                    s = s + 0x1000
+                end
+                if inv then
+                    return shl(w - #p1 - #p0, 16) + shl(s + w - #p1, 10)
+                else
+                    return shl(w - #p0, 16) + shl(s + #p1, 10)
+                end
+            end
+        end
+        panic(fmt.Errorf("out of range immediate `%v`", imm))
+    } else if r64 {
+        waction("IMM13X", 0, format("(unsigned int)(%s)", imm))
+        actargs[#actargs + 1] = format("(unsigned int)((unsigned long long)(%s)>>32)", imm)
+        return 0
+    } else {
+        waction("IMM13W", 0, imm)
+        return 0
+    }
+}
+
+func parse_imm6(imm string) int {
+	m := regexp.MustCompile(`^#(.*)$`).FindStringSubmatch(imm)
+	imm = m[1]
+    if imm == "" {
+        panic("expected immediate operand")
+    }
+    local n = parse_number(imm)
+    if n {
+        if n >= 0 and n <= 63 then
+            return shl(band(n, 0x1f), 19) + (n >= 32 and 0x80000000 or 0)
+        end
+        panic(fmt.Errorf("out of range immediate `%v`", imm))
+    } else {
+        waction("IMM6", 0, imm)
+        return 0
+    }
+}
+*/
