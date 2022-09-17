@@ -539,30 +539,31 @@ func parse_template(params []string, template string, nparams, pos any) any {
 		case 'm':
 			op = op + parse_reg1(params[n-1], 16, false)
 
-			/*
-			   case 'p':
-			       if q == "sp" then
-			           params[n] = "@x31"
-			       end
-			   case 'g':
-			       if parse_reg_type == "x" then
-			           op = op + 0x80000000
-			       elseif parse_reg_type ~= "w" then
-			           werror("bad register type")
-			       end
-			       parse_reg_type = false
-			   case 'f': if parse_reg_type == "d" then
-			           op = op + 0x00400000
-			       elseif parse_reg_type ~= "s" then
-			           werror("bad register type")
-			       end
-			       parse_reg_type = false
-			   case 'x' or p == "w" or p == "d" or p == "s":
-			       if parse_reg_type ~= p then
-			           werror("register size mismatch")
-			       end
-			       parse_reg_type = false
+		case 'p':
+			if q == "sp" {
+				params[n] = "@x31"
+			}
+		case 'g':
+			if parse_reg_type == "x" {
+				op = op + 0x80000000
+			} else if parse_reg_type != "w" {
+				panic("bad register type")
+			}
+			parse_reg_type = ""
+		case 'f':
+			if parse_reg_type == "d" {
+				op = op + 0x00400000
+			} else if parse_reg_type != "s" {
+				panic("bad register type")
+			}
+			parse_reg_type = ""
+		case 'x', 'w', 'd', 's':
+			if parse_reg_type != string(p) {
+				panic("register size mismatch")
+			}
+			parse_reg_type = ""
 
+			/*
 			   case 'L':
 			       op = parse_load(params, nparams, n, op)
 			   case 'P':
@@ -610,7 +611,7 @@ func parse_template(params []string, template string, nparams, pos any) any {
 			       op = op + parse_fpimm(q);
 			       n = n + 1
 			   case 'Z':
-			       if q ~= "#0" and q ~= "#0.0" then
+			       if q != "#0" and q != "#0.0" then
 			           werror("expected zero immediate")
 			       end
 			       n = n + 1
