@@ -7,7 +7,7 @@ import (
 )
 
 func TestDa(t *testing.T) {
-	otp := regexp.MustCompile("^(.+)_([0-9%*])$")
+	otp := regexp.MustCompile(`^(.+)_([0-9%*])$`)
 
 	for k, _ := range map_op {
 		m := otp.FindStringSubmatch(k)

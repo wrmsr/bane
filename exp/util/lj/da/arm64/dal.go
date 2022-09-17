@@ -1,6 +1,13 @@
 package arm64
 
-import "strconv"
+import (
+	"fmt"
+	"regexp"
+	"strconv"
+
+	"github.com/wrmsr/bane/pkg/util/check"
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
 // Ext. register name -> int. name.
 var map_archdef = map[string]string{"xzr": "@x31", "wzr": "@w31", "lr": "x30"}
@@ -274,4 +281,80 @@ func init() {
 	for cond, c := range map_cond {
 		map_op["b"+cond+"_1"] = tohex(0x54000000+c) + "B"
 	}
+}
+
+var parse_reg_type string
+
+type user_type struct {
+	ctype    string
+	ctypefmt string
+	reg      string
+}
+
+var map_type = make(map[string]*user_type)
+
+// Add action to list with optional arg. Advance buffer pos, too.
+func waction(action, val, a, num any) {
+	// w := assert(map_action[action], "bad action name `" .. action .. "'")
+	// wputxw(w * 0x10000 + (val or 0))
+	// if a {
+	//     actargs[#actargs + 1] = a
+	// }
+	// if a || num {
+	//     secpos = secpos + (num or 1)
+	// }
+}
+
+func parse_reg(expr string, shift int, no_vreg bool) (int, any) {
+	if expr == "" {
+		panic("expected register name")
+	}
+
+	var tname, ovreg string
+	m := regexp.MustCompile(`^([%w_]+):(@?%l%d+)$`).FindStringSubmatch(expr)
+	if m != nil {
+		tname, ovreg = m[1], m[2]
+	} else {
+		m = regexp.MustCompile(`^([%w_]+):(R[xwqdshb]%b())$`).FindStringSubmatch(expr)
+		tname, ovreg = m[1], m[2]
+	}
+
+	tp := map_type[bt.Coalesce(tname, expr)]
+	if tp != nil {
+		reg := bt.Coalesce(ovreg, tp.reg)
+		if reg == "" {
+			panic(fmt.Errorf("type `%s` needs a register override", bt.Coalesce(tname, expr)))
+		}
+		expr = reg
+	}
+
+	m = regexp.MustCompile(`^(@?)([xwqdshb])([123]?[0-9])$`).FindStringSubmatch(expr)
+	ok31, rt, r := m[1], m[2], m[3]
+	if r != "" {
+		r := check.Must1(strconv.Atoi(r))
+		if r <= 30 || (r == 31 && ok31 != "" || (rt != "w" && rt != "x")) {
+			if parse_reg_type == "" {
+				parse_reg_type = rt
+			} else if parse_reg_type != rt {
+				panic("register size mismatch")
+			}
+			return r << shift, tp
+		}
+	}
+
+	m = regexp.MustCompile(`^R([xwqdshb])(%b())$`).FindStringSubmatch(expr)
+	vrt, vreg := m[1], m[2]
+	if vreg != "" {
+		if parse_reg_type == "" {
+			parse_reg_type = vrt
+		} else if parse_reg_type != vrt {
+			panic("register size mismatch")
+		}
+		if !no_vreg {
+			waction("VREG", shift, vreg, nil)
+		}
+		return 0, nil
+	}
+
+	panic(fmt.Errorf("bad register name `%v`", expr))
 }
