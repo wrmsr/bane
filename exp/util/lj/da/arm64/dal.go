@@ -439,69 +439,71 @@ func parse_imm12(imm string) int {
 	}
 }
 
-/*
 func parse_imm13(imm string) int {
 	m := regexp.MustCompile(`^#(.*)$`).FindStringSubmatch(imm)
 	imm = m[1]
-    if imm == "" {
-        panic("expected immediate operand")
-    }
-    n := parse_number(imm)
-    r64 := parse_reg_type == "x"
-    if n && n % 1 == 0 && n >= 0 && n <= 0xffffffff {
-        inv := false
-        if (n & 1) == 1 {
-            n = ^n
-            inv = true
-        }
-        t := make(map[int]int)
-        for i := 1; i <= 32; i++ {
-            t[i] = n & 1
-            n = n >> 1
-        }
-        local b = table.concat(t)
-        b = b .. (r64 and (inv and "1" or "0"):rep(32) or b)
-        local p0, p1, p0a, p1a = b:match("^(0+)(1+)(0*)(1*)")
-        if p0 {
-            w := p1a == "" && bt.Choose(r64, 64, 32) or #p1 + #p0a
-            if band(w, w - 1) == 0 and b == b:sub(1, w):rep(64 / w) {
-                s := ((-2 * w) & 0x3f) - 1
-                if w == 64 {
-                    s = s + 0x1000
-                }
-                if inv {
-                    return ((w - #p1 - #p0) << 16) + ((s + w - #p1) << 10)
-                } else {
-                    return ((w - #p0) << 16) + ((s + #p1) << 10)
-                }
-            }
-        }
-        panic(fmt.Errorf("out of range immediate `%v`", imm))
-    } else if r64 {
-        waction("IMM13X", 0, fmt.Sprintf("(unsigned int)(%s)", imm), nil)
-        //actargs[#actargs + 1] = fmt.Sprintf("(unsigned int)((unsigned long long)(%s)>>32)", imm)
-        return 0
-    } else {
-        waction("IMM13W", 0, imm, nil)
-        return 0
-    }
+	if imm == "" {
+		panic("expected immediate operand")
+	}
+	n := parse_number(imm)
+	r64 := parse_reg_type == "x"
+	if n.Present() && n.Value()%1 == 0 && n.Value() >= 0 && n.Value() <= 0xffffffff {
+		n := n.Value()
+		inv := false
+		if (n & 1) == 1 {
+			n = ^n
+			inv = true
+		}
+		t := make(map[int]int)
+		for i := 1; i <= 32; i++ {
+			t[i] = n & 1
+			n = n >> 1
+		}
+		//FIXME:
+		//local b = table.concat(t)
+		//b = b .. (r64 and (inv and "1" or "0"):rep(32) or b)
+		//local p0, p1, p0a, p1a = b:match("^(0+)(1+)(0*)(1*)")
+		//if p0 {
+		//    w := p1a == "" && bt.Choose(r64, 64, 32) or #p1 + #p0a
+		//    if band(w, w - 1) == 0 and b == b:sub(1, w):rep(64 / w) {
+		//        s := ((-2 * w) & 0x3f) - 1
+		//        if w == 64 {
+		//            s = s + 0x1000
+		//        }
+		//        if inv {
+		//            return ((w - #p1 - #p0) << 16) + ((s + w - #p1) << 10)
+		//        } else {
+		//            return ((w - #p0) << 16) + ((s + #p1) << 10)
+		//        }
+		//    }
+		//}
+		_ = inv
+		panic(fmt.Errorf("out of range immediate `%v`", imm))
+	} else if r64 {
+		waction("IMM13X", 0, fmt.Sprintf("(unsigned int)(%s)", imm), nil)
+		//actargs[#actargs + 1] = fmt.Sprintf("(unsigned int)((unsigned long long)(%s)>>32)", imm)
+		return 0
+	} else {
+		waction("IMM13W", 0, imm, nil)
+		return 0
+	}
 }
 
 func parse_imm6(imm string) int {
 	m := regexp.MustCompile(`^#(.*)$`).FindStringSubmatch(imm)
 	imm = m[1]
-    if imm == "" {
-        panic("expected immediate operand")
-    }
-    local n = parse_number(imm)
-    if n {
-        if n >= 0 and n <= 63 then
-            return shl(band(n, 0x1f), 19) + (n >= 32 and 0x80000000 or 0)
-        end
-        panic(fmt.Errorf("out of range immediate `%v`", imm))
-    } else {
-        waction("IMM6", 0, imm)
-        return 0
-    }
+	if imm == "" {
+		panic("expected immediate operand")
+	}
+	n := parse_number(imm)
+	if n.Present() {
+		n := n.Value()
+		if n >= 0 && n <= 63 {
+			return ((n & 0x1f) << 19) + bt.Choose(n >= 32, 0x80000000, 0)
+		}
+		panic(fmt.Errorf("out of range immediate `%v`", imm))
+	} else {
+		waction("IMM6", 0, imm, nil)
+		return 0
+	}
 }
-*/
