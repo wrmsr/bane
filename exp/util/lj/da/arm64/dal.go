@@ -440,49 +440,49 @@ func parse_imm12(imm string) int {
 }
 
 /*
-func parse_imm13(imm) int {
+func parse_imm13(imm string) int {
 	m := regexp.MustCompile(`^#(.*)$`).FindStringSubmatch(imm)
 	imm = m[1]
     if imm == "" {
         panic("expected immediate operand")
     }
     n := parse_number(imm)
-    local r64 = parse_reg_type == "x"
-    if n and n % 1 == 0 and n >= 0 and n <= 0xffffffff {
-        local inv = false
-        if band(n, 1) == 1 then
-            n = bit.bnot(n);
+    r64 := parse_reg_type == "x"
+    if n && n % 1 == 0 && n >= 0 && n <= 0xffffffff {
+        inv := false
+        if (n & 1) == 1 {
+            n = ^n
             inv = true
-        end
-        local t = {}
-        for i = 1, 32 do
-            t[i] = band(n, 1);
-            n = shr(n, 1)
-        end
+        }
+        t := make(map[int]int)
+        for i := 1; i <= 32; i++ {
+            t[i] = n & 1
+            n = n >> 1
+        }
         local b = table.concat(t)
         b = b .. (r64 and (inv and "1" or "0"):rep(32) or b)
         local p0, p1, p0a, p1a = b:match("^(0+)(1+)(0*)(1*)")
-        if p0 then
-            local w = p1a == "" and (r64 and 64 or 32) or #p1 + #p0a
-            if band(w, w - 1) == 0 and b == b:sub(1, w):rep(64 / w) then
-                local s = band(-2 * w, 0x3f) - 1
-                if w == 64 then
+        if p0 {
+            w := p1a == "" && bt.Choose(r64, 64, 32) or #p1 + #p0a
+            if band(w, w - 1) == 0 and b == b:sub(1, w):rep(64 / w) {
+                s := ((-2 * w) & 0x3f) - 1
+                if w == 64 {
                     s = s + 0x1000
-                end
-                if inv then
-                    return shl(w - #p1 - #p0, 16) + shl(s + w - #p1, 10)
-                else
-                    return shl(w - #p0, 16) + shl(s + #p1, 10)
-                end
-            end
-        end
+                }
+                if inv {
+                    return ((w - #p1 - #p0) << 16) + ((s + w - #p1) << 10)
+                } else {
+                    return ((w - #p0) << 16) + ((s + #p1) << 10)
+                }
+            }
+        }
         panic(fmt.Errorf("out of range immediate `%v`", imm))
     } else if r64 {
-        waction("IMM13X", 0, format("(unsigned int)(%s)", imm))
-        actargs[#actargs + 1] = format("(unsigned int)((unsigned long long)(%s)>>32)", imm)
+        waction("IMM13X", 0, fmt.Sprintf("(unsigned int)(%s)", imm), nil)
+        //actargs[#actargs + 1] = fmt.Sprintf("(unsigned int)((unsigned long long)(%s)>>32)", imm)
         return 0
     } else {
-        waction("IMM13W", 0, imm)
+        waction("IMM13W", 0, imm, nil)
         return 0
     }
 }
