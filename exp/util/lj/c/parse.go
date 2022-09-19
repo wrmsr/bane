@@ -414,6 +414,31 @@ func cp_string(cp *CPState) CPToken {
 	}
 }
 
+func cp_number(cp *CPState) CPToken {
+	// TODO: strscan :|
+	// var  fmt StrScanFmt;
+	// var  o TValue;
+	// for {
+	// 	cp_save(cp, cp.c);
+	// 	if !isident(cp_get(cp)) {
+	// 		break
+	// 	}
+	// }
+	// cp_save(cp, 0);
+	// fmt = lj_strscan_scan((const uint8_t *) (cp.sb.b), sbuflen(&cp.sb) - 1, &o, STRSCAN_OPT_C);
+	// if fmt == STRSCAN_INT {
+	// 	cp.val.id = CTID_INT32;
+	// } else if fmt == STRSCAN_U32 {
+	// 	cp.val.id = CTID_UINT32;
+	// } else if (cp.mode & CPARSE_MODE_SKIP) == 0 {
+	//     //cp_errmsg(cp, CTOK_INTEGER, LJ_ERR_XNUMBER);
+	// 	panic(cp)
+	// }
+	// cp.val.u32 = (uint32_t) o.i;
+	// return CTOK_INTEGER;
+	panic("nyi")
+}
+
 func cp_next_(cp *CPState) CPToken {
 	cp.sb.Reset()
 	for {
