@@ -323,16 +323,20 @@ func cp_save(cp *CPState, c CPChar) {
 }
 
 func isxdigit(r rune) bool {
-	if unicode.IsDigit(r) {
+	if unicode.IsDigit(r) ||
+		(r >= 'a' && r <= 'f') ||
+		(r >= 'A' && r <= 'F') {
 		return true
 	}
-	switch r {
-	case
-		'a', 'b', 'c', 'd', 'e', 'f',
-		'A', 'B', 'C', 'D', 'E', 'F':
+}
+
+func isident(r rune) bool {
+	if unicode.IsDigit(r) ||
+		(r >= 'a' && r <= 'z') ||
+		(r >= 'A' && r <= 'z') ||
+		r == '_' {
 		return true
 	}
-	return false
 }
 
 // Parse string or character constant.
@@ -413,7 +417,7 @@ func cp_string(cp *CPState) CPToken {
 func cp_next_(cp *CPState) CPToken {
 	cp.sb.Reset()
 	for {
-		if lj_char_isident(cp.c) {
+		if isident(cp.c) {
 			if unicode.IsDigit(cp.c) {
 				return cp_number(cp)
 			} else {
