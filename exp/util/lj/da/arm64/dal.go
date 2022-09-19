@@ -11,16 +11,34 @@ import (
 )
 
 // Ext. register name -> int. name.
-var map_archdef = map[string]string{"xzr": "@x31", "wzr": "@w31", "lr": "x30"}
+var map_archdef = map[string]string{
+	"xzr": "@x31",
+	"wzr": "@w31",
+	"lr":  "x30",
+}
 
 // Int. register name -> ext. name.
-var map_reg_rev = map[string]string{"@x31": "xzr", "@w31": "wzr", "x30": "lr"}
+var map_reg_rev = map[string]string{
+	"@x31": "xzr",
+	"@w31": "wzr",
+	"x30":  "lr",
+}
 
-var map_shift = map[string]int{"lsl": 0, "lsr": 1, "asr": 2}
+var map_shift = map[string]int{
+	"lsl": 0,
+	"lsr": 1,
+	"asr": 2,
+}
 
 var map_extend = map[string]int{
-	"uxtb": 0, "uxth": 1, "uxtw": 2, "uxtx": 3,
-	"sxtb": 4, "sxth": 5, "sxtw": 6, "sxtx": 7,
+	"uxtb": 0,
+	"uxth": 1,
+	"uxtw": 2,
+	"uxtx": 3,
+	"sxtb": 4,
+	"sxth": 5,
+	"sxtw": 6,
+	"sxtx": 7,
 }
 
 var map_cond = map[string]int{

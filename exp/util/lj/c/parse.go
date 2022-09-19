@@ -1,6 +1,10 @@
 package c
 
-import "strings"
+import (
+	"strings"
+
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
 // C parser limits.
 const CPARSE_MAX_BUF = 32768     // Max. token buffer size.
@@ -70,7 +74,7 @@ func cp_init(cp *CPState) {
 
 // Get next character.
 func cp_get(cp *CPState) CPChar {
-	cp.c = cp.i[cp.p)
+	cp.c = cp.i[cp.p]
 	cp.p++
 	if cp.c != '\\' {
 		return cp.c
@@ -131,17 +135,17 @@ func cp_next(cp *CPState) CPToken {
 // _(BOOL)
 // _(CHAR)
 // _(INT)
-// _(FP) \
+// _(FP)
 // _(LONG)
 // _(LONGLONG)
 // _(SHORT)
 // _(COMPLEX)
 // _(SIGNED)
-// _(UNSIGNED) \
+// _(UNSIGNED)
 // _(CONST)
 // _(VOLATILE)
 // _(RESTRICT)
-// _(INLINE) \
+// _(INLINE)
 // _(TYPEDEF)
 // _(EXTERN)
 // _(STATIC)
@@ -153,13 +157,13 @@ func cp_next(cp *CPState) CPToken {
 // CDSDEF(_)
 // _(EXTENSION)
 // _(ASM)
-// _(ATTRIBUTE) \
+// _(ATTRIBUTE)
 // _(DECLSPEC)
 // _(CCDECL)
-// _(PTRSZ) \
+// _(PTRSZ)
 // _(STRUCT)
 // _(UNION)
-// _(ENUM) \
+// _(ENUM)
 // _(SIZEOF)
 // _(ALIGNOF)
 
@@ -245,6 +249,145 @@ const (
 )
 
 const CDF_SCL = CDF_TYPEDEF | CDF_EXTERN | CDF_STATIC | CDF_AUTO | CDF_REGISTER
+
+// Skip line break. Handles "\n", "\r", "\r\n" or "\n\r".
+func cp_newline(cp *CPState) {
+	c := cp_rawpeek(cp)
+	if cp_iseol(c) && c != cp.c {
+		cp.p++
+	}
+	cp.linenumber++
+}
+
+/*
+// Common types.
+#define CTTYDEF(_) \
+_(NONE,            0,           CT_ATTRIB,  CTATTRIB(CTA_BAD))
+_(VOID,            -1,          CT_VOID,    CTALIGN(0))
+_(CVOID,           -1,          CT_VOID,    CTF_CONST|CTALIGN(0))
+_(BOOL,            1,           CT_NUM,     CTF_BOOL|CTF_UNSIGNED|CTALIGN(0))
+_(CCHAR,           1,           CT_NUM,     CTF_CONST|CTF_UCHAR|CTALIGN(0))
+_(INT8,            1,           CT_NUM,     CTALIGN(0))
+_(UINT8,           1,           CT_NUM,     CTF_UNSIGNED|CTALIGN(0))
+_(INT16,           2,           CT_NUM,     CTALIGN(1))
+_(UINT16,          2,           CT_NUM,     CTF_UNSIGNED|CTALIGN(1))
+_(INT32,           4,           CT_NUM,     CTALIGN(2))
+_(UINT32,          4,           CT_NUM,     CTF_UNSIGNED|CTALIGN(2))
+_(INT64,           8,           CT_NUM,     CTF_LONG|CTALIGN(3))
+_(UINT64,          8,           CT_NUM,     CTF_UNSIGNED|CTF_LONG|CTALIGN(3))
+_(FLOAT,           4,           CT_NUM,     CTF_FP|CTALIGN(2))
+_(DOUBLE,          8,           CT_NUM,     CTF_FP|CTALIGN(3))
+_(COMPLEX_FLOAT,   8,           CT_ARRAY,   CTF_COMPLEX|CTALIGN(2)|CTID_FLOAT)
+_(COMPLEX_DOUBLE,  16,          CT_ARRAY,   CTF_COMPLEX|CTALIGN(3)|CTID_DOUBLE)
+_(P_VOID,          CTSIZE_PTR,  CT_PTR,     CTALIGN_PTR|CTID_VOID)
+_(P_CVOID,         CTSIZE_PTR,  CT_PTR,     CTALIGN_PTR|CTID_CVOID)
+_(P_CCHAR,         CTSIZE_PTR,  CT_PTR,     CTALIGN_PTR|CTID_CCHAR)
+_(P_UINT8,         CTSIZE_PTR,  CT_PTR,     CTALIGN_PTR|CTID_UINT8)
+_(A_CCHAR,         -1,          CT_ARRAY,   CTF_CONST|CTALIGN(0)|CTID_CCHAR)
+_(CTYPEID,         4,           CT_ENUM,    CTALIGN(2)|CTID_INT32)
+// End of type list.
+*/
+
+// Public predefined type IDs.
+const (
+	CTID_NONE = iota
+	CTID_VOID
+	CTID_CVOID
+	CTID_BOOL
+	CTID_CCHAR
+	CTID_INT8
+	CTID_UINT8
+	CTID_INT16
+	CTID_UINT16
+	CTID_INT32
+	CTID_UINT32
+	CTID_INT64
+	CTID_UINT64
+	CTID_FLOAT
+	CTID_DOUBLE
+	CTID_COMPLEX_FLOAT
+	CTID_COMPLEX_DOUBLE
+	CTID_P_VOID
+	CTID_P_CVOID
+	CTID_P_CCHAR
+	CTID_P_UINT8
+	CTID_A_CCHAR
+	CTID_CTYPEID
+	CTID_MAX = 65536
+)
+
+// Parse string or character constant.
+func cp_string(cp *CPState) CPToken {
+	delim := cp.c
+	cp_get(cp)
+	for cp.c != delim {
+		c := cp.c
+		if c == 0 {
+			//cp_errmsg(cp, CTOK_EOF, LJ_ERR_XSTR)
+			panic(cp)
+		}
+		if c == '\\' {
+			c = cp_get(cp)
+			switch c {
+			case 0:
+				//cp_errmsg(cp, CTOK_EOF, LJ_ERR_XSTR)
+				panic(cp)
+			case 'a':
+				c = '\a'
+			case 'b':
+				c = '\b'
+			case 'f':
+				c = '\f'
+			case 'n':
+				c = '\n'
+			case 'r':
+				c = '\r'
+			case 't':
+				c = '\t'
+			case 'v':
+				c = '\v'
+			case 'e':
+				c = 27
+			case 'x':
+				c = 0
+				for lj_char_isxdigit(cp_get(cp)) {
+					c = (c << 4) + bt.Choose(lj_char_isdigit(cp.c), cp.c-'0', (cp.c&15)+9)
+				}
+				cp_save(cp, c&0xff)
+				continue
+			default:
+				if lj_char_isdigit(c) {
+					c -= '0'
+					if lj_char_isdigit(cp_get(cp)) {
+						c = c*8 + (cp.c - '0')
+						if lj_char_isdigit(cp_get(cp)) {
+							c = c*8 + (cp.c - '0')
+							cp_get(cp)
+						}
+					}
+					cp_save(cp, c&0xff)
+					continue
+				}
+				break
+			}
+		}
+		cp_save(cp, c)
+		cp_get(cp)
+	}
+	cp_get(cp)
+	if delim == '"' {
+		cp.str = cp.sb.String()
+		return CTOK_STRING
+	} else {
+		if cp.sb.Len() != 1 {
+			//cp_err_token(cp, '\'')
+			panic(cp)
+		}
+		cp.val.i32 = (int32_t)(char) * cp.sb.b
+		cp.val.id = CTID_INT32
+		return CTOK_INTEGER
+	}
+}
 
 func cp_next_(cp *CPState) CPToken {
 	cp.sb.Reset()
