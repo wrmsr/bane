@@ -40,7 +40,7 @@ type CPState struct {
 	tok CPToken         // Current token.
 	val CPValue         // Token value.
 	str string          // Interned string of identifier/keyword.
-	ct  *CType          // C type table entry.
+	ct  CType           // C type table entry.
 	p   int             // Current position in input buffer.
 	i   []rune          // Input buffer
 	sb  strings.Builder // String buffer for tokens.
@@ -437,6 +437,51 @@ func cp_number(cp *CPState) CPToken {
 	// cp.val.u32 = (uint32_t) o.i;
 	// return CTOK_INTEGER;
 	panic("nyi")
+}
+
+// Skip C comment.
+func cp_comment_c(cp *CPState) {
+	for {
+		if cp_get(cp) == '*' {
+			for {
+				if cp_get(cp) == '/' {
+					cp_get(cp)
+					return
+				}
+				if cp.c == '*' {
+					break
+				}
+			}
+		}
+		if cp_iseol(cp.c) {
+			cp_newline(cp)
+		}
+		if cp.c == 0 {
+			break
+		}
+	}
+}
+
+// Skip C++ comment.
+func cp_comment_cpp(cp *CPState) {
+	for !cp_iseol(cp_get(cp)) && cp.c != 0 {
+	}
+}
+
+// Parse identifier or keyword.
+func cp_ident(cp *CPState) CPToken {
+	for {
+		cp_save(cp, cp.c)
+		if !isident(cp_get(cp)) {
+			break
+		}
+	}
+	cp.str = cp.sb.String()
+	cp.val.id = lj_ctype_getname(cp.cts, &cp.ct, cp.str, cp.tmask)
+	if ctype_type(cp.ct.info) == CT_KW {
+		return ctype_cid(cp.ct.info)
+	}
+	return CTOK_IDENT
 }
 
 func cp_next_(cp *CPState) CPToken {
