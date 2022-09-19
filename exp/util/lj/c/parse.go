@@ -2,6 +2,7 @@ package c
 
 import (
 	"strings"
+	"unicode"
 
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -316,6 +317,24 @@ const (
 	CTID_MAX = 65536
 )
 
+// Save character in buffer.
+func cp_save(cp *CPState, c CPChar) {
+	cp.sb.WriteRune(c)
+}
+
+func isxdigit(r rune) bool {
+	if unicode.IsDigit(r) {
+		return true
+	}
+	switch r {
+	case
+		'a', 'b', 'c', 'd', 'e', 'f',
+		'A', 'B', 'C', 'D', 'E', 'F':
+		return true
+	}
+	return false
+}
+
 // Parse string or character constant.
 func cp_string(cp *CPState) CPToken {
 	delim := cp.c
@@ -350,17 +369,17 @@ func cp_string(cp *CPState) CPToken {
 				c = 27
 			case 'x':
 				c = 0
-				for lj_char_isxdigit(cp_get(cp)) {
-					c = (c << 4) + bt.Choose(lj_char_isdigit(cp.c), cp.c-'0', (cp.c&15)+9)
+				for isxdigit(cp_get(cp)) {
+					c = (c << 4) + bt.Choose(unicode.IsDigit(cp.c), cp.c-'0', (cp.c&15)+9)
 				}
 				cp_save(cp, c&0xff)
 				continue
 			default:
-				if lj_char_isdigit(c) {
+				if unicode.IsDigit(c) {
 					c -= '0'
-					if lj_char_isdigit(cp_get(cp)) {
+					if unicode.IsDigit(cp_get(cp)) {
 						c = c*8 + (cp.c - '0')
-						if lj_char_isdigit(cp_get(cp)) {
+						if unicode.IsDigit(cp_get(cp)) {
 							c = c*8 + (cp.c - '0')
 							cp_get(cp)
 						}
@@ -383,9 +402,11 @@ func cp_string(cp *CPState) CPToken {
 			//cp_err_token(cp, '\'')
 			panic(cp)
 		}
-		cp.val.i32 = (int32_t)(char) * cp.sb.b
-		cp.val.id = CTID_INT32
-		return CTOK_INTEGER
+		// FIXME:
+		// cp.val.i32 = (int32_t)(char) * cp.sb.b
+		// cp.val.id = CTID_INT32
+		// return CTOK_INTEGER
+		panic("nyi")
 	}
 }
 
@@ -393,7 +414,7 @@ func cp_next_(cp *CPState) CPToken {
 	cp.sb.Reset()
 	for {
 		if lj_char_isident(cp.c) {
-			if lj_char_isdigit(cp.c) {
+			if unicode.IsDigit(cp.c) {
 				return cp_number(cp)
 			} else {
 				return cp_ident(cp)
