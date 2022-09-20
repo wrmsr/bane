@@ -723,3 +723,161 @@ func cp_next_(cp *CPState) CPToken {
 		}
 	}
 }
+
+type CPDeclIdx = CTypeID // Index into declaration stack.
+type CPscl uint32        // Storage class flags.
+
+// Type declaration context.
+type CPDecl struct {
+	top       CPDeclIdx                   // Top of declaration stack.
+	pos       CPDeclIdx                   // Insertion position in declaration chain.
+	specpos   CPDeclIdx                   // Saved position for declaration specifier.
+	mode      uint32                      // Declarator mode.
+	cp        *CPState                    // C parser state.
+	name      string                      // Name of declared identifier (if direct).
+	redir     string                      // Redirected symbol name.
+	nameid    CTypeID                     // Existing typedef for declared identifier.
+	attr      CTInfo                      // Attributes.
+	fattr     CTInfo                      // Function attributes.
+	specattr  CTInfo                      // Saved attributes.
+	specfattr CTInfo                      // Saved function attributes.
+	bits      CTSize                      // Field size in bits (if any).
+	stack     [CPARSE_MAX_DECLSTACK]CType // Type declaration stack.
+}
+
+// Parse a single C type declaration.
+func cp_decl_single(cp *CPState) {
+	var decl CPDecl
+	cp_decl_spec(cp, &decl, 0)
+	cp_declarator(cp, &decl)
+	cp.val.id = cp_decl_intern(cp, &decl)
+	if cp.tok != CTOK_EOF {
+		//cp_err_token(cp, CTOK_EOF)
+		panic(cp)
+	}
+}
+
+/*
+// Parse declaration specifiers.
+func cp_decl_spec(cp *CPState, decl *CPDecl, scl CPscl)  CPscl {
+    var cds = uint32(0), sz = uint32(0);
+    var  tdef = CTypeID(0)
+
+    decl.cp = cp;
+    decl.mode = cp.mode;
+    decl.name = NULL;
+    decl.redir = NULL;
+    decl.attr = 0;
+    decl.fattr = 0;
+    decl.pos = decl.top = 0;
+    decl.stack[0].next = 0;
+
+    for {  // Parse basic types.
+        cp_decl_attributes(cp, decl);
+        if cp.tok >= CTOK_FIRSTDECL && cp.tok <= CTOK_LASTDECLFLAG {
+            var  cbit uint32;
+            if cp.ct.size {
+                if (sz) {
+					goto end_decl;
+				}
+                sz = cp.ct.size;
+            }
+            cbit = 1 << (cp.tok - CTOK_FIRSTDECL);
+            cds = cds | cbit | ((cbit & cds & CDF_LONG) << 1);
+            if cp.tok >= CTOK_FIRSTSCL {
+                if (scl & cbit) == 0 {
+					// cp_errmsg(cp, cp.tok, LJ_ERR_FFI_BADSCL);
+					panic(cp)
+				}
+            } else if tdef {
+                goto end_decl;
+            }
+            cp_next(cp);
+            continue;
+        }
+        if (sz || tdef || (cds & (CDF_SHORT | CDF_LONG | CDF_SIGNED | CDF_UNSIGNED | CDF_COMPLEX))) {
+            break;
+		}
+        switch (cp.tok) {
+            case CTOK_STRUCT:
+                tdef = cp_decl_struct(cp, decl, CTINFO(CT_STRUCT, 0));
+                continue;
+            case CTOK_UNION:
+                tdef = cp_decl_struct(cp, decl, CTINFO(CT_STRUCT, CTF_UNION));
+                continue;
+            case CTOK_ENUM:
+                tdef = cp_decl_enum(cp, decl);
+                continue;
+            case CTOK_IDENT:
+                if (ctype_istypedef(cp.ct.info)) {
+                    tdef = ctype_cid(cp.ct.info);  // Get typedef.
+                    cp_next(cp);
+                    continue;
+                }
+                break;
+            case '$':
+                tdef = cp.val.id;
+                cp_next(cp);
+                continue;
+            default:
+                break;
+        }
+        break;
+    }
+    end_decl:
+
+    if ((cds & CDF_COMPLEX)) {  // Use predefined complex types.
+        tdef = sz == 4 ? CTID_COMPLEX_FLOAT : CTID_COMPLEX_DOUBLE;
+	}
+
+    if (tdef) {
+        cp_push_type(decl, tdef);
+    } else if ((cds & CDF_VOID)) {
+        cp_push(decl, CTINFO(CT_VOID, (decl.attr & CTF_QUAL)), CTSIZE_INVALID);
+        decl.attr &= ~CTF_QUAL;
+    } else {
+        // Determine type info and size.
+        CTInfo info = CTINFO(CT_NUM, (cds & CDF_UNSIGNED) ? CTF_UNSIGNED : 0);
+        if ((cds & CDF_BOOL)) {
+            if ((cds & ~(CDF_SCL | CDF_BOOL | CDF_INT | CDF_SIGNED | CDF_UNSIGNED))) {
+                cp_errmsg(cp, 0, LJ_ERR_FFI_INVTYPE);
+			}
+            info |= CTF_BOOL;
+            if (!(cds & CDF_SIGNED)) info |= CTF_UNSIGNED;
+            if (!sz) {
+                sz = 1;
+            }
+        } else if ((cds & CDF_FP)) {
+            info = CTINFO(CT_NUM, CTF_FP);
+            if ((cds & CDF_LONG)) {
+				sz = sizeof(long double);
+			}
+        } else if ((cds & CDF_CHAR)) {
+            if ((cds & (CDF_CHAR | CDF_SIGNED | CDF_UNSIGNED)) == CDF_CHAR) {
+                info |= CTF_UCHAR;  // Handle platforms where char is unsigned.
+			}
+        } else if ((cds & CDF_SHORT)) {
+            sz = sizeof(short);
+        } else if ((cds & CDF_LONGLONG)) {
+            sz = 8;
+        } else if ((cds & CDF_LONG)) {
+            info |= CTF_LONG;
+            sz = sizeof(long);
+        } else if (!sz) {
+            if (!(cds & (CDF_SIGNED | CDF_UNSIGNED))) {
+                cp_errmsg(cp, cp.tok, LJ_ERR_FFI_DECLSPEC);
+			}
+            sz = sizeof(int);
+        }
+        lj_assertCP(sz != 0, "basic ctype with zero size");
+        info += CTALIGN(lj_fls(sz));  // Use natural alignment.
+        info += (decl.attr & CTF_QUAL);  // Merge qualifiers.
+        cp_push(decl, info, sz);
+        decl.attr &= ~CTF_QUAL;
+    }
+    decl.specpos = decl.pos;
+    decl.specattr = decl.attr;
+    decl.specfattr = decl.fattr;
+    return (cds & CDF_SCL);  // Return storage class.
+}
+*/
