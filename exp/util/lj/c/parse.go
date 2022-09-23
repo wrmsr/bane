@@ -1490,49 +1490,94 @@ func lj_ctype_rawref(cts *CTState, id CTypeID) *CType {
 	return ct
 }
 
-/*
-// Parse postfix operators.
-static void cp_expr_postfix(cp *CPState, CPValue *k) {
-    for (;;) {
-        CType *ct;
-        if (cp_opt(cp, '[')) {  // Array/pointer index.
-            CPValue k2;
-            cp_expr_comma(cp, &k2);
-            ct = lj_ctype_rawref(cp.cts, k.id);
-            if (!ctype_ispointer(ct.info)) {
-                ct = lj_ctype_rawref(cp.cts, k2.id);
-                if (!ctype_ispointer(ct.info))
-                    cp_err_badidx(cp, ct);
-            }
-            cp_check(cp, ']');
-            k.u32 = 0;
-        } else if (cp.tok == '.' || cp.tok == CTOK_DEREF) {  // Struct deref.
-            CTSize ofs;
-            CType *fct;
-            ct = lj_ctype_rawref(cp.cts, k.id);
-            if (cp.tok == CTOK_DEREF) {
-                if (!ctype_ispointer(ct.info))
-                    cp_err_badidx(cp, ct);
-                ct = lj_ctype_rawref(cp.cts, ctype_cid(ct.info));
-            }
-            cp_next(cp);
-            if (cp.tok != CTOK_IDENT) cp_err_token(cp, CTOK_IDENT);
-            if (!ctype_isstruct(ct.info) || ct.size == CTSIZE_INVALID ||
-                !(fct = lj_ctype_getfield(cp.cts, ct, cp.str, &ofs)) ||
-                ctype_isbitfield(fct.info)) {
-                GCstr *s = lj_ctype_repr(cp.cts.L, ctype_typeid(cp.cts, ct), NULL);
-                cp_errmsg(cp, 0, LJ_ERR_FFI_BADMEMBER, strdata(s), strdata(cp.str));
-            }
-            ct = fct;
-            k.u32 = ctype_isconstval(ct.info) ? ct.size : 0;
-            cp_next(cp);
-        } else {
-            return;
-        }
-        k.id = ctype_cid(ct.info);
-    }
+// Get a struct/union/enum/function field by name.
+func lj_ctype_getfieldq(cts *CTState, ct *CType, name string, ofs *CTSize, qual *CTInfo) *CType {
+	for ct.sib != 0 {
+		ct = ctype_get(cts, CTypeID(ct.sib))
+		if ct.name == name {
+			*ofs = ct.size
+			return ct
+		}
+		if ctype_isxattrib(ct.info, CTA_SUBTYPE) {
+			var fct *CType
+			cct := ctype_child(cts, ct)
+			var q CTInfo = 0
+			for ctype_isattrib(cct.info) {
+				if ctype_attrib(cct.info) == CTA_QUAL {
+					q |= CTInfo(cct.size)
+				}
+				cct = ctype_child(cts, cct)
+			}
+			fct = lj_ctype_getfieldq(cts, cct, name, ofs, qual)
+			if fct != nil {
+				if qual != nil {
+					*qual |= q
+				}
+				*ofs += ct.size
+				return fct
+			}
+		}
+	}
+	return nil // Not found.
 }
 
+func lj_ctype_getfield(cts *CTState, ct *CType, name string, ofs *CTSize) *CType {
+	return lj_ctype_getfieldq(cts, ct, name, ofs, nil)
+}
+
+// Parse postfix operators.
+func cp_expr_postfix(cp *CPState, k *CPValue) {
+	for {
+		var ct *CType
+		if cp_opt(cp, '[') { // Array/pointer index.
+			var k2 CPValue
+			cp_expr_comma(cp, &k2)
+			ct = lj_ctype_rawref(cp.cts, k.id)
+			if !ctype_ispointer(ct.info) {
+				ct = lj_ctype_rawref(cp.cts, k2.id)
+				if !ctype_ispointer(ct.info) {
+					//cp_err_badidx(cp, ct);
+					panic(cp)
+				}
+			}
+			cp_check(cp, ']')
+			k.i32 = 0
+		} else if cp.tok == '.' || cp.tok == CTOK_DEREF { // Struct deref.
+			var ofs CTSize
+			var fct *CType
+			ct = lj_ctype_rawref(cp.cts, k.id)
+			if cp.tok == CTOK_DEREF {
+				if !ctype_ispointer(ct.info) {
+					//cp_err_badidx(cp, ct);
+					panic(cp)
+				}
+				ct = lj_ctype_rawref(cp.cts, ctype_cid(ct.info))
+			}
+			cp_next(cp)
+			if cp.tok != CTOK_IDENT {
+				//cp_err_token(cp, CTOK_IDENT);
+				panic(cp)
+			}
+			if !ctype_isstruct(ct.info) || ct.size == CTSIZE_INVALID {
+				panic(cp)
+			}
+			fct = lj_ctype_getfield(cp.cts, ct, cp.str, &ofs)
+			if fct == nil || ctype_isbitfield(fct.info) {
+				//s := lj_ctype_repr(cp.cts.L, ctype_typeid(cp.cts, ct), NULL);
+				//cp_errmsg(cp, 0, LJ_ERR_FFI_BADMEMBER, strdata(s), strdata(cp.str));
+				panic(cp)
+			}
+			ct = fct
+			k.i32 = ctype_isconstval(ct.info) ? ct.size: 0
+			cp_next(cp)
+		} else {
+			return
+		}
+		k.id = ctype_cid(ct.info)
+	}
+}
+
+/*
 // Parse infix operators.
 static void cp_expr_infix(cp *CPState, CPValue *k, int pri) {
     CPValue k2;
