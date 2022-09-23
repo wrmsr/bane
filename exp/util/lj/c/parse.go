@@ -1,6 +1,7 @@
 package c
 
 import (
+	"math/bits"
 	"reflect"
 	"strings"
 	"unicode"
@@ -762,48 +763,82 @@ func CTINFO(ct, flags CTInfo) CTInfo { return (ct << CTSHIFT_NUM) + flags }
 func CTALIGN(al int) CTSize          { return ((CTSize)(al) << CTSHIFT_ALIGN) }
 func CTATTRIB(at int) CTInfo         { return ((CTInfo)(at) << CTSHIFT_ATTRIB) }
 
-/*
+// #define CTF_INSERT(info, field, val) \
+// info = (info & ~(CTMASK_##field<<CTSHIFT_##field)) | (((CTSize)(val) & CTMASK_##field) << CTSHIFT_##field)
+func CTF_INSERT(info, mask, shift, val CTInfo) CTInfo {
+	return (info & ^(mask << shift)) | ((val & mask) << shift)
+}
+
 // Parse declaration attributes (and common qualifiers).
 func cp_decl_attributes(cp *CPState, decl *CPDecl) {
-    for {
-        switch cp.tok) {
-            case CTOK_CONST:
-                decl.attr |= CTF_CONST;
-                break;
-            case CTOK_VOLATILE:
-                decl.attr |= CTF_VOLATILE;
-                break;
-            case CTOK_RESTRICT:
-                break;  // Ignore.
-            case CTOK_EXTENSION:
-                break;  // Ignore.
-            case CTOK_ATTRIBUTE:
-                cp_decl_gccattribute(cp, decl);
-                continue;
-            case CTOK_ASM:
-                cp_decl_asm(cp, decl);
-                continue;
-            case CTOK_DECLSPEC:
-                cp_decl_msvcattribute(cp, decl);
-                continue;
-            case CTOK_CCDECL:
-				// #if LJ_TARGET_X86
-                // CTF_INSERT(decl.fattr, CCONV, cp.ct.size);
-                // decl.fattr |= CTFP_CCONV;
-				// #endif
-                break;
-            case CTOK_PTRSZ:
-                CTF_INSERT(decl.attr, MSIZEP, cp.ct.size);
-                break;
-            default:
-                return;
-        }
-        cp_next(cp);
-    }
+	for {
+		switch cp.tok {
+		case CTOK_CONST:
+			decl.attr |= CTF_CONST
+			break
+		case CTOK_VOLATILE:
+			decl.attr |= CTF_VOLATILE
+			break
+		case CTOK_RESTRICT:
+			break // Ignore.
+		case CTOK_EXTENSION:
+			break // Ignore.
+		case CTOK_ATTRIBUTE:
+			//cp_decl_gccattribute(cp, decl)
+			//continue
+			panic("fixme")
+		case CTOK_ASM:
+			//cp_decl_asm(cp, decl)
+			//continue
+			panic("fixme")
+		case CTOK_DECLSPEC:
+			//cp_decl_msvcattribute(cp, decl)
+			//continue
+			panic("fixme")
+		case CTOK_CCDECL:
+			// #if LJ_TARGET_X86
+			// CTF_INSERT(decl.fattr, CCONV, cp.ct.size);
+			// decl.fattr |= CTFP_CCONV;
+			// #endif
+			break
+		case CTOK_PTRSZ:
+			decl.attr = CTF_INSERT(decl.attr, CTMASK_MSIZEP, CTSHIFT_MSIZEP, CTInfo(cp.ct.size))
+			break
+		default:
+			return
+		}
+		cp_next(cp)
+	}
 }
-*/
 
 var sizeofInt = reflect.TypeOf(0).Size()
+
+func lj_fls(x uint32) int {
+	return bits.LeadingZeros32(x) ^ 31
+}
+
+// Add declaration element behind the insertion position.
+func cp_add(decl *CPDecl, info CTInfo, size CTSize) CPDeclIdx {
+	var top = decl.top
+	if top >= CPARSE_MAX_DECLSTACK {
+		//cp_err(decl.cp, LJ_ERR_XLEVELS);
+		panic(decl.cp)
+	}
+	decl.stack[top].info = info
+	decl.stack[top].size = size
+	decl.stack[top].sib = 0
+	//setgcrefnull(decl.stack[top].name)
+	decl.stack[top].next = decl.stack[decl.pos].next
+	decl.stack[decl.pos].next = CTypeID1(top)
+	decl.top = top + 1
+	return top
+}
+
+// Push declaration element before the insertion position.
+func cp_push(decl *CPDecl, info CTInfo, size CTSize) CPDeclIdx {
+	decl.pos = cp_add(decl, info, size)
+	return decl.pos
+}
 
 // Parse declaration specifiers.
 func cp_decl_spec(cp *CPState, decl *CPDecl, scl CPscl) CPscl {
@@ -922,11 +957,11 @@ end_decl:
 			}
 			sz = CTSize(sizeofInt) // sizeof(int)
 		}
-		lj_assertCP(sz != 0, "basic ctype with zero size")
-		info += CTALIGN(lj_fls(sz))  // Use natural alignment.
-		info += decl.attr & CTF_QUAL // Merge qualifiers.
+		//lj_assertCP(sz != 0, "basic ctype with zero size")
+		info += CTInfo(CTALIGN(lj_fls(uint32(sz)))) // Use natural alignment.
+		info += decl.attr & CTF_QUAL                // Merge qualifiers.
 		cp_push(decl, info, sz)
-		decl.attr &= ~CTF_QUAL
+		decl.attr &= ^CTF_QUAL
 	}
 	decl.specpos = decl.pos
 	decl.specattr = decl.attr
