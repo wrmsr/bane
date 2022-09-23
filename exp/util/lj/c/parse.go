@@ -1577,171 +1577,216 @@ func cp_expr_postfix(cp *CPState, k *CPValue) {
 	}
 }
 
-/*
-// Parse infix operators.
-static void cp_expr_infix(cp *CPState, CPValue *k, int pri) {
-    CPValue k2;
-    k2.u32 = 0;
-    k2.id = 0;  // Silence the compiler.
-    for (;;) {
-        switch (pri) {
-            case 0:
-                if (cp_opt(cp, '?')) {
-                    CPValue k3;
-                    cp_expr_comma(cp, &k2);  // Right-associative.
-                    cp_check(cp, ':');
-                    cp_expr_sub(cp, &k3, 0);
-                    k.u32 = k.u32 ? k2.u32 : k3.u32;
-                    k.id = k2.id > k3.id ? k2.id : k3.id;
-                    continue;
-                }
-                // fallthrough
-            case 1:
-                if (cp_opt(cp, CTOK_OROR)) {
-                    cp_expr_sub(cp, &k2, 2);
-                    k.i32 = k.u32 || k2.u32;
-                    k.id = CTID_INT32;
-                    continue;
-                }
-                // fallthrough
-            case 2:
-                if (cp_opt(cp, CTOK_ANDAND)) {
-                    cp_expr_sub(cp, &k2, 3);
-                    k.i32 = k.u32 && k2.u32;
-                    k.id = CTID_INT32;
-                    continue;
-                }
-                // fallthrough
-            case 3:
-                if (cp_opt(cp, '|')) {
-                    cp_expr_sub(cp, &k2, 4);
-                    k.u32 = k.u32 | k2.u32;
-                    goto arith_result;
-                }
-                // fallthrough
-            case 4:
-                if (cp_opt(cp, '^')) {
-                    cp_expr_sub(cp, &k2, 5);
-                    k.u32 = k.u32 ^ k2.u32;
-                    goto arith_result;
-                }
-                // fallthrough
-            case 5:
-                if (cp_opt(cp, '&')) {
-                    cp_expr_sub(cp, &k2, 6);
-                    k.u32 = k.u32 & k2.u32;
-                    goto arith_result;
-                }
-                // fallthrough
-            case 6:
-                if (cp_opt(cp, CTOK_EQ)) {
-                    cp_expr_sub(cp, &k2, 7);
-                    k.i32 = k.u32 == k2.u32;
-                    k.id = CTID_INT32;
-                    continue;
-                } else if (cp_opt(cp, CTOK_NE)) {
-                    cp_expr_sub(cp, &k2, 7);
-                    k.i32 = k.u32 != k2.u32;
-                    k.id = CTID_INT32;
-                    continue;
-                }
-                // fallthrough
-            case 7:
-                if (cp_opt(cp, '<')) {
-                    cp_expr_sub(cp, &k2, 8);
-                    if (k.id == CTID_INT32 && k2.id == CTID_INT32)
-                        k.i32 = k.i32 < k2.i32;
-                    else
-                        k.i32 = k.u32 < k2.u32;
-                    k.id = CTID_INT32;
-                    continue;
-                } else if (cp_opt(cp, '>')) {
-                    cp_expr_sub(cp, &k2, 8);
-                    if (k.id == CTID_INT32 && k2.id == CTID_INT32)
-                        k.i32 = k.i32 > k2.i32;
-                    else
-                        k.i32 = k.u32 > k2.u32;
-                    k.id = CTID_INT32;
-                    continue;
-                } else if (cp_opt(cp, CTOK_LE)) {
-                    cp_expr_sub(cp, &k2, 8);
-                    if (k.id == CTID_INT32 && k2.id == CTID_INT32)
-                        k.i32 = k.i32 <= k2.i32;
-                    else
-                        k.i32 = k.u32 <= k2.u32;
-                    k.id = CTID_INT32;
-                    continue;
-                } else if (cp_opt(cp, CTOK_GE)) {
-                    cp_expr_sub(cp, &k2, 8);
-                    if (k.id == CTID_INT32 && k2.id == CTID_INT32)
-                        k.i32 = k.i32 >= k2.i32;
-                    else
-                        k.i32 = k.u32 >= k2.u32;
-                    k.id = CTID_INT32;
-                    continue;
-                }
-                // fallthrough
-            case 8:
-                if (cp_opt(cp, CTOK_SHL)) {
-                    cp_expr_sub(cp, &k2, 9);
-                    k.u32 = k.u32 << k2.u32;
-                    continue;
-                } else if (cp_opt(cp, CTOK_SHR)) {
-                    cp_expr_sub(cp, &k2, 9);
-                    if (k.id == CTID_INT32)
-                        k.i32 = k.i32 >> k2.i32;
-                    else
-                        k.u32 = k.u32 >> k2.u32;
-                    continue;
-                }
-                // fallthrough
-            case 9:
-                if (cp_opt(cp, '+')) {
-                    cp_expr_sub(cp, &k2, 10);
-                    k.u32 = k.u32 + k2.u32;
-                    arith_result:
-                    if (k2.id > k.id) k.id = k2.id;  // Trivial promotion to unsigned.
-                    continue;
-                } else if (cp_opt(cp, '-')) {
-                    cp_expr_sub(cp, &k2, 10);
-                    k.u32 = k.u32 - k2.u32;
-                    goto arith_result;
-                }
-                // fallthrough
-            case 10:
-                if (cp_opt(cp, '*')) {
-                    cp_expr_unary(cp, &k2);
-                    k.u32 = k.u32 * k2.u32;
-                    goto arith_result;
-                } else if (cp_opt(cp, '/')) {
-                    cp_expr_unary(cp, &k2);
-                    if (k2.id > k.id) k.id = k2.id;  // Trivial promotion to unsigned.
-                    if (k2.u32 == 0 ||
-                        (k.id == CTID_INT32 && k.u32 == 0x80000000u && k2.i32 == -1))
-                        cp_err(cp, LJ_ERR_BADVAL);
-                    if (k.id == CTID_INT32)
-                        k.i32 = k.i32 / k2.i32;
-                    else
-                        k.u32 = k.u32 / k2.u32;
-                    continue;
-                } else if (cp_opt(cp, '%')) {
-                    cp_expr_unary(cp, &k2);
-                    if (k2.id > k.id) k.id = k2.id;  // Trivial promotion to unsigned.
-                    if (k2.u32 == 0 ||
-                        (k.id == CTID_INT32 && k.u32 == 0x80000000u && k2.i32 == -1))
-                        cp_err(cp, LJ_ERR_BADVAL);
-                    if (k.id == CTID_INT32)
-                        k.i32 = k.i32 % k2.i32;
-                    else
-                        k.u32 = k.u32 % k2.u32;
-                    continue;
-                }
-            default:
-                return;
-        }
-    }
+func i32b(i int32) bool {
+	if i != 0 {
+		return true
+	}
+	return false
 }
 
+func bi32(b bool) int32 {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+// Parse infix operators.
+func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
+	var k2 CPValue
+	k2.i32 = 0
+	k2.id = 0 // Silence the compiler.
+	for {
+		switch pri {
+		case 0:
+			if cp_opt(cp, '?') {
+				var k3 CPValue
+				cp_expr_comma(cp, &k2) // Right-associative.
+				cp_check(cp, ':')
+				cp_expr_sub(cp, &k3, 0)
+				k.i32 = bt.Choose(k.i32 != 0, k2.i32, k3.i32)
+				k.id = bt.Choose(k2.id > k3.id, k2.id, k3.id)
+				continue
+			}
+			// fallthrough
+		case 1:
+			if cp_opt(cp, CTOK_OROR) {
+				cp_expr_sub(cp, &k2, 2)
+				k.i32 = bi32(i32b(k.i32) || i32b(k2.i32))
+				k.id = CTID_INT32
+				continue
+			}
+			// fallthrough
+		case 2:
+			if cp_opt(cp, CTOK_ANDAND) {
+				cp_expr_sub(cp, &k2, 3)
+				k.i32 = bi32(i32b(k.i32) && i32b(k2.i32))
+				k.id = CTID_INT32
+				continue
+			}
+			// fallthrough
+		case 3:
+			if cp_opt(cp, '|') {
+				cp_expr_sub(cp, &k2, 4)
+				k.i32 = k.i32 | k2.i32
+				if k2.id > k.id {
+					k.id = k2.id
+				} // Trivial promotion to unsigned.
+				continue
+			}
+			// fallthrough
+		case 4:
+			if cp_opt(cp, '^') {
+				cp_expr_sub(cp, &k2, 5)
+				k.i32 = k.i32 ^ k2.i32
+				if k2.id > k.id {
+					k.id = k2.id
+				} // Trivial promotion to unsigned.
+				continue
+			}
+			// fallthrough
+		case 5:
+			if cp_opt(cp, '&') {
+				cp_expr_sub(cp, &k2, 6)
+				k.i32 = k.i32 & k2.i32
+				if k2.id > k.id {
+					k.id = k2.id
+				} // Trivial promotion to unsigned.
+				continue
+			}
+			// fallthrough
+		case 6:
+			if cp_opt(cp, CTOK_EQ) {
+				cp_expr_sub(cp, &k2, 7)
+				k.i32 = bi32(k.i32 == k2.i32)
+				k.id = CTID_INT32
+				continue
+			} else if cp_opt(cp, CTOK_NE) {
+				cp_expr_sub(cp, &k2, 7)
+				k.i32 = bi32(k.i32 != k2.i32)
+				k.id = CTID_INT32
+				continue
+			}
+			// fallthrough
+		case 7:
+			if cp_opt(cp, '<') {
+				cp_expr_sub(cp, &k2, 8)
+				if k.id == CTID_INT32 && k2.id == CTID_INT32 {
+					k.i32 = bi32(k.i32 < k2.i32)
+				} else {
+					k.i32 = bi32(uint32(k.u32) < uint32(k2.u32))
+				}
+				k.id = CTID_INT32
+				continue
+			} else if cp_opt(cp, '>') {
+				cp_expr_sub(cp, &k2, 8)
+				if k.id == CTID_INT32 && k2.id == CTID_INT32 {
+					k.i32 = bi32(k.i32 > k2.i32)
+				} else {
+					k.i32 = bi32(uint32(k.i32) > uint32(k2.i32))
+				}
+				k.id = CTID_INT32
+				continue
+			} else if cp_opt(cp, CTOK_LE) {
+				cp_expr_sub(cp, &k2, 8)
+				if k.id == CTID_INT32 && k2.id == CTID_INT32 {
+					k.i32 = bi32(k.i32 <= k2.i32)
+				} else {
+					k.i32 = bi32(uint32(k.i32) <= uint32(k2.i32))
+				}
+				k.id = CTID_INT32
+				continue
+			} else if cp_opt(cp, CTOK_GE) {
+				cp_expr_sub(cp, &k2, 8)
+				if k.id == CTID_INT32 && k2.id == CTID_INT32 {
+					k.i32 = bi32(k.i32 >= k2.i32)
+				} else {
+					k.i32 = bi32(uint32(k.i32) >= uint32(k2.i32))
+				}
+				k.id = CTID_INT32
+				continue
+			}
+			// fallthrough
+		case 8:
+			if cp_opt(cp, CTOK_SHL) {
+				cp_expr_sub(cp, &k2, 9)
+				k.i32 = k.i32 << k2.i32
+				continue
+			} else if cp_opt(cp, CTOK_SHR) {
+				cp_expr_sub(cp, &k2, 9)
+				if k.id == CTID_INT32 {
+					k.i32 = k.i32 >> k2.i32
+				} else {
+					k.i32 = int32(uint32(k.i32) >> uint32(k2.i32))
+				}
+				continue
+			}
+			// fallthrough
+		case 9:
+			if cp_opt(cp, '+') {
+				cp_expr_sub(cp, &k2, 10)
+				k.i32 = k.i32 + k2.i32
+				if k2.id > k.id {
+					k.id = k2.id
+				} // Trivial promotion to unsigned.
+				continue
+			} else if cp_opt(cp, '-') {
+				cp_expr_sub(cp, &k2, 10)
+				k.i32 = k.i32 - k2.i32
+				if k2.id > k.id {
+					k.id = k2.id
+				} // Trivial promotion to unsigned.
+				continue
+			}
+			// fallthrough
+		case 10:
+			if cp_opt(cp, '*') {
+				cp_expr_unary(cp, &k2)
+				k.i32 = k.i32 * k2.i32
+				if k2.id > k.id {
+					k.id = k2.id
+				} // Trivial promotion to unsigned.
+				continue
+			} else if cp_opt(cp, '/') {
+				cp_expr_unary(cp, &k2)
+				if k2.id > k.id {
+					// Trivial promotion to unsigned.
+					k.id = k2.id
+				}
+				if k2.i32 == 0 || (k.id == CTID_INT32 && uint32(k.i32) == 0x80000000 && k2.i32 == -1) {
+					//cp_err(cp, LJ_ERR_BADVAL);
+					panic(cp)
+				}
+				if k.id == CTID_INT32 {
+					k.i32 = k.i32 / k2.i32
+				} else {
+					k.i32 = int32(uint32(k.i32) / uint32(k2.i32))
+				}
+				continue
+			} else if cp_opt(cp, '%') {
+				cp_expr_unary(cp, &k2)
+				if k2.id > k.id {
+					// Trivial promotion to unsigned.
+					k.id = k2.id
+				}
+				if k2.i32 == 0 || (k.id == CTID_INT32 && uint32(k.i32) == 0x80000000 && k2.i32 == -1) {
+					//cp_err(cp, LJ_ERR_BADVAL);
+					panic(cp)
+				}
+				if k.id == CTID_INT32 {
+					k.i32 = k.i32 % k2.i32
+				} else {
+					k.i32 = int32(uint32(k.i32) % uint32(k2.i32))
+				}
+				continue
+			}
+		default:
+			return
+		}
+	}
+}
+
+/*
 // Parse and evaluate unary expression.
 static void cp_expr_unary(cp *CPState, CPValue *k) {
     if (++cp.depth > CPARSE_MAX_DECLDEPTH) cp_err(cp, LJ_ERR_XLEVELS);
