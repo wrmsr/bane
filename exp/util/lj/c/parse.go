@@ -1551,7 +1551,7 @@ func cp_expr_postfix(cp *CPState, k *CPValue) {
 					//cp_err_badidx(cp, ct);
 					panic(cp)
 				}
-				ct = lj_ctype_rawref(cp.cts, ctype_cid(ct.info))
+				ct = lj_ctype_rawref(cp.cts, CTypeID(ctype_cid(ct.info)))
 			}
 			cp_next(cp)
 			if cp.tok != CTOK_IDENT {
@@ -1920,6 +1920,49 @@ func cp_declarator(cp *CPState, decl *CPDecl) {
 	cp.depth--
 }
 
+// Push or merge attributes.
+func cp_push_attributes(decl *CPDecl) {
+	var ct *CType = &decl.stack[decl.pos]
+	if ctype_isfunc(ct.info) { // Ok to modify in-place.
+	} else {
+		if (decl.attr&CTFP_ALIGNED) != 0 && (decl.mode&CPARSE_MODE_FIELD) == 0 {
+			cp_push(decl, CTINFO(CT_ATTRIB, CTATTRIB(CTA_ALIGN)), CTSize(ctype_align(decl.attr)))
+		}
+	}
+}
+
+// Parse constant initializer.
+// NYI: FP constants and strings as initializers.
+func cp_decl_constinit(cp *CPState, ctp **CType, ctypeid CTypeID) CTypeID {
+	var ctt *CType = ctype_get(cp.cts, ctypeid)
+	var info CTInfo
+	var size CTSize
+	var k CPValue
+	var constid CTypeID
+	for ctype_isattrib(ctt.info) { // Skip attributes.
+		ctypeid = CTypeID(ctype_cid(ctt.info)) // Update ID, too.
+		ctt = ctype_get(cp.cts, ctypeid)
+	}
+	info = ctt.info
+	size = ctt.size
+	if !ctype_isinteger(info) || (info&CTF_CONST) == 0 || size > 4 {
+		//cp_err(cp, LJ_ERR_FFI_INVTYPE);
+		panic(cp)
+	}
+	cp_check(cp, '=')
+	cp_expr_sub(cp, &k, 0)
+	constid = lj_ctype_new(cp.cts, ctp)
+	(*ctp).info = CTINFO(CT_CONSTVAL, CTF_CONST|CTInfo(ctypeid))
+	k.i32 <<= 8 * (4 - size)
+	if (info & CTF_UNSIGNED) != 0 {
+		k.i32 >>= int32(uint32(k.i32) >> (uint32(8) * (4 - uint32(size))))
+	} else {
+		k.i32 >>= (8 * (4 - size))
+	}
+	(*ctp).size = CTSize(k.i32)
+	return constid
+}
+
 // Parse struct/union declaration.
 func cp_decl_struct(cp *CPState, sdecl *CPDecl, sinfo CTInfo) CTypeID {
 	var sid CTypeID = cp_struct_name(cp, sdecl, sinfo)
@@ -2005,6 +2048,17 @@ func cp_decl_struct(cp *CPState, sdecl *CPDecl, sinfo CTInfo) CTypeID {
 		cp_struct_layout(cp, sid, sdecl.attr)
 	}
 	return sid
+}
+
+// Reset declaration state to declaration specifier.
+func cp_decl_reset(decl *CPDecl) {
+	decl.pos = decl.specpos
+	decl.top = decl.specpos + 1
+	decl.stack[decl.specpos].next = 0
+	decl.attr = decl.specattr
+	decl.fattr = decl.specfattr
+	decl.name = nil
+	decl.redir = nil
 }
 
 // Parse enum declaration.
