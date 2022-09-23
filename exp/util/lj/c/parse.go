@@ -2050,6 +2050,94 @@ func cp_decl_struct(cp *CPState, sdecl *CPDecl, sinfo CTInfo) CTypeID {
 	return sid
 }
 
+// Determine field alignment.
+func cp_field_align(cp *CPState, ct *CType, info CTInfo) CTSize {
+	var align CTSize = CTSize(ctype_align(info))
+	return align
+}
+
+// Layout struct/union fields.
+func cp_struct_layout(cp *CPState, sid CTypeID, sattr CTInfo) {
+	var bofs CTSize = 0
+	var bmaxofs CTSize = 0 // Bit offset and max. bit offset.
+	var maxalign CTSize = CTSize(ctype_align(sattr))
+	var sct *CType = ctype_get(cp.cts, sid)
+	var sinfo CTInfo = sct.info
+	var fieldid CTypeID = CTypeID(sct.sib)
+	for fieldid != 0 {
+		var ct *CType = ctype_get(cp.cts, fieldid)
+		var attr CTInfo = CTInfo(ct.size) // Field declaration attributes (temp.).
+
+		if ctype_isfield(ct.info) || (ctype_isxattrib(ct.info, CTA_SUBTYPE) && (attr != 0)) {
+			var align, amask CTSize // Alignment (pow2) and alignment mask (bits).
+			var sz CTSize
+			var info CTInfo = lj_ctype_info(cp.cts, CTypeID(ctype_cid(ct.info)), &sz)
+			var bsz CTSize
+			var csz CTSize = 8 * sz              // Field size and container size (in bits).
+			sinfo |= info & (CTF_QUAL | CTF_VLA) // Merge pseudo-qualifiers.
+
+			// Check for size overflow and determine alignment.
+			if sz >= 0x20000000 || bofs+csz < bofs || (info&CTF_VLA) != 0 {
+				if !(sz == CTSIZE_INVALID && ctype_isarray(info) && (sinfo&CTF_UNION) == 0) {
+					//cp_err(cp, LJ_ERR_FFI_INVSIZE);
+					panic(cp)
+				}
+				csz = 0
+				sz = 0 // Treat a[] and a[?] as zero-sized.
+			}
+			align = cp_field_align(cp, ct, info)
+			if ((attr|sattr)&CTFP_PACKED) != 0 || ((attr&CTFP_ALIGNED) != 0 && CTSize(ctype_align(attr)) > align) {
+				align = CTSize(ctype_align(attr))
+			}
+			if cp.packstack[cp.curpack] < uint8(align) {
+				align = CTSize(cp.packstack[cp.curpack])
+			}
+			if align > maxalign {
+				maxalign = align
+			}
+			amask = (8 << align) - 1
+
+			bsz = CTSize(ctype_bitcsz(ct.info)) // Bitfield size (temp.).
+			if bsz == CTBSZ_FIELD || !ctype_isfield(ct.info) {
+				bsz = csz                      // Regular fields or subtypes always fill the container.
+				bofs = (bofs + amask) & ^amask // Start new aligned field.
+				ct.size = (bofs >> 3)          // Store field offset.
+			} else { // Bitfield.
+				if bsz == 0 || (attr&CTFP_ALIGNED) != 0 || (((attr|sattr)&CTFP_PACKED) == 0 && (bofs&amask)+bsz > csz) {
+					bofs = (bofs + amask) & ^amask // Start new aligned field.
+				}
+
+				// Prefer regular field over bitfield.
+				if bsz == csz && (bofs&amask) == 0 {
+					ct.info = CTINFO(CT_FIELD, ctype_cid(ct.info))
+					ct.size = bofs >> 3 // Store field offset.
+				} else {
+					ct.info = CTINFO(CT_BITFIELD, (info&(CTF_QUAL|CTF_UNSIGNED|CTF_BOOL))+(CTInfo(csz)<<(CTInfo(CTSHIFT_BITCSZ)-3))+(CTInfo(bsz)<<CTInfo(CTSHIFT_BITBSZ)))
+					ct.info += CTInfo((bofs & (csz - 1)) << CTSHIFT_BITPOS)
+					ct.size = (bofs & ^(csz - 1)) >> 3 // Store container offset.
+				}
+			}
+
+			// Determine next offset or max. offset.
+			if (sinfo & CTF_UNION) != 0 {
+				if bsz > bmaxofs {
+					bmaxofs = bsz
+				}
+			} else {
+				bofs += bsz
+			}
+		} // All other fields in the chain are already set up.
+
+		fieldid = CTypeID(ct.sib)
+	}
+
+	// Complete struct/union.
+	sct.info = sinfo + CTInfo(CTALIGN(int(maxalign)))
+	bofs = bt.Choose((sinfo&CTF_UNION) != 0, bmaxofs, bofs)
+	maxalign = (8 << maxalign) - 1
+	sct.size = ((bofs + maxalign) & ^maxalign) >> 3
+}
+
 // Reset declaration state to declaration specifier.
 func cp_decl_reset(decl *CPDecl) {
 	decl.pos = decl.specpos
@@ -2057,8 +2145,8 @@ func cp_decl_reset(decl *CPDecl) {
 	decl.stack[decl.specpos].next = 0
 	decl.attr = decl.specattr
 	decl.fattr = decl.specfattr
-	decl.name = nil
-	decl.redir = nil
+	decl.name = ""
+	decl.redir = ""
 }
 
 // Parse enum declaration.
