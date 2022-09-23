@@ -112,6 +112,15 @@ func cp_opt(cp *CPState, tok CPToken) bool {
 	return false
 }
 
+// Check and consume token.
+func cp_check(cp *CPState, tok CPToken) {
+	if cp.tok != tok {
+		//cp_err_token(cp, tok)
+		panic(cp)
+	}
+	cp_next(cp)
+}
+
 // End-of-line?
 func cp_iseol(c CPChar) bool {
 	return c == '\n' || c == '\r'
@@ -1036,6 +1045,107 @@ func cp_struct_name(cp *CPState, sdecl *CPDecl, info CTInfo) CTypeID {
 	return sid
 }
 
+const CTSIZE_PTR = 8
+const CTALIGN_PTR = 8
+
+func CTINFO_REF(ref CTInfo) CTInfo {
+	return CTINFO(CT_PTR, (CTF_CONST|CTF_REF|CTALIGN_PTR)+ref)
+}
+
+// Check if the next token may start a type declaration.
+func cp_istypedecl(cp *CPState) bool {
+	if cp.tok >= CTOK_FIRSTDECL && cp.tok <= CTOK_LASTDECL {
+		return true
+	}
+	if cp.tok == CTOK_IDENT && ctype_istypedef(cp.ct.info) {
+		return true
+	}
+	if cp.tok == '$' {
+		return true
+	}
+	return false
+}
+
+// Parse declarator.
+func cp_declarator(cp *CPState, decl *CPDecl) {
+	cp.depth++
+	if cp.depth > CPARSE_MAX_DECLDEPTH {
+		//cp_err(cp, LJ_ERR_XLEVELS);
+		panic(cp)
+	}
+
+	for { // Head of declarator.
+		if cp_opt(cp, '*') { // Pointer.
+			var sz CTSize
+			var info CTInfo
+			cp_decl_attributes(cp, decl)
+			sz = CTSIZE_PTR
+			info = CTINFO(CT_PTR, CTALIGN_PTR)
+			if ctype_msizeP(decl.attr) == 4 {
+				sz = 4
+				info = CTINFO(CT_PTR, CTInfo(CTALIGN(2)))
+			}
+			info += decl.attr & (CTF_QUAL | CTF_REF)
+			decl.attr &= ^(CTF_QUAL | (CTMASK_MSIZEP << CTSHIFT_MSIZEP))
+			cp_push(decl, info, sz)
+		} else if cp_opt(cp, '&') || cp_opt(cp, CTOK_ANDAND) { // Reference.
+			decl.attr &= ^(CTF_QUAL | (CTMASK_MSIZEP << CTSHIFT_MSIZEP))
+			cp_push(decl, CTINFO_REF(0), CTSIZE_PTR)
+		} else {
+			break
+		}
+	}
+
+	if cp_opt(cp, '(') { // Inner declarator.
+		var pos CPDeclIdx
+		cp_decl_attributes(cp, decl)
+		// Resolve ambiguity between inner declarator and 1st function parameter.
+		if (decl.mode&CPARSE_MODE_ABSTRACT) != 0 && (cp.tok == ')' || cp_istypedecl(cp)) {
+			//goto func_decl
+			cp_decl_func(cp, decl)
+		} else {
+			pos = decl.pos
+			cp_declarator(cp, decl)
+			cp_check(cp, ')')
+			decl.pos = pos
+		}
+	} else if cp.tok == CTOK_IDENT { // Direct declarator.
+		if (decl.mode & CPARSE_MODE_DIRECT) == 0 {
+			//cp_err_token(cp, CTOK_EOF)
+			panic(cp)
+		}
+		decl.name = cp.str
+		decl.nameid = cp.val.id
+		cp_next(cp)
+	} else { // Abstract declarator.
+		if (decl.mode & CPARSE_MODE_ABSTRACT) == 0 {
+			//cp_err_token(cp, CTOK_IDENT);
+			panic(cp)
+		}
+	}
+
+	for { // Tail of declarator.
+		if cp_opt(cp, '[') { // Array.
+			cp_decl_array(cp, decl)
+		} else if cp_opt(cp, '(') { // Function.
+			//func_decl:
+			cp_decl_func(cp, decl)
+		} else {
+			break
+		}
+	}
+
+	if (decl.mode&CPARSE_MODE_FIELD) != 0 && cp_opt(cp, ':') { // Field width.
+		decl.bits = cp_expr_ksize(cp)
+	}
+
+	// Process postfix attributes.
+	cp_decl_attributes(cp, decl)
+	cp_push_attributes(decl)
+
+	cp.depth--
+}
+
 // Parse struct/union declaration.
 func cp_decl_struct(cp *CPState, sdecl *CPDecl, sinfo CTInfo) CTypeID {
 	var sid CTypeID = cp_struct_name(cp, sdecl, sinfo)
@@ -1126,20 +1236,20 @@ func cp_decl_struct(cp *CPState, sdecl *CPDecl, sinfo CTInfo) CTypeID {
 // Parse enum declaration.
 func cp_decl_enum(cp *CPState, sdecl *CPDecl) CTypeID {
 	var eid CTypeID = cp_struct_name(cp, sdecl, CTINFO(CT_ENUM, CTID_VOID))
-	var einfo CTInfo = CTINFO(CT_ENUM, CTALIGN(2)+CTID_UINT32)
+	var einfo CTInfo = CTINFO(CT_ENUM, CTInfo(CTALIGN(2)+CTID_UINT32))
 	var esize CTSize = 4 // Only 32 bit enums are supported.
 	if cp_opt(cp, '{') { // Enum definition.
 		var k CPValue
 		var lastid CTypeID = eid
-		k.u32 = 0
+		k.i32 = 0
 		k.id = CTID_INT32
 		for {
-			GCstr * name = cp.str
+			name := cp.str
 			if cp.tok != CTOK_IDENT {
 				//cp_err_token(cp, CTOK_IDENT);
 				panic(cp)
 			}
-			if cp.val.id {
+			if cp.val.id != 0 {
 				//cp_errmsg(cp, 0, LJ_ERR_FFI_REDEF, strdata(name));
 				panic(cp)
 			}
@@ -1161,7 +1271,7 @@ func cp_decl_enum(cp *CPState, sdecl *CPDecl) CTypeID {
 
 					k.id = CTID_INT32
 					if k.i32 < 0 {
-						einfo = CTINFO(CT_ENUM, CTALIGN(2)+CTID_INT32)
+						einfo = CTINFO(CT_ENUM, CTInfo(CTALIGN(2)+CTID_INT32))
 					}
 				}
 			}
@@ -1169,12 +1279,13 @@ func cp_decl_enum(cp *CPState, sdecl *CPDecl) CTypeID {
 			{
 				var ct *CType
 				var constid CTypeID = lj_ctype_new(cp.cts, &ct)
-				ctype_get(cp.cts, lastid).sib = constid
+				ctype_get(cp.cts, lastid).sib = CTypeID1(constid)
 				lastid = constid
 				ctype_setname(ct, name)
-				ct.info = CTINFO(CT_CONSTVAL, CTF_CONST|k.id)
-				ct.size = k.u32++
-				if k.u32 == 0x80000000 {
+				ct.info = CTINFO(CT_CONSTVAL, CTF_CONST|CTInfo(k.id))
+				k.i32++
+				ct.size = CTSize(k.i32)
+				if uint32(k.i32) == 0x80000000 {
 					k.id = CTID_UINT32
 				}
 				lj_ctype_addname(cp.cts, ct, constid)
