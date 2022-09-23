@@ -841,8 +841,10 @@ func ctype_isrefarray(info CTInfo) bool {
 // #define ctype_iscomplex(info) \
 // 	(((info) & (CTMASK_NUM|CTF_COMPLEX)) == CTINFO(CT_ARRAY, CTF_COMPLEX))
 
-// #define ctype_isvltype(info) \ // VL array or VL struct.
-// 	(((info) & ((CTMASK_NUM|CTF_VLA) - (2u<<CTSHIFT_NUM))) == CTINFO(CT_STRUCT, CTF_VLA))
+func ctype_isvltype(info CTInfo) bool { // VL array or VL struct.
+	return (info & ((CTMASK_NUM | CTF_VLA) - (2 << CTSHIFT_NUM))) == CTINFO(CT_STRUCT, CTF_VLA)
+}
+
 // #define ctype_isvlarray(info) \
 // 	(((info) & (CTMASK_NUM|CTF_VLA)) == CTINFO(CT_ARRAY, CTF_VLA))
 
@@ -1089,6 +1091,21 @@ func lj_ctype_intern(cts *CTState, info CTInfo, size CTSize) CTypeID {
 	return id
 }
 
+// Get child C type.
+func ctype_child(cts *CTState, ct *CType) *CType {
+	//lj_assertCTS(!(ctype_isvoid(ct->info) || ctype_isstruct(ct->info) || ctype_isbitfield(ct->info)), "ctype %08x has no children", ct->info);
+	return ctype_get(cts, CTypeID(ctype_cid(ct.info)))
+}
+
+// Get raw type for a C type ID.
+func ctype_raw(cts *CTState, id CTypeID) *CType {
+	var ct *CType = ctype_get(cts, id)
+	for ctype_isattrib(ct.info) {
+		ct = ctype_child(cts, ct)
+	}
+	return ct
+}
+
 // Consume the declaration element chain and intern the C type.
 func cp_decl_intern(cp *CPState, decl *CPDecl) CTypeID {
 	var id CTypeID = 0
@@ -1112,7 +1129,7 @@ func cp_decl_intern(cp *CPState, decl *CPDecl) CTypeID {
 			var fct *CType
 			var fid CTypeID
 			var sib CTypeID
-			if id {
+			if id != 0 {
 				var refct *CType = ctype_raw(cp.cts, id)
 				// Reject function or refarray return types.
 				if ctype_isfunc(refct.info) || ctype_isrefarray(refct.info) {
@@ -1131,7 +1148,7 @@ func cp_decl_intern(cp *CPState, decl *CPDecl) CTypeID {
 			sib = CTypeID(ct.sib) // Next line may reallocate the C type table.
 			fid = lj_ctype_new(cp.cts, &fct)
 			csize = CTSIZE_INVALID
-			cinfo = CTSize(info) + CTSize(id)
+			cinfo = info + CTInfo(id)
 			fct.info = CTInfo(cinfo)
 			fct.size = CTSize(size)
 			fct.sib = CTypeID1(sib)
@@ -1159,12 +1176,12 @@ func cp_decl_intern(cp *CPState, decl *CPDecl) CTypeID {
 						size = CTInfo(msize) // Override size via mode.
 					}
 					if vsize != 0 { // Vector size set?
-						var esize CTSize = CTSize(lj_fls(size))
+						var esize CTSize = CTSize(lj_fls(uint32(size)))
 						if vsize >= esize {
 							// Intern the element type first.
-							id = lj_ctype_intern(cp.cts, info, size)
+							id = lj_ctype_intern(cp.cts, info, CTSize(size))
 							// Then create a vector (array) with vsize alignment.
-							size = (1 << vsize)
+							size = 1 << vsize
 							if vsize > 4 {
 								vsize = 4
 							} // Limit alignment.
@@ -1205,7 +1222,7 @@ func cp_decl_intern(cp *CPState, decl *CPDecl) CTypeID {
 					}
 					// a[] and a[?] keep their invalid size.
 					if size != CTSIZE_INVALID {
-						var xsz uint64 = uint64(size * csize)
+						var xsz uint64 = uint64(size * CTInfo(csize))
 						if xsz >= 0x80000000 {
 							//cp_err(cp, LJ_ERR_FFI_INVSIZE);
 							panic(cp)
