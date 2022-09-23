@@ -824,8 +824,13 @@ func ctype_isinteger_or_bool(info CTInfo) bool {
 // #define ctype_isfp(info) \
 // 	(((info) & (CTMASK_NUM|CTF_FP)) == CTINFO(CT_NUM, CTF_FP))
 
-// #define ctype_ispointer(info) // Pointer or array.
-// 	((ctype_type(info) >> 1) == (CT_PTR >> 1))  #define ctype_isref(info)  (((info) & (CTMASK_NUM|CTF_REF)) == CTINFO(CT_PTR, CTF_REF))
+func ctype_ispointer(info CTInfo) bool { // Pointer or array.
+	return (ctype_type(info) >> 1) == (CT_PTR >> 1)
+}
+
+func ctype_isref(info CTInfo) bool {
+	return ((info) & (CTMASK_NUM | CTF_REF)) == CTINFO(CT_PTR, CTF_REF)
+}
 
 func ctype_isrefarray(info CTInfo) bool {
 	return (info & (CTMASK_NUM | CTF_VECTOR | CTF_COMPLEX)) == CTINFO(CT_ARRAY, 0)
@@ -997,7 +1002,7 @@ func ctype_setname(ct *CType, s string) {
 
 // Add named element to hash table.
 func lj_ctype_addname(cts *CTState, ct *CType, id CTypeID) {
-	cts.hash[ct.name] = id
+	cts.nhash[ct.name] = id
 }
 
 // Parse struct/union/enum name.
@@ -1068,33 +1073,163 @@ func cp_istypedecl(cp *CPState) bool {
 	return false
 }
 
-/*
 // Intern a type element.
-func lj_ctype_intern(cts *CTState, info CTInfo, size CTSize ) CTypeID {
-    var h = uint32(ct_hashtype(info, size))
-    CTypeID id = cts.hash[h];
-    //lj_assertCTS(cts.L, "uninitialized cts.L");
-    for id != 0 {
-        CType *ct = ctype_get(cts, id);
-        if (ct.info == info && ct.size == size)
-            return id;
-        id = ct.next;
-    }
-    id = cts.top;
-    if id >= cts.sizetab {
-        if (id >= CTID_MAX) lj_err_msg(cts.L, LJ_ERR_TABOV);
-        lj_mem_growvec(cts.L, cts.tab, cts.sizetab, CTID_MAX, CType);
-    }
-    cts.top = id + 1;
-    cts.tab[id].info = info;
-    cts.tab[id].size = size;
-    cts.tab[id].sib = 0;
-    cts.tab[id].next = cts.hash[h];
-    setgcrefnull(cts.tab[id].name);
-    cts.hash[h] = (CTypeID1) id;
-    return id;
+func lj_ctype_intern(cts *CTState, info CTInfo, size CTSize) CTypeID {
+	t := CTInfoSize{info, size}
+	if id, ok := cts.thash[t]; ok {
+		return id
+	}
+	id := cts.top
+	cts.top = id + 1
+	cts.tab[id].info = info
+	cts.tab[id].size = size
+	cts.tab[id].sib = 0
+	//cts.tab[id].next = cts.hash[h]
+	cts.thash[t] = id
+	return id
 }
-*/
+
+// Consume the declaration element chain and intern the C type.
+func cp_decl_intern(cp *CPState, decl *CPDecl) CTypeID {
+	var id CTypeID = 0
+	var idx CPDeclIdx = 0
+	var csize CTSize = CTSIZE_INVALID
+	var cinfo CTInfo = 0
+	for {
+		var ct *CType = &decl.stack[idx]
+		var info CTInfo = ct.info
+		var size CTInfo = CTInfo(ct.size)
+		// The cid is already part of info for copies of pointers/functions.
+		idx = CPDeclIdx(ct.next)
+		if ctype_istypedef(info) {
+			//lj_assertCP(id == 0, "typedef not at toplevel")
+			id = CTypeID(ctype_cid(info))
+			// Always refetch info/size, since struct/enum may have been completed.
+			cinfo = ctype_get(cp.cts, id).info
+			csize = ctype_get(cp.cts, id).size
+			//lj_assertCP(ctype_isstruct(cinfo) || ctype_isenum(cinfo), "typedef of bad type");
+		} else if ctype_isfunc(info) { // Intern function.
+			var fct *CType
+			var fid CTypeID
+			var sib CTypeID
+			if id {
+				var refct *CType = ctype_raw(cp.cts, id)
+				// Reject function or refarray return types.
+				if ctype_isfunc(refct.info) || ctype_isrefarray(refct.info) {
+					//cp_err(cp, LJ_ERR_FFI_INVTYPE);
+					panic(cp)
+				}
+			}
+			// No intervening attributes allowed, skip forward.
+			for idx != 0 {
+				var ctn *CType = &decl.stack[idx]
+				if !ctype_isattrib(ctn.info) {
+					break
+				}
+				idx = CPDeclIdx(ctn.next) // Skip attribute.
+			}
+			sib = CTypeID(ct.sib) // Next line may reallocate the C type table.
+			fid = lj_ctype_new(cp.cts, &fct)
+			csize = CTSIZE_INVALID
+			cinfo = CTSize(info) + CTSize(id)
+			fct.info = CTInfo(cinfo)
+			fct.size = CTSize(size)
+			fct.sib = CTypeID1(sib)
+			id = fid
+		} else if ctype_isattrib(info) {
+			if ctype_isxattrib(info, CTA_QUAL) {
+				cinfo |= size
+			} else if ctype_isxattrib(info, CTA_ALIGN) {
+				cinfo = CTF_INSERT(cinfo, CTMASK_ALIGN, CTSHIFT_ALIGN, size)
+			}
+			id = lj_ctype_intern(cp.cts, info+CTInfo(id), CTSize(size))
+			// Inherit csize/cinfo from original type.
+		} else {
+			if ctype_isnum(info) { // Handle mode/vector-size attributes.
+				//lj_assertCP(id == 0, "number not at toplevel")
+				if (info & CTF_BOOL) == 0 {
+					var msize CTSize = CTSize(ctype_msizeP(decl.attr))
+					var vsize CTSize = CTSize(ctype_vsizeP(decl.attr))
+					if msize != 0 && ((info&CTF_FP) == 0 || (msize == 4 || msize == 8)) {
+						var malign CTSize = CTSize(lj_fls(uint32(msize)))
+						if malign > 4 {
+							malign = 4
+						} // Limit alignment.
+						info = CTF_INSERT(info, CTMASK_ALIGN, CTSHIFT_ALIGN, CTInfo(malign))
+						size = CTInfo(msize) // Override size via mode.
+					}
+					if vsize != 0 { // Vector size set?
+						var esize CTSize = CTSize(lj_fls(size))
+						if vsize >= esize {
+							// Intern the element type first.
+							id = lj_ctype_intern(cp.cts, info, size)
+							// Then create a vector (array) with vsize alignment.
+							size = (1 << vsize)
+							if vsize > 4 {
+								vsize = 4
+							} // Limit alignment.
+							if CTSize(ctype_align(info)) > vsize {
+								vsize = CTSize(ctype_align(info))
+							}
+							info = CTINFO(CT_ARRAY, (info&CTF_QUAL)+CTF_VECTOR+CTInfo(CTALIGN(int(vsize))))
+						}
+					}
+				}
+			} else if ctype_isptr(info) {
+				// Reject pointer/ref to ref.
+				if id != 0 && ctype_isref(ctype_raw(cp.cts, id).info) {
+					//cp_err(cp, LJ_ERR_FFI_INVTYPE);
+					panic(cp)
+				}
+				if ctype_isref(info) {
+					info &= ^CTF_VOLATILE // Refs are always const, never volatile.
+					// No intervening attributes allowed, skip forward.
+					for idx != 0 {
+						var ctn *CType = &decl.stack[idx]
+						if !ctype_isattrib(ctn.info) {
+							break
+						}
+						idx = CPDeclIdx(ctn.next) // Skip attribute.
+					}
+				}
+			} else if ctype_isarray(info) { // Check for valid array size etc.
+				if ct.sib == 0 { // Only check/size arrays not copied by unroll.
+					if ctype_isref(CTInfo(cinfo)) { // Reject arrays of refs.
+						//cp_err(cp, LJ_ERR_FFI_INVTYPE)
+						panic(cp)
+					}
+					// Reject VLS or unknown-sized types.
+					if ctype_isvltype(cinfo) || csize == CTSIZE_INVALID {
+						//cp_err(cp, LJ_ERR_FFI_INVSIZE)
+						panic(cp)
+					}
+					// a[] and a[?] keep their invalid size.
+					if size != CTSIZE_INVALID {
+						var xsz uint64 = uint64(size * csize)
+						if xsz >= 0x80000000 {
+							//cp_err(cp, LJ_ERR_FFI_INVSIZE);
+							panic(cp)
+						}
+						size = CTInfo(xsz)
+					}
+				}
+				if (cinfo & CTF_ALIGN) > (info & CTF_ALIGN) { // Find max. align.
+					info = (info & ^CTF_ALIGN) | (cinfo & CTF_ALIGN)
+				}
+				info |= cinfo & CTF_QUAL // Inherit qual.
+			} else {
+				//lj_assertCP(ctype_isvoid(info), "bad ctype %08x", info);
+			}
+			csize = CTSize(size)
+			cinfo = info + CTInfo(id)
+			id = lj_ctype_intern(cp.cts, CTInfo(cinfo), CTSize(size))
+		}
+		if idx == 0 {
+			break
+		}
+	}
+	return id
+}
 
 // Parse function declaration.
 func cp_decl_func(cp *CPState, fdecl *CPDecl) {

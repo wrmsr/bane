@@ -61,8 +61,8 @@ const (
 	CTF_VARARG     CTInfo = 0x00800000 // Vararg: FUNC.
 	CTF_SSEREGPARM CTInfo = 0x00400000 // SSE register parameters: FUNC.
 
-	CTF_QUAL  = CTF_CONST | CTF_VOLATILE
-	CTF_ALIGN = CTMASK_ALIGN << CTSHIFT_ALIGN
+	CTF_QUAL  = CTInfo(CTF_CONST | CTF_VOLATILE)
+	CTF_ALIGN = CTInfo(CTMASK_ALIGN << CTSHIFT_ALIGN)
 )
 
 const CTF_UCHAR = 0 // ((char)-1 > 0 ? CTF_UNSIGNED: 0)
@@ -145,6 +145,11 @@ type CType struct {
 const CTHASH_SIZE = 128 // Number of hash anchors.
 const CTHASH_MASK = CTHASH_SIZE - 1
 
+type CTInfoSize struct {
+	i CTInfo
+	s CTSize
+}
+
 // C type state.
 type CTState struct {
 	tab []*CType // C type table.
@@ -156,5 +161,6 @@ type CTState struct {
 	// GCtab *miscmap;    // Map of -CTypeID to metatable and cb slot to func.
 	// CCallback cb;        // Temporary callback state.
 	//hash [CTHASH_SIZE]CTypeID1 // Hash anchors for C type table.
-	hash map[string]CTypeID
+	thash map[CTInfoSize]CTypeID
+	nhash map[string]CTypeID
 }
