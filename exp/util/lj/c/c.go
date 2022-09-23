@@ -45,24 +45,24 @@ const (
 */
 
 // C type info flags.     TFFArrrr
-const CTF_BOOL = 0x08000000       // Boolean: NUM, BITFIELD.
-const CTF_FP = 0x04000000         // Floating-point: NUM.
-const CTF_CONST = 0x02000000      // Const qualifier.
-const CTF_VOLATILE = 0x01000000   // Volatile qualifier.
-const CTF_UNSIGNED = 0x00800000   // Unsigned: NUM, BITFIELD.
-const CTF_LONG = 0x00400000       // Long: NUM.
-const CTF_VLA = 0x00100000        // Variable-length: ARRAY, STRUCT.
-const CTF_REF = 0x00800000        // Reference: PTR.
-const CTF_VECTOR = 0x08000000     // Vector: ARRAY.
-const CTF_COMPLEX = 0x04000000    // Complex: ARRAY.
-const CTF_UNION = 0x00800000      // Union: STRUCT.
-const CTF_VARARG = 0x00800000     // Vararg: FUNC.
-const CTF_SSEREGPARM = 0x00400000 // SSE register parameters: FUNC.
+const CTF_BOOL CTInfo = 0x08000000       // Boolean: NUM, BITFIELD.
+const CTF_FP CTInfo = 0x04000000         // Floating-point: NUM.
+const CTF_CONST CTInfo = 0x02000000      // Const qualifier.
+const CTF_VOLATILE CTInfo = 0x01000000   // Volatile qualifier.
+const CTF_UNSIGNED CTInfo = 0x00800000   // Unsigned: NUM, BITFIELD.
+const CTF_LONG CTInfo = 0x00400000       // Long: NUM.
+const CTF_VLA CTInfo = 0x00100000        // Variable-length: ARRAY, STRUCT.
+const CTF_REF CTInfo = 0x00800000        // Reference: PTR.
+const CTF_VECTOR CTInfo = 0x08000000     // Vector: ARRAY.
+const CTF_COMPLEX CTInfo = 0x04000000    // Complex: ARRAY.
+const CTF_UNION CTInfo = 0x00800000      // Union: STRUCT.
+const CTF_VARARG CTInfo = 0x00800000     // Vararg: FUNC.
+const CTF_SSEREGPARM CTInfo = 0x00400000 // SSE register parameters: FUNC.
 
 const CTF_QUAL = CTF_CONST | CTF_VOLATILE
 const CTF_ALIGN = CTMASK_ALIGN << CTSHIFT_ALIGN
 
-//const CTF_UCHAR = ((char)-1 > 0 ? CTF_UNSIGNED: 0)
+const CTF_UCHAR = 0 // ((char)-1 > 0 ? CTF_UNSIGNED: 0)
 
 // Flags used in parser.  .F.Ammvf   cp->attr
 const CTFP_ALIGNED = 0x00000001 // cp->attr + ALIGN

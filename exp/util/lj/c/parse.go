@@ -1,6 +1,7 @@
 package c
 
 import (
+	"reflect"
 	"strings"
 	"unicode"
 
@@ -65,8 +66,8 @@ func cp_init(cp *CPState) {
 	cp.depth = 0
 	cp.curpack = 0
 	cp.packstack[0] = 255
-	//lj_buf_init(cp->L, &cp->sb);
-	//lj_assertCP(cp->p != NULL, "uninitialized cp->p");
+	//lj_buf_init(cp.L, &cp.sb);
+	//lj_assertCP(cp.p != NULL, "uninitialized cp.p");
 	cp_get(cp) // Read-ahead first char.
 	cp.tok = 0
 	cp.tmask = CPNS_DEFAULT
@@ -128,7 +129,7 @@ func cp_next(cp *CPState) CPToken {
 // _(GE,      ">=")
 // _(SHL,     "<<")
 // _(SHR,     ">>")
-// _(DEREF,   "->")
+// _(DEREF,   ".")
 
 // // Simple declaration specifiers.
 // #define CDSDEF(_) \
@@ -227,7 +228,7 @@ const (
 
 // Declaration specifier flags.
 const (
-	CDF_VOID = 1 << iota
+	CDF_VOID = CPscl(1) << iota
 	CDF_BOOL
 	CDF_CHAR
 	CDF_INT
@@ -469,13 +470,13 @@ func ctype_getname(cts *CTState, ctp **CType, name string, tmask uint32) CTypeID
 	// CTypeID id = cts.hash[ct_hashname(name)];
 	// while (id) {
 	// 	CType *ct = ctype_get(cts, id);
-	// 	if (gcref(ct->name) == obj2gco(name) && ((tmask >> ctype_type(ct->info)) & 1)) {
+	// 	if (gcref(ct.name) == obj2gco(name) && ((tmask >> ctype_type(ct.info)) & 1)) {
 	// 		*ctp = ct;
 	// 		return id;
 	// 	}
-	// 	id = ct->next;
+	// 	id = ct.next;
 	// }
-	// *ctp = &cts->tab[0];  // Simplify caller logic. ctype_get() would assert.
+	// *ctp = &cts.tab[0];  // Simplify caller logic. ctype_get() would assert.
 	return 0
 }
 
@@ -757,127 +758,178 @@ func cp_decl_single(cp *CPState) {
 	}
 }
 
+func CTINFO(ct, flags CTInfo) CTInfo { return (ct << CTSHIFT_NUM) + flags }
+func CTALIGN(al int) CTSize          { return ((CTSize)(al) << CTSHIFT_ALIGN) }
+func CTATTRIB(at int) CTInfo         { return ((CTInfo)(at) << CTSHIFT_ATTRIB) }
+
 /*
+// Parse declaration attributes (and common qualifiers).
+func cp_decl_attributes(cp *CPState, decl *CPDecl) {
+    for {
+        switch cp.tok) {
+            case CTOK_CONST:
+                decl.attr |= CTF_CONST;
+                break;
+            case CTOK_VOLATILE:
+                decl.attr |= CTF_VOLATILE;
+                break;
+            case CTOK_RESTRICT:
+                break;  // Ignore.
+            case CTOK_EXTENSION:
+                break;  // Ignore.
+            case CTOK_ATTRIBUTE:
+                cp_decl_gccattribute(cp, decl);
+                continue;
+            case CTOK_ASM:
+                cp_decl_asm(cp, decl);
+                continue;
+            case CTOK_DECLSPEC:
+                cp_decl_msvcattribute(cp, decl);
+                continue;
+            case CTOK_CCDECL:
+				// #if LJ_TARGET_X86
+                // CTF_INSERT(decl.fattr, CCONV, cp.ct.size);
+                // decl.fattr |= CTFP_CCONV;
+				// #endif
+                break;
+            case CTOK_PTRSZ:
+                CTF_INSERT(decl.attr, MSIZEP, cp.ct.size);
+                break;
+            default:
+                return;
+        }
+        cp_next(cp);
+    }
+}
+*/
+
+var sizeofInt = reflect.TypeOf(0).Size()
+
 // Parse declaration specifiers.
-func cp_decl_spec(cp *CPState, decl *CPDecl, scl CPscl)  CPscl {
-    var cds = uint32(0), sz = uint32(0);
-    var  tdef = CTypeID(0)
+func cp_decl_spec(cp *CPState, decl *CPDecl, scl CPscl) CPscl {
+	var cds = CPscl(0)
+	var sz = CTSize(0)
+	var tdef = CTypeID(0)
 
-    decl.cp = cp;
-    decl.mode = cp.mode;
-    decl.name = NULL;
-    decl.redir = NULL;
-    decl.attr = 0;
-    decl.fattr = 0;
-    decl.pos = decl.top = 0;
-    decl.stack[0].next = 0;
+	decl.cp = cp
+	decl.mode = cp.mode
+	decl.name = ""
+	decl.redir = ""
+	decl.attr = 0
+	decl.fattr = 0
+	decl.pos = 0
+	decl.top = 0
+	decl.stack[0].next = 0
 
-    for {  // Parse basic types.
-        cp_decl_attributes(cp, decl);
-        if cp.tok >= CTOK_FIRSTDECL && cp.tok <= CTOK_LASTDECLFLAG {
-            var  cbit uint32;
-            if cp.ct.size {
-                if (sz) {
-					goto end_decl;
+	for { // Parse basic types.
+		cp_decl_attributes(cp, decl)
+		if cp.tok >= CTOK_FIRSTDECL && cp.tok <= CTOK_LASTDECLFLAG {
+			var cbit CPscl
+			if cp.ct.size != 0 {
+				if sz != 0 {
+					goto end_decl
 				}
-                sz = cp.ct.size;
-            }
-            cbit = 1 << (cp.tok - CTOK_FIRSTDECL);
-            cds = cds | cbit | ((cbit & cds & CDF_LONG) << 1);
-            if cp.tok >= CTOK_FIRSTSCL {
-                if (scl & cbit) == 0 {
+				sz = cp.ct.size
+			}
+			cbit = 1 << (cp.tok - CTOK_FIRSTDECL)
+			cds = cds | cbit | ((cbit & cds & CDF_LONG) << 1)
+			if cp.tok >= CTOK_FIRSTSCL {
+				if (scl & cbit) == 0 {
 					// cp_errmsg(cp, cp.tok, LJ_ERR_FFI_BADSCL);
 					panic(cp)
 				}
-            } else if tdef {
-                goto end_decl;
-            }
-            cp_next(cp);
-            continue;
-        }
-        if (sz || tdef || (cds & (CDF_SHORT | CDF_LONG | CDF_SIGNED | CDF_UNSIGNED | CDF_COMPLEX))) {
-            break;
+			} else if tdef != 0 {
+				goto end_decl
+			}
+			cp_next(cp)
+			continue
 		}
-        switch (cp.tok) {
-            case CTOK_STRUCT:
-                tdef = cp_decl_struct(cp, decl, CTINFO(CT_STRUCT, 0));
-                continue;
-            case CTOK_UNION:
-                tdef = cp_decl_struct(cp, decl, CTINFO(CT_STRUCT, CTF_UNION));
-                continue;
-            case CTOK_ENUM:
-                tdef = cp_decl_enum(cp, decl);
-                continue;
-            case CTOK_IDENT:
-                if (ctype_istypedef(cp.ct.info)) {
-                    tdef = ctype_cid(cp.ct.info);  // Get typedef.
-                    cp_next(cp);
-                    continue;
-                }
-                break;
-            case '$':
-                tdef = cp.val.id;
-                cp_next(cp);
-                continue;
-            default:
-                break;
-        }
-        break;
-    }
-    end_decl:
+		if sz != 0 || tdef != 0 || (cds&(CDF_SHORT|CDF_LONG|CDF_SIGNED|CDF_UNSIGNED|CDF_COMPLEX)) != 0 {
+			break
+		}
+		switch cp.tok {
+		case CTOK_STRUCT:
+			tdef = cp_decl_struct(cp, decl, CTINFO(CT_STRUCT, 0))
+			continue
+		case CTOK_UNION:
+			tdef = cp_decl_struct(cp, decl, CTINFO(CT_STRUCT, CTF_UNION))
+			continue
+		case CTOK_ENUM:
+			tdef = cp_decl_enum(cp, decl)
+			continue
+		case CTOK_IDENT:
+			if ctype_istypedef(cp.ct.info) {
+				tdef = ctype_cid(cp.ct.info) // Get typedef.
+				cp_next(cp)
+				continue
+			}
+			break
+		case '$':
+			tdef = cp.val.id
+			cp_next(cp)
+			continue
+		default:
+			break
+		}
+		break
+	}
+end_decl:
 
-    if ((cds & CDF_COMPLEX)) {  // Use predefined complex types.
-        tdef = sz == 4 ? CTID_COMPLEX_FLOAT : CTID_COMPLEX_DOUBLE;
+	if (cds & CDF_COMPLEX) != 0 { // Use predefined complex types.
+		tdef = CTypeID(bt.Choose(sz == 4, CTID_COMPLEX_FLOAT, CTID_COMPLEX_DOUBLE))
 	}
 
-    if (tdef) {
-        cp_push_type(decl, tdef);
-    } else if ((cds & CDF_VOID)) {
-        cp_push(decl, CTINFO(CT_VOID, (decl.attr & CTF_QUAL)), CTSIZE_INVALID);
-        decl.attr &= ~CTF_QUAL;
-    } else {
-        // Determine type info and size.
-        CTInfo info = CTINFO(CT_NUM, (cds & CDF_UNSIGNED) ? CTF_UNSIGNED : 0);
-        if ((cds & CDF_BOOL)) {
-            if ((cds & ~(CDF_SCL | CDF_BOOL | CDF_INT | CDF_SIGNED | CDF_UNSIGNED))) {
-                cp_errmsg(cp, 0, LJ_ERR_FFI_INVTYPE);
+	if tdef != 0 {
+		cp_push_type(decl, tdef)
+	} else if (cds & CDF_VOID) != 0 {
+		cp_push(decl, CTINFO(CT_VOID, (decl.attr&CTF_QUAL)), CTSIZE_INVALID)
+		decl.attr &= ^CTF_QUAL
+	} else {
+		// Determine type info and size.
+		var info = CTINFO(CT_NUM, bt.Choose(cds&CDF_UNSIGNED != 0, CTF_UNSIGNED, 0))
+		if (cds & CDF_BOOL) != 0 {
+			if (cds & ^(CDF_SCL | CDF_BOOL | CDF_INT | CDF_SIGNED | CDF_UNSIGNED)) != 0 {
+				//cp_errmsg(cp, 0, LJ_ERR_FFI_INVTYPE)
+				panic(cp)
 			}
-            info |= CTF_BOOL;
-            if (!(cds & CDF_SIGNED)) info |= CTF_UNSIGNED;
-            if (!sz) {
-                sz = 1;
-            }
-        } else if ((cds & CDF_FP)) {
-            info = CTINFO(CT_NUM, CTF_FP);
-            if ((cds & CDF_LONG)) {
-				sz = sizeof(long double);
+			info |= CTF_BOOL
+			if (cds & CDF_SIGNED) == 0 {
+				info |= CTF_UNSIGNED
 			}
-        } else if ((cds & CDF_CHAR)) {
-            if ((cds & (CDF_CHAR | CDF_SIGNED | CDF_UNSIGNED)) == CDF_CHAR) {
-                info |= CTF_UCHAR;  // Handle platforms where char is unsigned.
+			if sz == 0 {
+				sz = 1
 			}
-        } else if ((cds & CDF_SHORT)) {
-            sz = sizeof(short);
-        } else if ((cds & CDF_LONGLONG)) {
-            sz = 8;
-        } else if ((cds & CDF_LONG)) {
-            info |= CTF_LONG;
-            sz = sizeof(long);
-        } else if (!sz) {
-            if (!(cds & (CDF_SIGNED | CDF_UNSIGNED))) {
-                cp_errmsg(cp, cp.tok, LJ_ERR_FFI_DECLSPEC);
+		} else if (cds & CDF_FP) != 0 {
+			info = CTINFO(CT_NUM, CTF_FP)
+			if (cds & CDF_LONG) != 0 {
+				sz = 8 // sizeof(long double)
 			}
-            sz = sizeof(int);
-        }
-        lj_assertCP(sz != 0, "basic ctype with zero size");
-        info += CTALIGN(lj_fls(sz));  // Use natural alignment.
-        info += (decl.attr & CTF_QUAL);  // Merge qualifiers.
-        cp_push(decl, info, sz);
-        decl.attr &= ~CTF_QUAL;
-    }
-    decl.specpos = decl.pos;
-    decl.specattr = decl.attr;
-    decl.specfattr = decl.fattr;
-    return (cds & CDF_SCL);  // Return storage class.
+		} else if (cds & CDF_CHAR) != 0 {
+			if (cds & (CDF_CHAR | CDF_SIGNED | CDF_UNSIGNED)) == CDF_CHAR {
+				info |= CTF_UCHAR // Handle platforms where char is unsigned.
+			}
+		} else if (cds & CDF_SHORT) != 0 {
+			sz = 2 // sizeof(short)
+		} else if (cds & CDF_LONGLONG) != 0 {
+			sz = 8
+		} else if (cds & CDF_LONG) != 0 {
+			info |= CTF_LONG
+			sz = 4 // sizeof(long)
+		} else if sz == 0 {
+			if (cds & (CDF_SIGNED | CDF_UNSIGNED)) == 0 {
+				//cp_errmsg(cp, cp.tok, LJ_ERR_FFI_DECLSPEC)
+				panic(cp)
+			}
+			sz = CTSize(sizeofInt) // sizeof(int)
+		}
+		lj_assertCP(sz != 0, "basic ctype with zero size")
+		info += CTALIGN(lj_fls(sz))  // Use natural alignment.
+		info += decl.attr & CTF_QUAL // Merge qualifiers.
+		cp_push(decl, info, sz)
+		decl.attr &= ~CTF_QUAL
+	}
+	decl.specpos = decl.pos
+	decl.specattr = decl.attr
+	decl.specfattr = decl.fattr
+	return cds & CDF_SCL // Return storage class.
 }
-*/
