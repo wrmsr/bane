@@ -1568,12 +1568,12 @@ func cp_expr_postfix(cp *CPState, k *CPValue) {
 				panic(cp)
 			}
 			ct = fct
-			k.i32 = ctype_isconstval(ct.info) ? ct.size: 0
+			k.i32 = bt.Choose(ctype_isconstval(ct.info), int32(ct.size), 0)
 			cp_next(cp)
 		} else {
 			return
 		}
-		k.id = ctype_cid(ct.info)
+		k.id = CTypeID(ctype_cid(ct.info))
 	}
 }
 
@@ -1674,7 +1674,7 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 				if k.id == CTID_INT32 && k2.id == CTID_INT32 {
 					k.i32 = bi32(k.i32 < k2.i32)
 				} else {
-					k.i32 = bi32(uint32(k.u32) < uint32(k2.u32))
+					k.i32 = bi32(uint32(k.i32) < uint32(k2.i32))
 				}
 				k.id = CTID_INT32
 				continue
