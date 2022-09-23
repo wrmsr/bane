@@ -74,8 +74,8 @@ const CTFP_PACKED = 0x00000002  // cp->attr
 const CTFP_CCONV = 0x00000001 // cp->fattr + CCONV/[SSE]REGPARM
 
 // C type info bitfields.
-const CTMASK_CID = 0x0000ffff // Max. 65536 type IDs.
-const CTMASK_NUM = 0xf0000000 // Max. 16 type numbers.
+const CTMASK_CID CTInfo = 0x0000ffff // Max. 65536 type IDs.
+const CTMASK_NUM = 0xf0000000        // Max. 16 type numbers.
 const CTSHIFT_NUM = 28
 const CTMASK_ALIGN = 15 // Max. alignment is 2^15.
 const CTSHIFT_ALIGN = 16

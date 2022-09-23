@@ -816,7 +816,7 @@ func ctype_hassize(info CTInfo) bool    { return ctype_type(info) <= CT_HASSIZE 
 // 	(((info) & (CTMASK_NUM|CTF_BOOL|CTF_FP)) == CTINFO(CT_NUM, 0))
 
 func ctype_isinteger_or_bool(info CTInfo) bool {
-	return ((info) & (CTMASK_NUM | CTF_FP)) == CTINFO(CT_NUM, 0)
+	return (info & (CTMASK_NUM | CTF_FP)) == CTINFO(CT_NUM, 0)
 }
 
 // #define ctype_isbool(info) \
@@ -827,8 +827,10 @@ func ctype_isinteger_or_bool(info CTInfo) bool {
 // #define ctype_ispointer(info) // Pointer or array.
 // 	((ctype_type(info) >> 1) == (CT_PTR >> 1))  #define ctype_isref(info)  (((info) & (CTMASK_NUM|CTF_REF)) == CTINFO(CT_PTR, CTF_REF))
 
-// #define ctype_isrefarray(info) \
-// 	(((info) & (CTMASK_NUM|CTF_VECTOR|CTF_COMPLEX)) == CTINFO(CT_ARRAY, 0))
+func ctype_isrefarray(info CTInfo) bool {
+	return (info & (CTMASK_NUM | CTF_VECTOR | CTF_COMPLEX)) == CTINFO(CT_ARRAY, 0)
+}
+
 // #define ctype_isvector(info) \
 // 	(((info) & (CTMASK_NUM|CTF_VECTOR)) == CTINFO(CT_ARRAY, CTF_VECTOR))
 // #define ctype_iscomplex(info) \
@@ -1064,6 +1066,109 @@ func cp_istypedecl(cp *CPState) bool {
 		return true
 	}
 	return false
+}
+
+/*
+// Intern a type element.
+func lj_ctype_intern(cts *CTState, info CTInfo, size CTSize ) CTypeID {
+    var h = uint32(ct_hashtype(info, size))
+    CTypeID id = cts.hash[h];
+    //lj_assertCTS(cts.L, "uninitialized cts.L");
+    for id != 0 {
+        CType *ct = ctype_get(cts, id);
+        if (ct.info == info && ct.size == size)
+            return id;
+        id = ct.next;
+    }
+    id = cts.top;
+    if id >= cts.sizetab {
+        if (id >= CTID_MAX) lj_err_msg(cts.L, LJ_ERR_TABOV);
+        lj_mem_growvec(cts.L, cts.tab, cts.sizetab, CTID_MAX, CType);
+    }
+    cts.top = id + 1;
+    cts.tab[id].info = info;
+    cts.tab[id].size = size;
+    cts.tab[id].sib = 0;
+    cts.tab[id].next = cts.hash[h];
+    setgcrefnull(cts.tab[id].name);
+    cts.hash[h] = (CTypeID1) id;
+    return id;
+}
+*/
+
+// Parse function declaration.
+func cp_decl_func(cp *CPState, fdecl *CPDecl) {
+	var nargs CTSize = 0
+	var info CTInfo = CTINFO(CT_FUNC, 0)
+	var lastid CTypeID = 0
+	var anchor CTypeID = 0
+	if cp.tok != ')' {
+		for {
+			var decl CPDecl
+			var ctypeid CTypeID
+			var fieldid CTypeID
+			var ct *CType
+			if cp_opt(cp, '.') { // Vararg function.
+				cp_check(cp, '.') // Workaround for the minimalistic lexer.
+				cp_check(cp, '.')
+				info |= CTF_VARARG
+				break
+			}
+			cp_decl_spec(cp, &decl, CDF_REGISTER)
+			decl.mode = CPARSE_MODE_DIRECT | CPARSE_MODE_ABSTRACT
+			cp_declarator(cp, &decl)
+			ctypeid = cp_decl_intern(cp, &decl)
+			ct = ctype_raw(cp.cts, ctypeid)
+			if ctype_isvoid(ct.info) {
+				break
+			} else if ctype_isrefarray(ct.info) {
+				ctypeid = lj_ctype_intern(cp.cts, CTINFO(CT_PTR, CTALIGN_PTR|ctype_cid(ct.info)), CTSIZE_PTR)
+			} else if ctype_isfunc(ct.info) {
+				ctypeid = lj_ctype_intern(cp.cts, CTINFO(CT_PTR, CTInfo(CTALIGN_PTR|ctypeid)), CTSIZE_PTR)
+			}
+			// Add new parameter.
+			fieldid = lj_ctype_new(cp.cts, &ct)
+			if anchor != 0 {
+				ctype_get(cp.cts, lastid).sib = CTypeID1(fieldid)
+			} else {
+				anchor = fieldid
+			}
+			lastid = fieldid
+			if decl.name != "" {
+				ctype_setname(ct, decl.name)
+			}
+			ct.info = CTINFO(CT_FIELD, CTInfo(ctypeid))
+			ct.size = nargs
+			nargs++
+			if !cp_opt(cp, ',') {
+				break
+			}
+		}
+	}
+	cp_check(cp, ')')
+	if cp_opt(cp, '{') { // Skip function definition.
+		var level = 1
+		cp.mode |= CPARSE_MODE_SKIP
+		for {
+			if cp.tok == '{' {
+				level++
+			} else {
+				level--
+				if cp.tok == '}' && level == 0 {
+					break
+				} else if cp.tok == CTOK_EOF {
+					//cp_err_token(cp, '}');
+					panic(cp)
+				}
+			}
+			cp_next(cp)
+		}
+		cp.mode &= ^CPARSE_MODE_SKIP
+		cp.tok = ';' // Ok for cp_decl_multi(), error in cp_decl_single().
+	}
+	info |= fdecl.fattr & ^CTMASK_CID
+	fdecl.fattr = 0
+	fdecl.stack[cp_add(fdecl, info, nargs)].sib = CTypeID1(anchor)
 }
 
 // Parse declarator.
