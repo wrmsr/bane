@@ -452,7 +452,7 @@ func cp_number(cp *CPState) CPToken {
 	//     //cp_errmsg(cp, CTOK_INTEGER, LJ_ERR_XNUMBER);
 	// 	panic(cp)
 	// }
-	// cp.val.u32 = (uint32_t) o.i;
+	// cp.val.i32 = (uint32_t) o.i;
 	// return CTOK_INTEGER;
 	panic("nyi")
 }
@@ -1409,76 +1409,88 @@ func cp_expr_sizeof(cp *CPState, k *CPValue, wantsz int) {
 	k.id = CTID_UINT32 // Really size_t.
 }
 
-/*
 // Parse prefix operators.
-static void cp_expr_prefix(cp *CPState, CPValue *k) {
-    if (cp.tok == CTOK_INTEGER) {
-        *k = cp.val;
-        cp_next(cp);
-    } else if (cp_opt(cp, '+')) {
-        cp_expr_unary(cp, k);  // Nothing to do (well, integer promotion).
-    } else if (cp_opt(cp, '-')) {
-        cp_expr_unary(cp, k);
-        k.i32 = -k.i32;
-    } else if (cp_opt(cp, '~')) {
-        cp_expr_unary(cp, k);
-        k.i32 = ~k.i32;
-    } else if (cp_opt(cp, '!')) {
-        cp_expr_unary(cp, k);
-        k.i32 = !k.i32;
-        k.id = CTID_INT32;
-    } else if (cp_opt(cp, '(')) {
-        if (cp_istypedecl(cp)) {  // Cast operator.
-            CTypeID id = cp_decl_abstract(cp);
-            cp_check(cp, ')');
-            cp_expr_unary(cp, k);
-            k.id = id;  // No conversion performed.
-        } else {  // Sub-expression.
-            cp_expr_comma(cp, k);
-            cp_check(cp, ')');
-        }
-    } else if (cp_opt(cp, '*')) {  // Indirection.
-        CType *ct;
-        cp_expr_unary(cp, k);
-        ct = lj_ctype_rawref(cp.cts, k.id);
-        if (!ctype_ispointer(ct.info))
-            cp_err_badidx(cp, ct);
-        k.u32 = 0;
-        k.id = ctype_cid(ct.info);
-    } else if (cp_opt(cp, '&')) {  // Address operator.
-        cp_expr_unary(cp, k);
-        k.id = lj_ctype_intern(cp.cts, CTINFO(CT_PTR, CTALIGN_PTR + k.id),
-                                CTSIZE_PTR);
-    } else if (cp_opt(cp, CTOK_SIZEOF)) {
-        cp_expr_sizeof(cp, k, 1);
-    } else if (cp_opt(cp, CTOK_ALIGNOF)) {
-        cp_expr_sizeof(cp, k, 0);
-    } else if (cp.tok == CTOK_IDENT) {
-        if (ctype_type(cp.ct.info) == CT_CONSTVAL) {
-            k.u32 = cp.ct.size;
-            k.id = ctype_cid(cp.ct.info);
-        } else if (ctype_type(cp.ct.info) == CT_EXTERN) {
-            k.u32 = cp.val.id;
-            k.id = ctype_cid(cp.ct.info);
-        } else if (ctype_type(cp.ct.info) == CT_FUNC) {
-            k.u32 = cp.val.id;
-            k.id = cp.val.id;
-        } else {
-            goto err_expr;
-        }
-        cp_next(cp);
-    } else if (cp.tok == CTOK_STRING) {
-        CTSize sz = cp.str.len;
-        while (cp_next(cp) == CTOK_STRING)
-            sz += cp.str.len;
-        k.u32 = sz + 1;
-        k.id = CTID_A_CCHAR;
-    } else {
-        err_expr:
-        cp_errmsg(cp, cp.tok, LJ_ERR_XSYMBOL);
-    }
+func cp_expr_prefix(cp *CPState, k *CPValue) {
+	if cp.tok == CTOK_INTEGER {
+		*k = cp.val
+		cp_next(cp)
+	} else if cp_opt(cp, '+') {
+		cp_expr_unary(cp, k) // Nothing to do (well, integer promotion).
+	} else if cp_opt(cp, '-') {
+		cp_expr_unary(cp, k)
+		k.i32 = -k.i32
+	} else if cp_opt(cp, '~') {
+		cp_expr_unary(cp, k)
+		k.i32 = ^k.i32
+	} else if cp_opt(cp, '!') {
+		cp_expr_unary(cp, k)
+		k.i32 = bt.Choose[int32](k.i32 != 0, 0, 1)
+		k.id = CTID_INT32
+	} else if cp_opt(cp, '(') {
+		if cp_istypedecl(cp) { // Cast operator.
+			var id CTypeID = cp_decl_abstract(cp)
+			cp_check(cp, ')')
+			cp_expr_unary(cp, k)
+			k.id = id // No conversion performed.
+		} else { // Sub-expression.
+			cp_expr_comma(cp, k)
+			cp_check(cp, ')')
+		}
+	} else if cp_opt(cp, '*') { // Indirection.
+		var ct *CType
+		cp_expr_unary(cp, k)
+		ct = lj_ctype_rawref(cp.cts, k.id)
+		if !ctype_ispointer(ct.info) {
+			//cp_err_badidx(cp, ct)
+			panic(cp)
+		}
+		k.i32 = 0
+		k.id = CTypeID(ctype_cid(ct.info))
+	} else if cp_opt(cp, '&') { // Address operator.
+		cp_expr_unary(cp, k)
+		k.id = lj_ctype_intern(cp.cts, CTINFO(CT_PTR, CTInfo(CTALIGN_PTR+k.id)), CTSIZE_PTR)
+	} else if cp_opt(cp, CTOK_SIZEOF) {
+		cp_expr_sizeof(cp, k, 1)
+	} else if cp_opt(cp, CTOK_ALIGNOF) {
+		cp_expr_sizeof(cp, k, 0)
+	} else if cp.tok == CTOK_IDENT {
+		if ctype_type(cp.ct.info) == CT_CONSTVAL {
+			k.i32 = int32(cp.ct.size)
+			k.id = CTypeID(ctype_cid(cp.ct.info))
+		} else if ctype_type(cp.ct.info) == CT_EXTERN {
+			k.i32 = int32(cp.val.id)
+			k.id = CTypeID(ctype_cid(cp.ct.info))
+		} else if ctype_type(cp.ct.info) == CT_FUNC {
+			k.i32 = int32(cp.val.id)
+			k.id = cp.val.id
+		} else {
+			//goto err_expr
+			panic(cp)
+		}
+		cp_next(cp)
+	} else if cp.tok == CTOK_STRING {
+		var sz CTSize = CTSize(len(cp.str))
+		for cp_next(cp) == CTOK_STRING {
+			sz += CTSize(len(cp.str))
+		}
+		k.i32 = int32(sz) + 1
+		k.id = CTID_A_CCHAR
+	} else {
+		//cp_errmsg(cp, cp.tok, LJ_ERR_XSYMBOL);
+		panic(cp)
+	}
 }
 
+// Follow references and get raw type for a C type ID.
+func lj_ctype_rawref(cts *CTState, id CTypeID) *CType {
+	var ct *CType = ctype_get(cts, id)
+	for ctype_isattrib(ct.info) || ctype_isref(ct.info) {
+		ct = ctype_child(cts, ct)
+	}
+	return ct
+}
+
+/*
 // Parse postfix operators.
 static void cp_expr_postfix(cp *CPState, CPValue *k) {
     for (;;) {
