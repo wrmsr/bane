@@ -767,6 +767,17 @@ type CPDecl struct {
 	stack     [CPARSE_MAX_DECLSTACK]CType // Type declaration stack.
 }
 
+// Get raw type of the child of a C type.
+func ctype_rawchild(cts *CTState, ct *CType) *CType {
+	for {
+		ct = ctype_child(cts, ct)
+		if !(ctype_isattrib(ct.info)) {
+			break
+		}
+	}
+	return ct
+}
+
 // Parse a single C type declaration.
 func cp_decl_single(cp *CPState) {
 	var decl CPDecl
@@ -777,6 +788,154 @@ func cp_decl_single(cp *CPState) {
 		//cp_err_token(cp, CTOK_EOF)
 		panic(cp)
 	}
+}
+
+// Handle pragmas.
+func cp_pragma(cp *CPState, pragmaline int) {
+	cp_next(cp)
+	if cp.tok == CTOK_IDENT && cp.str == "pack" {
+		cp_next(cp)
+		cp_check(cp, '(')
+		if cp.tok == CTOK_IDENT {
+			if cp.str == "push" {
+				if cp.curpack < CPARSE_MAX_PACKSTACK {
+					cp.packstack[cp.curpack+1] = cp.packstack[cp.curpack]
+					cp.curpack++
+				}
+			} else if cp.str == "pop" {
+				if cp.curpack > 0 {
+					cp.curpack--
+				}
+			} else {
+				//cp_errmsg(cp, cp.tok, LJ_ERR_XSYMBOL);
+				panic(cp)
+			}
+			cp_next(cp)
+			if !cp_opt(cp, ',') {
+				goto end_pack
+			}
+		}
+		if cp.tok == CTOK_INTEGER {
+			cp.packstack[cp.curpack] = bt.Choose(cp.val.i32 != 0, uint8(lj_fls(uint32(cp.val.i32))), 0)
+			cp_next(cp)
+		} else {
+			cp.packstack[cp.curpack] = 255
+		}
+	end_pack:
+		cp_check(cp, ')')
+	} else { // Ignore all other pragmas.
+		for {
+			cp_next(cp)
+			if !(cp.tok != CTOK_EOF && cp.linenumber == pragmaline) {
+				break
+			}
+		}
+	}
+}
+
+// Parse multiple C declarations of types or extern identifiers.
+func cp_decl_multi(cp *CPState) {
+	var first = true
+	for cp.tok != CTOK_EOF {
+		var decl CPDecl
+		var scl CPscl
+		if cp_opt(cp, ';') { // Skip empty statements.
+			first = false
+			continue
+		}
+		if cp.tok == '#' { // Workaround, since we have no preprocessor, yet.
+			var hashline int = cp.linenumber
+			var tok CPToken = cp_next(cp)
+			if tok == CTOK_INTEGER {
+				cp_line(cp, hashline)
+				continue
+			} else if tok == CTOK_IDENT && cp.str == "line" {
+				if cp_next(cp) != CTOK_INTEGER {
+					//cp_err_token(cp, tok)
+					panic(cp)
+				}
+				cp_line(cp, hashline)
+				continue
+			} else if tok == CTOK_IDENT && cp.str == "pragma" {
+				cp_pragma(cp, hashline)
+				continue
+			} else {
+				//cp_errmsg(cp, cp.tok, LJ_ERR_XSYMBOL);
+				panic(cp)
+			}
+		}
+		scl = cp_decl_spec(cp, &decl, CDF_TYPEDEF|CDF_EXTERN|CDF_STATIC)
+		if (cp.tok == ';' || cp.tok == CTOK_EOF) &&
+			ctype_istypedef(decl.stack[0].info) {
+			var info CTInfo = ctype_rawchild(cp.cts, &decl.stack[0]).info
+			if ctype_isstruct(info) || ctype_isenum(info) {
+				//goto decl_end;  // Accept empty declaration of struct/union/enum.
+				if cp.tok == CTOK_EOF && first {
+					break
+				} // May omit ';' for 1 decl.
+				first = false
+				cp_check(cp, ';')
+			}
+			continue
+		}
+		for {
+			var ctypeid CTypeID
+			cp_declarator(cp, &decl)
+			ctypeid = cp_decl_intern(cp, &decl)
+			if decl.name != "" && decl.nameid == 0 { // NYI: redeclarations are ignored.
+				var ct *CType
+				var id CTypeID
+				if (scl & CDF_TYPEDEF) != 0 { // Create new typedef.
+					id = lj_ctype_new(cp.cts, &ct)
+					ct.info = CTINFO(CT_TYPEDEF, CTInfo(ctypeid))
+					goto noredir
+				} else if ctype_isfunc(ctype_get(cp.cts, ctypeid).info) {
+					// Treat both static and extern function declarations as extern.
+					ct = ctype_get(cp.cts, ctypeid)
+					// We always get new anonymous functions (typedefs are copied).
+					//lj_assertCP(gcref(ct.name) == NULL, "unexpected named function");
+					id = ctypeid // Just name it.
+				} else if (scl & CDF_STATIC) != 0 { // Accept static constants.
+					id = cp_decl_constinit(cp, &ct, ctypeid)
+					goto noredir
+				} else { // External references have extern or no storage class.
+					id = lj_ctype_new(cp.cts, &ct)
+					ct.info = CTINFO(CT_EXTERN, CTInfo(ctypeid))
+				}
+				if decl.redir != "" { // Add attribute for redirected symbol name.
+					var cta *CType
+					var aid CTypeID = lj_ctype_new(cp.cts, &cta)
+					ct = ctype_get(cp.cts, id) // Table may have been reallocated.
+					cta.info = CTINFO(CT_ATTRIB, CTATTRIB(CTA_REDIR))
+					cta.sib = ct.sib
+					ct.sib = CTypeID1(aid)
+					ctype_setname(cta, decl.redir)
+				}
+			noredir:
+				ctype_setname(ct, decl.name)
+				lj_ctype_addname(cp.cts, ct, id)
+			}
+			if !cp_opt(cp, ',') {
+				break
+			}
+			cp_decl_reset(&decl)
+		}
+		if cp.tok == CTOK_EOF && first {
+			break
+		} // May omit ';' for 1 decl.
+		first = false
+		cp_check(cp, ';')
+	}
+}
+
+// Handle line number.
+func cp_line(cp *CPState, hashline int) {
+	newline := cp.val.i32
+	// TODO: Handle file name and include it in error messages.
+	for cp.tok != CTOK_EOF && cp.linenumber == hashline {
+		cp_next(cp)
+	}
+	cp.linenumber = int(newline)
 }
 
 func CTINFO(ct, flags CTInfo) CTInfo { return (ct << CTSHIFT_NUM) + flags }

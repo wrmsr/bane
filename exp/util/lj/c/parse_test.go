@@ -10,4 +10,5 @@ func TestParse(t *testing.T) {
 	}
 
 	cp_init(&cp)
+	cp_decl_single(&cp)
 }
