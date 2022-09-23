@@ -47,7 +47,7 @@ type CPState struct {
 	i   []rune          // Input buffer
 	sb  strings.Builder // String buffer for tokens.
 	//lua_State *L;  // Lua state.
-	//CTState *cts;  // C type state.
+	cts *CTState // C type state.
 	//TValue *param; // C type parameters.
 	srcname    string                      // Current source name.
 	linenumber int                         // Input line counter.
@@ -760,8 +760,36 @@ func cp_decl_single(cp *CPState) {
 }
 
 func CTINFO(ct, flags CTInfo) CTInfo { return (ct << CTSHIFT_NUM) + flags }
-func CTALIGN(al int) CTSize          { return ((CTSize)(al) << CTSHIFT_ALIGN) }
-func CTATTRIB(at int) CTInfo         { return ((CTInfo)(at) << CTSHIFT_ATTRIB) }
+func CTALIGN(al int) CTSize          { return CTSize(al) << CTSHIFT_ALIGN }
+func CTATTRIB(at int) CTInfo         { return CTInfo(at) << CTSHIFT_ATTRIB }
+
+func ctype_type(info CTInfo) CTInfo { return info >> CTSHIFT_NUM }
+
+func ctype_cid(info CTInfo) CTInfo    { return info & CTMASK_CID }
+func ctype_align(info CTInfo) CTInfo  { return (info >> CTSHIFT_ALIGN) & CTMASK_ALIGN }
+func ctype_attrib(info CTInfo) CTInfo { return (info >> CTSHIFT_ATTRIB) & CTMASK_ATTRIB }
+func ctype_bitpos(info CTInfo) CTInfo { return (info >> CTSHIFT_BITPOS) & CTMASK_BITPOS }
+func ctype_bitbsz(info CTInfo) CTInfo { return (info >> CTSHIFT_BITBSZ) & CTMASK_BITBSZ }
+func ctype_bitcsz(info CTInfo) CTInfo { return (info >> CTSHIFT_BITCSZ) & CTMASK_BITCSZ }
+func ctype_vsizeP(info CTInfo) CTInfo { return (info >> CTSHIFT_VSIZEP) & CTMASK_VSIZEP }
+func ctype_msizeP(info CTInfo) CTInfo { return (info >> CTSHIFT_MSIZEP) & CTMASK_MSIZEP }
+func ctype_cconv(info CTInfo) CTInfo  { return (info >> CTSHIFT_CCONV) & CTMASK_CCONV }
+
+// Simple type checks.
+func ctype_isnum(info CTInfo) bool      { return ctype_type(info) == CT_NUM }
+func ctype_isvoid(info CTInfo) bool     { return ctype_type(info) == CT_VOID }
+func ctype_isptr(info CTInfo) bool      { return ctype_type(info) == CT_PTR }
+func ctype_isarray(info CTInfo) bool    { return ctype_type(info) == CT_ARRAY }
+func ctype_isstruct(info CTInfo) bool   { return ctype_type(info) == CT_STRUCT }
+func ctype_isfunc(info CTInfo) bool     { return ctype_type(info) == CT_FUNC }
+func ctype_isenum(info CTInfo) bool     { return ctype_type(info) == CT_ENUM }
+func ctype_istypedef(info CTInfo) bool  { return ctype_type(info) == CT_TYPEDEF }
+func ctype_isattrib(info CTInfo) bool   { return ctype_type(info) == CT_ATTRIB }
+func ctype_isfield(info CTInfo) bool    { return ctype_type(info) == CT_FIELD }
+func ctype_isbitfield(info CTInfo) bool { return ctype_type(info) == CT_BITFIELD }
+func ctype_isconstval(info CTInfo) bool { return ctype_type(info) == CT_CONSTVAL }
+func ctype_isextern(info CTInfo) bool   { return ctype_type(info) == CT_EXTERN }
+func ctype_hassize(info CTInfo) bool    { return ctype_type(info) <= CT_HASSIZE }
 
 // #define CTF_INSERT(info, field, val) \
 // info = (info & ~(CTMASK_##field<<CTSHIFT_##field)) | (((CTSize)(val) & CTMASK_##field) << CTSHIFT_##field)
@@ -815,6 +843,59 @@ var sizeofInt = reflect.TypeOf(0).Size()
 
 func lj_fls(x uint32) int {
 	return bits.LeadingZeros32(x) ^ 31
+}
+
+// Check C type ID for validity when assertions are enabled.
+func ctype_check(cts *CTState, id CTypeID) CTypeID {
+	//lj_assertCTS(id > 0 && id < cts->top, "bad CTID %d", id);
+	return id
+}
+
+// Get C type for C type ID.
+func ctype_get(cts *CTState, id CTypeID) *CType {
+	return &cts.tab[ctype_check(cts, id)]
+}
+
+// Push unrolled type to declaration stack and merge qualifiers.
+func cp_push_type(decl *CPDecl, id CTypeID) {
+	var ct *CType = ctype_get(decl.cp.cts, id)
+	var info = ct.info
+	var size = ct.size
+	switch ctype_type(info) {
+	case CT_STRUCT, CT_ENUM:
+		cp_push(decl, CTINFO(CT_TYPEDEF, id), 0) // Don't copy unique types.
+		if (decl.attr & CTF_QUAL) != 0 {         // Push unmerged qualifiers.
+			cp_push(decl, CTINFO(CT_ATTRIB, CTATTRIB(CTA_QUAL)), CTSize(decl.attr&CTF_QUAL))
+			decl.attr &= ^CTF_QUAL
+		}
+		break
+	case CT_ATTRIB:
+		if ctype_isxattrib(info, CTA_QUAL) != 0 {
+			decl.attr &= CTInfo(^size) // Remove redundant qualifiers.
+		}
+		cp_push_type(decl, ctype_cid(info))   // Unroll.
+		cp_push(decl, info&^CTMASK_CID, size) // Copy type.
+		break
+	case CT_ARRAY:
+		if (ct.info & (CTF_VECTOR | CTF_COMPLEX)) != 0 {
+			info |= decl.attr & CTF_QUAL
+			decl.attr &= ^CTF_QUAL
+		}
+		cp_push_type(decl, ctype_cid(info))   // Unroll.
+		cp_push(decl, info&^CTMASK_CID, size) // Copy type.
+		decl.stack[decl.pos].sib = 1          // Mark as already checked and sized.
+		// Note: this is not copied to the ct.sib in the C type table.
+		break
+	case CT_FUNC:
+		// Copy type, link parameters (shared).
+		decl.stack[cp_push(decl, info, size)].sib = ct.sib
+		break
+	default:
+		// Copy type, merge common qualifiers.
+		cp_push(decl, info|(decl.attr&CTF_QUAL), size)
+		decl.attr &= ^CTF_QUAL
+		break
+	}
 }
 
 // Add declaration element behind the insertion position.

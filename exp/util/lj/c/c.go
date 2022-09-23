@@ -3,23 +3,24 @@ package c
 // C type numbers. Highest 4 bits of C type info. ORDER CT.
 const (
 	// Externally visible types.
-	CT_NUM        = iota // Integer or floating-point numbers.
-	CT_STRUCT            // Struct or union.
-	CT_PTR               // Pointer or reference.
-	CT_ARRAY             // Array or complex type.
-	CT_MAYCONVERT = CT_ARRAY
-	CT_VOID                 // Void type.
-	CT_ENUM                 // Enumeration.
-	CT_HASSIZE    = CT_ENUM // Last type where ct->size holds the actual size.
-	CT_FUNC                 // Function.
-	CT_TYPEDEF              // Typedef.
-	CT_ATTRIB               // Miscellaneous attributes.
+	CT_NUM     = iota // Integer or floating-point numbers.
+	CT_STRUCT         // Struct or union.
+	CT_PTR            // Pointer or reference.
+	CT_ARRAY          // Array or complex type.
+	CT_VOID           // Void type.
+	CT_ENUM           // Enumeration.
+	CT_FUNC           // Function.
+	CT_TYPEDEF        // Typedef.
+	CT_ATTRIB         // Miscellaneous attributes.
 	// Internal element types.
 	CT_FIELD    // Struct/union field or function parameter.
 	CT_BITFIELD // Struct/union bitfield.
 	CT_CONSTVAL // Constant value.
 	CT_EXTERN   // External reference.
 	CT_KW       // Keyword.
+
+	CT_MAYCONVERT = CT_ARRAY
+	CT_HASSIZE    = CT_ENUM // Last type where ct->size holds the actual size.
 )
 
 /*
@@ -45,22 +46,24 @@ const (
 */
 
 // C type info flags.     TFFArrrr
-const CTF_BOOL CTInfo = 0x08000000       // Boolean: NUM, BITFIELD.
-const CTF_FP CTInfo = 0x04000000         // Floating-point: NUM.
-const CTF_CONST CTInfo = 0x02000000      // Const qualifier.
-const CTF_VOLATILE CTInfo = 0x01000000   // Volatile qualifier.
-const CTF_UNSIGNED CTInfo = 0x00800000   // Unsigned: NUM, BITFIELD.
-const CTF_LONG CTInfo = 0x00400000       // Long: NUM.
-const CTF_VLA CTInfo = 0x00100000        // Variable-length: ARRAY, STRUCT.
-const CTF_REF CTInfo = 0x00800000        // Reference: PTR.
-const CTF_VECTOR CTInfo = 0x08000000     // Vector: ARRAY.
-const CTF_COMPLEX CTInfo = 0x04000000    // Complex: ARRAY.
-const CTF_UNION CTInfo = 0x00800000      // Union: STRUCT.
-const CTF_VARARG CTInfo = 0x00800000     // Vararg: FUNC.
-const CTF_SSEREGPARM CTInfo = 0x00400000 // SSE register parameters: FUNC.
+const (
+	CTF_BOOL       CTInfo = 0x08000000 // Boolean: NUM, BITFIELD.
+	CTF_FP         CTInfo = 0x04000000 // Floating-point: NUM.
+	CTF_CONST      CTInfo = 0x02000000 // Const qualifier.
+	CTF_VOLATILE   CTInfo = 0x01000000 // Volatile qualifier.
+	CTF_UNSIGNED   CTInfo = 0x00800000 // Unsigned: NUM, BITFIELD.
+	CTF_LONG       CTInfo = 0x00400000 // Long: NUM.
+	CTF_VLA        CTInfo = 0x00100000 // Variable-length: ARRAY, STRUCT.
+	CTF_REF        CTInfo = 0x00800000 // Reference: PTR.
+	CTF_VECTOR     CTInfo = 0x08000000 // Vector: ARRAY.
+	CTF_COMPLEX    CTInfo = 0x04000000 // Complex: ARRAY.
+	CTF_UNION      CTInfo = 0x00800000 // Union: STRUCT.
+	CTF_VARARG     CTInfo = 0x00800000 // Vararg: FUNC.
+	CTF_SSEREGPARM CTInfo = 0x00400000 // SSE register parameters: FUNC.
 
-const CTF_QUAL = CTF_CONST | CTF_VOLATILE
-const CTF_ALIGN = CTMASK_ALIGN << CTSHIFT_ALIGN
+	CTF_QUAL  = CTF_CONST | CTF_VOLATILE
+	CTF_ALIGN = CTMASK_ALIGN << CTSHIFT_ALIGN
+)
 
 const CTF_UCHAR = 0 // ((char)-1 > 0 ? CTF_UNSIGNED: 0)
 
