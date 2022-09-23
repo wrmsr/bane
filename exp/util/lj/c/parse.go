@@ -1786,21 +1786,23 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 	}
 }
 
-/*
 // Parse and evaluate unary expression.
-static void cp_expr_unary(cp *CPState, CPValue *k) {
-    if (++cp.depth > CPARSE_MAX_DECLDEPTH) cp_err(cp, LJ_ERR_XLEVELS);
-    cp_expr_prefix(cp, k);
-    cp_expr_postfix(cp, k);
-    cp.depth--;
+func cp_expr_unary(cp *CPState, k *CPValue) {
+	cp.depth++
+	if cp.depth > CPARSE_MAX_DECLDEPTH {
+		//cp_err(cp, LJ_ERR_XLEVELS);
+		panic(cp)
+	}
+	cp_expr_prefix(cp, k)
+	cp_expr_postfix(cp, k)
+	cp.depth--
 }
 
 // Parse and evaluate sub-expression.
-static void cp_expr_sub(cp *CPState, CPValue *k, int pri) {
-    cp_expr_unary(cp, k);
-    cp_expr_infix(cp, k, pri);
+func cp_expr_sub(cp *CPState, k *CPValue, pri int) {
+	cp_expr_unary(cp, k)
+	cp_expr_infix(cp, k, pri)
 }
-*/
 
 // Parse constant integer expression.
 func cp_expr_kint(cp *CPState, k *CPValue) {
