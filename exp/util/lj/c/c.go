@@ -147,13 +147,14 @@ const CTHASH_MASK = CTHASH_SIZE - 1
 
 // C type state.
 type CTState struct {
-	tab []CType // C type table.
-	top CTypeID // Current top of C type table.
+	tab []*CType // C type table.
+	top CTypeID  // Current top of C type table.
 	//sizetab MSize   // Size of C type table.
 	// lua_State *L;        // Lua state (needed for errors and allocations).
 	// global_State *g;    // Global state.
 	// GCtab *finalizer;    // Map of cdata to finalizer.
 	// GCtab *miscmap;    // Map of -CTypeID to metatable and cb slot to func.
 	// CCallback cb;        // Temporary callback state.
-	hash [CTHASH_SIZE]CTypeID1 // Hash anchors for C type table.
+	//hash [CTHASH_SIZE]CTypeID1 // Hash anchors for C type table.
+	hash map[string]CTypeID
 }

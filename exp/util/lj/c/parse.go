@@ -16,12 +16,14 @@ const CPARSE_MAX_DECLDEPTH = 20  // Max. recursive declaration depth.
 const CPARSE_MAX_PACKSTACK = 7   // Max. pack pragma stack depth.
 
 // Flags for C parser mode.
-const CPARSE_MODE_MULTI = 1       // Process multiple declarations.
-const CPARSE_MODE_ABSTRACT = 2    // Accept abstract declarators.
-const CPARSE_MODE_DIRECT = 4      // Accept direct declarators.
-const CPARSE_MODE_FIELD = 8       // Accept field width in bits, too.
-const CPARSE_MODE_NOIMPLICIT = 16 // Reject implicit declarations.
-const CPARSE_MODE_SKIP = 32       // Skip definitions, ignore errors.
+const (
+	CPARSE_MODE_MULTI      CPscl = 1  // Process multiple declarations.
+	CPARSE_MODE_ABSTRACT   CPscl = 2  // Accept abstract declarators.
+	CPARSE_MODE_DIRECT     CPscl = 4  // Accept direct declarators.
+	CPARSE_MODE_FIELD      CPscl = 8  // Accept field width in bits, too.
+	CPARSE_MODE_NOIMPLICIT CPscl = 16 // Reject implicit declarations.
+	CPARSE_MODE_SKIP       CPscl = 32 // Skip definitions, ignore errors.
+)
 
 type CPChar = rune // C parser character. Unsigned ext. from char.
 type CPToken = int // C parser token.
@@ -42,7 +44,7 @@ type CPState struct {
 	tok CPToken         // Current token.
 	val CPValue         // Token value.
 	str string          // Interned string of identifier/keyword.
-	ct  CType           // C type table entry.
+	ct  *CType          // C type table entry.
 	p   int             // Current position in input buffer.
 	i   []rune          // Input buffer
 	sb  strings.Builder // String buffer for tokens.
@@ -53,7 +55,7 @@ type CPState struct {
 	linenumber int                         // Input line counter.
 	depth      int                         // Recursive declaration depth.
 	tmask      uint32                      // Type mask for next identifier.
-	mode       uint32                      // C parser mode.
+	mode       CPscl                       // C parser mode.
 	packstack  [CPARSE_MAX_PACKSTACK]uint8 // Stack for pack pragmas.
 	curpack    uint8                       // Current position in pack pragma stack.
 }
@@ -99,6 +101,15 @@ func cp_get_bs(cp *CPState) CPChar {
 	}
 	cp.linenumber++
 	return cp_get(cp)
+}
+
+// Check and consume optional token.
+func cp_opt(cp *CPState, tok CPToken) bool {
+	if cp.tok == tok {
+		cp_next(cp)
+		return true
+	}
+	return false
 }
 
 // End-of-line?
@@ -734,7 +745,7 @@ type CPDecl struct {
 	top       CPDeclIdx                   // Top of declaration stack.
 	pos       CPDeclIdx                   // Insertion position in declaration chain.
 	specpos   CPDeclIdx                   // Saved position for declaration specifier.
-	mode      uint32                      // Declarator mode.
+	mode      CPscl                       // Declarator mode.
 	cp        *CPState                    // C parser state.
 	name      string                      // Name of declared identifier (if direct).
 	redir     string                      // Redirected symbol name.
@@ -790,6 +801,38 @@ func ctype_isbitfield(info CTInfo) bool { return ctype_type(info) == CT_BITFIELD
 func ctype_isconstval(info CTInfo) bool { return ctype_type(info) == CT_CONSTVAL }
 func ctype_isextern(info CTInfo) bool   { return ctype_type(info) == CT_EXTERN }
 func ctype_hassize(info CTInfo) bool    { return ctype_type(info) <= CT_HASSIZE }
+
+// Combined type and flag checks.
+// #define ctype_isinteger(info) \
+// 	(((info) & (CTMASK_NUM|CTF_BOOL|CTF_FP)) == CTINFO(CT_NUM, 0))
+
+func ctype_isinteger_or_bool(info CTInfo) bool {
+	return ((info) & (CTMASK_NUM | CTF_FP)) == CTINFO(CT_NUM, 0)
+}
+
+// #define ctype_isbool(info) \
+// 	(((info) & (CTMASK_NUM|CTF_BOOL)) == CTINFO(CT_NUM, CTF_BOOL))
+// #define ctype_isfp(info) \
+// 	(((info) & (CTMASK_NUM|CTF_FP)) == CTINFO(CT_NUM, CTF_FP))
+
+// #define ctype_ispointer(info) // Pointer or array.
+// 	((ctype_type(info) >> 1) == (CT_PTR >> 1))  #define ctype_isref(info)  (((info) & (CTMASK_NUM|CTF_REF)) == CTINFO(CT_PTR, CTF_REF))
+
+// #define ctype_isrefarray(info) \
+// 	(((info) & (CTMASK_NUM|CTF_VECTOR|CTF_COMPLEX)) == CTINFO(CT_ARRAY, 0))
+// #define ctype_isvector(info) \
+// 	(((info) & (CTMASK_NUM|CTF_VECTOR)) == CTINFO(CT_ARRAY, CTF_VECTOR))
+// #define ctype_iscomplex(info) \
+// 	(((info) & (CTMASK_NUM|CTF_COMPLEX)) == CTINFO(CT_ARRAY, CTF_COMPLEX))
+
+// #define ctype_isvltype(info) \ // VL array or VL struct.
+// 	(((info) & ((CTMASK_NUM|CTF_VLA) - (2u<<CTSHIFT_NUM))) == CTINFO(CT_STRUCT, CTF_VLA))
+// #define ctype_isvlarray(info) \
+// 	(((info) & (CTMASK_NUM|CTF_VLA)) == CTINFO(CT_ARRAY, CTF_VLA))
+
+func ctype_isxattrib(info CTInfo, at int) bool {
+	return (info & (CTMASK_NUM | CTATTRIB(CTMASK_ATTRIB))) == CTINFO(CT_ATTRIB, CTATTRIB(at))
+}
 
 // #define CTF_INSERT(info, field, val) \
 // info = (info & ~(CTMASK_##field<<CTSHIFT_##field)) | (((CTSize)(val) & CTMASK_##field) << CTSHIFT_##field)
@@ -853,7 +896,7 @@ func ctype_check(cts *CTState, id CTypeID) CTypeID {
 
 // Get C type for C type ID.
 func ctype_get(cts *CTState, id CTypeID) *CType {
-	return &cts.tab[ctype_check(cts, id)]
+	return cts.tab[ctype_check(cts, id)]
 }
 
 // Push unrolled type to declaration stack and merge qualifiers.
@@ -863,27 +906,27 @@ func cp_push_type(decl *CPDecl, id CTypeID) {
 	var size = ct.size
 	switch ctype_type(info) {
 	case CT_STRUCT, CT_ENUM:
-		cp_push(decl, CTINFO(CT_TYPEDEF, id), 0) // Don't copy unique types.
-		if (decl.attr & CTF_QUAL) != 0 {         // Push unmerged qualifiers.
+		cp_push(decl, CTINFO(CT_TYPEDEF, CTInfo(id)), 0) // Don't copy unique types.
+		if (decl.attr & CTF_QUAL) != 0 {                 // Push unmerged qualifiers.
 			cp_push(decl, CTINFO(CT_ATTRIB, CTATTRIB(CTA_QUAL)), CTSize(decl.attr&CTF_QUAL))
 			decl.attr &= ^CTF_QUAL
 		}
 		break
 	case CT_ATTRIB:
-		if ctype_isxattrib(info, CTA_QUAL) != 0 {
+		if ctype_isxattrib(info, CTA_QUAL) {
 			decl.attr &= CTInfo(^size) // Remove redundant qualifiers.
 		}
-		cp_push_type(decl, ctype_cid(info))   // Unroll.
-		cp_push(decl, info&^CTMASK_CID, size) // Copy type.
+		cp_push_type(decl, CTypeID(ctype_cid(info))) // Unroll.
+		cp_push(decl, info&^CTMASK_CID, size)        // Copy type.
 		break
 	case CT_ARRAY:
 		if (ct.info & (CTF_VECTOR | CTF_COMPLEX)) != 0 {
 			info |= decl.attr & CTF_QUAL
 			decl.attr &= ^CTF_QUAL
 		}
-		cp_push_type(decl, ctype_cid(info))   // Unroll.
-		cp_push(decl, info&^CTMASK_CID, size) // Copy type.
-		decl.stack[decl.pos].sib = 1          // Mark as already checked and sized.
+		cp_push_type(decl, CTypeID(ctype_cid(info))) // Unroll.
+		cp_push(decl, info&^CTMASK_CID, size)        // Copy type.
+		decl.stack[decl.pos].sib = 1                 // Mark as already checked and sized.
 		// Note: this is not copied to the ct.sib in the C type table.
 		break
 	case CT_FUNC:
@@ -919,6 +962,236 @@ func cp_add(decl *CPDecl, info CTInfo, size CTSize) CPDeclIdx {
 func cp_push(decl *CPDecl, info CTInfo, size CTSize) CPDeclIdx {
 	decl.pos = cp_add(decl, info, size)
 	return decl.pos
+}
+
+// Create new type element.
+func lj_ctype_new(cts *CTState, ctp **CType) CTypeID {
+	var id CTypeID = cts.top
+	var ct *CType = &CType{}
+	*ctp = ct
+	cts.top = id + 1
+	cts.tab = append(cts.tab, ct)
+	ct.info = 0
+	ct.size = 0
+	ct.sib = 0
+	ct.next = 0
+	//setgcrefnull(ct.name);
+	return id
+}
+
+// Set the name of a C type table element.
+func ctype_setname(ct *CType, s string) {
+	ct.name = s
+}
+
+// Add named element to hash table.
+func lj_ctype_addname(cts *CTState, ct *CType, id CTypeID) {
+	cts.hash[ct.name] = id
+}
+
+// Parse struct/union/enum name.
+func cp_struct_name(cp *CPState, sdecl *CPDecl, info CTInfo) CTypeID {
+	var sid CTypeID
+	var ct *CType
+	cp.tmask = CPNS_STRUCT
+	cp_next(cp)
+	cp_decl_attributes(cp, sdecl)
+	cp.tmask = CPNS_DEFAULT
+	if cp.tok != '{' {
+		if cp.tok != CTOK_IDENT {
+			//cp_err_token(cp, CTOK_IDENT);
+			panic(cp)
+		}
+		if cp.val.id != 0 { // Name of existing struct/union/enum.
+			sid = cp.val.id
+			ct = cp.ct
+			if ((ct.info ^ info) & (CTMASK_NUM | CTF_UNION)) != 0 { // Wrong type.
+				//cp_errmsg(cp, 0, LJ_ERR_FFI_REDEF, strdata(gco2str(gcref(ct.name))));
+				panic(cp)
+			}
+		} else { // Create named, incomplete struct/union/enum.
+			if (cp.mode & CPARSE_MODE_NOIMPLICIT) != 0 {
+				//cp_errmsg(cp, 0, LJ_ERR_FFI_BADTAG, strdata(cp.str));
+				panic(cp)
+			}
+			sid = lj_ctype_new(cp.cts, &ct)
+			ct.info = info
+			ct.size = CTSIZE_INVALID
+			ctype_setname(ct, cp.str)
+			lj_ctype_addname(cp.cts, ct, sid)
+		}
+		cp_next(cp)
+	} else { // Create anonymous, incomplete struct/union/enum.
+		sid = lj_ctype_new(cp.cts, &ct)
+		ct.info = info
+		ct.size = CTSIZE_INVALID
+	}
+	if cp.tok == '{' {
+		if ct.size != CTSIZE_INVALID || (ct.sib != 0) {
+			//cp_errmsg(cp, 0, LJ_ERR_FFI_REDEF, strdata(gco2str(gcref(ct.name))));
+			panic(cp)
+		}
+		ct.sib = 1 // Indicate the type is currently being defined.
+	}
+	return sid
+}
+
+// Parse struct/union declaration.
+func cp_decl_struct(cp *CPState, sdecl *CPDecl, sinfo CTInfo) CTypeID {
+	var sid CTypeID = cp_struct_name(cp, sdecl, sinfo)
+	if cp_opt(cp, '{') { // Struct/union definition.
+		var lastid CTypeID = sid
+		var lastdecl = 0
+		for cp.tok != '}' {
+			var decl CPDecl
+			var scl CPscl = cp_decl_spec(cp, &decl, CDF_STATIC)
+			decl.mode = bt.Choose(scl != 0, CPARSE_MODE_DIRECT, CPARSE_MODE_DIRECT|CPARSE_MODE_ABSTRACT|CPARSE_MODE_FIELD)
+
+			for {
+				var ctypeid CTypeID
+				if lastdecl != 0 {
+					//cp_err_token(cp, '}')
+					panic(cp)
+				}
+
+				// Parse field declarator.
+				decl.bits = CTSIZE_INVALID
+				cp_declarator(cp, &decl)
+				ctypeid = cp_decl_intern(cp, &decl)
+
+				if (scl & CDF_STATIC) != 0 { // Static constant in struct namespace.
+					var ct *CType
+					var fieldid CTypeID = cp_decl_constinit(cp, &ct, ctypeid)
+					ctype_get(cp.cts, lastid).sib = CTypeID1(fieldid)
+					lastid = fieldid
+					ctype_setname(ct, decl.name)
+				} else {
+					var bsz CTSize = CTBSZ_FIELD // Temp. for layout phase.
+					var ct *CType
+					var fieldid CTypeID = lj_ctype_new(cp.cts, &ct) // Do this first.
+					var tct *CType = ctype_raw(cp.cts, ctypeid)
+
+					if decl.bits == CTSIZE_INVALID { // Regular field.
+						if ctype_isarray(tct.info) && tct.size == CTSIZE_INVALID {
+							lastdecl = 1 // a[] or a[?] must be the last declared field.
+						}
+
+						// Accept transparent struct/union/enum.
+						if decl.name == "" {
+							if !((ctype_isstruct(tct.info) && (tct.info&CTF_VLA) == 0) || ctype_isenum(tct.info)) {
+								//cp_err_token(cp, CTOK_IDENT);
+								panic(cp)
+							}
+							ct.info = CTINFO(CT_ATTRIB, CTATTRIB(CTA_SUBTYPE)+CTInfo(ctypeid))
+							ct.size = bt.Choose(ctype_isstruct(tct.info), CTSize(decl.attr|0x80000000), 0) // For layout phase.
+							goto add_field
+						}
+					} else { // Bitfield.
+						bsz = decl.bits
+						if !ctype_isinteger_or_bool(tct.info) ||
+							(bsz == 0 && decl.name != "") ||
+							8*tct.size > CTBSZ_MAX ||
+							bsz > (bt.Choose(tct.info&CTF_BOOL != 0, 1, 8*tct.size)) {
+							//cp_errmsg(cp, ':', LJ_ERR_BADVAL)
+							panic(cp)
+						}
+					}
+
+					// Create temporary field for layout phase.
+					ct.info = CTINFO(CT_FIELD, CTInfo(ctypeid)+(CTInfo(bsz)<<CTSHIFT_BITCSZ))
+					ct.size = CTSize(decl.attr)
+					if decl.name != "" {
+						ctype_setname(ct, decl.name)
+					}
+
+				add_field:
+					ctype_get(cp.cts, lastid).sib = CTypeID1(fieldid)
+					lastid = fieldid
+				}
+				if !cp_opt(cp, ',') {
+					break
+				}
+				cp_decl_reset(&decl)
+			}
+			cp_check(cp, ';')
+		}
+		cp_check(cp, '}')
+		ctype_get(cp.cts, lastid).sib = 0 // Drop sib = 1 for empty structs.
+		cp_decl_attributes(cp, sdecl)     // Layout phase needs postfix attributes.
+		cp_struct_layout(cp, sid, sdecl.attr)
+	}
+	return sid
+}
+
+// Parse enum declaration.
+func cp_decl_enum(cp *CPState, sdecl *CPDecl) CTypeID {
+	var eid CTypeID = cp_struct_name(cp, sdecl, CTINFO(CT_ENUM, CTID_VOID))
+	var einfo CTInfo = CTINFO(CT_ENUM, CTALIGN(2)+CTID_UINT32)
+	var esize CTSize = 4 // Only 32 bit enums are supported.
+	if cp_opt(cp, '{') { // Enum definition.
+		var k CPValue
+		var lastid CTypeID = eid
+		k.u32 = 0
+		k.id = CTID_INT32
+		for {
+			GCstr * name = cp.str
+			if cp.tok != CTOK_IDENT {
+				//cp_err_token(cp, CTOK_IDENT);
+				panic(cp)
+			}
+			if cp.val.id {
+				//cp_errmsg(cp, 0, LJ_ERR_FFI_REDEF, strdata(name));
+				panic(cp)
+			}
+			cp_next(cp)
+			if cp_opt(cp, '=') {
+				cp_expr_kint(cp, &k)
+				if k.id == CTID_UINT32 {
+					// C99 says that enum constants are always (signed) integers.
+					// But since unsigned constants like 0x80000000 are quite common,
+					// those are left as uint32_t.
+
+					if k.i32 >= 0 {
+						k.id = CTID_INT32
+					}
+				} else {
+					// OTOH it's common practice and even mandated by some ABIs
+					// that the enum type itself is unsigned, unless there are any
+					// negative constants.
+
+					k.id = CTID_INT32
+					if k.i32 < 0 {
+						einfo = CTINFO(CT_ENUM, CTALIGN(2)+CTID_INT32)
+					}
+				}
+			}
+			// Add named enum constant.
+			{
+				var ct *CType
+				var constid CTypeID = lj_ctype_new(cp.cts, &ct)
+				ctype_get(cp.cts, lastid).sib = constid
+				lastid = constid
+				ctype_setname(ct, name)
+				ct.info = CTINFO(CT_CONSTVAL, CTF_CONST|k.id)
+				ct.size = k.u32++
+				if k.u32 == 0x80000000 {
+					k.id = CTID_UINT32
+				}
+				lj_ctype_addname(cp.cts, ct, constid)
+			}
+			if !cp_opt(cp, ',') {
+				break
+			}
+			if !(cp.tok != '}') {
+				break
+			} // Trailing ',' is ok.
+		}
+		cp_check(cp, '}')
+		// Complete enum.
+		ctype_get(cp.cts, eid).info = einfo
+		ctype_get(cp.cts, eid).size = esize
+	}
+	return eid
 }
 
 // Parse declaration specifiers.
@@ -975,7 +1248,7 @@ func cp_decl_spec(cp *CPState, decl *CPDecl, scl CPscl) CPscl {
 			continue
 		case CTOK_IDENT:
 			if ctype_istypedef(cp.ct.info) {
-				tdef = ctype_cid(cp.ct.info) // Get typedef.
+				tdef = CTypeID(ctype_cid(cp.ct.info)) // Get typedef.
 				cp_next(cp)
 				continue
 			}
@@ -998,7 +1271,7 @@ end_decl:
 	if tdef != 0 {
 		cp_push_type(decl, tdef)
 	} else if (cds & CDF_VOID) != 0 {
-		cp_push(decl, CTINFO(CT_VOID, (decl.attr&CTF_QUAL)), CTSIZE_INVALID)
+		cp_push(decl, CTINFO(CT_VOID, decl.attr&CTF_QUAL), CTSIZE_INVALID)
 		decl.attr &= ^CTF_QUAL
 	} else {
 		// Determine type info and size.
