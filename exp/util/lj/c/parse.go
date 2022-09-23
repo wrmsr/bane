@@ -812,17 +812,22 @@ func ctype_isextern(info CTInfo) bool   { return ctype_type(info) == CT_EXTERN }
 func ctype_hassize(info CTInfo) bool    { return ctype_type(info) <= CT_HASSIZE }
 
 // Combined type and flag checks.
-// #define ctype_isinteger(info) \
-// 	(((info) & (CTMASK_NUM|CTF_BOOL|CTF_FP)) == CTINFO(CT_NUM, 0))
+
+func ctype_isinteger(info CTInfo) bool {
+	return ((info) & (CTMASK_NUM | CTF_BOOL | CTF_FP)) == CTINFO(CT_NUM, 0)
+}
 
 func ctype_isinteger_or_bool(info CTInfo) bool {
 	return (info & (CTMASK_NUM | CTF_FP)) == CTINFO(CT_NUM, 0)
 }
 
-// #define ctype_isbool(info) \
-// 	(((info) & (CTMASK_NUM|CTF_BOOL)) == CTINFO(CT_NUM, CTF_BOOL))
-// #define ctype_isfp(info) \
-// 	(((info) & (CTMASK_NUM|CTF_FP)) == CTINFO(CT_NUM, CTF_FP))
+func ctype_isbool(info CTInfo) bool {
+	return ((info) & (CTMASK_NUM | CTF_BOOL)) == CTINFO(CT_NUM, CTF_BOOL)
+}
+
+func ctype_isfp(info CTInfo) bool {
+	return ((info) & (CTMASK_NUM | CTF_FP)) == CTINFO(CT_NUM, CTF_FP)
+}
 
 func ctype_ispointer(info CTInfo) bool { // Pointer or array.
 	return (ctype_type(info) >> 1) == (CT_PTR >> 1)
@@ -1321,6 +1326,414 @@ func cp_decl_func(cp *CPState, fdecl *CPDecl) {
 	info |= fdecl.fattr & ^CTMASK_CID
 	fdecl.fattr = 0
 	fdecl.stack[cp_add(fdecl, info, nargs)].sib = CTypeID1(anchor)
+}
+
+// Please note that type handling is very weak here. Most ops simply
+// assume integer operands. Accessors are only needed to compute types and
+// return synthetic values. The only purpose of the expression evaluator
+// is to compute the values of constant expressions one would typically
+// find in C header files. And again: this is NOT a validating C parser!
+
+// Parse comma separated expression and return last result.
+func cp_expr_comma(cp *CPState, k *CPValue) {
+	for {
+		cp_expr_sub(cp, k, 0)
+		if !cp_opt(cp, ',') {
+			break
+		}
+	}
+}
+
+// Get type, qualifiers, size and alignment for a C type ID.
+func lj_ctype_info(cts *CTState, id CTypeID, szp *CTSize) CTInfo {
+	var qual CTInfo = 0
+	var ct *CType = ctype_get(cts, id)
+	for {
+		var info CTInfo = ct.info
+		if ctype_isenum(info) {
+			// Follow child. Need to look at its attributes, too.
+		} else if ctype_isattrib(info) {
+			if ctype_isxattrib(info, CTA_QUAL) {
+				qual |= CTInfo(ct.size)
+			} else if ctype_isxattrib(info, CTA_ALIGN) && (qual&CTFP_ALIGNED) == 0 {
+				qual |= CTInfo(CTFP_ALIGNED + CTALIGN(int(ct.size)))
+			}
+		} else {
+			if (qual & CTFP_ALIGNED) == 0 {
+				qual |= info & CTF_ALIGN
+			}
+			qual |= info & ^(CTF_ALIGN | CTMASK_CID)
+			//lj_assertCTS(ctype_hassize(info) || ctype_isfunc(info), "ctype without size");
+			*szp = bt.Choose(ctype_isfunc(info), CTSIZE_INVALID, ct.size)
+			break
+		}
+		ct = ctype_get(cts, CTypeID(ctype_cid(info)))
+	}
+	return qual
+}
+
+// Parse an abstract type declaration and return it's C type ID.
+func cp_decl_abstract(cp *CPState) CTypeID {
+	var decl CPDecl
+	cp_decl_spec(cp, &decl, 0)
+	decl.mode = CPARSE_MODE_ABSTRACT
+	cp_declarator(cp, &decl)
+	return cp_decl_intern(cp, &decl)
+}
+
+// Parse sizeof/alignof operator.
+func cp_expr_sizeof(cp *CPState, k *CPValue, wantsz int) {
+	var sz CTSize
+	var info CTInfo
+	if cp_opt(cp, '(') {
+		if cp_istypedecl(cp) {
+			k.id = cp_decl_abstract(cp)
+		} else {
+			cp_expr_comma(cp, k)
+		}
+		cp_check(cp, ')')
+	} else {
+		cp_expr_unary(cp, k)
+	}
+	info = lj_ctype_info(cp.cts, k.id, &sz)
+	if wantsz != 0 {
+		if sz != CTSIZE_INVALID {
+			k.i32 = int32(sz)
+		} else if k.id != CTID_A_CCHAR { // Special case for sizeof("string").
+			//cp_err(cp, LJ_ERR_FFI_INVSIZE)
+			panic(cp)
+		}
+	} else {
+		k.i32 = 1 << ctype_align(info)
+	}
+	k.id = CTID_UINT32 // Really size_t.
+}
+
+/*
+// Parse prefix operators.
+static void cp_expr_prefix(cp *CPState, CPValue *k) {
+    if (cp.tok == CTOK_INTEGER) {
+        *k = cp.val;
+        cp_next(cp);
+    } else if (cp_opt(cp, '+')) {
+        cp_expr_unary(cp, k);  // Nothing to do (well, integer promotion).
+    } else if (cp_opt(cp, '-')) {
+        cp_expr_unary(cp, k);
+        k.i32 = -k.i32;
+    } else if (cp_opt(cp, '~')) {
+        cp_expr_unary(cp, k);
+        k.i32 = ~k.i32;
+    } else if (cp_opt(cp, '!')) {
+        cp_expr_unary(cp, k);
+        k.i32 = !k.i32;
+        k.id = CTID_INT32;
+    } else if (cp_opt(cp, '(')) {
+        if (cp_istypedecl(cp)) {  // Cast operator.
+            CTypeID id = cp_decl_abstract(cp);
+            cp_check(cp, ')');
+            cp_expr_unary(cp, k);
+            k.id = id;  // No conversion performed.
+        } else {  // Sub-expression.
+            cp_expr_comma(cp, k);
+            cp_check(cp, ')');
+        }
+    } else if (cp_opt(cp, '*')) {  // Indirection.
+        CType *ct;
+        cp_expr_unary(cp, k);
+        ct = lj_ctype_rawref(cp.cts, k.id);
+        if (!ctype_ispointer(ct.info))
+            cp_err_badidx(cp, ct);
+        k.u32 = 0;
+        k.id = ctype_cid(ct.info);
+    } else if (cp_opt(cp, '&')) {  // Address operator.
+        cp_expr_unary(cp, k);
+        k.id = lj_ctype_intern(cp.cts, CTINFO(CT_PTR, CTALIGN_PTR + k.id),
+                                CTSIZE_PTR);
+    } else if (cp_opt(cp, CTOK_SIZEOF)) {
+        cp_expr_sizeof(cp, k, 1);
+    } else if (cp_opt(cp, CTOK_ALIGNOF)) {
+        cp_expr_sizeof(cp, k, 0);
+    } else if (cp.tok == CTOK_IDENT) {
+        if (ctype_type(cp.ct.info) == CT_CONSTVAL) {
+            k.u32 = cp.ct.size;
+            k.id = ctype_cid(cp.ct.info);
+        } else if (ctype_type(cp.ct.info) == CT_EXTERN) {
+            k.u32 = cp.val.id;
+            k.id = ctype_cid(cp.ct.info);
+        } else if (ctype_type(cp.ct.info) == CT_FUNC) {
+            k.u32 = cp.val.id;
+            k.id = cp.val.id;
+        } else {
+            goto err_expr;
+        }
+        cp_next(cp);
+    } else if (cp.tok == CTOK_STRING) {
+        CTSize sz = cp.str.len;
+        while (cp_next(cp) == CTOK_STRING)
+            sz += cp.str.len;
+        k.u32 = sz + 1;
+        k.id = CTID_A_CCHAR;
+    } else {
+        err_expr:
+        cp_errmsg(cp, cp.tok, LJ_ERR_XSYMBOL);
+    }
+}
+
+// Parse postfix operators.
+static void cp_expr_postfix(cp *CPState, CPValue *k) {
+    for (;;) {
+        CType *ct;
+        if (cp_opt(cp, '[')) {  // Array/pointer index.
+            CPValue k2;
+            cp_expr_comma(cp, &k2);
+            ct = lj_ctype_rawref(cp.cts, k.id);
+            if (!ctype_ispointer(ct.info)) {
+                ct = lj_ctype_rawref(cp.cts, k2.id);
+                if (!ctype_ispointer(ct.info))
+                    cp_err_badidx(cp, ct);
+            }
+            cp_check(cp, ']');
+            k.u32 = 0;
+        } else if (cp.tok == '.' || cp.tok == CTOK_DEREF) {  // Struct deref.
+            CTSize ofs;
+            CType *fct;
+            ct = lj_ctype_rawref(cp.cts, k.id);
+            if (cp.tok == CTOK_DEREF) {
+                if (!ctype_ispointer(ct.info))
+                    cp_err_badidx(cp, ct);
+                ct = lj_ctype_rawref(cp.cts, ctype_cid(ct.info));
+            }
+            cp_next(cp);
+            if (cp.tok != CTOK_IDENT) cp_err_token(cp, CTOK_IDENT);
+            if (!ctype_isstruct(ct.info) || ct.size == CTSIZE_INVALID ||
+                !(fct = lj_ctype_getfield(cp.cts, ct, cp.str, &ofs)) ||
+                ctype_isbitfield(fct.info)) {
+                GCstr *s = lj_ctype_repr(cp.cts.L, ctype_typeid(cp.cts, ct), NULL);
+                cp_errmsg(cp, 0, LJ_ERR_FFI_BADMEMBER, strdata(s), strdata(cp.str));
+            }
+            ct = fct;
+            k.u32 = ctype_isconstval(ct.info) ? ct.size : 0;
+            cp_next(cp);
+        } else {
+            return;
+        }
+        k.id = ctype_cid(ct.info);
+    }
+}
+
+// Parse infix operators.
+static void cp_expr_infix(cp *CPState, CPValue *k, int pri) {
+    CPValue k2;
+    k2.u32 = 0;
+    k2.id = 0;  // Silence the compiler.
+    for (;;) {
+        switch (pri) {
+            case 0:
+                if (cp_opt(cp, '?')) {
+                    CPValue k3;
+                    cp_expr_comma(cp, &k2);  // Right-associative.
+                    cp_check(cp, ':');
+                    cp_expr_sub(cp, &k3, 0);
+                    k.u32 = k.u32 ? k2.u32 : k3.u32;
+                    k.id = k2.id > k3.id ? k2.id : k3.id;
+                    continue;
+                }
+                // fallthrough
+            case 1:
+                if (cp_opt(cp, CTOK_OROR)) {
+                    cp_expr_sub(cp, &k2, 2);
+                    k.i32 = k.u32 || k2.u32;
+                    k.id = CTID_INT32;
+                    continue;
+                }
+                // fallthrough
+            case 2:
+                if (cp_opt(cp, CTOK_ANDAND)) {
+                    cp_expr_sub(cp, &k2, 3);
+                    k.i32 = k.u32 && k2.u32;
+                    k.id = CTID_INT32;
+                    continue;
+                }
+                // fallthrough
+            case 3:
+                if (cp_opt(cp, '|')) {
+                    cp_expr_sub(cp, &k2, 4);
+                    k.u32 = k.u32 | k2.u32;
+                    goto arith_result;
+                }
+                // fallthrough
+            case 4:
+                if (cp_opt(cp, '^')) {
+                    cp_expr_sub(cp, &k2, 5);
+                    k.u32 = k.u32 ^ k2.u32;
+                    goto arith_result;
+                }
+                // fallthrough
+            case 5:
+                if (cp_opt(cp, '&')) {
+                    cp_expr_sub(cp, &k2, 6);
+                    k.u32 = k.u32 & k2.u32;
+                    goto arith_result;
+                }
+                // fallthrough
+            case 6:
+                if (cp_opt(cp, CTOK_EQ)) {
+                    cp_expr_sub(cp, &k2, 7);
+                    k.i32 = k.u32 == k2.u32;
+                    k.id = CTID_INT32;
+                    continue;
+                } else if (cp_opt(cp, CTOK_NE)) {
+                    cp_expr_sub(cp, &k2, 7);
+                    k.i32 = k.u32 != k2.u32;
+                    k.id = CTID_INT32;
+                    continue;
+                }
+                // fallthrough
+            case 7:
+                if (cp_opt(cp, '<')) {
+                    cp_expr_sub(cp, &k2, 8);
+                    if (k.id == CTID_INT32 && k2.id == CTID_INT32)
+                        k.i32 = k.i32 < k2.i32;
+                    else
+                        k.i32 = k.u32 < k2.u32;
+                    k.id = CTID_INT32;
+                    continue;
+                } else if (cp_opt(cp, '>')) {
+                    cp_expr_sub(cp, &k2, 8);
+                    if (k.id == CTID_INT32 && k2.id == CTID_INT32)
+                        k.i32 = k.i32 > k2.i32;
+                    else
+                        k.i32 = k.u32 > k2.u32;
+                    k.id = CTID_INT32;
+                    continue;
+                } else if (cp_opt(cp, CTOK_LE)) {
+                    cp_expr_sub(cp, &k2, 8);
+                    if (k.id == CTID_INT32 && k2.id == CTID_INT32)
+                        k.i32 = k.i32 <= k2.i32;
+                    else
+                        k.i32 = k.u32 <= k2.u32;
+                    k.id = CTID_INT32;
+                    continue;
+                } else if (cp_opt(cp, CTOK_GE)) {
+                    cp_expr_sub(cp, &k2, 8);
+                    if (k.id == CTID_INT32 && k2.id == CTID_INT32)
+                        k.i32 = k.i32 >= k2.i32;
+                    else
+                        k.i32 = k.u32 >= k2.u32;
+                    k.id = CTID_INT32;
+                    continue;
+                }
+                // fallthrough
+            case 8:
+                if (cp_opt(cp, CTOK_SHL)) {
+                    cp_expr_sub(cp, &k2, 9);
+                    k.u32 = k.u32 << k2.u32;
+                    continue;
+                } else if (cp_opt(cp, CTOK_SHR)) {
+                    cp_expr_sub(cp, &k2, 9);
+                    if (k.id == CTID_INT32)
+                        k.i32 = k.i32 >> k2.i32;
+                    else
+                        k.u32 = k.u32 >> k2.u32;
+                    continue;
+                }
+                // fallthrough
+            case 9:
+                if (cp_opt(cp, '+')) {
+                    cp_expr_sub(cp, &k2, 10);
+                    k.u32 = k.u32 + k2.u32;
+                    arith_result:
+                    if (k2.id > k.id) k.id = k2.id;  // Trivial promotion to unsigned.
+                    continue;
+                } else if (cp_opt(cp, '-')) {
+                    cp_expr_sub(cp, &k2, 10);
+                    k.u32 = k.u32 - k2.u32;
+                    goto arith_result;
+                }
+                // fallthrough
+            case 10:
+                if (cp_opt(cp, '*')) {
+                    cp_expr_unary(cp, &k2);
+                    k.u32 = k.u32 * k2.u32;
+                    goto arith_result;
+                } else if (cp_opt(cp, '/')) {
+                    cp_expr_unary(cp, &k2);
+                    if (k2.id > k.id) k.id = k2.id;  // Trivial promotion to unsigned.
+                    if (k2.u32 == 0 ||
+                        (k.id == CTID_INT32 && k.u32 == 0x80000000u && k2.i32 == -1))
+                        cp_err(cp, LJ_ERR_BADVAL);
+                    if (k.id == CTID_INT32)
+                        k.i32 = k.i32 / k2.i32;
+                    else
+                        k.u32 = k.u32 / k2.u32;
+                    continue;
+                } else if (cp_opt(cp, '%')) {
+                    cp_expr_unary(cp, &k2);
+                    if (k2.id > k.id) k.id = k2.id;  // Trivial promotion to unsigned.
+                    if (k2.u32 == 0 ||
+                        (k.id == CTID_INT32 && k.u32 == 0x80000000u && k2.i32 == -1))
+                        cp_err(cp, LJ_ERR_BADVAL);
+                    if (k.id == CTID_INT32)
+                        k.i32 = k.i32 % k2.i32;
+                    else
+                        k.u32 = k.u32 % k2.u32;
+                    continue;
+                }
+            default:
+                return;
+        }
+    }
+}
+
+// Parse and evaluate unary expression.
+static void cp_expr_unary(cp *CPState, CPValue *k) {
+    if (++cp.depth > CPARSE_MAX_DECLDEPTH) cp_err(cp, LJ_ERR_XLEVELS);
+    cp_expr_prefix(cp, k);
+    cp_expr_postfix(cp, k);
+    cp.depth--;
+}
+
+// Parse and evaluate sub-expression.
+static void cp_expr_sub(cp *CPState, CPValue *k, int pri) {
+    cp_expr_unary(cp, k);
+    cp_expr_infix(cp, k, pri);
+}
+*/
+
+// Parse constant integer expression.
+func cp_expr_kint(cp *CPState, k *CPValue) {
+	var ct *CType
+	cp_expr_sub(cp, k, 0)
+	ct = ctype_raw(cp.cts, k.id)
+	if !ctype_isinteger(ct.info) {
+		//cp_err(cp, LJ_ERR_BADVAL)
+		panic(cp)
+	}
+}
+
+// Parse (non-negative) size expression.
+func cp_expr_ksize(cp *CPState) CTSize {
+	var k CPValue
+	cp_expr_kint(cp, &k)
+	if uint(k.i32) >= 0x80000000 {
+		//cp_err(cp, LJ_ERR_FFI_INVSIZE)
+		panic(cp)
+	}
+	return CTSize(k.i32)
+}
+
+// Parse array declaration.
+func cp_decl_array(cp *CPState, decl *CPDecl) {
+	var info CTInfo = CTINFO(CT_ARRAY, 0)
+	var nelem CTSize = CTSIZE_INVALID // Default size for a[] or a[?].
+	cp_decl_attributes(cp, decl)
+	if cp_opt(cp, '?') {
+		info |= CTF_VLA // Create variable-length array a[?].
+	} else if cp.tok != ']' {
+		nelem = cp_expr_ksize(cp)
+	}
+	cp_check(cp, ']')
+	cp_add(decl, info, nelem)
 }
 
 // Parse declarator.
