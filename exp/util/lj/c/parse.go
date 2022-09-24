@@ -71,6 +71,8 @@ func cp_init(cp *CPState) {
 	cp.packstack[0] = 255
 	//lj_buf_init(cp.L, &cp.sb);
 	//lj_assertCP(cp.p != NULL, "uninitialized cp.p");
+	// FIXME: ???????
+	cp.ct = &CType{}
 	cp_get(cp) // Read-ahead first char.
 	cp.tok = 0
 	cp.tmask = CPNS_DEFAULT
@@ -607,9 +609,9 @@ func cp_ident(cp *CPState) CPToken {
 	cp.str = cp.sb.String()
 	//cp.val.id = ctype_getname(cp.cts, cp.ct, cp.str, cp.tmask)
 	cp.val.id = ctype_getname(nil, nil, cp.str, cp.tmask)
-	//if ctype_type(cp.ct.info) == CT_KW {
-	//	return ctype_cid(cp.ct.info)
-	//}
+	if ctype_type(cp.ct.info) == CT_KW {
+		return CPToken(ctype_cid(cp.ct.info))
+	}
 	return CTOK_IDENT
 }
 
