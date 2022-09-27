@@ -51,6 +51,8 @@ type CPState struct {
 	//lua_State *L;  // Lua state.
 	cts *CTState // C type state.
 	//TValue *param; // C type parameters.
+	params     []any
+	paramidx   int
 	srcname    string                      // Current source name.
 	linenumber int                         // Input line counter.
 	depth      int                         // Recursive declaration depth.
@@ -350,11 +352,10 @@ func cp_string(cp *CPState) CPToken {
 			//cp_err_token(cp, '\'')
 			panic(cp)
 		}
-		// FIXME:
-		// cp.val.i32 = (int32_t)(char) * cp.sb.b
-		// cp.val.id = CTID_INT32
-		// return CTOK_INTEGER
-		panic("nyi")
+		rs := []rune(cp.sb.String())
+		cp.val.i32 = rs[len(rs)-1]
+		cp.val.id = CTID_INT32
+		return CTOK_INTEGER
 	}
 }
 
@@ -506,41 +507,29 @@ func cp_ident(cp *CPState) CPToken {
 
 // Parse parameter.
 func cp_param(cp *CPState) CPToken {
-	// FIXME:
-	//c := cp_get(cp)
-	//o := cp.param
-	//if isident(c) || c == '$' {  // Reserve $xyz for future extensions.
-	//    // cp_errmsg(cp, c, LJ_ERR_XSYNTAX);
-	//	panic(cp)
-	//}
-	//if !o || o >= cp.L.top {
-	//    // cp_err(cp, LJ_ERR_FFI_NUMPARAM);
-	//	panic(cp)
-	//}
-	//cp.param = o + 1;
-	//if tvisstr(o) {
-	//    cp.str = strV(o);
-	//    cp.val.id = 0;
-	//    cp.ct = &cp.cts.tab[0];
-	//    return CTOK_IDENT;
-	//} else if tvisnumber(o) {
-	//    cp.val.i32 = numberVint(o);
-	//    cp.val.id = CTID_INT32;
-	//    return CTOK_INTEGER;
-	//} else {
-	//    var cd *GCcdata
-	//    if !tviscdata(o) {
-	//        lj_err_argtype(cp.L, (int) (o - cp.L.base) + 1, "type parameter");
-	//	}
-	//    cd = cdataV(o);
-	//    if cd.ctypeid == CTID_CTYPEID {
-	//        cp.val.id = *(CTypeID *) cdataptr(cd);
-	//    } else {
-	//        cp.val.id = cd.ctypeid;
-	//	}
-	//    return '$';
-	//}
-	panic("nyi")
+	c := cp_get(cp)
+	if isident(c) || c == '$' { // Reserve $xyz for future extensions.
+		// cp_errmsg(cp, c, LJ_ERR_XSYNTAX);
+		panic(cp)
+	}
+	p := cp.params[cp.paramidx]
+	cp.paramidx++
+	if s, ok := p.(string); ok {
+		cp.str = s
+		cp.val.id = 0
+		cp.ct = cp.cts.tab[0]
+		return CTOK_IDENT
+	}
+	if i, ok := p.(int32); ok {
+		cp.val.i32 = i
+		cp.val.id = CTID_INT32
+		return CTOK_INTEGER
+	}
+	if id, ok := p.(CTypeID); ok {
+		cp.val.id = id
+		return '$'
+	}
+	panic(cp)
 }
 
 func cp_next_(cp *CPState) CPToken {
