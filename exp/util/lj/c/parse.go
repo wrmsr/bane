@@ -457,23 +457,18 @@ func init() {
 	}
 }
 
-const CTTYPETAB_MIN = 128
-
 // Initialize C type table and state.
 func lj_ctype_init() *CTState {
 	cts := &CTState{
 		thash: make(map[CTInfoSize]CTypeID),
 		nhash: make(map[string]CTypeID),
 	}
-	tab := make([]*CType, CTTYPETAB_MIN)
-	ctidx := 0
 	nameidx := 0 // lj_ctype_typenames;
 	var id CTypeID
-	cts.tab = tab
 	cts.top = CTypeID(CTTYPEINFO_NUM)
 	for id = 0; id < CTypeID(CTTYPEINFO_NUM); id++ {
 		ct := &CType{}
-		tab[ctidx] = ct
+		cts.tab = append(cts.tab, ct)
 		var info CTInfo = lj_ctype_typeinfo[id]
 		ct.size = CTSize(int32(info<<16) >> 26)
 		ct.info = info & 0xffff03ff
@@ -488,7 +483,6 @@ func lj_ctype_init() *CTState {
 				ctype_addtype(cts, ct, id)
 			}
 		}
-		ctidx++
 	}
 	return cts
 }
@@ -1051,6 +1045,9 @@ func lj_ctype_new(cts *CTState, ctp **CType) CTypeID {
 	*ctp = ct
 	cts.top = id + 1
 	cts.tab = append(cts.tab, ct)
+	if int(cts.top) != len(cts.tab) {
+		panic("??")
+	}
 	ct.info = 0
 	ct.size = 0
 	ct.sib = 0
