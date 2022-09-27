@@ -509,7 +509,7 @@ func cp_param(cp *CPState) CPToken {
 	// FIXME:
 	//c := cp_get(cp)
 	//o := cp.param
-	//if lj_char_isident(c) || c == '$' {  // Reserve $xyz for future extensions.
+	//if isident(c) || c == '$' {  // Reserve $xyz for future extensions.
 	//    // cp_errmsg(cp, c, LJ_ERR_XSYNTAX);
 	//	panic(cp)
 	//}
