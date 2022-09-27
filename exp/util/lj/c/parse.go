@@ -138,59 +138,84 @@ func cp_next(cp *CPState) CPToken {
 	return cp.tok
 }
 
-// // C lexer keywords.
-// #define CTOKDEF(_) \
-// _(IDENT,   "<identifier>")
-// _(STRING,  "<string>")
-// _(INTEGER, "<integer>")
-// _(EOF,     "<eof>")
-// _(OROR,    "||")
-// _(ANDAND,  "&&")
-// _(EQ,      "==")
-// _(NE,      "!=")
-// _(LE,      "<=")
-// _(GE,      ">=")
-// _(SHL,     "<<")
-// _(SHR,     ">>")
-// _(DEREF,   ".")
+// C lexer keywords.
+type _CTOKDEF struct {
+	dname string
+	name  string
+}
 
-// // Simple declaration specifiers.
-// #define CDSDEF(_) \
-// _(VOID)
-// _(BOOL)
-// _(CHAR)
-// _(INT)
-// _(FP)
-// _(LONG)
-// _(LONGLONG)
-// _(SHORT)
-// _(COMPLEX)
-// _(SIGNED)
-// _(UNSIGNED)
-// _(CONST)
-// _(VOLATILE)
-// _(RESTRICT)
-// _(INLINE)
-// _(TYPEDEF)
-// _(EXTERN)
-// _(STATIC)
-// _(AUTO)
-// _(REGISTER)
+var _CTOKDEFS = []_CTOKDEF{
+	{"IDENT", "<identifier>"},
+	{"STRING", "<string>"},
+	{"INTEGER", "<integer>"},
+	{"EOF", "<eof>"},
+	{"OROR", "||"},
+	{"ANDAND", "&&"},
+	{"EQ", "=="},
+	{"NE", "!="},
+	{"LE", "<="},
+	{"GE", ">="},
+	{"SHL", "<<"},
+	{"SHR", ">>"},
+	{"DEREF", "."},
+}
+
+// Simple declaration specifiers.
+type _CDSDEF struct {
+	dname string
+}
+
+var _CDSDEFS = []_CDSDEF{
+	{"VOID"},
+	{"BOOL"},
+	{"CHAR"},
+	{"INT"},
+	{"FP"},
+	{"LONG"},
+	{"LONGLONG"},
+	{"SHORT"},
+	{"COMPLEX"},
+	{"SIGNED"},
+	{"UNSIGNED"},
+	{"CONST"},
+	{"VOLATILE"},
+	{"RESTRICT"},
+	{"INLINE"},
+	{"TYPEDEF"},
+	{"EXTERN"},
+	{"STATIC"},
+	{"AUTO"},
+	{"REGISTER"},
+}
 
 // // C keywords.
-// #define CKWDEF(_) \
-// CDSDEF(_)
-// _(EXTENSION)
-// _(ASM)
-// _(ATTRIBUTE)
-// _(DECLSPEC)
-// _(CCDECL)
-// _(PTRSZ)
-// _(STRUCT)
-// _(UNION)
-// _(ENUM)
-// _(SIZEOF)
-// _(ALIGNOF)
+type _CKWDEF struct {
+	dname string
+}
+
+var _CKWDEFS []_CKWDEF
+
+func init() {
+	for _, d := range _CDSDEFS {
+		_CKWDEFS = append(_CKWDEFS, _CKWDEF{
+			dname: d.dname,
+		})
+	}
+
+	_CKWDEFS = append(_CKWDEFS, []_CKWDEF{
+		{"EXTENSION"},
+		{"ASM"},
+		{"ATTRIBUTE"},
+		{"DECLSPEC"},
+		{"CCDECL"},
+		{"PTRSZ"},
+		{"STRUCT"},
+		{"UNION"},
+		{"ENUM"},
+		{"SIZEOF"},
+		{"ALIGNOF"},
+	}...)
+}
 
 // C token numbers.
 const (
@@ -284,34 +309,39 @@ func cp_newline(cp *CPState) {
 	cp.linenumber++
 }
 
-/*
+type _CTTYDEF struct {
+	dname string
+	sz    int
+	ct    CTInfo
+	info  CTInfo
+}
+
 // Common types.
-#define CTTYDEF(_) \
-_(NONE,           0,          CT_ATTRIB, CTATTRIB(CTA_BAD))
-_(VOID,           -1,         CT_VOID,   CTALIGN(0))
-_(CVOID,          -1,         CT_VOID,   CTF_CONST|CTALIGN(0))
-_(BOOL,           1,          CT_NUM,    CTF_BOOL|CTF_UNSIGNED|CTALIGN(0))
-_(CCHAR,          1,          CT_NUM,    CTF_CONST|CTF_UCHAR|CTALIGN(0))
-_(INT8,           1,          CT_NUM,    CTALIGN(0))
-_(UINT8,          1,          CT_NUM,    CTF_UNSIGNED|CTALIGN(0))
-_(INT16,          2,          CT_NUM,    CTALIGN(1))
-_(UINT16,         2,          CT_NUM,    CTF_UNSIGNED|CTALIGN(1))
-_(INT32,          4,          CT_NUM,    CTALIGN(2))
-_(UINT32,         4,          CT_NUM,    CTF_UNSIGNED|CTALIGN(2))
-_(INT64,          8,          CT_NUM,    CTF_LONG|CTALIGN(3))
-_(UINT64,         8,          CT_NUM,    CTF_UNSIGNED|CTF_LONG|CTALIGN(3))
-_(FLOAT,          4,          CT_NUM,    CTF_FP|CTALIGN(2))
-_(DOUBLE,         8,          CT_NUM,    CTF_FP|CTALIGN(3))
-_(COMPLEX_FLOAT,  8,          CT_ARRAY,  CTF_COMPLEX|CTALIGN(2)|CTID_FLOAT)
-_(COMPLEX_DOUBLE, 16,         CT_ARRAY,  CTF_COMPLEX|CTALIGN(3)|CTID_DOUBLE)
-_(P_VOID,         CTSIZE_PTR, CT_PTR,    CTALIGN_PTR|CTID_VOID)
-_(P_CVOID,        CTSIZE_PTR, CT_PTR,    CTALIGN_PTR|CTID_CVOID)
-_(P_CCHAR,        CTSIZE_PTR, CT_PTR,    CTALIGN_PTR|CTID_CCHAR)
-_(P_UINT8,        CTSIZE_PTR, CT_PTR,    CTALIGN_PTR|CTID_UINT8)
-_(A_CCHAR,        -1,         CT_ARRAY,  CTF_CONST|CTALIGN(0)|CTID_CCHAR)
-_(CTYPEID,        4,          CT_ENUM,   CTALIGN(2)|CTID_INT32)
-// End of type list.
-*/
+var _CTTYDEFS = []_CTTYDEF{
+	{"NONE", 0, CT_ATTRIB, CTATTRIB(CTA_BAD)},
+	{"VOID", -1, CT_VOID, CTALIGNi(0)},
+	{"CVOID", -1, CT_VOID, CTF_CONST | CTALIGNi(0)},
+	{"BOOL", 1, CT_NUM, CTF_BOOL | CTF_UNSIGNED | CTALIGNi(0)},
+	{"CCHAR", 1, CT_NUM, CTF_CONST | CTF_UCHAR | CTALIGNi(0)},
+	{"INT8", 1, CT_NUM, CTALIGNi(0)},
+	{"UINT8", 1, CT_NUM, CTF_UNSIGNED | CTALIGNi(0)},
+	{"INT16", 2, CT_NUM, CTALIGNi(1)},
+	{"UINT16", 2, CT_NUM, CTF_UNSIGNED | CTALIGNi(1)},
+	{"INT32", 4, CT_NUM, CTALIGNi(2)},
+	{"UINT32", 4, CT_NUM, CTF_UNSIGNED | CTALIGNi(2)},
+	{"INT64", 8, CT_NUM, CTF_LONG | CTALIGNi(3)},
+	{"UINT64", 8, CT_NUM, CTF_UNSIGNED | CTF_LONG | CTALIGNi(3)},
+	{"FLOAT", 4, CT_NUM, CTF_FP | CTALIGNi(2)},
+	{"DOUBLE", 8, CT_NUM, CTF_FP | CTALIGNi(3)},
+	{"COMPLEX_FLOAT", 8, CT_ARRAY, CTF_COMPLEX | CTALIGNi(2) | CTID_FLOAT},
+	{"COMPLEX_DOUBLE", 16, CT_ARRAY, CTF_COMPLEX | CTALIGNi(3) | CTID_DOUBLE},
+	{"P_VOID", CTSIZE_PTR, CT_PTR, CTALIGN_PTR | CTID_VOID},
+	{"P_CVOID", CTSIZE_PTR, CT_PTR, CTALIGN_PTR | CTID_CVOID},
+	{"P_CCHAR", CTSIZE_PTR, CT_PTR, CTALIGN_PTR | CTID_CCHAR},
+	{"P_UINT8", CTSIZE_PTR, CT_PTR, CTALIGN_PTR | CTID_UINT8},
+	{"A_CCHAR", -1, CT_ARRAY, CTF_CONST | CTALIGNi(0) | CTID_CCHAR},
+	{"CTYPEID", 4, CT_ENUM, CTALIGNi(2) | CTID_INT32},
+}
 
 // Public predefined type IDs.
 const (
@@ -340,6 +370,10 @@ const (
 	CTID_CTYPEID
 	CTID_MAX = 65536
 )
+
+const CTID_INT_PSZ = CTID_INT64
+const CTID_UINT_PSZ = CTID_UINT64
+const CTID_WCHAR = CTID_INT32
 
 // Save character in buffer.
 func cp_save(cp *CPState, c CPChar) {
@@ -490,112 +524,158 @@ func cp_comment_cpp(cp *CPState) {
 
 // Get a C type by name, matching the type mask.
 func ctype_getname(cts *CTState, ctp **CType, name string, tmask uint32) CTypeID {
-	// CTypeID id = cts.hash[ct_hashname(name)];
-	// while (id) {
-	// 	CType *ct = ctype_get(cts, id);
-	// 	if (gcref(ct.name) == obj2gco(name) && ((tmask >> ctype_type(ct.info)) & 1)) {
-	// 		*ctp = ct;
-	// 		return id;
-	// 	}
-	// 	id = ct.next;
-	// }
-	// *ctp = &cts.tab[0];  // Simplify caller logic. ctype_get() would assert.
+	id := cts.nhash[name]
+	for id != 0 {
+		ct := ctype_get(cts, id)
+		if ct.name == name && ((tmask>>ctype_type(ct.info))&1) != 0 {
+			*ctp = ct
+			return id
+		}
+		id = CTypeID(ct.next)
+	}
+	*ctp = cts.tab[0] // Simplify caller logic. ctype_get() would assert.
 	return 0
 }
 
-/*
+type _CTTDDEF struct {
+	dname string
+	id    CTypeID
+}
+
 // Predefined typedefs.
-#define CTTDDEF(_) \
-// Vararg handling.
-_("va_list",           P_VOID)
-_("__builtin_va_list", P_VOID)
-_("__gnuc_va_list",    P_VOID)
-// From stddef.h.
-_("ptrdiff_t",         INT_PSZ)
-_("size_t",            UINT_PSZ)
-_("wchar_t",           WCHAR)
-// Subset of stdint.h.
-_("int8_t",            INT8)
-_("int16_t",           INT16)
-_("int32_t",           INT32)
-_("int64_t",           INT64)
-_("uint8_t",           UINT8)
-_("uint16_t",          UINT16)
-_("uint32_t",          UINT32)
-_("uint64_t",          UINT64)
-_("intptr_t",          INT_PSZ)
-_("uintptr_t",         UINT_PSZ)
-// From POSIX.
-_("ssize_t",           INT_PSZ)
-// End of typedef list.
+var _CTTDDEFS = []_CTTDDEF{
+	// Vararg handling.
+	{"va_list", CTID_P_VOID},
+	{"__builtin_va_list", CTID_P_VOID},
+	{"__gnuc_va_list", CTID_P_VOID},
+	// From stddef.h.
+	{"ptrdiff_t", CTID_INT_PSZ},
+	{"size_t", CTID_UINT_PSZ},
+	{"wchar_t", CTID_WCHAR},
+	// Subset of stdint.h.
+	{"int8_t", CTID_INT8},
+	{"int16_t", CTID_INT16},
+	{"int32_t", CTID_INT32},
+	{"int64_t", CTID_INT64},
+	{"uint8_t", CTID_UINT8},
+	{"uint16_t", CTID_UINT16},
+	{"uint32_t", CTID_UINT32},
+	{"uint64_t", CTID_UINT64},
+	{"intptr_t", CTID_INT_PSZ},
+	{"uintptr_t", CTID_UINT_PSZ},
+	// From POSIX.
+	{"ssize_t", CTID_INT_PSZ},
+}
+
+type _CTKWDEF struct {
+	name string
+	sz   int
+	cds  int
+}
 
 // Keywords (only the ones we actually care for).
-#define CTKWDEF(_) \
-// Type specifiers.
-_("void",           -1,                   CTOK_VOID)
-_("_Bool",          0,                    CTOK_BOOL)
-_("bool",           1,                    CTOK_BOOL)
-_("char",           1,                    CTOK_CHAR)
-_("int",            4,                    CTOK_INT)
-_("__int8",         1,                    CTOK_INT)
-_("__int16",        2,                    CTOK_INT)
-_("__int32",        4,                    CTOK_INT)
-_("__int64",        8,                    CTOK_INT)
-_("float",          4,                    CTOK_FP)
-_("double",         8,                    CTOK_FP)
-_("long",           0,                    CTOK_LONG)
-_("short",          0,                    CTOK_SHORT)
-_("_Complex",       0,                    CTOK_COMPLEX)
-_("complex",        0,                    CTOK_COMPLEX)
-_("__complex",      0,                    CTOK_COMPLEX)
-_("__complex__",    0,                    CTOK_COMPLEX)
-_("signed",         0,                    CTOK_SIGNED)
-_("__signed",       0,                    CTOK_SIGNED)
-_("__signed__",     0,                    CTOK_SIGNED)
-_("unsigned",       0,                    CTOK_UNSIGNED)
-// Type qualifiers.
-_("const",          0,                    CTOK_CONST)
-_("__const",        0,                    CTOK_CONST)
-_("__const__",      0,                    CTOK_CONST)
-_("volatile",       0,                    CTOK_VOLATILE)
-_("__volatile",     0,                    CTOK_VOLATILE)
-_("__volatile__",   0,                    CTOK_VOLATILE)
-_("restrict",       0,                    CTOK_RESTRICT)
-_("__restrict",     0,                    CTOK_RESTRICT)
-_("__restrict__",   0,                    CTOK_RESTRICT)
-_("inline",         0,                    CTOK_INLINE)
-_("__inline",       0,                    CTOK_INLINE)
-_("__inline__",     0,                    CTOK_INLINE)
-// Storage class specifiers.
-_("typedef",        0,                    CTOK_TYPEDEF)
-_("extern",         0,                    CTOK_EXTERN)
-_("static",         0,                    CTOK_STATIC)
-_("auto",           0,                    CTOK_AUTO)
-_("register",       0,                    CTOK_REGISTER)
-// GCC Attributes.
-_("__extension__",  0,                    CTOK_EXTENSION)
-_("__attribute",    0,                    CTOK_ATTRIBUTE)
-_("__attribute__",  0,                    CTOK_ATTRIBUTE)
-_("asm",            0,                    CTOK_ASM)
-_("__asm",          0,                    CTOK_ASM)
-_("__asm__",        0,                    CTOK_ASM)
-// MSVC Attributes.
-_("__declspec",     0,                    CTOK_DECLSPEC)
-_("__cdecl",        CTCC_CDECL,           CTOK_CCDECL)
-_("__thiscall",     CTCC_THISCALL,        CTOK_CCDECL)
-_("__fastcall",     CTCC_FASTCALL,        CTOK_CCDECL)
-_("__stdcall",      CTCC_STDCALL,         CTOK_CCDECL)
-_("__ptr32",        4,                    CTOK_PTRSZ)
-_("__ptr64",        8,                    CTOK_PTRSZ)
-// Other type specifiers.
-_("struct",         0,                    CTOK_STRUCT)
-_("union",          0,                    CTOK_UNION)
-_("enum",           0,                    CTOK_ENUM)
-// Operators.
-_("sizeof",         0,                    CTOK_SIZEOF)
-_("__alignof",      0,                    CTOK_ALIGNOF)
-_("__alignof__",    0,                    CTOK_ALIGNOF)
-// End of keyword list.
+var _CTKWDEFS = []_CTKWDEF{
+	// Type specifiers.
+	{"void", -1, CTOK_VOID},
+	{"_Bool", 0, CTOK_BOOL},
+	{"bool", 1, CTOK_BOOL},
+	{"char", 1, CTOK_CHAR},
+	{"int", 4, CTOK_INT},
+	{"__int8", 1, CTOK_INT},
+	{"__int16", 2, CTOK_INT},
+	{"__int32", 4, CTOK_INT},
+	{"__int64", 8, CTOK_INT},
+	{"float", 4, CTOK_FP},
+	{"double", 8, CTOK_FP},
+	{"long", 0, CTOK_LONG},
+	{"short", 0, CTOK_SHORT},
+	{"_Complex", 0, CTOK_COMPLEX},
+	{"complex", 0, CTOK_COMPLEX},
+	{"__complex", 0, CTOK_COMPLEX},
+	{"__complex__", 0, CTOK_COMPLEX},
+	{"signed", 0, CTOK_SIGNED},
+	{"__signed", 0, CTOK_SIGNED},
+	{"__signed__", 0, CTOK_SIGNED},
+	{"unsigned", 0, CTOK_UNSIGNED},
+	// Type qualifiers.
+	{"const", 0, CTOK_CONST},
+	{"__const", 0, CTOK_CONST},
+	{"__const__", 0, CTOK_CONST},
+	{"volatile", 0, CTOK_VOLATILE},
+	{"__volatile", 0, CTOK_VOLATILE},
+	{"__volatile__", 0, CTOK_VOLATILE},
+	{"restrict", 0, CTOK_RESTRICT},
+	{"__restrict", 0, CTOK_RESTRICT},
+	{"__restrict__", 0, CTOK_RESTRICT},
+	{"inline", 0, CTOK_INLINE},
+	{"__inline", 0, CTOK_INLINE},
+	{"__inline__", 0, CTOK_INLINE},
+	// Storage class specifiers.
+	{"typedef", 0, CTOK_TYPEDEF},
+	{"extern", 0, CTOK_EXTERN},
+	{"static", 0, CTOK_STATIC},
+	{"auto", 0, CTOK_AUTO},
+	{"register", 0, CTOK_REGISTER},
+	// GCC Attributes.
+	{"__extension__", 0, CTOK_EXTENSION},
+	{"__attribute", 0, CTOK_ATTRIBUTE},
+	{"__attribute__", 0, CTOK_ATTRIBUTE},
+	{"asm", 0, CTOK_ASM},
+	{"__asm", 0, CTOK_ASM},
+	{"__asm__", 0, CTOK_ASM},
+	// MSVC Attributes.
+	{"__declspec", 0, CTOK_DECLSPEC},
+	{"__cdecl", CTCC_CDECL, CTOK_CCDECL},
+	{"__thiscall", CTCC_THISCALL, CTOK_CCDECL},
+	{"__fastcall", CTCC_FASTCALL, CTOK_CCDECL},
+	{"__stdcall", CTCC_STDCALL, CTOK_CCDECL},
+	{"__ptr32", 4, CTOK_PTRSZ},
+	{"__ptr64", 8, CTOK_PTRSZ},
+	// Other type specifiers.
+	{"struct", 0, CTOK_STRUCT},
+	{"union", 0, CTOK_UNION},
+	{"enum", 0, CTOK_ENUM},
+	// Operators.
+	{"sizeof", 0, CTOK_SIZEOF},
+	{"__alignof", 0, CTOK_ALIGNOF},
+	{"__alignof__", 0, CTOK_ALIGNOF},
+}
+
+const CTTYPETAB_MIN = 128
+
+/*
+// Initialize C type table and state.
+func lj_ctype_init() *CTState {
+    cts := &CTState{}
+	ct := make([]*CType, CTTYPETAB_MIN)
+    const char *name = lj_ctype_typenames;
+    CTypeID id;
+    memset(cts, 0, sizeof(CTState));
+    cts->tab = ct;
+    cts->sizetab = CTTYPETAB_MIN;
+    cts->top = CTTYPEINFO_NUM;
+    cts->L = NULL;
+    cts->g = G(L);
+    for (id = 0; id < CTTYPEINFO_NUM; id++, ct++) {
+        CTInfo info = lj_ctype_typeinfo[id];
+        ct->size = (CTSize) ((int32_t) (info << 16) >> 26);
+        ct->info = info & 0xffff03ffu;
+        ct->sib = 0;
+        if (ctype_type(info) == CT_KW || ctype_istypedef(info)) {
+            size_t len = strlen(name);
+            GCstr *str = lj_str_new(L, name, len);
+            ctype_setname(ct, str);
+            name += len + 1;
+            lj_ctype_addname(cts, ct, id);
+        } else {
+            setgcrefnull(ct->name);
+            ct->next = 0;
+            if (!ctype_isenum(info)) ctype_addtype(cts, ct, id);
+        }
+    }
+    setmref(G(L)->ctype_state, cts);
+    return cts;
+}
 */
 
 // Parse identifier or keyword.
@@ -943,6 +1023,8 @@ func cp_line(cp *CPState, hashline int) {
 func CTINFO(ct, flags CTInfo) CTInfo { return (ct << CTSHIFT_NUM) + flags }
 func CTALIGN(al int) CTSize          { return CTSize(al) << CTSHIFT_ALIGN }
 func CTATTRIB(at int) CTInfo         { return CTInfo(at) << CTSHIFT_ATTRIB }
+
+func CTALIGNi(al int) CTInfo { return CTInfo(CTALIGN(al)) }
 
 func ctype_type(info CTInfo) CTInfo { return info >> CTSHIFT_NUM }
 

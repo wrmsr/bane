@@ -3,15 +3,15 @@ package c
 // C type numbers. Highest 4 bits of C type info. ORDER CT.
 const (
 	// Externally visible types.
-	CT_NUM     = iota // Integer or floating-point numbers.
-	CT_STRUCT         // Struct or union.
-	CT_PTR            // Pointer or reference.
-	CT_ARRAY          // Array or complex type.
-	CT_VOID           // Void type.
-	CT_ENUM           // Enumeration.
-	CT_FUNC           // Function.
-	CT_TYPEDEF        // Typedef.
-	CT_ATTRIB         // Miscellaneous attributes.
+	CT_NUM     CTInfo = iota // Integer or floating-point numbers.
+	CT_STRUCT                // Struct or union.
+	CT_PTR                   // Pointer or reference.
+	CT_ARRAY                 // Array or complex type.
+	CT_VOID                  // Void type.
+	CT_ENUM                  // Enumeration.
+	CT_FUNC                  // Function.
+	CT_TYPEDEF               // Typedef.
+	CT_ATTRIB                // Miscellaneous attributes.
 	// Internal element types.
 	CT_FIELD    // Struct/union field or function parameter.
 	CT_BITFIELD // Struct/union bitfield.
@@ -110,7 +110,7 @@ const CTSHIFT_BITCSZ = 16
 const (
 	CTCC_CDECL = iota
 	CTCC_THISCALL
-	CTCC_FASTCAL
+	CTCC_FASTCALL
 	CTCC_STDCALL
 )
 
