@@ -359,6 +359,7 @@ func cp_string(cp *CPState) CPToken {
 }
 
 func cp_number(cp *CPState) CPToken {
+	// FIXME:
 	// TODO: strscan :|
 	// var  fmt StrScanFmt;
 	// var  o TValue;
@@ -505,6 +506,7 @@ func cp_ident(cp *CPState) CPToken {
 
 // Parse parameter.
 func cp_param(cp *CPState) CPToken {
+	// FIXME:
 	//c := cp_get(cp)
 	//o := cp.param
 	//if lj_char_isident(c) || c == '$' {  // Reserve $xyz for future extensions.
@@ -929,14 +931,17 @@ func cp_decl_attributes(cp *CPState, decl *CPDecl) {
 		case CTOK_EXTENSION:
 			break // Ignore.
 		case CTOK_ATTRIBUTE:
+			// FIXME:
 			//cp_decl_gccattribute(cp, decl)
 			//continue
 			panic("fixme")
 		case CTOK_ASM:
+			// FIXME:
 			//cp_decl_asm(cp, decl)
 			//continue
 			panic("fixme")
 		case CTOK_DECLSPEC:
+			// FIXME:
 			//cp_decl_msvcattribute(cp, decl)
 			//continue
 			panic("fixme")
