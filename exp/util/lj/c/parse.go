@@ -71,7 +71,6 @@ func cp_init(cp *CPState) {
 	cp.packstack[0] = 255
 	//lj_buf_init(cp.L, &cp.sb);
 	//lj_assertCP(cp.p != NULL, "uninitialized cp.p");
-	// FIXME: ???????
 	cp.ct = &CType{}
 	cp_get(cp) // Read-ahead first char.
 	cp.tok = 0
@@ -81,6 +80,10 @@ func cp_init(cp *CPState) {
 
 // Get next character.
 func cp_get(cp *CPState) CPChar {
+	if cp.p >= len(cp.i) {
+		cp.c = CTOK_EOF
+		return cp.c
+	}
 	cp.c = cp.i[cp.p]
 	cp.p++
 	if cp.c != '\\' {
@@ -426,6 +429,7 @@ func ctype_getname(cts *CTState, ctp **CType, name string, tmask uint32) CTypeID
 
 // Type info for predefined types. Size merged in.
 var lj_ctype_typeinfo []CTInfo
+var CTTYPEINFO_NUM int
 
 func init() {
 	for _, d := range _CTTYDEFS {
@@ -438,6 +442,7 @@ func init() {
 		lj_ctype_typeinfo = append(lj_ctype_typeinfo, CTINFO(CT_KW, CTInfo((d.sz&0x3f)<<10)+CTInfo(d.kw)))
 	}
 	lj_ctype_typeinfo = append(lj_ctype_typeinfo, 0)
+	CTTYPEINFO_NUM = len(lj_ctype_typeinfo) - 1
 }
 
 // Predefined type names collected in a single string.
@@ -454,40 +459,39 @@ func init() {
 
 const CTTYPETAB_MIN = 128
 
-/*
 // Initialize C type table and state.
 func lj_ctype_init() *CTState {
-    cts := &CTState{}
-	ct := make([]*CType, CTTYPETAB_MIN)
-    const char *name = lj_ctype_typenames;
-    CTypeID id;
-    memset(cts, 0, sizeof(CTState));
-    cts->tab = ct;
-    cts->sizetab = CTTYPETAB_MIN;
-    cts->top = CTTYPEINFO_NUM;
-    cts->L = NULL;
-    cts->g = G(L);
-    for (id = 0; id < CTTYPEINFO_NUM; id++, ct++) {
-        CTInfo info = lj_ctype_typeinfo[id];
-        ct->size = (CTSize) ((int32_t) (info << 16) >> 26);
-        ct->info = info & 0xffff03ffu;
-        ct->sib = 0;
-        if (ctype_type(info) == CT_KW || ctype_istypedef(info)) {
-            size_t len = strlen(name);
-            GCstr *str = lj_str_new(L, name, len);
-            ctype_setname(ct, str);
-            name += len + 1;
-            lj_ctype_addname(cts, ct, id);
-        } else {
-            setgcrefnull(ct->name);
-            ct->next = 0;
-            if (!ctype_isenum(info)) ctype_addtype(cts, ct, id);
-        }
-    }
-    setmref(G(L)->ctype_state, cts);
-    return cts;
+	cts := &CTState{
+		thash: make(map[CTInfoSize]CTypeID),
+		nhash: make(map[string]CTypeID),
+	}
+	tab := make([]*CType, CTTYPETAB_MIN)
+	ctidx := 0
+	nameidx := 0 // lj_ctype_typenames;
+	var id CTypeID
+	cts.tab = tab
+	cts.top = CTypeID(CTTYPEINFO_NUM)
+	for id = 0; id < CTypeID(CTTYPEINFO_NUM); id++ {
+		ct := &CType{}
+		tab[ctidx] = ct
+		var info CTInfo = lj_ctype_typeinfo[id]
+		ct.size = CTSize(int32(info<<16) >> 26)
+		ct.info = info & 0xffff03ff
+		ct.sib = 0
+		if ctype_type(info) == CT_KW || ctype_istypedef(info) {
+			ctype_setname(ct, lj_ctype_typenames[nameidx])
+			lj_ctype_addname(cts, ct, id)
+			nameidx++
+		} else {
+			ct.next = 0
+			if !ctype_isenum(info) {
+				ctype_addtype(cts, ct, id)
+			}
+		}
+		ctidx++
+	}
+	return cts
 }
-*/
 
 // Parse identifier or keyword.
 func cp_ident(cp *CPState) CPToken {
@@ -498,8 +502,7 @@ func cp_ident(cp *CPState) CPToken {
 		}
 	}
 	cp.str = cp.sb.String()
-	//cp.val.id = ctype_getname(cp.cts, cp.ct, cp.str, cp.tmask)
-	cp.val.id = ctype_getname(nil, nil, cp.str, cp.tmask)
+	cp.val.id = ctype_getname(cp.cts, &cp.ct, cp.str, cp.tmask)
 	if ctype_type(cp.ct.info) == CT_KW {
 		return CPToken(ctype_cid(cp.ct.info))
 	}
@@ -1052,13 +1055,19 @@ func lj_ctype_new(cts *CTState, ctp **CType) CTypeID {
 	ct.size = 0
 	ct.sib = 0
 	ct.next = 0
-	//setgcrefnull(ct.name);
 	return id
 }
 
 // Set the name of a C type table element.
 func ctype_setname(ct *CType, s string) {
 	ct.name = s
+}
+
+// Add type element to hash table.
+func ctype_addtype(cts *CTState, ct *CType, id CTypeID) {
+	t := CTInfoSize{ct.info, ct.size}
+	ct.next = CTypeID1(cts.thash[t])
+	cts.thash[t] = id
 }
 
 // Add named element to hash table.
