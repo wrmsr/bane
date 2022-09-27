@@ -429,7 +429,7 @@ var lj_ctype_typeinfo []CTInfo
 
 func init() {
 	for _, d := range _CTTYDEFS {
-		lj_ctype_typeinfo = append(lj_ctype_typeinfo, CTINFO((d.ct), CTInfo(d.sz&0x3f)<<10)+d.info)
+		lj_ctype_typeinfo = append(lj_ctype_typeinfo, CTINFO(d.ct, CTInfo((d.sz&0x3f)<<10))+d.info)
 	}
 	for _, d := range _CTTDDEFS {
 		lj_ctype_typeinfo = append(lj_ctype_typeinfo, CTINFO(CT_TYPEDEF, CTInfo(d.id)))
