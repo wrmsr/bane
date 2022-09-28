@@ -152,8 +152,8 @@ COMPARATOR
     | '!='
     ;
 
-RAW_STRING:
-    '\'' (RAW_ESC | ~['\\])* '\''
+RAW_STRING
+    : '\'' (RAW_ESC | ~['\\])* '\''
     ;
 
 fragment RAW_ESC

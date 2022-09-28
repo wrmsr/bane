@@ -856,7 +856,7 @@ func ctype_hassize(info CTInfo) bool    { return ctype_type(info) <= CT_HASSIZE 
 // Combined type and flag checks.
 
 func ctype_isinteger(info CTInfo) bool {
-	return ((info) & (CTMASK_NUM | CTF_BOOL | CTF_FP)) == CTINFO(CT_NUM, 0)
+	return (info & (CTMASK_NUM | CTF_BOOL | CTF_FP)) == CTINFO(CT_NUM, 0)
 }
 
 func ctype_isinteger_or_bool(info CTInfo) bool {
@@ -864,11 +864,11 @@ func ctype_isinteger_or_bool(info CTInfo) bool {
 }
 
 func ctype_isbool(info CTInfo) bool {
-	return ((info) & (CTMASK_NUM | CTF_BOOL)) == CTINFO(CT_NUM, CTF_BOOL)
+	return (info & (CTMASK_NUM | CTF_BOOL)) == CTINFO(CT_NUM, CTF_BOOL)
 }
 
 func ctype_isfp(info CTInfo) bool {
-	return ((info) & (CTMASK_NUM | CTF_FP)) == CTINFO(CT_NUM, CTF_FP)
+	return (info & (CTMASK_NUM | CTF_FP)) == CTINFO(CT_NUM, CTF_FP)
 }
 
 func ctype_ispointer(info CTInfo) bool { // Pointer or array.
@@ -876,7 +876,7 @@ func ctype_ispointer(info CTInfo) bool { // Pointer or array.
 }
 
 func ctype_isref(info CTInfo) bool {
-	return ((info) & (CTMASK_NUM | CTF_REF)) == CTINFO(CT_PTR, CTF_REF)
+	return (info & (CTMASK_NUM | CTF_REF)) == CTINFO(CT_PTR, CTF_REF)
 }
 
 func ctype_isrefarray(info CTInfo) bool {
