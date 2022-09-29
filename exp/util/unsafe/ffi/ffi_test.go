@@ -18,6 +18,8 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 */
 package ffi
 
+import "testing"
+
 //import (
 //	"fmt"
 //	"strconv"
@@ -544,3 +546,7 @@ package ffi
 //		abs.Call(unsafe.Pointer(&res), unsafe.Pointer(&arg))
 //	}
 //}
+
+func TestFfiStub(t *testing.T) {
+
+}
