@@ -12,6 +12,8 @@ func WithInlining(fn any) any {
 
 //
 
+var _ = Inline(Inlined0, Inlined1)
+
 func Inlined0(x, y int) int {
 	return x + y
 }
@@ -19,6 +21,8 @@ func Inlined0(x, y int) int {
 func Inlined1(x, y int) int {
 	return x * y
 }
+
+var _ = WithInlining(Bar)
 
 func Bar(x, y int) int {
 	return Inlined1(Inlined0(x, y), y)
