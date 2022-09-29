@@ -30,7 +30,7 @@ func Bar(x, y int) int {
 
 //
 
-func _def_Bar(x, y int) int {
+func _def_inl_Bar(x, y int) int {
 	_def_tmp_0 := x + y
 	_def_tmp_1 := _def_tmp_0 * y
 	return _def_tmp_1
