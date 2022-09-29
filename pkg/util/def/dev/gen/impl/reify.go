@@ -155,12 +155,10 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		}
 
 	case "ConstGeneric":
-		//opts := make([]def.StructOpt, len(call.Args))
-		//for i, arg := range call.Args {
-		//	opts[i] = ReifyDef(arg, ti).(def.StructOpt)
-		//}
-		// FIXME:
-		var cv any
+		cvs := make([]any, len(call.Args))
+		for i, arg := range call.Args {
+			cvs[i] = arg.(*ast.Ident).Name
+		}
 
 		idx := call.Fun.(*ast.IndexExpr)
 		var ty any
@@ -174,8 +172,8 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		}
 
 		return def.ConstGenericDef{
-			Ty: ty,
-			Cv: cv,
+			Ty:  ty,
+			Cvs: cvs,
 		}
 
 	}
