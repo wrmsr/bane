@@ -220,6 +220,9 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 			}
 			edm[d.Ty] = append(edm[d.Ty], d)
 
+		case ConstGenericDef:
+			// FIXME:
+
 		default:
 			panic(RegistryError{fmt.Errorf("%T", d)})
 		}

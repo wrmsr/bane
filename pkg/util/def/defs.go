@@ -138,3 +138,20 @@ func Enum[T any](opts ...EnumOpt) any {
 		Opts: opts,
 	})
 }
+
+//
+
+type ConstGenericDef struct {
+	Ty any
+	Cv any
+}
+
+func (ed ConstGenericDef) isPackageDef() {}
+
+func ConstGeneric[T any](cv any) any {
+	var z T
+	return addPackageDef(globalRegistry, getCallingPackage(), ConstGenericDef{
+		Ty: reflect.TypeOf(z),
+		Cv: cv,
+	})
+}

@@ -154,6 +154,30 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 			Opts: opts,
 		}
 
+	case "ConstGeneric":
+		//opts := make([]def.StructOpt, len(call.Args))
+		//for i, arg := range call.Args {
+		//	opts[i] = ReifyDef(arg, ti).(def.StructOpt)
+		//}
+		// FIXME:
+		var cv any
+
+		idx := call.Fun.(*ast.IndexExpr)
+		var ty any
+		switch id := idx.Index.(type) {
+		case *ast.Ident:
+			ty = id.Name
+		case *ast.IndexExpr:
+			ty = id.X.(*ast.Ident).Name
+		default:
+			panic(ty)
+		}
+
+		return def.ConstGenericDef{
+			Ty: ty,
+			Cv: cv,
+		}
+
 	}
 
 	panic(fmt.Errorf("unhandled type: %T", node))
