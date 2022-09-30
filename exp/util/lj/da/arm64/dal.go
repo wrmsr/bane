@@ -616,7 +616,7 @@ func parse_template(params []string, template string, nparams, pos any) {
 	parse_reg_type = ""
 
 	// Process each character.
-	for p := range []rune(template[8:]) {
+	for _, p := range []rune(template[8:]) {
 		q := params[n]
 		switch p {
 		case 'D':
@@ -760,7 +760,7 @@ func splitstmt_one(c string) string {
 }
 */
 
-/ Split statement into (pseudo-)opcode and params.
+// Split statement into (pseudo-)opcode and params.
 func splitstmt(stmt string) (string, []string) {
 	// -- Convert label with trailing-colon into .label statement.
 	// local label = match(stmt, "^%s*(.+):%s*$")
@@ -784,8 +784,8 @@ func splitstmt(stmt string) (string, []string) {
 
 	// Split parameters.
 	var params []string
-	for _, p := range regexp.MustCompile(`%s*(%Z+)%z?`).FindAllStringSubmatch(other) {
-		params = append(params, regexp.MustCompile("%s+$").ReplaceAllString(p, ""))
+	for _, p := range regexp.MustCompile(`%s*(%Z+)%z?`).FindAllStringSubmatch(other, -1) {
+		params = append(params, regexp.MustCompile("%s+$").ReplaceAllString(p[1], ""))
 	}
 	if len(params) >= 16 {
 		panic("too many parameters")
