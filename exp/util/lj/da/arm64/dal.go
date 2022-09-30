@@ -334,6 +334,7 @@ func parse_reg(expr string, shift int, no_vreg bool) (int, any) {
 	if m != nil {
 		tname, ovreg = m[1], m[2]
 	} else {
+		// FIXME: balanced %b
 		m = regexp.MustCompile(`^([\w_]+):(R[xwqdshb]%b())$`).FindStringSubmatch(expr)
 		tname, ovreg = m[1], m[2]
 	}
