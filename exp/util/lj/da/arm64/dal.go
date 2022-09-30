@@ -741,8 +741,9 @@ func parse_template(params []string, template string, nparams, pos any) {
 			panic("nyi")
 		}
 	}
+
 	//wputpos(pos, op)
-	fmt.Printf("%v %v\n", pos, op)
+	fmt.Printf("%v %08x\n", pos, op)
 }
 
 func op_template(params []string, template string, nparams int) {
