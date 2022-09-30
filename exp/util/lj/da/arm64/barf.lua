@@ -31,6 +31,7 @@ local function splitstmt(stmt)
     -- Split at commas and equal signs, but obey parentheses and brackets.
     splitlvl = ""
     stmt = gsub(stmt, "[,%(%)%[%]{}]", splitstmt_one)
+    print(gsub(stmt, "%z", "!!!"))
     if splitlvl ~= "" then
         werror("unbalanced () or []")
     end

@@ -777,24 +777,6 @@ func init() {
 
 var splitlvl string
 
-func splitstmt_one(c string) string {
-	if c == "(" {
-		splitlvl = ")" + splitlvl
-	} else if c == "[" {
-		splitlvl = "]" + splitlvl
-	} else if c == "{" {
-		splitlvl = "}" + splitlvl
-	} else if c == ")" || c == "]" || c == "}" {
-		if !(len(c) == 1 && strings.HasPrefix(splitlvl, c)) {
-			panic("unbalanced (), [] or {}")
-		}
-		splitlvl = string([]rune(splitlvl)[1:])
-	} else if splitlvl == "" {
-		return " \000 "
-	}
-	return c
-}
-
 // Split statement into (pseudo-)opcode and params.
 func splitstmt(stmt string) (string, []string) {
 	// -- Convert label with trailing-colon into .label statement.
