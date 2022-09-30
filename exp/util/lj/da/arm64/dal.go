@@ -612,7 +612,7 @@ func parse_fpimm(imm string) int
 // Handle opcodes defined with template strings.
 func parse_template(params []string, template string, nparams, pos any) {
 	op := int(check.Must1(strconv.ParseInt(template[0:8], 16, 64)))
-	n := 1
+	n := 0
 
 	parse_reg_type = ""
 
@@ -739,6 +739,35 @@ func parse_template(params []string, template string, nparams, pos any) {
 	fmt.Printf("%v %v\n", pos, op)
 }
 
+func op_template(params []string, template string, nparams int) {
+	parse_template(params, template, nparams, 0)
+
+	// if not params then
+	//     return template:gsub("%x%x%x%x%x%x%x%x", "")
+	// end
+	//local ok, err
+	//for t in gmatch(template, "[^|]+") do
+	//    ok, err := parse_template(params, t, nparams, 0)
+	//    if ok then
+	//        return
+	//    end
+	//    secpos = spos
+	//    actlist[lpos + 1] = nil
+	//    actlist[lpos + 2] = nil
+	//    actlist[lpos + 3] = nil
+	//    actlist[lpos + 4] = nil
+	//    actargs[apos + 1] = nil
+	//    actargs[apos + 2] = nil
+	//    actargs[apos + 3] = nil
+	//    actargs[apos + 4] = nil
+	//end
+	//error(err, 0)
+}
+
+func init() {
+	map_op[".template__"] = op_template
+}
+
 var splitlvl string
 
 func splitstmt_one(c string) string {
@@ -818,7 +847,7 @@ func do_stmt(stmt string) {
 	// Call opcode handler or special handler for template strings.
 	switch f := f.(type) {
 	case string:
-		map_op[".template__"].(func([]string, string))(params, f)
+		map_op[".template__"].(func([]string, string, int))(params, f, 0)
 	case func([]string):
 		f(params)
 	default:
