@@ -531,6 +531,83 @@ func parse_imm6(imm string) int {
 	}
 }
 
+func parse_shift(expr string) int {
+	m := regexp.MustCompile(`^(%S+)%s*(.*)$`).FindStringSubmatch(expr)
+	ss, s2 := m[1], m[2]
+	s, ok := map_shift[ss]
+	if !ok {
+		panic("expected shift operand")
+	}
+	return parse_imm(s2, 6, 10, 0, false) + (s << 22)
+}
+
+func parse_extend(expr string) int {
+	m := regexp.MustCompile(`^(%S+)%s*(.*)$`).FindStringSubmatch(expr)
+	ss, s2 := m[1], m[2]
+	var s int
+	if ss == "lsl" {
+		s = bt.Choose(parse_reg_type == "x", 3, 2)
+	} else {
+		s = map_extend[ss]
+	}
+	if s == 0 {
+		panic("expected extend operand")
+	}
+	var x int
+	if s2 != "" {
+		x = parse_imm(s2, 3, 10, 0, false)
+	}
+	return x + (s << 13)
+}
+
+func parse_cond(expr string, inv int) int {
+	c, ok := map_cond[expr]
+	if !ok {
+		panic("expected condition operand")
+	}
+	return (c ^ inv) << 12
+}
+
+func parse_lslx16(expr string) int {
+	m := regexp.MustCompile(`^lsl%s*#(%d+)$`).FindStringSubmatch(expr)
+	ns := m[1]
+	no := parse_number(ns)
+	if !no.Present() {
+		panic("expected shift operand")
+	}
+	n := no.Value()
+	if (n & bt.Choose(parse_reg_type == "x", 0xffffffcf, 0xffffffef)) != 0 {
+		panic("bad shift amount")
+	}
+	return n << 17
+}
+
+/*
+func parse_fpimm(imm string) int
+	ms := regexp.MustCompile(`^#(.*)$`).FindStringSubmatch(imm)
+	imm := ms[1]
+    if imm == "" {
+        panic("expected immediate operand")
+    }
+    no := parse_number(imm)
+	if !no.Present() {
+        panic("NYI fpimm action")
+	}
+	n := no.Value()
+	local m, e = math.frexp(n)
+	local s, e2 = 0, band(e - 2, 7)
+	if m < 0 then
+		m = -m;
+		s = 0x00100000
+	end
+	m = m * 32 - 16
+	if m % 1 == 0 and m >= 0 and m <= 15 and sar(shl(e2, 29), 29) + 2 == e {
+		return s + shl(e2, 17) + shl(m, 13)
+	}
+	panic("out of range immediate `" .. imm .. "'")
+}
+*/
+
 // Handle opcodes defined with template strings.
 func parse_template(params []string, template string, nparams, pos any) {
 	op := int(check.Must1(strconv.ParseInt(template[0:8], 16, 64)))
@@ -591,7 +668,7 @@ func parse_template(params []string, template string, nparams, pos any) {
 			       local mode, v, s = parse_label(q, false);
 			       n = n + 1
 			       if not mode then
-			           werror("bad label `" .. q .. "'")
+			           panic("bad label `" .. q .. "'")
 			       end
 			       local m = branch_type(op)
 			       if mode == "A" then
@@ -626,33 +703,32 @@ func parse_template(params []string, template string, nparams, pos any) {
 		case 'V':
 			op = op + parse_imm(q, 4, 0, 0, false)
 			n = n + 1
-
 			/*
 			   case 'F':
 			       op = op + parse_fpimm(q);
 			       n = n + 1
-			   case 'Z':
-			       if q != "#0" and q != "#0.0" {
-			           werror("expected zero immediate")
-			       }
-			       n = n + 1
-
-			   case 'S':
-			       op = op + parse_shift(q);
-			       n = n + 1
-			   case 'X':
-			       op = op + parse_extend(q);
-			       n = n + 1
-			   case 'R':
-			       op = op + parse_lslx16(q);
-			       n = n + 1
-			   case 'C':
-			       op = op + parse_cond(q, 0);
-			       n = n + 1
-			   case 'c':
-			       op = op + parse_cond(q, 1);
-			       n = n + 1
 			*/
+		case 'Z':
+			if q != "#0" && q != "#0.0" {
+				panic("expected zero immediate")
+			}
+			n = n + 1
+
+		case 'S':
+			op = op + parse_shift(q)
+			n = n + 1
+		case 'X':
+			op = op + parse_extend(q)
+			n = n + 1
+		case 'R':
+			op = op + parse_lslx16(q)
+			n = n + 1
+		case 'C':
+			op = op + parse_cond(q, 0)
+			n = n + 1
+		case 'c':
+			op = op + parse_cond(q, 1)
+			n = n + 1
 
 		default:
 			panic("nyi")
@@ -660,4 +736,93 @@ func parse_template(params []string, template string, nparams, pos any) {
 	}
 	//wputpos(pos, op)
 	fmt.Printf("%v %v\n", pos, op)
+}
+
+var splitlvl string
+
+/*
+func splitstmt_one(c string) string {
+	if c == "(" {
+		splitlvl = ")" + splitlvl
+	} else if c == "[" {
+		splitlvl = "]" + splitlvl
+	} else if c == "{" {
+		splitlvl = "}" + splitlvl
+	} else if c == ")" || c == "]" || c == "}" {
+		if !(len(c) == 1 && strings.HasPrefix(splitlvl, c)) {
+			panic("unbalanced (), [] or {}")
+		}
+		splitlvl = string([]rune(splitlvl)[1:])
+	} else if splitlvl == "" {
+		return " \0 "
+	}
+	return c
+}
+*/
+
+/ Split statement into (pseudo-)opcode and params.
+func splitstmt(stmt string) (string, []string) {
+	// -- Convert label with trailing-colon into .label statement.
+	// local label = match(stmt, "^%s*(.+):%s*$")
+	// if label {
+	//     return ".label", { label }
+	// }
+
+	// -- Split at commas and equal signs, but obey parentheses and brackets.
+	// splitlvl = ""
+	// stmt = gsub(stmt, "[,%(%)%[%]{}]", splitstmt_one)
+	// if splitlvl ~= "" {
+	//     panic("unbalanced () or []")
+	// }
+
+	// Split off opcode.
+	m := regexp.MustCompile(`^%s*([^%s%z]+)%s*(.*)$`).FindStringSubmatch(stmt)
+	op, other := m[1], m[2]
+	if op == "" {
+		panic("bad statement syntax")
+	}
+
+	// Split parameters.
+	var params []string
+	for _, p := range regexp.MustCompile(`%s*(%Z+)%z?`).FindAllStringSubmatch(other) {
+		params = append(params, regexp.MustCompile("%s+$").ReplaceAllString(p, ""))
+	}
+	if len(params) >= 16 {
+		panic("too many parameters")
+	}
+
+	//params.op = op
+	return op, params
+}
+
+// Process a single statement.
+func do_stmt(stmt string) {
+	// Split into (pseudo-)opcode and params.
+	op, params := splitstmt(stmt)
+
+	// Get opcode handler (matching # of parameters or generic handler).
+	f, ok := map_op[op+"_"+strconv.Itoa(len(params)+1)]
+	if !ok {
+		f, ok = map_op[op+"_*"]
+	}
+	if !ok {
+		// Improve error report.
+		//for i := 0, i < 9; i++ {
+		//    if _, ok := map_op[op .. "_" .. i] {
+		//        panic("wrong number of parameters for `" + op + "'")
+		//    }
+		//}
+		//panic("unknown statement `" .. op .. "'")
+		panic(op)
+	}
+
+	// Call opcode handler or special handler for template strings.
+	switch f := f.(type) {
+	case string:
+		map_op[".template__"].(func([]string, string))(params, f)
+	case func([]string):
+		f(params)
+	default:
+		panic(f)
+	}
 }
