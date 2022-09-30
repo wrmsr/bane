@@ -625,25 +625,24 @@ func parse_template(params []string, template string, nparams, pos any) {
 
 	// Process each character.
 	for _, p := range []rune(template[8:]) {
-		q := params[n]
 		switch p {
 		case 'D':
-			op = op + parse_reg1(q, 0, false)
-			n = n + 1
+			op = op + parse_reg1(params[n], 0, false)
+			n++
 		case 'N':
-			op = op + parse_reg1(q, 5, false)
-			n = n + 1
+			op = op + parse_reg1(params[n], 5, false)
+			n++
 		case 'M':
-			op = op + parse_reg1(q, 16, false)
-			n = n + 1
+			op = op + parse_reg1(params[n], 16, false)
+			n++
 		case 'A':
-			op = op + parse_reg1(q, 10, false)
-			n = n + 1
+			op = op + parse_reg1(params[n], 10, false)
+			n++
 		case 'm':
 			op = op + parse_reg1(params[n-1], 16, false)
 
 		case 'p':
-			if q == "sp" {
+			if params[n] == "sp" {
 				params[n] = "@x31"
 			}
 		case 'g':
@@ -673,10 +672,10 @@ func parse_template(params []string, template string, nparams, pos any) {
 			       op = parse_load_pair(params, nparams, n, op)
 
 			   case 'B':
-			       local mode, v, s = parse_label(q, false);
-			       n = n + 1
+			       local mode, v, s = parse_label(params[n], false);
+			       n++
 			       if not mode then
-			           panic("bad label `" .. q .. "'")
+			           panic("bad label `" .. params[n] .. "'")
 			       end
 			       local m = branch_type(op)
 			       if mode == "A" then
@@ -688,55 +687,55 @@ func parse_template(params []string, template string, nparams, pos any) {
 			*/
 
 		case 'I':
-			op = op + parse_imm12(q)
-			n = n + 1
+			op = op + parse_imm12(params[n])
+			n++
 		case 'i':
-			op = op + parse_imm13(q)
-			n = n + 1
+			op = op + parse_imm13(params[n])
+			n++
 		case 'W':
-			op = op + parse_imm(q, 16, 5, 0, false)
-			n = n + 1
+			op = op + parse_imm(params[n], 16, 5, 0, false)
+			n++
 		case 'T':
-			op = op + parse_imm6(q)
-			n = n + 1
+			op = op + parse_imm6(params[n])
+			n++
 		case '1':
-			op = op + parse_imm(q, 6, 16, 0, false)
-			n = n + 1
+			op = op + parse_imm(params[n], 6, 16, 0, false)
+			n++
 		case '2':
-			op = op + parse_imm(q, 6, 10, 0, false)
-			n = n + 1
+			op = op + parse_imm(params[n], 6, 10, 0, false)
+			n++
 		case '5':
-			op = op + parse_imm(q, 5, 16, 0, false)
-			n = n + 1
+			op = op + parse_imm(params[n], 5, 16, 0, false)
+			n++
 		case 'V':
-			op = op + parse_imm(q, 4, 0, 0, false)
-			n = n + 1
+			op = op + parse_imm(params[n], 4, 0, 0, false)
+			n++
 			/*
 			   case 'F':
-			       op = op + parse_fpimm(q);
-			       n = n + 1
+			       op = op + parse_fpimm(params[n]);
+			       n++
 			*/
 		case 'Z':
-			if q != "#0" && q != "#0.0" {
+			if params[n] != "#0" && params[n] != "#0.0" {
 				panic("expected zero immediate")
 			}
-			n = n + 1
+			n++
 
 		case 'S':
-			op = op + parse_shift(q)
-			n = n + 1
+			op = op + parse_shift(params[n])
+			n++
 		case 'X':
-			op = op + parse_extend(q)
-			n = n + 1
+			op = op + parse_extend(params[n])
+			n++
 		case 'R':
-			op = op + parse_lslx16(q)
-			n = n + 1
+			op = op + parse_lslx16(params[n])
+			n++
 		case 'C':
-			op = op + parse_cond(q, 0)
-			n = n + 1
+			op = op + parse_cond(params[n], 0)
+			n++
 		case 'c':
-			op = op + parse_cond(q, 1)
-			n = n + 1
+			op = op + parse_cond(params[n], 1)
+			n++
 
 		default:
 			panic("nyi")
