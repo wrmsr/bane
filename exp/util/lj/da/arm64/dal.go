@@ -330,11 +330,11 @@ func parse_reg(expr string, shift int, no_vreg bool) (int, any) {
 	}
 
 	var tname, ovreg string
-	m := regexp.MustCompile(`^([%w_]+):(@?%l%d+)$`).FindStringSubmatch(expr)
+	m := regexp.MustCompile(`^([\w_]+):(@?a-z\d+)$`).FindStringSubmatch(expr)
 	if m != nil {
 		tname, ovreg = m[1], m[2]
 	} else {
-		m = regexp.MustCompile(`^([%w_]+):(R[xwqdshb]%b())$`).FindStringSubmatch(expr)
+		m = regexp.MustCompile(`^([\w_]+):(R[xwqdshb]%b())$`).FindStringSubmatch(expr)
 		tname, ovreg = m[1], m[2]
 	}
 
@@ -361,6 +361,7 @@ func parse_reg(expr string, shift int, no_vreg bool) (int, any) {
 		}
 	}
 
+	// FIXME: balanced %b
 	m = regexp.MustCompile(`^R([xwqdshb])(%b())$`).FindStringSubmatch(expr)
 	vrt, vreg := m[1], m[2]
 	if vreg != "" {
@@ -532,7 +533,7 @@ func parse_imm6(imm string) int {
 }
 
 func parse_shift(expr string) int {
-	m := regexp.MustCompile(`^(%S+)%s*(.*)$`).FindStringSubmatch(expr)
+	m := regexp.MustCompile(`^(\S+)\s*(.*)$`).FindStringSubmatch(expr)
 	ss, s2 := m[1], m[2]
 	s, ok := map_shift[ss]
 	if !ok {
@@ -542,7 +543,7 @@ func parse_shift(expr string) int {
 }
 
 func parse_extend(expr string) int {
-	m := regexp.MustCompile(`^(%S+)%s*(.*)$`).FindStringSubmatch(expr)
+	m := regexp.MustCompile(`^(\S+)\s*(.*)$`).FindStringSubmatch(expr)
 	ss, s2 := m[1], m[2]
 	var s int
 	if ss == "lsl" {
@@ -569,7 +570,7 @@ func parse_cond(expr string, inv int) int {
 }
 
 func parse_lslx16(expr string) int {
-	m := regexp.MustCompile(`^lsl%s*#(%d+)$`).FindStringSubmatch(expr)
+	m := regexp.MustCompile(`^lsl\s*#(\d+)$`).FindStringSubmatch(expr)
 	ns := m[1]
 	no := parse_number(ns)
 	if !no.Present() {
@@ -740,7 +741,6 @@ func parse_template(params []string, template string, nparams, pos any) {
 
 var splitlvl string
 
-/*
 func splitstmt_one(c string) string {
 	if c == "(" {
 		splitlvl = ")" + splitlvl
@@ -754,11 +754,10 @@ func splitstmt_one(c string) string {
 		}
 		splitlvl = string([]rune(splitlvl)[1:])
 	} else if splitlvl == "" {
-		return " \0 "
+		return " \000 "
 	}
 	return c
 }
-*/
 
 // Split statement into (pseudo-)opcode and params.
 func splitstmt(stmt string) (string, []string) {
@@ -768,15 +767,15 @@ func splitstmt(stmt string) (string, []string) {
 	//     return ".label", { label }
 	// }
 
-	// -- Split at commas and equal signs, but obey parentheses and brackets.
+	// // Split at commas and equal signs, but obey parentheses and brackets.
 	// splitlvl = ""
-	// stmt = gsub(stmt, "[,%(%)%[%]{}]", splitstmt_one)
-	// if splitlvl ~= "" {
+	// stmt = gsub(stmt, `[,\(\)\[\]{}]`, splitstmt_one)
+	// if splitlvl != "" {
 	//     panic("unbalanced () or []")
 	// }
 
 	// Split off opcode.
-	m := regexp.MustCompile(`^%s*([^%s%z]+)%s*(.*)$`).FindStringSubmatch(stmt)
+	m := regexp.MustCompile(`^\s*([^\s\000]+)\s*(.*)$`).FindStringSubmatch(stmt)
 	op, other := m[1], m[2]
 	if op == "" {
 		panic("bad statement syntax")
@@ -784,8 +783,8 @@ func splitstmt(stmt string) (string, []string) {
 
 	// Split parameters.
 	var params []string
-	for _, p := range regexp.MustCompile(`%s*(%Z+)%z?`).FindAllStringSubmatch(other, -1) {
-		params = append(params, regexp.MustCompile("%s+$").ReplaceAllString(p[1], ""))
+	for _, p := range regexp.MustCompile(`\s*([^\000]+)\000?`).FindAllStringSubmatch(other, -1) {
+		params = append(params, regexp.MustCompile(`\s+$`).ReplaceAllString(p[1], ""))
 	}
 	if len(params) >= 16 {
 		panic("too many parameters")
