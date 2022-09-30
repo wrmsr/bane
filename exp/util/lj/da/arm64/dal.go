@@ -775,41 +775,48 @@ func init() {
 	map_op[".template__"] = op_template
 }
 
-var splitlvl string
-
 // Split statement into (pseudo-)opcode and params.
-func splitstmt(stmt string) (string, []string) {
-	// -- Convert label with trailing-colon into .label statement.
-	// local label = match(stmt, "^%s*(.+):%s*$")
-	// if label {
-	//     return ".label", { label }
-	// }
+func splitstmt(s string) (string, []string) {
+	rs := []rune(s)
+	var parts []string
+	var stk []rune
+	l := 0
+	for i, r := range rs {
+		switch r {
+		case '(':
+			stk = append(stk, ')')
+		case '[':
+			stk = append(stk, '[')
+		case '{':
+			stk = append(stk, '{')
+		case ')', ']', '}':
+			if stk[len(stk)-1] != r {
+				panic("unmatched")
+			}
+			stk = stk[:len(stk)-1]
+		case ',':
+			parts = append(parts, string(rs[l:i]))
+			l = i + 1
+		}
+	}
+	if len(stk) > 0 {
+		panic("unclosed")
+	}
+	parts = append(parts, string(rs[l:]))
 
-	// // Split at commas and equal signs, but obey parentheses and brackets.
-	// splitlvl = ""
-	// stmt = gsub(stmt, `[,\(\)\[\]{}]`, splitstmt_one)
-	// if splitlvl != "" {
-	//     panic("unbalanced () or []")
-	// }
-
-	// Split off opcode.
-	m := regexp.MustCompile(`^\s*([^\s\000]+)\s*(.*)$`).FindStringSubmatch(stmt)
-	op, other := m[1], m[2]
-	if op == "" {
-		panic("bad statement syntax")
+	m := regexp.MustCompile(`^\s*(\S+)(.*)$`).FindStringSubmatch(parts[0])
+	op := m[1]
+	if m[2] != "" {
+		parts[0] = m[2]
+	} else {
+		parts = parts[1:]
 	}
 
-	// Split parameters.
-	var params []string
-	for _, p := range regexp.MustCompile(`\s*([^\000]+)\000?`).FindAllStringSubmatch(other, -1) {
-		params = append(params, regexp.MustCompile(`\s+$`).ReplaceAllString(p[1], ""))
-	}
-	if len(params) >= 16 {
-		panic("too many parameters")
+	for i, p := range parts {
+		parts[i] = strings.TrimSpace(p)
 	}
 
-	//params.op = op
-	return op, params
+	return op, parts
 }
 
 // Process a single statement.
@@ -818,7 +825,8 @@ func do_stmt(stmt string) {
 	op, params := splitstmt(stmt)
 
 	// Get opcode handler (matching # of parameters or generic handler).
-	f, ok := map_op[op+"_"+strconv.Itoa(len(params)+1)]
+	fk := op + "_" + strconv.Itoa(len(params))
+	f, ok := map_op[fk]
 	if !ok {
 		f, ok = map_op[op+"_*"]
 	}
