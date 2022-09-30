@@ -277,6 +277,7 @@ local function parse_reg(expr, shift, no_vreg)
     if not expr then
         werror("expected register name")
     end
+    -- string.match("x1, x2, lsl #47", "^([%w_]+):(R[xwqdshb]%b())$")
     local tname, ovreg = match(expr, "^([%w_]+):(@?%l%d+)$")
     if not tname then
         tname, ovreg = match(expr, "^([%w_]+):(R[xwqdshb]%b())$")
@@ -289,6 +290,7 @@ local function parse_reg(expr, shift, no_vreg)
         end
         expr = reg
     end
+    -- string.match("x1, x2, lsl #47", "^(@?)([xwqdshb])([123]?[0-9])$")
     local ok31, rt, r = match(expr, "^(@?)([xwqdshb])([123]?[0-9])$")
     if r then
         r = tonumber(r)

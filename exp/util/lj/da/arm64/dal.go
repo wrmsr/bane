@@ -334,9 +334,11 @@ func parse_reg(expr string, shift int, no_vreg bool) (int, any) {
 	if m != nil {
 		tname, ovreg = m[1], m[2]
 	} else {
-		// FIXME: balanced %b
-		m = regexp.MustCompile(`^([\w_]+):(R[xwqdshb]%b())$`).FindStringSubmatch(expr)
-		tname, ovreg = m[1], m[2]
+		// FIXME: balanced %b: `^([\w_]+):(R[xwqdshb]%b())$`
+		m = regexp.MustCompile(`^([\w_]+):(R[xwqdshb]\([^\)]*\))$`).FindStringSubmatch(expr)
+		if m != nil {
+			tname, ovreg = m[1], m[2]
+		}
 	}
 
 	tp := map_type[bt.Coalesce(tname, expr)]
@@ -349,32 +351,36 @@ func parse_reg(expr string, shift int, no_vreg bool) (int, any) {
 	}
 
 	m = regexp.MustCompile(`^(@?)([xwqdshb])([123]?[0-9])$`).FindStringSubmatch(expr)
-	ok31, rt, r := m[1], m[2], m[3]
-	if r != "" {
-		r := check.Must1(strconv.Atoi(r))
-		if r <= 30 || (r == 31 && ok31 != "" || (rt != "w" && rt != "x")) {
-			if parse_reg_type == "" {
-				parse_reg_type = rt
-			} else if parse_reg_type != rt {
-				panic("register size mismatch")
+	if m != nil {
+		ok31, rt, r := m[1], m[2], m[3]
+		if r != "" {
+			r := check.Must1(strconv.Atoi(r))
+			if r <= 30 || (r == 31 && ok31 != "" || (rt != "w" && rt != "x")) {
+				if parse_reg_type == "" {
+					parse_reg_type = rt
+				} else if parse_reg_type != rt {
+					panic("register size mismatch")
+				}
+				return r << shift, tp
 			}
-			return r << shift, tp
 		}
 	}
 
-	// FIXME: balanced %b
-	m = regexp.MustCompile(`^R([xwqdshb])(%b())$`).FindStringSubmatch(expr)
-	vrt, vreg := m[1], m[2]
-	if vreg != "" {
-		if parse_reg_type == "" {
-			parse_reg_type = vrt
-		} else if parse_reg_type != vrt {
-			panic("register size mismatch")
+	// FIXME: balanced %b: `^R([xwqdshb])(%b())$`
+	m = regexp.MustCompile(`^R([xwqdshb])(\([^\)]*\))$`).FindStringSubmatch(expr)
+	if m != nil {
+		vrt, vreg := m[1], m[2]
+		if vreg != "" {
+			if parse_reg_type == "" {
+				parse_reg_type = vrt
+			} else if parse_reg_type != vrt {
+				panic("register size mismatch")
+			}
+			if !no_vreg {
+				waction("VREG", shift, vreg, nil)
+			}
+			return 0, nil
 		}
-		if !no_vreg {
-			waction("VREG", shift, vreg, nil)
-		}
-		return 0, nil
 	}
 
 	panic(fmt.Errorf("bad register name `%v`", expr))
