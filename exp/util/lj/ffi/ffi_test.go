@@ -1,6 +1,9 @@
 package ffi
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 const CCALL_NARG_GPR = 8
 const CCALL_NRET_GPR = 2
@@ -33,6 +36,10 @@ type CCallState struct {
 	stack [CCALL_MAXSTACK]GPRArg // Stack slots.
 }
 
-func TestFfi(t *testing.T) {
+//go:nosplit
+//go:noescape
+func _ffi_call() int
 
+func TestFfi(t *testing.T) {
+	fmt.Printf("%x\n", _ffi_call())
 }

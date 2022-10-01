@@ -1,3 +1,6 @@
+#include "funcdata.h"
+#include "textflag.h"
+
 //                       **************************************************************
 //                       *                          FUNCTION                          *
 //                       **************************************************************
@@ -82,3 +85,6 @@
 // |  ret
 // |.endif
 // |// Note: vm_ffi_call must be the last function in this object file!
+
+TEXT ·_ffi_call(SB), NOSPLIT, $0
+	RET
