@@ -3,9 +3,6 @@ package ffi
 import (
 	"fmt"
 	"testing"
-
-	"github.com/wrmsr/bane/exp/util/unsafe/dl"
-	"github.com/wrmsr/bane/pkg/util/log"
 )
 
 const CCALL_NARG_GPR = 8
@@ -39,31 +36,11 @@ type CCallState struct {
 	stack [CCALL_MAXSTACK]GPRArg // Stack slots.
 }
 
-//go:nosplit
-//go:noescape
-func _ffi_call(fn uintptr) uintptr
-func findSleep() uintptr {
-	var lib dl.Library
-	var err error
-	var ptr uintptr
-
-	if lib, err = dl.Open(dl.Libc, dl.Lazy|dl.Local); err != nil {
-		panic(err)
-	}
-
-	defer log.OrError(lib.Close)
-
-	if ptr, err = lib.Symbol("printf"); err != nil {
-		panic(err)
-	}
-
-	if ptr == 0 {
-		panic("not found")
-	}
-
-	return ptr
+func TestFfi(t *testing.T) {
+	sleep := FindSleep()
+	fmt.Println(Ffi_call(sleep))
 }
 
-func TestFfi(t *testing.T) {
-	fmt.Println(_ffi_call(410))
+func TestSqrt(t *testing.T) {
+	fmt.Println(Sqrt(9))
 }
