@@ -21,6 +21,8 @@ package dl
 import (
 	"syscall"
 	"testing"
+
+	"github.com/wrmsr/bane/pkg/util/log"
 )
 
 func TestOpenDefault(t *testing.T) {
@@ -42,7 +44,7 @@ func TestOpenLazyGlobal(t *testing.T) {
 	var lib Library
 	var err error
 
-	if lib, err = Open(libc, Lazy|Global); err != nil {
+	if lib, err = Open(Libc, Lazy|Global); err != nil {
 		t.Error("open:", err)
 		return
 	}
@@ -57,7 +59,7 @@ func TestOpenNowLocal(t *testing.T) {
 	var lib Library
 	var err error
 
-	if lib, err = Open(libc, Now|Local); err != nil {
+	if lib, err = Open(Libc, Now|Local); err != nil {
 		t.Error("open:", err)
 		return
 	}
@@ -73,12 +75,12 @@ func TestSymbol(t *testing.T) {
 	var err error
 	var ptr uintptr
 
-	if lib, err = Open(libc, Lazy|Local); err != nil {
+	if lib, err = Open(Libc, Lazy|Local); err != nil {
 		t.Error("open:", err)
 		return
 	}
 
-	defer lib.Close()
+	defer log.OrError(lib.Close)
 
 	if ptr, err = lib.Symbol("printf"); err != nil {
 		t.Error("symbol:", err)
@@ -103,7 +105,7 @@ func TestCloseError(t *testing.T) {
 	var lib Library
 	var err error
 
-	if lib, err = Open(libc, Lazy|Local); err != nil {
+	if lib, err = Open(Libc, Lazy|Local); err != nil {
 		t.Error("open:", err)
 		return
 	}
@@ -119,7 +121,7 @@ func TestSymbolError(t *testing.T) {
 	var lib Library
 	var err error
 
-	if lib, err = Open(libc, Lazy|Local); err != nil {
+	if lib, err = Open(Libc, Lazy|Local); err != nil {
 		t.Error("open:", err)
 		return
 	}
@@ -135,7 +137,7 @@ func TestCloseSymbolError(t *testing.T) {
 	var lib Library
 	var err error
 
-	if lib, err = Open(libc, Lazy|Local); err != nil {
+	if lib, err = Open(Libc, Lazy|Local); err != nil {
 		t.Error("open:", err)
 		return
 	}

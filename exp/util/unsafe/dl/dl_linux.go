@@ -27,6 +27,8 @@ import (
 	"strings"
 )
 
+const Libc = "libc.so.6"
+
 func find(name string) (path string, err error) {
 	if strings.ContainsRune(name, '/') {
 		path = name

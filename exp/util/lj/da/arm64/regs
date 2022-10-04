@@ -31,7 +31,6 @@ x27   | sav   | scr
 x28   | sav   | g
 x29   | fp    | fp
 x30   | lr    | lr
-x31   |
 
 abi   | pcs   | rgo
 -------

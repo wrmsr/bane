@@ -27,6 +27,8 @@ import (
 	"strings"
 )
 
+const Libc = "libc.dylib"
+
 func find(name string) (path string, err error) {
 	if strings.ContainsRune(name, '/') {
 		path = name
@@ -58,12 +60,15 @@ func find(name string) (path string, err error) {
 	ok := false
 
 	for _, dir := range dirs {
-		filepath.Walk(dir, func(p string, f os.FileInfo, e error) error {
+		err = filepath.Walk(dir, func(p string, f os.FileInfo, e error) error {
 			if !ok && f != nil && !f.IsDir() && strings.HasPrefix(f.Name(), name) {
 				path, ok = p, true
 			}
 			return nil
 		})
+		if err != nil {
+			return
+		}
 
 		if ok {
 			break
