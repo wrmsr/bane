@@ -1,42 +1,49 @@
-abi   | pcs
+abi   | pcs   | rgo
 -------
-x0    | ar0
-x1    | ar1
-x2    | ar2
-x3    | ar3
-x4    | ar4
-x5    | ar4
-x6    | ar6
-x7    | ar7
-x8    | xr
-x9    | scr
-x10   | scr
-x11   | scr
-x12   | scr
-x13   | scr
-x14   | scr
-x15   | scr
-x16   | ip
-x17   | ip
-x18   | pr
-x19   | sav
-x20   | sav
-x21   | sav
-x22   | sav
-x23   | sav
-x24   | sav
-x25   | sav
-x26   | sav
-x27   | sav
-x28   | sav
-x29   | fp
-x30   | lr
+x0    | ar0   | ar0
+x1    | ar1   | ar1
+x2    | ar2   | ar2
+x3    | ar3   | ar3
+x4    | ar4   | ar4
+x5    | ar4   | ar5
+x6    | ar6   | ar6
+x7    | ar7   | ar7
+x8    | xr    | ar8
+x9    | scr   | ar9
+x10   | scr   | ar10
+x11   | scr   | ar11
+x12   | scr   | ar12
+x13   | scr   | ar13
+x14   | scr   | ar14
+x15   | scr   | ar15
+x16   | ip    | scr
+x17   | ip    | scr
+x18   | pr    | pr
+x19   | sav   | scr
+x20   | sav   | scr
+x21   | sav   | scr
+x22   | sav   | scr
+x23   | sav   | scr
+x24   | sav   | scr
+x25   | sav   | scr
+x26   | sav   | ctx
+x27   | sav   | scr
+x28   | sav   | g
+x29   | fp    | fp
+x30   | lr    | lr
 x31   |
 
-abi   | pcs
+abi   | pcs   | rgo
 -------
-d0-7  | ar0-7
-d8-31 | sav
+d0-7  | ar0-7 | ar0-7
+d8-15 | sav   | ar8-15
+d16-31| sav   | scr
+
+spec  |
+-------
+xzr   | const zero
+sp    | stack pointer
+pc    | program counter
 
 nam   |
 -------
@@ -49,8 +56,7 @@ sav   | callee save
 fp    | frame ptr
 lr    | link reg
 
-virt  |
+gnam  |
 -------
-xzr   | const zero
-sp    | stack pointer
-pc    | program counter
+ctx   | closure ctx
+g     | current goro
