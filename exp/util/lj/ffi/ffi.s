@@ -87,4 +87,7 @@
 // |// Note: vm_ffi_call must be the last function in this object file!
 
 TEXT ·_ffi_call(SB), NOSPLIT, $0
+    MOV ZR, X19
+    ADD $420, X19, X19
+    ADD x+0(SP), X19, X20
 	RET
