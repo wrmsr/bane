@@ -1,0 +1,56 @@
+abi   | pcs
+-------
+x0    | ar0
+x1    | ar1
+x2    | ar2
+x3    | ar3
+x4    | ar4
+x5    | ar4
+x6    | ar6
+x7    | ar7
+x8    | xr
+x9    | scr
+x10   | scr
+x11   | scr
+x12   | scr
+x13   | scr
+x14   | scr
+x15   | scr
+x16   | ip
+x17   | ip
+x18   | pr
+x19   | sav
+x20   | sav
+x21   | sav
+x22   | sav
+x23   | sav
+x24   | sav
+x25   | sav
+x26   | sav
+x27   | sav
+x28   | sav
+x29   | fp
+x30   | lr
+x31   |
+
+abi   | pcs
+-------
+d0-7  | ar0-7
+d8-31 | sav
+
+nam   |
+-------
+arN   | arg/ret N
+xr    | indir res ptr
+scr   | scratch
+ip    | intra-procedure-call corruptible
+pr    | platform reg (do not touch)
+sav   | callee save
+fp    | frame ptr
+lr    | link reg
+
+virt  |
+-------
+xzr   | const zero
+sp    | stack pointer
+pc    | program counter
