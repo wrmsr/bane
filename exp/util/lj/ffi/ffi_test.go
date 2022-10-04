@@ -1,6 +1,7 @@
 package ffi
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/wrmsr/bane/exp/util/unsafe/dl"
@@ -40,8 +41,7 @@ type CCallState struct {
 
 //go:nosplit
 //go:noescape
-func _ffi_call(fn uintptr)
-
+func _ffi_call(fn uintptr) uintptr
 func findSleep() uintptr {
 	var lib dl.Library
 	var err error
@@ -65,5 +65,5 @@ func findSleep() uintptr {
 }
 
 func TestFfi(t *testing.T) {
-	_ffi_call(410)
+	fmt.Println(_ffi_call(410))
 }
