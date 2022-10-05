@@ -22,7 +22,7 @@ func FindSleep() uintptr {
 
 	defer log.OrError(lib.Close)
 
-	if ptr, err = lib.Symbol("printf"); err != nil {
+	if ptr, err = lib.Symbol("sleep"); err != nil {
 		panic(err)
 	}
 

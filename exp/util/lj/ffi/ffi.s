@@ -86,6 +86,43 @@
 // |.endif
 // |// Note: vm_ffi_call must be the last function in this object file!
 
+// (lldb) reg read
+// General Purpose Registers:
+//         x0 = 0x000000018e8f0ee8  libsystem_c.dylib`printf
+//         x1 = 0x0000000000000000
+//         x2 = 0xffffffffffffffff
+//         x3 = 0x0000000000000000
+//         x4 = 0x00000001001d2ae1  main`runtime.arm64HasATOMICS
+//         x5 = 0x0000000040000000
+//         x6 = 0x0000000100000000  main`_mh_execute_header
+//         x7 = 0x0000000000000001
+//         x8 = 0x000001400013dd08
+//         x9 = 0x000001400013e000
+//        x10 = 0x0000000248dfd488
+//        x11 = 0x00000001002bc058
+//        x12 = 0x0000000000000000
+//        x13 = 0x00000001003bc000
+//        x14 = 0x0000000000100000
+//        x15 = 0x00000000000003fd
+//        x16 = 0x000001400013c3a0
+//        x17 = 0x00000001e8b23ed0  (void *)0x000000018ea14608: os_unfair_recursive_lock_unlock
+//        x18 = 0x0000000000000000
+//        x19 = 0x0000000000000008
+//        x20 = 0x000001400013d930
+//        x21 = 0x0000000000000000
+//        x22 = 0x0000000100062134  main`runtime.goexit.abi0 + 4
+//        x23 = 0x000001400013de30
+//        x24 = 0xffffffffffffffff
+//        x25 = 0x00000001000bece8  main`go.func.*
+//        x26 = 0x000001400013dde0
+//        x27 = 0x0000000040000000
+//        x28 = 0x00000140000021a0
+//         fp = 0x000001400013df38
+//         lr = 0x00000001000b2b74  main`main.main + 36
+//         sp = 0x000001400013df40
+//         pc = 0x00000001000b2abc  main`github.com/wrmsr/bane/exp/util/lj/ffi.Ffi_call.abi0 + 12
+//       cpsr = 0x60001000
+
 TEXT ·Ffi_call(SB), NOSPLIT, $0
     // WORD $0xd4200000
     BRK $0
