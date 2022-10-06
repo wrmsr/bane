@@ -127,7 +127,12 @@ TEXT ·Ffi_call(SB), NOSPLIT, $0
     // WORD $0xd4200000
     BRK $0
 
+    CALL ·runtime_procPin(SB)
+
     MOVD $3, R0
     MOVD fn+0(FP), R20
     CALL R20
+
+    CALL ·runtime_procUnpin(SB)
+
 	RET
