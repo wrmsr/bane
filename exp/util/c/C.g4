@@ -132,23 +132,23 @@ castExpression
     ;
 
 multiplicativeExpression
-    : castExpression (('*'|'/'|'%') castExpression)*
+    : castExpression (('*' | '/' | '%') castExpression)*
     ;
 
 additiveExpression
-    : multiplicativeExpression (('+'|'-') multiplicativeExpression)*
+    : multiplicativeExpression (('+' | '-') multiplicativeExpression)*
     ;
 
 shiftExpression
-    : additiveExpression (('<<'|'>>') additiveExpression)*
+    : additiveExpression (('<<' | '>>') additiveExpression)*
     ;
 
 relationalExpression
-    : shiftExpression (('<'|'>'|'<='|'>=') shiftExpression)*
+    : shiftExpression (('<' | '>' | '<=' | '>=') shiftExpression)*
     ;
 
 equalityExpression
-    : relationalExpression (('=='| '!=') relationalExpression)*
+    : relationalExpression (('==' | '!=') relationalExpression)*
     ;
 
 andExpression
@@ -168,7 +168,7 @@ logicalAndExpression
     ;
 
 logicalOrExpression
-    : logicalAndExpression ( '||' logicalAndExpression)*
+    : logicalAndExpression ('||' logicalAndExpression)*
     ;
 
 conditionalExpression
@@ -364,7 +364,7 @@ nestedParenthesesBlock
     ;
 
 pointer
-    : (('*'|'^') typeQualifierList?)+ // ^ - Blocks language extension
+    : (('*' | '^') typeQualifierList?)+ // ^ - Blocks language extension
     ;
 
 typeQualifierList
@@ -502,7 +502,7 @@ forExpression
 
 jumpStatement
     : ( 'goto' Identifier
-      | ('continue'| 'break')
+      | ('continue' | 'break')
       | 'return' expression?
       | 'goto' unaryExpression // GCC extension
       )
