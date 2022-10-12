@@ -3,7 +3,6 @@
 package impl
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
 	"os"
@@ -52,25 +51,27 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 		}
 	}
 
+	doInline := func(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr, []ast.Stmt) {
+		nextName()
+		return call, nil
+	}
+
 	doExpr := func(expr ast.Expr) (ast.Expr, []ast.Stmt) {
 		var stmts []ast.Stmt
 
 		out := astutil.Apply(expr, nil, func(cursor *astutil.Cursor) bool {
-			var idecl *FuncDecl
 			switch node := cursor.Node().(type) {
 			case *ast.CallExpr:
 				fnam := nameFuncRef(node.Fun)
-				idecl = im[fnam]
+				idecl := im[fnam]
 				if idecl == nil {
 					return true
 				}
-			default:
-				return true
+
+				inl, inlstmts := doInline(node, idecl)
+				stmts = append(stmts, inlstmts...)
+				cursor.Replace(inl)
 			}
-
-			fmt.Println(nextName())
-			panic(idecl)
-
 			return true
 		})
 
@@ -89,7 +90,6 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 				stmts = append(stmts, s...)
 				cursor.Replace(o)
 			}
-
 			return true
 		})
 
@@ -99,11 +99,9 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 
 	doBlock = func(block *ast.BlockStmt) []ast.Stmt {
 		var stmts []ast.Stmt
-
 		for _, stmt := range block.List {
 			stmts = append(stmts, doStmt(stmt)...)
 		}
-
 		return stmts
 	}
 
