@@ -52,10 +52,10 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 		}
 	}
 
-	doExprStmt := func(stmt *ast.ExprStmt) []ast.Stmt {
+	doExpr := func(expr ast.Expr) (ast.Expr, []ast.Stmt) {
 		var stmts []ast.Stmt
 
-		expr := astutil.Apply(stmt.X, nil, func(cursor *astutil.Cursor) bool {
+		out := astutil.Apply(expr, nil, func(cursor *astutil.Cursor) bool {
 			var idecl *FuncDecl
 			switch node := cursor.Node().(type) {
 			case *ast.CallExpr:
@@ -74,30 +74,36 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 			return true
 		})
 
-		out := *stmt
-		out.X = expr.(ast.Expr)
-		stmts = append(stmts, &out)
-		return stmts
+		return out.(ast.Expr), stmts
 	}
 
 	var doBlock func(stmt *ast.BlockStmt) []ast.Stmt
 
 	doStmt := func(stmt ast.Stmt) []ast.Stmt {
-		switch stmt := stmt.(type) {
-		case *ast.ExprStmt:
-			return doExprStmt(stmt)
-		case *ast.BlockStmt:
-			return doBlock(stmt)
-		default:
-			return []ast.Stmt{stmt}
-		}
+		var stmts []ast.Stmt
+
+		out := astutil.Apply(stmt, nil, func(cursor *astutil.Cursor) bool {
+			n := cursor.Node()
+			if e, ok := n.(ast.Expr); ok {
+				o, s := doExpr(e)
+				stmts = append(stmts, s...)
+				cursor.Replace(o)
+			}
+
+			return true
+		})
+
+		stmts = append(stmts, out.(ast.Stmt))
+		return stmts
 	}
 
 	doBlock = func(block *ast.BlockStmt) []ast.Stmt {
 		var stmts []ast.Stmt
+
 		for _, stmt := range block.List {
 			stmts = append(stmts, doStmt(stmt)...)
 		}
+
 		return stmts
 	}
 
