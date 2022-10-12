@@ -51,16 +51,21 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 	}
 
 	astutil.Apply(decl.Decl.Body, nil, func(cursor *astutil.Cursor) bool {
+		var idecl *FuncDecl
 		switch node := cursor.Node().(type) {
 		case *ast.CallExpr:
 			fnam := nameFuncRef(node.Fun)
-			idecl := im[fnam]
+			idecl = im[fnam]
 			if idecl == nil {
-				break
+				return true
 			}
-			fmt.Println(nextName())
-			panic(idecl)
+		default:
+			return true
 		}
+
+		fmt.Println(nextName())
+		panic(idecl)
+
 		return true
 	})
 }
