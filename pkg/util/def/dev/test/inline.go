@@ -1,3 +1,5 @@
+//go:build !nodev
+
 package test
 
 import "github.com/wrmsr/bane/pkg/util/def"
