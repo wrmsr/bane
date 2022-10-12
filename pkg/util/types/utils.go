@@ -21,6 +21,10 @@ func As[F, T any](f F) T {
 	return a.(T)
 }
 
+func AsAny[T any](t T) any {
+	return t
+}
+
 func Zero[T any]() T {
 	var z T
 	return z

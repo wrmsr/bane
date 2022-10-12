@@ -141,6 +141,34 @@ func Enum[T any](opts ...EnumOpt) any {
 
 //
 
+type InlineDef struct {
+	Fns []any
+}
+
+func (id InlineDef) isPackageDef() {}
+
+func Inline(fns ...any) any {
+	return InlineDef{
+		Fns: fns,
+	}
+}
+
+//
+
+type WithInlineDef struct {
+	Fns []any
+}
+
+func (id WithInlineDef) isPackageDef() {}
+
+func WithInline(fns ...any) any {
+	return WithInlineDef{
+		Fns: fns,
+	}
+}
+
+//
+
 type ConstGenericDef struct {
 	Ty  any
 	Cvs []any

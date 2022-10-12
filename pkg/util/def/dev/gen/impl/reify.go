@@ -15,6 +15,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/def"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
+	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -152,6 +153,16 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 		return def.EnumDef{
 			Ty:   inst.TypeArgs.At(0),
 			Opts: opts,
+		}
+
+	case "Inline":
+		return def.InlineDef{
+			Fns: slices.AsAny(call.Args),
+		}
+
+	case "WithInline":
+		return def.WithInlineDef{
+			Fns: slices.AsAny(call.Args),
 		}
 
 	case "ConstGeneric":

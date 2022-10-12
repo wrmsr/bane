@@ -190,6 +190,9 @@ type PackageSpec struct {
 	structs     []*StructSpec
 	structsByTy map[any]*StructSpec
 
+	inlines     map[any]*InlineDef
+	withInlines map[any]*WithInlineDef
+
 	enums     []*EnumSpec
 	enumsByTy map[any]*EnumSpec
 }
@@ -205,6 +208,9 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 	var ets []any
 	edm := make(map[any][]EnumDef)
 
+	ilm := make(map[any]*InlineDef)
+	wilm := make(map[any]*WithInlineDef)
+
 	for _, d := range defs {
 		switch d := d.(type) {
 
@@ -219,6 +225,16 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 				ets = append(ets, d.Ty)
 			}
 			edm[d.Ty] = append(edm[d.Ty], d)
+
+		case InlineDef:
+			for _, f := range d.Fns {
+				ilm[f] = &d
+			}
+
+		case WithInlineDef:
+			for _, f := range d.Fns {
+				wilm[f] = &d
+			}
 
 		case ConstGenericDef:
 			// FIXME:
@@ -242,6 +258,9 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 		ps.enumsByTy[et] = es
 	}
 
+	ps.inlines = ilm
+	ps.withInlines = wilm
+
 	return ps
 }
 
@@ -264,3 +283,6 @@ func (ps PackageSpec) Enum(ty any) *EnumSpec {
 	}
 	panic(SpecError{fmt.Errorf("enum not found :%s", ty)})
 }
+
+func (ps PackageSpec) Inlines() map[any]*InlineDef         { return ps.inlines }
+func (ps PackageSpec) WithInlines() map[any]*WithInlineDef { return ps.withInlines }

@@ -18,8 +18,6 @@ import (
 
 //
 
-//
-
 func CollectTypeNames(ps *def.PackageSpec) maps.Set[rtu.ParsedName] {
 	ret := maps.MakeSet[rtu.ParsedName]()
 

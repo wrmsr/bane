@@ -20,7 +20,8 @@ type FileGen struct {
 	pkg *packages.Package
 	ps  *def.PackageSpec
 
-	ti *typeImporter
+	ti  *typeImporter
+	rsv *Resolver
 
 	decls     gg.Decls
 	initStmts gg.Stmts
@@ -40,6 +41,8 @@ func NewFileGen(
 			"reflect",
 			"sync",
 		}),
+
+		rsv: newResolver(pkg),
 	}
 }
 
@@ -55,6 +58,7 @@ func newPtrFuncType(elem any) gg.FuncType {
 
 func (fg *FileGen) Gen() string {
 	fg.genStructs()
+	fg.inlineFuncs()
 
 	doInit := gg.Func{
 		Body: &gg.Block{Body: slices.DeepFlatten[gg.Stmt](

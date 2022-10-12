@@ -87,6 +87,14 @@ func Apply[T any](fn func(t T), s []T) {
 	}
 }
 
+func AsAny[T any](s []T) []any {
+	r := make([]any, len(s))
+	for i, e := range s {
+		r[i] = e
+	}
+	return r
+}
+
 func IndexMap[T, R any](fn func(i int, t T) R, s []T) []R {
 	r := make([]R, len(s))
 	for i, v := range s {
