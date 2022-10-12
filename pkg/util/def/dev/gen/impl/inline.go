@@ -50,24 +50,63 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 		}
 	}
 
-	astutil.Apply(decl.Decl.Body, nil, func(cursor *astutil.Cursor) bool {
-		var idecl *FuncDecl
-		switch node := cursor.Node().(type) {
-		case *ast.CallExpr:
-			fnam := nameFuncRef(node.Fun)
-			idecl = im[fnam]
-			if idecl == nil {
+	doExprStmt := func(stmt *ast.ExprStmt) []ast.Stmt {
+		var stmts []ast.Stmt
+
+		expr := astutil.Apply(stmt.X, nil, func(cursor *astutil.Cursor) bool {
+			var idecl *FuncDecl
+			switch node := cursor.Node().(type) {
+			case *ast.CallExpr:
+				fnam := nameFuncRef(node.Fun)
+				idecl = im[fnam]
+				if idecl == nil {
+					return true
+				}
+			default:
 				return true
 			}
-		default:
+
+			fmt.Println(nextName())
+			panic(idecl)
+
 			return true
+		})
+
+		out := *stmt
+		out.X = expr.(ast.Expr)
+		stmts = append(stmts, &out)
+		return stmts
+	}
+
+	var doBlock func(stmt *ast.BlockStmt) []ast.Stmt
+
+	doStmt := func(stmt ast.Stmt) []ast.Stmt {
+		switch stmt := stmt.(type) {
+		case *ast.ExprStmt:
+			return doExprStmt(stmt)
+		case *ast.BlockStmt:
+			return doBlock(stmt)
+		default:
+			return []ast.Stmt{stmt}
 		}
+	}
 
-		fmt.Println(nextName())
-		panic(idecl)
+	doBlock = func(block *ast.BlockStmt) []ast.Stmt {
+		var stmts []ast.Stmt
+		for _, stmt := range block.List {
+			stmts = append(stmts, doStmt(stmt)...)
+		}
+		return stmts
+	}
 
-		return true
-	})
+	stmts := doBlock(decl.Decl.Body)
+	body := *decl.Decl.Body
+	body.List = stmts
+
+	out := *decl.Decl
+	out.Body = &body
+
+	fmt.Println(out)
 }
 
 func (fg *FileGen) inlineFuncs() {
