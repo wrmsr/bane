@@ -3,8 +3,7 @@
 package impl
 
 import (
-	"fmt"
-	"reflect"
+	"go/ast"
 
 	"golang.org/x/tools/go/ast/astutil"
 )
@@ -28,9 +27,17 @@ func (fg *FileGen) inlineFuncs() {
 		}
 
 		//nn := "_def_inl_" + n
-
-		astutil.Apply(decl.Decl.Body, nil, func(cursor *astutil.Cursor) bool {
-			fmt.Println(reflect.TypeOf(cursor.Node()))
+		decl.Decl.
+			astutil.Apply(decl.Decl.Body, nil, func(cursor *astutil.Cursor) bool {
+			switch node := cursor.Node().(type) {
+			case *ast.CallExpr:
+				fnam := nameFuncRef(node.Fun)
+				idecl := im[fnam]
+				if idecl == nil {
+					break
+				}
+				panic(idecl)
+			}
 			return true
 		})
 	}
