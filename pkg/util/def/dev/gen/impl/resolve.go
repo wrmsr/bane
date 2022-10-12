@@ -43,6 +43,17 @@ func nameFuncDecl(fd *ast.FuncDecl) string {
 	return n
 }
 
+func nameFuncRef(e any) string {
+	switch e := e.(type) {
+	case string:
+		return e
+	case *ast.Ident:
+		return e.Name
+	default:
+		panic(e)
+	}
+}
+
 func newResolver(pkg *packages.Package) *Resolver {
 	r := &Resolver{
 		funcDecls: make(map[string]*FuncDecl),
@@ -66,4 +77,8 @@ func newResolver(pkg *packages.Package) *Resolver {
 	}
 
 	return r
+}
+
+func (r *Resolver) FuncDecl(n string) *FuncDecl {
+	return r.funcDecls[n]
 }
