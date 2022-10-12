@@ -22,7 +22,7 @@ package dl
 
 // #include <dlfcn.h>
 // #include <stdlib.h>
-import "C"
+oundedRa
 import (
 	"runtime"
 	"sync"

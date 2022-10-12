@@ -18,27 +18,29 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 */
 package ffi
 
-// #cgo CFLAGS: -Wno-deprecated-declarations
-//
-// #include <ffi.h>
-// #include <stdint.h>
-// #include <stdlib.h>
-//
-// typedef void (*function)(void);
-//
-// static int ffi_test_abs__(int n) {
-//   return n < 0 ? -n : n;
-// }
-//
-// static void ffi_call_1(ffi_cif *cif, void *fn, void *rvalue,
-//   void *avalue0
-// ){
-//   void *avalues[1] = {
-//     avalue0
-//   };
-//   return ffi_call(cif, (function) fn, rvalue, avalues);
-// }
-//
+/*
+#cgo CFLAGS: -Wno-deprecated-declarations
+
+#include <stdint.h>
+#include <stdlib.h>
+
+#include <ffi.h>
+
+typedef void (*function)(void);
+
+static int ffi_test_abs__(int n) {
+  return n < 0 ? -n : n;
+}
+
+static void ffi_call_1(ffi_cif *cif, void *fn, void *rvalue,
+  void *avalue0
+){
+  void *avalues[1] = {
+    avalue0
+  };
+  return ffi_call(cif, (function) fn, rvalue, avalues);
+}
+*/
 import "C"
 import (
 	"fmt"

@@ -18,38 +18,39 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 */
 package ffi
 
-// #cgo CFLAGS: -I/opt/homebrew/Cellar/libffi/3.4.2/include
-// #cgo LDFLAGS: -L/opt/homebrew/Cellar/libffi/3.4.2/lib -lffi
-//
-// #include <ffi.h>
-// #include <unistd.h>
-// #include <sys/mman.h>
-//
-// static int ffi_closure_alloc__(void **mem) {
-//   void *ptr;
-//
-//   ptr = mmap(NULL, sizeof(ffi_closure), PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
-//
-//   if (MAP_FAILED == ptr) {
-//     return -1;
-//   }
-//
-//   *mem = ptr;
-//   return 0;
-// }
-//
-// static int ffi_closure_make_executable__(void *ptr) {
-//   return mprotect(ptr, sizeof(ptr), PROT_READ | PROT_EXEC);
-// }
-//
-// static void ffi_closure_free__(void *ptr) {
-//   munmap(ptr, sizeof(ffi_closure));
-// }
-//
-// extern void GoClosureCallback(ffi_cif *, void *, void **, void *);
-//
-// typedef  void (*closure)(ffi_cif*, void*, void**, void*);
-//
+/*
+#cgo CFLAGS: -I/opt/homebrew/Cellar/libffi/3.4.2/include
+#cgo LDFLAGS: -L/opt/homebrew/Cellar/libffi/3.4.2/lib -lffi
+
+#include <ffi.h>
+#include <unistd.h>
+#include <sys/mman.h>
+
+static int ffi_closure_alloc__(void **mem) {
+  void *ptr;
+
+  ptr = mmap(NULL, sizeof(ffi_closure), PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
+
+  if (MAP_FAILED == ptr) {
+    return -1;
+  }
+
+  *mem = ptr;
+  return 0;
+}
+
+static int ffi_closure_make_executable__(void *ptr) {
+  return mprotect(ptr, sizeof(ptr), PROT_READ | PROT_EXEC);
+}
+
+static void ffi_closure_free__(void *ptr) {
+  munmap(ptr, sizeof(ffi_closure));
+}
+
+extern void GoClosureCallback(ffi_cif *, void *, void **, void *);
+
+typedef  void (*closure)(ffi_cif*, void*, void**, void*);
+*/
 import "C"
 import "unsafe"
 
