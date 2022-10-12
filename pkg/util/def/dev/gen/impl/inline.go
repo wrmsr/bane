@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"os"
 	"strconv"
 
 	"golang.org/x/tools/go/ast/astutil"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	astu "github.com/wrmsr/bane/pkg/util/go/ast"
 	"github.com/wrmsr/bane/pkg/util/maps"
 )
 
@@ -106,7 +108,7 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 	out := *decl.Decl
 	out.Body = &body
 
-	fmt.Println(out)
+	astu.Dump(os.Stdout, &out)
 }
 
 func (fg *FileGen) inlineFuncs() {
