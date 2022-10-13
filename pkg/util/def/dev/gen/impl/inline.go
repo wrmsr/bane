@@ -57,48 +57,71 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 		}
 	}
 
+	defVar := func(n string, t ast.Expr) ast.Stmt {
+		return &ast.DeclStmt{
+			Decl: &ast.GenDecl{
+				Tok: token.VAR,
+				Specs: []ast.Spec{
+					&ast.ValueSpec{
+						Names: []*ast.Ident{
+							{Name: n},
+						},
+						Type: t,
+					},
+				},
+			},
+		}
+	}
+
+	defAssign := func(n string, e ast.Expr) ast.Stmt {
+		return &ast.AssignStmt{
+			Tok: token.DEFINE,
+			Lhs: []ast.Expr{
+				&ast.Ident{Name: n},
+			},
+			Rhs: []ast.Expr{
+				e,
+			},
+		}
+	}
+
 	var doExpr func(expr ast.Expr) (ast.Expr, []ast.Stmt)
+
+	var doBlock func(stmt *ast.BlockStmt) []ast.Stmt
 
 	doInline := func(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr, []ast.Stmt) {
 		var stmts []ast.Stmt
 
-		out := *call
-		out.Args = make([]ast.Expr, len(out.Args))
+		paramns := check.Single(idecl.Decl.Type.Params.List).Names
+		check.Equal(len(paramns), len(call.Args))
 
-		//stmts = append(stmts, &ast.DeclStmt{
-		//	Decl: &ast.GenDecl{
-		//		Tok: token.VAR,
-		//		Specs: []ast.Spec{
-		//			&ast.ValueSpec{
-		//				Names: []*ast.Ident{
-		//					{Name: nextName()},
-		//				},
-		//			},
-		//		},
-		//	},
-		//})
+		outn := nextName()
+		stmts = append(stmts, defVar(outn, check.Single(idecl.Decl.Type.Results.List).Type))
+
+		argns := make([]string, len(call.Args))
+		for i := range call.Args {
+			argns[i] = nextName()
+		}
+
+		istmts := make([]ast.Stmt, len(call.Args))
 
 		for i, a := range call.Args {
-			n := nextName()
+			an := argns[i]
+			pn := paramns[i].Name
+
 			ae, as := doExpr(a)
 
 			stmts = append(stmts, as...)
-			stmts = append(stmts, &ast.AssignStmt{
-				Tok: token.DEFINE,
-				Lhs: []ast.Expr{
-					&ast.Ident{Name: n},
-				},
-				Rhs: []ast.Expr{
-					ae,
-				},
-			})
-
-			out.Args[i] = &ast.Ident{
-				Name: n,
-			}
+			stmts = append(stmts, defAssign(an, ae))
+			istmts[i] = defAssign(an, &ast.Ident{Name: pn})
 		}
 
-		return &out, stmts
+		// FIXME:
+		istmts = append(istmts, doBlock(idecl.Decl.Body)...)
+
+		stmts = append(stmts)
+
+		return &ast.Ident{Name: outn}, stmts
 	}
 
 	doExpr = func(expr ast.Expr) (ast.Expr, []ast.Stmt) {
@@ -120,8 +143,6 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 		})
 		return out.(ast.Expr), stmts
 	}
-
-	var doBlock func(stmt *ast.BlockStmt) []ast.Stmt
 
 	doStmt := func(stmt ast.Stmt) []ast.Stmt {
 		var stmts []ast.Stmt
