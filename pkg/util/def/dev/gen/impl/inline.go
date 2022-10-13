@@ -89,11 +89,19 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 
 	var doBlock func(stmt *ast.BlockStmt) []ast.Stmt
 
+	doTransform := func(idecl *FuncDecl, outn string, params []string, argns []string) []ast.Stmt {
+		return doBlock(idecl.Decl.Body)
+	}
+
 	doInline := func(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr, []ast.Stmt) {
 		var stmts []ast.Stmt
 
-		paramns := check.Single(idecl.Decl.Type.Params.List).Names
-		check.Equal(len(paramns), len(call.Args))
+		params := check.Single(idecl.Decl.Type.Params.List).Names
+		check.Equal(len(params), len(call.Args))
+		paramns := make([]string, len(params))
+		for i, p := range params {
+			paramns[i] = p.Name
+		}
 
 		outn := nextName()
 		stmts = append(stmts, defVar(outn, check.Single(idecl.Decl.Type.Results.List).Type))
@@ -107,7 +115,7 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 
 		for i, a := range call.Args {
 			an := argns[i]
-			pn := paramns[i].Name
+			pn := paramns[i]
 
 			ae, as := doExpr(a)
 
@@ -118,7 +126,7 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 
 		// FIXME: s/paramns[i]/argns[i]/g
 		// FIXME: return X/outn = x/g
-		istmts = append(istmts, doBlock(idecl.Decl.Body)...)
+		istmts = append(istmts, doTransform(idecl, outn, paramns, argns)...)
 
 		stmts = append(stmts, &ast.BlockStmt{List: istmts})
 
