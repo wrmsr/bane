@@ -13,7 +13,6 @@ import (
 	"golang.org/x/tools/go/ast/astutil"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	astu "github.com/wrmsr/bane/pkg/util/go/ast"
 	"github.com/wrmsr/bane/pkg/util/maps"
 )
 
@@ -63,6 +62,9 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 	doInline := func(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr, []ast.Stmt) {
 		var stmts []ast.Stmt
 
+		out := *call
+		out.Args = make([]ast.Expr, len(out.Args))
+
 		//stmts = append(stmts, &ast.DeclStmt{
 		//	Decl: &ast.GenDecl{
 		//		Tok: token.VAR,
@@ -76,17 +78,27 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 		//	},
 		//})
 
-		for _, a := range call.Args {
+		for i, a := range call.Args {
 			n := nextName()
+			ae, as := doExpr(a)
 
+			stmts = append(stmts, as...)
 			stmts = append(stmts, &ast.AssignStmt{
 				Tok: token.DEFINE,
-				Lhs: []ast.Expr{},
-				Rhs: []ast.Expr{},
+				Lhs: []ast.Expr{
+					&ast.Ident{Name: n},
+				},
+				Rhs: []ast.Expr{
+					ae,
+				},
 			})
+
+			out.Args[i] = &ast.Ident{
+				Name: n,
+			}
 		}
 
-		return call, stmts
+		return &out, stmts
 	}
 
 	doExpr = func(expr ast.Expr) (ast.Expr, []ast.Stmt) {
@@ -143,8 +155,8 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 	out := *decl.Decl
 	out.Body = &body
 
-	astu.Dump(os.Stdout, &out)
-	fmt.Println()
+	//astu.Dump(os.Stdout, &out)
+	//fmt.Println()
 
 	_ = printer.Fprint(os.Stdout, fg.pkg.Fset, decl.Decl)
 	fmt.Println()
