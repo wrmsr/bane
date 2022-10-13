@@ -3,7 +3,9 @@
 package impl
 
 import (
+	"fmt"
 	"go/ast"
+	"go/printer"
 	"go/token"
 	"os"
 	"strconv"
@@ -17,16 +19,20 @@ import (
 
 func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 	names := maps.MakeSet[string]()
+
 	if decl.Decl.Recv != nil && len(decl.Decl.Recv.List) > 0 {
 		rn := check.Single(check.Single(decl.Decl.Recv.List).Names).Name
 		names.Add(rn)
 	}
+
 	ast.Inspect(decl.Decl.Body, func(node ast.Node) bool {
 		switch node := node.(type) {
+
 		case *ast.ValueSpec:
 			for _, n := range node.Names {
 				names.Add(n.Name)
 			}
+
 		case *ast.AssignStmt:
 			if node.Tok != token.DEFINE {
 				break
@@ -34,6 +40,7 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 			for _, e := range node.Lhs {
 				names.Add(e.(*ast.Ident).Name)
 			}
+
 		}
 		return true
 	})
@@ -52,13 +59,26 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 	}
 
 	doInline := func(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr, []ast.Stmt) {
-		nextName()
-		return call, nil
+		var stmts []ast.Stmt
+
+		stmts = append(stmts, &ast.DeclStmt{
+			Decl: &ast.GenDecl{
+				Tok: token.VAR,
+				Specs: []ast.Spec{
+					&ast.ValueSpec{
+						Names: []*ast.Ident{
+							{Name: nextName()},
+						},
+					},
+				},
+			},
+		})
+
+		return call, stmts
 	}
 
 	doExpr := func(expr ast.Expr) (ast.Expr, []ast.Stmt) {
 		var stmts []ast.Stmt
-
 		out := astutil.Apply(expr, nil, func(cursor *astutil.Cursor) bool {
 			switch node := cursor.Node().(type) {
 			case *ast.CallExpr:
@@ -74,7 +94,6 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 			}
 			return true
 		})
-
 		return out.(ast.Expr), stmts
 	}
 
@@ -113,6 +132,13 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 	out.Body = &body
 
 	astu.Dump(os.Stdout, &out)
+	fmt.Println()
+
+	_ = printer.Fprint(os.Stdout, fg.pkg.Fset, decl.Decl)
+	fmt.Println()
+
+	_ = printer.Fprint(os.Stdout, fg.pkg.Fset, &out)
+	fmt.Println()
 }
 
 func (fg *FileGen) inlineFuncs() {
