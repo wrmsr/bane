@@ -113,13 +113,14 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 
 			stmts = append(stmts, as...)
 			stmts = append(stmts, defAssign(an, ae))
-			istmts[i] = defAssign(an, &ast.Ident{Name: pn})
+			istmts[i] = defAssign(pn, &ast.Ident{Name: an})
 		}
 
-		// FIXME:
+		// FIXME: s/paramns[i]/argns[i]/g
+		// FIXME: return X/outn = x/g
 		istmts = append(istmts, doBlock(idecl.Decl.Body)...)
 
-		stmts = append(stmts)
+		stmts = append(stmts, &ast.BlockStmt{List: istmts})
 
 		return &ast.Ident{Name: outn}, stmts
 	}
