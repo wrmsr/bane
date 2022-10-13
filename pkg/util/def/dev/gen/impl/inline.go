@@ -58,26 +58,38 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 		}
 	}
 
+	var doExpr func(expr ast.Expr) (ast.Expr, []ast.Stmt)
+
 	doInline := func(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr, []ast.Stmt) {
 		var stmts []ast.Stmt
 
-		stmts = append(stmts, &ast.DeclStmt{
-			Decl: &ast.GenDecl{
-				Tok: token.VAR,
-				Specs: []ast.Spec{
-					&ast.ValueSpec{
-						Names: []*ast.Ident{
-							{Name: nextName()},
-						},
-					},
-				},
-			},
-		})
+		//stmts = append(stmts, &ast.DeclStmt{
+		//	Decl: &ast.GenDecl{
+		//		Tok: token.VAR,
+		//		Specs: []ast.Spec{
+		//			&ast.ValueSpec{
+		//				Names: []*ast.Ident{
+		//					{Name: nextName()},
+		//				},
+		//			},
+		//		},
+		//	},
+		//})
+
+		for _, a := range call.Args {
+			n := nextName()
+
+			stmts = append(stmts, &ast.AssignStmt{
+				Tok: token.DEFINE,
+				Lhs: []ast.Expr{},
+				Rhs: []ast.Expr{},
+			})
+		}
 
 		return call, stmts
 	}
 
-	doExpr := func(expr ast.Expr) (ast.Expr, []ast.Stmt) {
+	doExpr = func(expr ast.Expr) (ast.Expr, []ast.Stmt) {
 		var stmts []ast.Stmt
 		out := astutil.Apply(expr, nil, func(cursor *astutil.Cursor) bool {
 			switch node := cursor.Node().(type) {
