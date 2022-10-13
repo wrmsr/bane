@@ -19,9 +19,9 @@ func Inlined1(x, y int) int {
 var _ = def.WithInline(Bar)
 
 func Bar(x, y int) int {
-	var foo0 = 10
-	foo1, foo2 := 20, 30
-	_ = foo0 + foo1 + foo2
+	//var foo0 = 10
+	//foo1, foo2 := 20, 30
+	//_ = foo0 + foo1 + foo2
 
 	//Inlined0(x, y)
 

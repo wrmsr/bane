@@ -89,8 +89,38 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 
 	var doBlock func(stmt *ast.BlockStmt) []ast.Stmt
 
-	doTransform := func(idecl *FuncDecl, outn string, params []string, argns []string) []ast.Stmt {
-		return doBlock(idecl.Decl.Body)
+	doTransform := func(idecl *FuncDecl, outn string, paramns []string, argns []string) []ast.Stmt {
+		stmts := doBlock(idecl.Decl.Body)
+		for i, s := range stmts {
+			stmts[i] = astutil.Apply(s, nil, func(cursor *astutil.Cursor) bool {
+				switch n := cursor.Node().(type) {
+
+				case *ast.ReturnStmt:
+					// FIXME: return X/outn = x/g
+					// FIXME: EARLY RETURN LOL - named break
+					cursor.Replace(&ast.AssignStmt{
+						Tok: token.ASSIGN,
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: outn},
+						},
+						Rhs: []ast.Expr{
+							check.Single(n.Results),
+						},
+					})
+
+				case *ast.Ident:
+					for i, pn := range paramns {
+						if n.Name == pn {
+							cursor.Replace(&ast.Ident{Name: argns[i]})
+							break
+						}
+					}
+
+				}
+				return true
+			}).(ast.Stmt)
+		}
+		return stmts
 	}
 
 	doInline := func(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr, []ast.Stmt) {
@@ -111,22 +141,15 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 			argns[i] = nextName()
 		}
 
-		istmts := make([]ast.Stmt, len(call.Args))
-
 		for i, a := range call.Args {
 			an := argns[i]
-			pn := paramns[i]
-
 			ae, as := doExpr(a)
 
 			stmts = append(stmts, as...)
 			stmts = append(stmts, defAssign(an, ae))
-			istmts[i] = defAssign(pn, &ast.Ident{Name: an})
 		}
 
-		// FIXME: s/paramns[i]/argns[i]/g
-		// FIXME: return X/outn = x/g
-		istmts = append(istmts, doTransform(idecl, outn, paramns, argns)...)
+		istmts := doTransform(idecl, outn, paramns, argns)
 
 		stmts = append(stmts, &ast.BlockStmt{List: istmts})
 
