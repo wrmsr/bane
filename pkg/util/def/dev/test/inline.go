@@ -23,8 +23,8 @@ func Bar(x, y int) int {
 	foo1, foo2 := 20, 30
 	_ = foo0 + foo1 + foo2
 
-	//return Inlined1(Inlined0(x, y), y)
-	return Inlined0(x, y)
+	Inlined0(x, y)
+	return Inlined1(Inlined0(x, y), y)
 }
 
 //
