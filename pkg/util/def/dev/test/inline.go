@@ -28,7 +28,7 @@ func Bar(x, y int) int {
 	return Inlined1(Inlined0(x, y), y)
 }
 
-//
+// ==>
 
 func _def_inl_Bar(x, y int) int {
 	var __def_inl_0 int
