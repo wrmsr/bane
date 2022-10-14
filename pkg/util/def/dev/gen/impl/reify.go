@@ -165,10 +165,12 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 			Fns: slices.AsAny(call.Args),
 		}
 
-	case "ConstGeneric":
-		cvs := make([]any, len(call.Args))
-		for i, arg := range call.Args {
-			cvs[i] = arg.(*ast.Ident).Name
+	case "Specialize":
+		c := call.Args[0].(*ast.Ident).Name
+
+		cvs := make([]any, len(call.Args)-1)
+		for i, arg := range call.Args[1:] {
+			cvs[i] = arg
 		}
 
 		idx := call.Fun.(*ast.IndexExpr)
@@ -182,8 +184,9 @@ func ReifyDef(node ast.Node, ti *types.Info) any {
 			panic(ty)
 		}
 
-		return def.ConstGenericDef{
+		return def.SpecializeDef{
 			Ty:  ty,
+			C:   c,
 			Cvs: cvs,
 		}
 

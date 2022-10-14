@@ -236,7 +236,7 @@ func NewPackageSpec(name string, defs []PackageDef) *PackageSpec {
 				wilm[f] = &d
 			}
 
-		case ConstGenericDef:
+		case SpecializeDef:
 			// FIXME:
 
 		default:

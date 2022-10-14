@@ -6,6 +6,9 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+
+	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/log"
 )
 
 func main() {
@@ -14,18 +17,12 @@ func main() {
 		fmt.Println("\tastdump [filename]")
 		os.Exit(1)
 	}
+
 	fname := os.Args[1]
-	file, err := os.Open(fname)
-	if err != nil {
-		fmt.Println("cannot open file: %v", err)
-		os.Exit(1)
-	}
-	defer file.Close()
+	file := check.Must1(os.Open(fname))
+	defer log.OrError(file.Close)
 
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, fname, file, 0)
-	if err != nil {
-		fmt.Println(err)
-	}
-	ast.Print(fset, f)
+	f := check.Must1(parser.ParseFile(fset, fname, file, 0))
+	check.Must(ast.Print(fset, f))
 }

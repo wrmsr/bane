@@ -169,17 +169,19 @@ func WithInline(fns ...any) any {
 
 //
 
-type ConstGenericDef struct {
+type SpecializeDef struct {
 	Ty  any
+	C   any
 	Cvs []any
 }
 
-func (ed ConstGenericDef) isPackageDef() {}
+func (ed SpecializeDef) isPackageDef() {}
 
-func ConstGeneric[T any](cvs ...any) any {
+func Specialize[T any](c any, cvs ...any) any {
 	var z T
-	return addPackageDef(globalRegistry, getCallingPackage(), ConstGenericDef{
+	return addPackageDef(globalRegistry, getCallingPackage(), SpecializeDef{
 		Ty:  reflect.TypeOf(z),
+		C:   c,
 		Cvs: cvs,
 	})
 }
