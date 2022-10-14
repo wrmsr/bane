@@ -20,9 +20,12 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 */
 package dl
 
-// #include <dlfcn.h>
-// #include <stdlib.h>
-oundedRa
+/*
+#include <dlfcn.h>
+#include <stdlib.h>
+*/
+import "C"
+
 import (
 	"runtime"
 	"sync"

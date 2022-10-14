@@ -1,6 +1,7 @@
 package tg
 
 import "C"
+
 import (
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/maps"

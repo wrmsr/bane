@@ -28,6 +28,7 @@ extern void GoClosureCallback(ffi_cif *, void *, void **, void *);
 typedef void (*closure)(ffi_cif *, void *, void **, void *);
 */
 import "C"
+
 import "unsafe"
 
 func constructClosure(fn *function) (err error) {

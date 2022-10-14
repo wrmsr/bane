@@ -58,7 +58,12 @@ func newPtrFuncType(elem any) gg.FuncType {
 
 func (fg *FileGen) Gen() string {
 	fg.genStructs()
-	fg.inlineFuncs()
+
+	fg.decls.Append((&inliner{
+		pkg: fg.pkg,
+		ps:  fg.ps,
+		rsv: fg.rsv,
+	}).inlineFuncs())
 
 	doInit := gg.Func{
 		Body: &gg.Block{Body: slices.DeepFlatten[gg.Stmt](

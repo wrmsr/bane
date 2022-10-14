@@ -42,6 +42,7 @@ static void ffi_call_1(ffi_cif *cif, void *fn, void *rvalue,
 }
 */
 import "C"
+
 import (
 	"fmt"
 	"io"

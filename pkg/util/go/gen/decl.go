@@ -29,7 +29,11 @@ type Decls []Decl
 
 func (s *Decls) Append(os ...any) {
 	for _, o := range os {
-		*s = append(*s, DeclOf(o))
+		if os, ok := o.(Decls); ok {
+			*s = append(*s, os...)
+		} else {
+			*s = append(*s, DeclOf(o))
+		}
 	}
 }
 
