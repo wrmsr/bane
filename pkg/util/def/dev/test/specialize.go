@@ -8,7 +8,7 @@ import "github.com/wrmsr/bane/pkg/util/def"
 
 const _N = 4
 
-var _ = def.ConstGeneric[DenseVec_N[any]](_N)
+var _ = def.Specialize[DenseVec_N[any]](_N, 8)
 
 type DenseVec_N[T any] struct {
 	a [_N]T
