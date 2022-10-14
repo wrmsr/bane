@@ -6,7 +6,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -33,6 +32,6 @@ func main() {
 		fmt.Println(s)
 	} else {
 		fp := filepath.Join(cwd, "def_gen.go")
-		check.Must(ioutil.WriteFile(fp, []byte(s), 0644))
+		check.Must(os.WriteFile(fp, []byte(s), 0644))
 	}
 }

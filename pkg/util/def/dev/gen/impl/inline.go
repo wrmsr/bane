@@ -3,20 +3,20 @@
 package impl
 
 import (
-	"fmt"
 	"go/ast"
 	"go/printer"
 	"go/token"
-	"os"
 	"strconv"
+	"strings"
 
 	"golang.org/x/tools/go/ast/astutil"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	gg "github.com/wrmsr/bane/pkg/util/go/gen"
 	"github.com/wrmsr/bane/pkg/util/maps"
 )
 
-func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
+func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) *ast.FuncDecl {
 	names := maps.MakeSet[string]()
 
 	if decl.Decl.Recv != nil && len(decl.Decl.Recv.List) > 0 {
@@ -90,23 +90,31 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 	var doBlock func(stmt *ast.BlockStmt) []ast.Stmt
 
 	doTransform := func(idecl *FuncDecl, outn string, paramns []string, argns []string) []ast.Stmt {
+		el := nextName()
 		stmts := doBlock(idecl.Decl.Body)
 		for i, s := range stmts {
 			stmts[i] = astutil.Apply(s, nil, func(cursor *astutil.Cursor) bool {
 				switch n := cursor.Node().(type) {
 
 				case *ast.ReturnStmt:
-					// FIXME: return X/outn = x/g
-					// FIXME: EARLY RETURN LOL - named break
-					cursor.Replace(&ast.AssignStmt{
-						Tok: token.ASSIGN,
-						Lhs: []ast.Expr{
-							&ast.Ident{Name: outn},
-						},
-						Rhs: []ast.Expr{
-							check.Single(n.Results),
-						},
-					})
+					cursor.Replace(
+						&ast.BlockStmt{
+							List: []ast.Stmt{
+								&ast.AssignStmt{
+									Tok: token.ASSIGN,
+									Lhs: []ast.Expr{
+										&ast.Ident{Name: outn},
+									},
+									Rhs: []ast.Expr{
+										check.Single(n.Results),
+									},
+								},
+								&ast.BranchStmt{
+									Tok:   token.GOTO,
+									Label: &ast.Ident{Name: el},
+								},
+							},
+						})
 
 				case *ast.Ident:
 					for i, pn := range paramns {
@@ -120,6 +128,10 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 				return true
 			}).(ast.Stmt)
 		}
+		stmts = append(stmts, &ast.LabeledStmt{
+			Label: &ast.Ident{Name: el},
+			Stmt:  &ast.EmptyStmt{},
+		})
 		return stmts
 	}
 
@@ -206,16 +218,12 @@ func (fg *FileGen) inlineFunc(decl *FuncDecl, im map[string]*FuncDecl) {
 	body.List = stmts
 
 	out := *decl.Decl
+	out.Name = &ast.Ident{
+		Name: "_def_inl_" + out.Name.Name,
+	}
 	out.Body = &body
 
-	//astu.Dump(os.Stdout, &out)
-	//fmt.Println()
-
-	_ = printer.Fprint(os.Stdout, fg.pkg.Fset, decl.Decl)
-	fmt.Println()
-
-	_ = printer.Fprint(os.Stdout, fg.pkg.Fset, &out)
-	fmt.Println()
+	return &out
 }
 
 func (fg *FileGen) inlineFuncs() {
@@ -236,7 +244,11 @@ func (fg *FileGen) inlineFuncs() {
 			panic(n)
 		}
 
-		//nn := "_def_inl_" + n
-		fg.inlineFunc(decl, im)
+		id := fg.inlineFunc(decl, im)
+
+		var sb strings.Builder
+		_ = printer.Fprint(&sb, fg.pkg.Fset, id)
+
+		fg.decls.Append(gg.Raw{Raw: sb.String()})
 	}
 }

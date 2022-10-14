@@ -30,19 +30,27 @@ func Bar(x, y int) int {
 
 // ==>
 
-func _def_inl_Bar(x, y int) int {
-	var __def_inl_0 int
-	__def_inl_1 := x
-	__def_inl_2 := y
-	{
-		__def_inl_0 = __def_inl_1 + __def_inl_2
-	}
-	var __def_inl_3 int
-	__def_inl_4 := __def_inl_0
-	__def_inl_5 := y
-	{
-		__def_inl_3 = __def_inl_4 * __def_inl_5
-	}
-
-	return __def_inl_3
-}
+//func _def_inl_Bar(x, y int) int {
+//	var __def_inl_0 int
+//	__def_inl_1 := x
+//	__def_inl_2 := y
+//	{
+//		{
+//			__def_inl_0 = __def_inl_1 + __def_inl_2
+//			goto __def_inl_3
+//		}
+//	__def_inl_3:
+//	}
+//	var __def_inl_4 int
+//	__def_inl_5 := __def_inl_0
+//	__def_inl_6 := y
+//	{
+//		{
+//			__def_inl_4 = __def_inl_5 * __def_inl_6
+//			goto __def_inl_7
+//		}
+//	__def_inl_7:
+//	}
+//
+//	return __def_inl_4
+//}

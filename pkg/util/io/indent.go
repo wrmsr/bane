@@ -46,7 +46,7 @@ func (w *IndentWriter) WriteString(s string) {
 			break
 		}
 
-		s = s[n+2:]
+		s = s[n+1:]
 	}
 }
 
