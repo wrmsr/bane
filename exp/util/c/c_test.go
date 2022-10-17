@@ -11,22 +11,36 @@ import (
 )
 
 func TestC(t *testing.T) {
-	src := `
-int main(int argc, const char * const *argv) {
-	printf("hi\n");
-	return 0;
-}
-`
+	cu := func(p *parser.CParser) antlr.ParseTree { return p.CompilationUnit() }
+	ex := func(p *parser.CParser) antlr.ParseTree { return p.PrimaryExpression() }
 
-	is := antlr.NewInputStream(src)
-	lexer := parser.NewCLexer(is)
-	stream := antlr.NewCommonTokenStream(lexer, 0)
-	p := parser.NewCParser(stream)
-	p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
-	p.BuildParseTrees = true
-	tree := p.CompilationUnit()
+	for _, src := range []struct {
+		s   string
+		pfn func(p *parser.CParser) antlr.ParseTree
+	}{
+		{`1`, ex},
+		{`int main(int argc, const char * const *argv) {
+			printf("hi\n");
+			return 0;
+		}`, cu},
+	} {
+		is := antlr.NewInputStream(src.s)
+		lexer := parser.NewCLexer(is)
+		stream := antlr.NewCommonTokenStream(lexer, 0)
+		p := parser.NewCParser(stream)
+		p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
+		p.BuildParseTrees = true
 
-	fmt.Println(tree)
+		tree := src.pfn(p)
 
-	antlru.Dump(tree, "")
+		fmt.Println(tree)
+
+		antlru.Dump(tree, "")
+
+		v := &parseVisitor{}
+		//v.BaseParseTreeVisitor = v
+
+		n := tree.Accept(v)
+		fmt.Printf("%#v\n", n)
+	}
 }

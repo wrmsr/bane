@@ -68,3 +68,24 @@ type expr struct {
 }
 
 func (e expr) isExpr() {}
+
+//
+
+type Identifier struct {
+	expr
+	S string
+}
+
+//
+
+type Constant struct {
+	expr
+	S string
+}
+
+//
+
+type StringLiteral struct {
+	expr
+	S []string
+}

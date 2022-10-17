@@ -34,35 +34,43 @@ func (v *parseVisitor) aggregateResult(aggregate, nextResult any) any {
 var _ parser.CVisitor = &parseVisitor{}
 
 func (v *parseVisitor) Visit(tree antlr.ParseTree) any {
-	panic("implement me")
+	return tree.Accept(v)
 }
 
 func (v *parseVisitor) VisitChildren(node antlr.RuleNode) any {
-	panic("implement me")
+	var result = v.defaultResult()
+	for i := 0; i < node.GetChildCount(); i++ {
+		child := node.GetChild(i)
+		if pt, ok := child.(antlr.ParseTree); ok {
+			childResult := pt.Accept(v)
+			result = v.aggregateResult(result, childResult)
+		}
+	}
+	return result
 }
 
 func (v *parseVisitor) VisitTerminal(node antlr.TerminalNode) any {
-	panic("implement me")
+	return v.defaultResult()
 }
 
 func (v *parseVisitor) VisitErrorNode(node antlr.ErrorNode) any {
-	panic("implement me")
+	return v.defaultResult()
 }
 
 func (v *parseVisitor) VisitCompilationUnit(ctx *parser.CompilationUnitContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitTranslationUnit(ctx *parser.TranslationUnitContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitExternalDeclaration(ctx *parser.ExternalDeclarationContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitFunctionDefinition(ctx *parser.FunctionDefinitionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitDeclarationList(ctx *parser.DeclarationListContext) any {
@@ -74,7 +82,7 @@ func (v *parseVisitor) VisitDeclaration(ctx *parser.DeclarationContext) any {
 }
 
 func (v *parseVisitor) VisitDeclarationSpecifiers(ctx *parser.DeclarationSpecifiersContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitDeclarationSpecifiers2(ctx *parser.DeclarationSpecifiers2Context) any {
@@ -82,7 +90,7 @@ func (v *parseVisitor) VisitDeclarationSpecifiers2(ctx *parser.DeclarationSpecif
 }
 
 func (v *parseVisitor) VisitDeclarationSpecifier(ctx *parser.DeclarationSpecifierContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitInitDeclaratorList(ctx *parser.InitDeclaratorListContext) any {
@@ -94,7 +102,26 @@ func (v *parseVisitor) VisitInitDeclarator(ctx *parser.InitDeclaratorContext) an
 }
 
 func (v *parseVisitor) VisitPrimaryExpression(ctx *parser.PrimaryExpressionContext) any {
-	panic("implement me")
+	if c := ctx.Identifier(); c != nil {
+		return Identifier{
+			S: c.GetText(),
+		}
+	}
+	if c := ctx.Constant(); c != nil {
+		return Constant{
+			S: c.GetText(),
+		}
+	}
+	if cs := ctx.AllStringLiteral(); len(cs) > 0 {
+		s := make([]string, len(cs))
+		for i, c := range cs {
+			s[i] = c.GetText()
+		}
+		return StringLiteral{
+			S: s,
+		}
+	}
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitGenericSelection(ctx *parser.GenericSelectionContext) any {
@@ -110,7 +137,7 @@ func (v *parseVisitor) VisitGenericAssociation(ctx *parser.GenericAssociationCon
 }
 
 func (v *parseVisitor) VisitPostfixExpression(ctx *parser.PostfixExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitArgumentExpressionList(ctx *parser.ArgumentExpressionListContext) any {
@@ -118,7 +145,7 @@ func (v *parseVisitor) VisitArgumentExpressionList(ctx *parser.ArgumentExpressio
 }
 
 func (v *parseVisitor) VisitUnaryExpression(ctx *parser.UnaryExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitUnaryOperator(ctx *parser.UnaryOperatorContext) any {
@@ -126,55 +153,55 @@ func (v *parseVisitor) VisitUnaryOperator(ctx *parser.UnaryOperatorContext) any 
 }
 
 func (v *parseVisitor) VisitCastExpression(ctx *parser.CastExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitMultiplicativeExpression(ctx *parser.MultiplicativeExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitAdditiveExpression(ctx *parser.AdditiveExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitShiftExpression(ctx *parser.ShiftExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitRelationalExpression(ctx *parser.RelationalExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitEqualityExpression(ctx *parser.EqualityExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitAndExpression(ctx *parser.AndExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitExclusiveOrExpression(ctx *parser.ExclusiveOrExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitInclusiveOrExpression(ctx *parser.InclusiveOrExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitLogicalAndExpression(ctx *parser.LogicalAndExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitLogicalOrExpression(ctx *parser.LogicalOrExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitConditionalExpression(ctx *parser.ConditionalExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitAssignmentExpression(ctx *parser.AssignmentExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitAssignmentOperator(ctx *parser.AssignmentOperatorContext) any {
@@ -182,7 +209,7 @@ func (v *parseVisitor) VisitAssignmentOperator(ctx *parser.AssignmentOperatorCon
 }
 
 func (v *parseVisitor) VisitExpression(ctx *parser.ExpressionContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitConstantExpression(ctx *parser.ConstantExpressionContext) any {
@@ -194,7 +221,7 @@ func (v *parseVisitor) VisitStorageClassSpecifier(ctx *parser.StorageClassSpecif
 }
 
 func (v *parseVisitor) VisitTypeSpecifier(ctx *parser.TypeSpecifierContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitStructOrUnionSpecifier(ctx *parser.StructOrUnionSpecifierContext) any {
