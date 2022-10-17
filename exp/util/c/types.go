@@ -132,3 +132,57 @@ func ParseSimpleType(s string) SimpleType {
 	}
 	panic(s)
 }
+
+//
+
+type StorageClassSpecifier int8
+
+const (
+	DefaultStorage StorageClassSpecifier = iota
+	TypedefStorage
+	ExternStorage
+	StaticStorage
+	ThreadLocalStorage
+	AutoStorage
+	RegisterStorage
+)
+
+func (s StorageClassSpecifier) String() string {
+	switch s {
+	case DefaultStorage:
+		return "default"
+	case TypedefStorage:
+		return "typedef"
+	case ExternStorage:
+		return "extern"
+	case StaticStorage:
+		return "static"
+	case ThreadLocalStorage:
+		return "_Thread_local"
+	case AutoStorage:
+		return "auto"
+	case RegisterStorage:
+		return "register"
+	}
+	panic(s)
+}
+
+func ParseStorageClassSpecifier(s string) StorageClassSpecifier {
+	switch s {
+	case "default":
+		return DefaultStorage
+	case "typedef":
+		return TypedefStorage
+	case "extern":
+		return ExternStorage
+	case "static":
+		return StaticStorage
+	case "_Thread_local":
+		return ThreadLocalStorage
+	case "auto":
+		return AutoStorage
+	case "register":
+		return RegisterStorage
+	}
+	panic(s)
+}
