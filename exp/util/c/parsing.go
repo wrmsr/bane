@@ -221,7 +221,22 @@ func (v *parseVisitor) VisitStorageClassSpecifier(ctx *parser.StorageClassSpecif
 }
 
 func (v *parseVisitor) VisitTypeSpecifier(ctx *parser.TypeSpecifierContext) any {
-	return v.VisitChildren(ctx)
+	if c := ctx.AtomicTypeSpecifier(); c != nil {
+		panic("implement me")
+	}
+	if c := ctx.StructOrUnionSpecifier(); c != nil {
+		panic("implement me")
+	}
+	if c := ctx.EnumSpecifier(); c != nil {
+		panic("implement me")
+	}
+	if c := ctx.TypedefName(); c != nil {
+		panic("implement me")
+	}
+	if c := ctx.ConstantExpression(); c != nil {
+		panic("implement me")
+	}
+	return ParseSimpleType(ctx.GetText())
 }
 
 func (v *parseVisitor) VisitStructOrUnionSpecifier(ctx *parser.StructOrUnionSpecifierContext) any {

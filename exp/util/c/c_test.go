@@ -13,12 +13,14 @@ import (
 func TestC(t *testing.T) {
 	cu := func(p *parser.CParser) antlr.ParseTree { return p.CompilationUnit() }
 	ex := func(p *parser.CParser) antlr.ParseTree { return p.PrimaryExpression() }
+	ts := func(p *parser.CParser) antlr.ParseTree { return p.TypeSpecifier() }
 
 	for _, src := range []struct {
 		s   string
 		pfn func(p *parser.CParser) antlr.ParseTree
 	}{
 		{`1`, ex},
+		{`int`, ts},
 		{`int main(int argc, const char * const *argv) {
 			printf("hi\n");
 			return 0;
