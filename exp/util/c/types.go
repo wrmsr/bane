@@ -150,7 +150,7 @@ const (
 func (s StorageClassSpecifier) String() string {
 	switch s {
 	case DefaultStorage:
-		return "default"
+		return "<default>"
 	case TypedefStorage:
 		return "typedef"
 	case ExternStorage:
@@ -169,8 +169,6 @@ func (s StorageClassSpecifier) String() string {
 
 func ParseStorageClassSpecifier(s string) StorageClassSpecifier {
 	switch s {
-	case "default":
-		return DefaultStorage
 	case "typedef":
 		return TypedefStorage
 	case "extern":
@@ -183,6 +181,48 @@ func ParseStorageClassSpecifier(s string) StorageClassSpecifier {
 		return AutoStorage
 	case "register":
 		return RegisterStorage
+	}
+	panic(s)
+}
+
+//
+
+type TypeQualifier int8
+
+const (
+	DefaultType TypeQualifier = iota
+	ConstType
+	RestrictType
+	VolatileType
+	AtomicType
+)
+
+func (q TypeQualifier) String() string {
+	switch q {
+	case DefaultType:
+		return "<default>"
+	case ConstType:
+		return "const"
+	case RestrictType:
+		return "restrict"
+	case VolatileType:
+		return "volatile"
+	case AtomicType:
+		return "_Atomic"
+	}
+	panic(q)
+}
+
+func ParseTypeQualifier(s string) TypeQualifier {
+	switch s {
+	case "const":
+		return ConstType
+	case "restrict":
+		return RestrictType
+	case "volatile":
+		return VolatileType
+	case "_Atomic":
+		return AtomicType
 	}
 	panic(s)
 }
