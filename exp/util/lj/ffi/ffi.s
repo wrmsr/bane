@@ -132,6 +132,14 @@ TEXT ·Ffi_call(SB),NOSPLIT,$0
     MOVD cs+0(FP), R9
     LDP CCallState_Gpr(R9), (R0, R1)
     LDP 0(R9), (R2, R3)
+    LDP 0(R9), (R4, R5)
+    LDP 0(R9), (R6, R7)
+
+    MOVD cs+0(FP), R9
+    FLDPD CCallState_Fpr(R9), (F0, F1)
+    FLDPD 0(R9), (F2, F3)
+    FLDPD 0(R9), (F4, F5)
+    FLDPD 0(R9), (F6, F7)
 
     MOVD cs+0(FP), R9
     MOVD CCallState_Fn(R9), R9
