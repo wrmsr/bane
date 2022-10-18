@@ -6,4 +6,5 @@
 .idea/
 .tmp/
 .venv*/
+_obj/
 bin/
