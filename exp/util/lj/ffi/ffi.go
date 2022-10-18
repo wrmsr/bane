@@ -1,6 +1,7 @@
 package ffi
 
 import (
+	"unsafe"
 	_ "unsafe"
 
 	"github.com/wrmsr/bane/exp/util/unsafe/dl"
@@ -11,7 +12,7 @@ func Sqrt(x float32) float32
 
 //go:nosplit
 //go:noescape
-func Ffi_call(fn uintptr) uintptr
+func Ffi_call(cs unsafe.Pointer) uintptr
 
 //go:linkname _runtime_procPin runtime.procPin
 func _runtime_procPin() int

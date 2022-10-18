@@ -3,6 +3,7 @@ package ffi
 import (
 	"fmt"
 	"testing"
+	"unsafe"
 )
 
 const CCALL_NARG_GPR = 8
@@ -38,7 +39,10 @@ type CCallState struct {
 
 func TestFfi(t *testing.T) {
 	sleep := FindSleep()
-	fmt.Println(Ffi_call(sleep))
+	cs := CCallState{
+		fn: sleep,
+	}
+	fmt.Println(Ffi_call(unsafe.Pointer(&cs)))
 }
 
 func TestSqrt(t *testing.T) {

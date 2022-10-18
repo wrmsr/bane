@@ -1,3 +1,4 @@
+#include "go_asm.h"
 #include "funcdata.h"
 #include "textflag.h"
 
@@ -123,14 +124,14 @@
 //         pc = 0x00000001000b2abc  main`github.com/wrmsr/bane/exp/util/lj/ffi.Ffi_call.abi0 + 12
 //       cpsr = 0x60001000
 
-TEXT ·Ffi_call(SB), NOSPLIT, $0
-    // WORD $0xd4200000
+TEXT ·Ffi_call(SB),NOSPLIT,$0
     BRK $0
 
     CALL ·runtime_procPin(SB)
 
     MOVD $3, R0
-    MOVD fn+0(FP), R20
+    MOVD cs+0(FP), R20
+    MOVD CCallState_fn(R20), R20
     CALL R20
 
     CALL ·runtime_procUnpin(SB)
