@@ -129,10 +129,13 @@ TEXT ·Ffi_call(SB),NOSPLIT,$0
 
     CALL ·runtime_procPin(SB)
 
-    MOVD $3, R0
-    MOVD cs+0(FP), R20
-    MOVD CCallState_fn(R20), R20
-    CALL R20
+    MOVD cs+0(FP), R9
+    LDP CCallState_Gpr(R9), (R0, R1)
+    LDP 0(R9), (R2, R3)
+
+    MOVD cs+0(FP), R9
+    MOVD CCallState_Fn(R9), R9
+    CALL R9
 
     CALL ·runtime_procUnpin(SB)
 

@@ -1,7 +1,17 @@
 package main
 
-import "github.com/wrmsr/bane/exp/util/lj/ffi"
+import (
+	"fmt"
+	"unsafe"
+
+	"github.com/wrmsr/bane/exp/util/lj/ffi"
+)
 
 func main() {
-	ffi.Ffi_call(ffi.FindSleep())
+	sleep := ffi.FindSleep()
+	cs := ffi.CCallState{
+		Fn: sleep,
+	}
+	cs.Gpr[0] = 3
+	fmt.Println(ffi.Ffi_call(unsafe.Pointer(&cs)))
 }
