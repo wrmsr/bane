@@ -1,4 +1,6 @@
 /*
+https://webassembly.github.io/spec/core/_download/WebAssembly.pdf
+
 TODO:
   - https://github.com/WebAssembly/testsuite
 */
