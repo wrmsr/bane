@@ -137,22 +137,53 @@ vishiftop ::=
     shl
   | shr_sx
 
-vfunop ::= abs | neg | sqrt | ceil | floor | trunc | nearest
+vfunop ::=
+    abs
+  | neg
+  | sqrt
+  | ceil
+  | floor
+  | trunc
+  | nearest
 
-vfbinop ::= add | sub | mul | div | min | max | pmin | pmax
+vfbinop ::=
+    add
+  | sub
+  | mul
+  | div
+  | min
+  | max
+  | pmin
+  | pmax
 
 //
 
-vunop ::= viunop | vfunop | popcnt
+vunop ::=
+    viunop
+  | vfunop
+  | popcnt
 
-vbinop ::= vibinop | vfbinop
-| viminmaxop | visatbinop
-| mul | avgr_u | q15mulr_sat_s
+vbinop ::=
+    vibinop
+  | vfbinop
+  | viminmaxop
+  | visatbinop
+  | mul
+  | avgr_u
+  | q15mulr_sat_s
 
-vtestop ::= vitestop
+vtestop ::=
+    vitestop
 
-vrelop ::= virelop | vfrelop
+vrelop ::=
+    virelop
+  | vfrelop
 
-vcvtop ::= extend | trunc_sat | convert | demote | promote
+vcvtop ::=
+    extend
+  | trunc_sat
+  | convert
+  | demote
+  | promote
 */
 package exprs
