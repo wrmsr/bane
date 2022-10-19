@@ -24,9 +24,9 @@ func main() {
 
 func TestMalloc(t *testing.T) {
 	b := new([1024]byte)
-	for i := range b {
-		b[i] = byte(i)
-	}
+	//for i := range b {
+	//	b[i] = byte(i)
+	//}
 	p := (*pool_header)(unsafe.Pointer(&b[0]))
 	fmt.Printf("%x\n", p.count)
 }
