@@ -8,16 +8,18 @@ import (
 	"strings"
 	"testing"
 
+	wp "github.com/wrmsr/bane/exp/util/wasm/parsing"
+	wr "github.com/wrmsr/bane/exp/util/wasm/rendering"
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
 )
 
 func testWasm(src string) {
-	r := Reader{r: bufio.NewReader(strings.NewReader(src))}
-	root := check.NotNil(r.ReadElement()).(List)
+	r := wp.NewReader(bufio.NewReader(strings.NewReader(src)))
+	root := check.NotNil(r.ReadElement()).(wp.List)
 	check.Nil(r.ReadElement())
 
-	fmt.Println(RenderString(root))
+	fmt.Println(wr.RenderString(root))
 
 	BuildModule(root)
 }

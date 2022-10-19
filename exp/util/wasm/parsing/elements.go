@@ -1,9 +1,10 @@
-package wasm
+package parsing
 
 import (
 	"fmt"
 	"io"
 
+	wr "github.com/wrmsr/bane/exp/util/wasm/rendering"
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
 
@@ -12,7 +13,7 @@ import (
 type Element interface {
 	isElement()
 
-	Renderer
+	wr.Renderer
 	fmt.Stringer
 }
 
@@ -22,21 +23,21 @@ func (p element) isElement() {}
 
 type Atom struct {
 	element
-	s string
+	S string
 }
 
 var _ Element = Atom{}
 
 type Quote struct {
 	element
-	s string
+	S string
 }
 
 var _ Element = Quote{}
 
 type List struct {
 	element
-	ps []Element
+	Ps []Element
 }
 
 var _ Element = List{}
@@ -45,20 +46,20 @@ var _ Element = List{}
 
 func (e Atom) Render(w io.Writer) {
 	iou.Dw(w).
-		String(e.s)
+		String(e.S)
 }
 
 func (e Quote) Render(w io.Writer) {
 	iou.Dw(w).
 		Byte('"').
-		String(e.s).
+		String(e.S).
 		Byte('"')
 }
 
 func (e List) Render(w io.Writer) {
 	d := iou.Dw(w).
 		Byte('(')
-	for i, c := range e.ps {
+	for i, c := range e.Ps {
 		if i > 0 {
 			d.Byte(' ')
 		}
@@ -67,6 +68,6 @@ func (e List) Render(w io.Writer) {
 	d.Byte(')')
 }
 
-func (e Atom) String() string  { return RenderString(e) }
-func (e Quote) String() string { return RenderString(e) }
-func (e List) String() string  { return RenderString(e) }
+func (e Atom) String() string  { return wr.RenderString(e) }
+func (e Quote) String() string { return wr.RenderString(e) }
+func (e List) String() string  { return wr.RenderString(e) }

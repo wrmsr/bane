@@ -1,4 +1,4 @@
-package wasm
+package parsing
 
 import (
 	"bufio"
@@ -10,6 +10,10 @@ import (
 
 type Reader struct {
 	r *bufio.Reader
+}
+
+func NewReader(r io.Reader) *Reader {
+	return &Reader{r: bufio.NewReader(r)}
 }
 
 func (r *Reader) readByte() byte {
@@ -93,18 +97,18 @@ l:
 				panic("mismatched parens")
 			}
 			if len(stk) < 2 {
-				return List{ps: stk[0]}
+				return List{Ps: stk[0]}
 			}
-			p = List{ps: stk.Pop()}
+			p = List{Ps: stk.Pop()}
 
 		case s[0] == '"':
 			if s[0] != '"' || s[len(s)-1] != '"' {
 				panic("mismatched quotes")
 			}
-			p = Quote{s: s[1 : len(s)-1]}
+			p = Quote{S: s[1 : len(s)-1]}
 
 		default:
-			p = Atom{s: s}
+			p = Atom{S: s}
 		}
 
 		if len(stk) > 0 {

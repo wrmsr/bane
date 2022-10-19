@@ -1,4 +1,4 @@
-package wasm
+package rendering
 
 import (
 	"io"

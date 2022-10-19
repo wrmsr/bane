@@ -1,9 +1,10 @@
-package wasm
+package types
 
 import (
 	"fmt"
 	"io"
 
+	wr "github.com/wrmsr/bane/exp/util/wasm/rendering"
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
 
@@ -12,7 +13,7 @@ import (
 type Type interface {
 	isType()
 
-	Renderer
+	wr.Renderer
 	fmt.Stringer
 }
 
@@ -30,7 +31,7 @@ var _ Type = None{}
 
 func (t None) Render(w io.Writer) { iou.Dw(w).String("none") }
 
-func (t None) String() string { return RenderString(t) }
+func (t None) String() string { return wr.RenderString(t) }
 
 //
 
@@ -76,10 +77,10 @@ func (t I64) Render(w io.Writer) { iou.Dw(w).String("i64") }
 func (t F32) Render(w io.Writer) { iou.Dw(w).String("f32") }
 func (t F64) Render(w io.Writer) { iou.Dw(w).String("f64") }
 
-func (t I32) String() string { return RenderString(t) }
-func (t I64) String() string { return RenderString(t) }
-func (t F32) String() string { return RenderString(t) }
-func (t F64) String() string { return RenderString(t) }
+func (t I32) String() string { return wr.RenderString(t) }
+func (t I64) String() string { return wr.RenderString(t) }
+func (t F32) String() string { return wr.RenderString(t) }
+func (t F64) String() string { return wr.RenderString(t) }
 
 //
 
