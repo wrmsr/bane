@@ -54,7 +54,9 @@ var _ Expr = Const{}
 
 func (e Block) Render(w io.Writer) {
 	d := iou.Dw(w).
-		Byte('(')
+		String("(block ").
+		String(e.id).
+		Byte(' ')
 	for i, c := range e.s {
 		if i > 0 {
 			d.Byte(' ')

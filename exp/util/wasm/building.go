@@ -7,12 +7,6 @@ import (
 	"github.com/wrmsr/bane/pkg/util/check"
 )
 
-type Module struct{}
-
-type Memory struct{}
-
-type Func struct{}
-
 func BuildModule(root List) {
 	if root.ps[0].(Atom).s != "module" {
 		panic("invalid module")
@@ -67,7 +61,8 @@ l:
 	for ; i < len(root.ps); i++ {
 		l := root.ps[i].(List)
 
-		BuildExpr(l)
+		body := BuildExpr(l)
+		fmt.Println(body)
 	}
 }
 
