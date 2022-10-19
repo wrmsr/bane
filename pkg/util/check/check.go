@@ -22,6 +22,13 @@ func NotNil(v any, details ...any) any {
 	return v
 }
 
+func Nil(v any, details ...any) any {
+	if v != nil {
+		panic(checkError("must be nil", []any{v}, details...))
+	}
+	return v
+}
+
 func Condition(b bool, details ...any) {
 	if !b {
 		panic(checkError("condition not met", nil, details...))
