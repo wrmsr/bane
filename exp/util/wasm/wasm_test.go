@@ -2,8 +2,31 @@ package wasm
 
 import (
 	"fmt"
+	"io"
+	"strings"
 	"testing"
 )
+
+type Reader struct {
+	r     io.Reader
+	depth int
+}
+
+func (r *Reader) Next() bool {
+	b := [1]byte{}
+	n, err := r.r.Read(b[:])
+	if err != nil {
+		if err != io.EOF {
+			panic(err)
+		}
+		return false
+	}
+	if n > 1 {
+		panic(n)
+	}
+	fmt.Println(b[0])
+	return true
+}
 
 func TestWasm(t *testing.T) {
 	src := `
@@ -22,5 +45,7 @@ func TestWasm(t *testing.T) {
 )
 `
 
-	fmt.Println(src)
+	r := Reader{r: strings.NewReader(src)}
+	for r.Next() {
+	}
 }
