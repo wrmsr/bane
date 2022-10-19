@@ -96,3 +96,17 @@ func POOL_ADDR(P uintptr) uintptr {
 func NUMBLOCKS(I uint) uint {
 	return (POOL_SIZE - POOL_OVERHEAD) / INDEX2SIZE(I)
 }
+
+var usedpools [2 * ((NB_SMALL_SIZE_CLASSES + 7) / 8) * 8]*pool_header
+
+func init() {
+	PTA := func(x uint) **pool_header {
+		return &(usedpools[(2*(x))-2])
+	}
+	for i := 0; i < NB_SMALL_SIZE_CLASSES; i++ {
+		p := PTA(uint(i))
+		usedpools[i*2] = p
+		usedpools[(i*2)+1] = p
+	}
+
+}
