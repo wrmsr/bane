@@ -39,7 +39,7 @@ func TestWasm(t *testing.T) {
 `
 
 	r := Reader{r: bufio.NewReader(strings.NewReader(src))}
-	root := check.NotNil(r.ReadElement()).(Element)
+	root := check.NotNil(r.ReadElement()).(List)
 	check.Nil(r.ReadElement())
 
 	fmt.Println(RenderElement(root))

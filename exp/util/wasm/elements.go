@@ -11,6 +11,7 @@ type Element interface {
 	isElement()
 
 	Render(w io.Writer)
+	String() string
 }
 
 type element struct{}
@@ -38,13 +39,13 @@ type List struct {
 
 var _ Element = List{}
 
+//
+
 func RenderElement(p Element) string {
 	var bs strings.Builder
 	p.Render(&bs)
 	return bs.String()
 }
-
-//
 
 func (p Atom) Render(w io.Writer) {
 	_, _ = io.WriteString(w, p.s)
@@ -66,3 +67,7 @@ func (p List) Render(w io.Writer) {
 	}
 	_, _ = w.Write([]byte{')'})
 }
+
+func (p Atom) String() string  { return RenderElement(p) }
+func (p Quote) String() string { return RenderElement(p) }
+func (p List) String() string  { return RenderElement(p) }
