@@ -75,8 +75,8 @@ func _Py_IS_ALIGNED(p, a uintptr) bool {
 	return (p & (a - 1)) == 0
 }
 
-var POOL_OVERHEAD = _(func() uintptr {
-	return _Py_SIZE_ROUND_UP(unsafe.Sizeof(pool_header{}), ALIGNMENT)
+var POOL_OVERHEAD = (func() uint {
+	return uint(_Py_SIZE_ROUND_UP(unsafe.Sizeof(pool_header{}), ALIGNMENT))
 })()
 
 const DUMMY_SIZE_IDX = 0xffff
