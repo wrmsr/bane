@@ -24,6 +24,20 @@ func WriteDiscard(w io.Writer, p []byte) {
 
 //
 
+func WriteByte(w io.Writer, b byte) (int, error) {
+	return w.Write([]byte{b})
+}
+
+func WriteByteErr(w io.Writer, b byte) error {
+	return DiscardLen(w.Write([]byte{b}))
+}
+
+func WriteByteDiscard(w io.Writer, b byte) {
+	Discard(w.Write([]byte{b}))
+}
+
+//
+
 func WriteString(w io.Writer, s string) (int, error) {
 	return w.Write([]byte(s))
 }
@@ -70,4 +84,34 @@ func InvokeToString(fn func(writer DiscardStringWriter)) string {
 	var sb strings.Builder
 	fn(NewDiscardStringWriter(&sb))
 	return sb.String()
+}
+
+//
+
+type DiscardingWriter struct {
+	io.Writer
+}
+
+func Dw(w io.Writer) DiscardingWriter {
+	return DiscardingWriter{w}
+}
+
+func (d DiscardingWriter) Bytes(p []byte) DiscardingWriter {
+	Discard(d.Write(p))
+	return d
+}
+
+func (d DiscardingWriter) Byte(b byte) DiscardingWriter {
+	Discard(d.Write([]byte{b}))
+	return d
+}
+
+func (d DiscardingWriter) String(s string) DiscardingWriter {
+	Discard(d.Write([]byte(s)))
+	return d
+}
+
+func (d DiscardingWriter) Fprintf(format string, a ...any) DiscardingWriter {
+	Discard(fmt.Fprintf(d.Writer, format, a...))
+	return d
 }

@@ -19,7 +19,7 @@ func ParseNestedList(s string, left, right, sep rune) ([]any, error) {
 	stk.Push(nil)
 
 	add := func(o any) error {
-		if stk.Len() < 1 {
+		if len(stk) < 1 {
 			return errors.New("too many right delimiters")
 		}
 		*stk.Top() = append(*stk.Top(), o)
@@ -58,7 +58,7 @@ func ParseNestedList(s string, left, right, sep rune) ([]any, error) {
 		}
 	}
 
-	if stk.Len() != 1 {
+	if len(stk) != 1 {
 		return nil, errors.New("too many left delimiters")
 	}
 

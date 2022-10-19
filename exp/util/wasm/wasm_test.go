@@ -42,7 +42,7 @@ func TestWasm(t *testing.T) {
 	root := check.NotNil(r.ReadElement()).(List)
 	check.Nil(r.ReadElement())
 
-	fmt.Println(RenderElement(root))
+	fmt.Println(RenderString(root))
 
 	BuildModule(root)
 }

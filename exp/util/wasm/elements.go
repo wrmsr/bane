@@ -1,8 +1,10 @@
 package wasm
 
 import (
+	"fmt"
 	"io"
-	"strings"
+
+	iou "github.com/wrmsr/bane/pkg/util/io"
 )
 
 //
@@ -10,8 +12,8 @@ import (
 type Element interface {
 	isElement()
 
-	Render(w io.Writer)
-	String() string
+	Renderer
+	fmt.Stringer
 }
 
 type element struct{}
@@ -41,33 +43,30 @@ var _ Element = List{}
 
 //
 
-func RenderElement(p Element) string {
-	var bs strings.Builder
-	p.Render(&bs)
-	return bs.String()
+func (e Atom) Render(w io.Writer) {
+	iou.Dw(w).
+		String(e.s)
 }
 
-func (p Atom) Render(w io.Writer) {
-	_, _ = io.WriteString(w, p.s)
+func (e Quote) Render(w io.Writer) {
+	iou.Dw(w).
+		Byte('"').
+		String(e.s).
+		Byte('"')
 }
 
-func (p Quote) Render(w io.Writer) {
-	_, _ = w.Write([]byte{'"'})
-	_, _ = io.WriteString(w, p.s)
-	_, _ = w.Write([]byte{'"'})
-}
-
-func (p List) Render(w io.Writer) {
-	_, _ = w.Write([]byte{'('})
-	for i, c := range p.ps {
+func (e List) Render(w io.Writer) {
+	d := iou.Dw(w).
+		Byte('(')
+	for i, c := range e.ps {
 		if i > 0 {
-			_, _ = w.Write([]byte{' '})
+			d.Byte(' ')
 		}
 		c.Render(w)
 	}
-	_, _ = w.Write([]byte{')'})
+	d.Byte(')')
 }
 
-func (p Atom) String() string  { return RenderElement(p) }
-func (p Quote) String() string { return RenderElement(p) }
-func (p List) String() string  { return RenderElement(p) }
+func (e Atom) String() string  { return RenderString(e) }
+func (e Quote) String() string { return RenderString(e) }
+func (e List) String() string  { return RenderString(e) }
