@@ -1,5 +1,7 @@
 package malloc
 
+import "unsafe"
+
 const ALIGNMENT = 16 // must be 2^N
 const ALIGNMENT_SHIFT = 4
 
@@ -17,6 +19,10 @@ type pool_header struct {
 	szidx         uint         // block size class index
 	nextoffset    uint         // bytes to virgin block
 	maxnextoffset uint         // largest valid nextoffset
+}
+
+func pool_header__arenaindex(p uintptr) uint {
+	return *(*uint)(unsafe.Pointer(p + 24))
 }
 
 type Allocator struct {
