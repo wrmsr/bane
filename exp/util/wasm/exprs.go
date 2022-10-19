@@ -32,6 +32,24 @@ var _ Expr = Block{}
 
 //
 
+type Const struct {
+	expr
+	s  string
+	ty Type
+}
+
+var _ Expr = Const{}
+
+//
+
+type Nop struct {
+	expr
+}
+
+var _ Expr = Nop{}
+
+//
+
 type SetLocal struct {
 	expr
 	n string
@@ -42,21 +60,14 @@ var _ Expr = SetLocal{}
 
 //
 
-type Const struct {
-	expr
-	s  string
-	ty string
-}
-
-var _ Expr = Const{}
-
-//
-
 func (e Block) Render(w io.Writer) {
 	d := iou.Dw(w).
-		String("(block ").
-		String(e.id).
-		Byte(' ')
+		String("(block ")
+	if e.id != "" {
+		d.
+			String(e.id).
+			Byte(' ')
+	}
 	for i, c := range e.s {
 		if i > 0 {
 			d.Byte(' ')
@@ -64,6 +75,20 @@ func (e Block) Render(w io.Writer) {
 		c.Render(w)
 	}
 	d.Byte(')')
+}
+
+func (e Const) Render(w io.Writer) {
+	d := iou.Dw(w).
+		String("(const ")
+	e.ty.Render(w)
+	d.
+		Byte(' ').
+		String(e.s).
+		Byte(')')
+}
+
+func (e Nop) Render(w io.Writer) {
+	iou.Dw(w).String("(nop)")
 }
 
 func (e SetLocal) Render(w io.Writer) {
@@ -75,15 +100,7 @@ func (e SetLocal) Render(w io.Writer) {
 	d.Byte(')')
 }
 
-func (e Const) Render(w io.Writer) {
-	iou.Dw(w).
-		String("(const ").
-		String(e.ty).
-		Byte(' ').
-		String(e.s).
-		Byte(')')
-}
-
 func (e Block) String() string    { return RenderString(e) }
-func (e SetLocal) String() string { return RenderString(e) }
 func (e Const) String() string    { return RenderString(e) }
+func (e Nop) String() string      { return RenderString(e) }
+func (e SetLocal) String() string { return RenderString(e) }

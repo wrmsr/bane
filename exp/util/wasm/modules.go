@@ -1,7 +1,20 @@
 package wasm
 
-type Module struct{}
+type Module struct {
+	funcs []Func
+}
 
-type Memory struct{}
+type Local struct {
+	name string
+	ty   Type
+}
 
-type Func struct{}
+type Func struct {
+	name string
+
+	res    Type
+	params []Type
+	vars   []Type
+
+	body Expr
+}

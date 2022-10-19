@@ -20,7 +20,29 @@ func BuildModule(root List) {
 			//
 
 		case "func":
-			BuildFunc(l)
+			fn := BuildFunc(l)
+			fmt.Printf("%#v\n", fn)
+
+		case "type":
+			//
+
+		case "import":
+			//
+
+		case "global":
+			//
+
+		case "data":
+			//
+
+		case "table":
+			//
+
+		case "elem":
+			//
+
+		case "export":
+			//
 
 		default:
 			panic(k)
@@ -28,12 +50,11 @@ func BuildModule(root List) {
 	}
 }
 
-func BuildFunc(root List) {
+func BuildFunc(root List) Func {
 	if root.ps[0].(Atom).s != "func" {
 		panic("invalid func")
 	}
 	name := root.ps[1].(Atom).s
-	fmt.Println(name)
 
 	i := 2
 l:
@@ -58,23 +79,39 @@ l:
 		}
 	}
 
+	var bes []Expr
 	for ; i < len(root.ps); i++ {
 		l := root.ps[i].(List)
 
-		body := BuildExpr(l)
-		fmt.Println(body)
+		be := BuildExpr(l)
+		bes = append(bes, be)
+	}
+
+	var body Expr
+	if len(bes) > 1 {
+		body = Block{
+			s: bes,
+		}
+	} else if len(bes) < 1 {
+		body = Nop{}
+	} else {
+		body = bes[0]
+	}
+
+	return Func{
+		name: name,
+
+		body: body,
 	}
 }
 
 func BuildExpr(root List) Expr {
 	k := root.ps[0].(Atom).s
-	fmt.Println(k)
 
 	var dot string
 	if i := strings.Index(k, "."); i > 0 {
 		dot = k[:i]
 		k = k[i+1:]
-		fmt.Println(dot)
 	}
 
 	switch k {
@@ -101,10 +138,68 @@ func BuildExpr(root List) Expr {
 
 	case "const":
 		check.Equal(len(root.ps), 2)
+		ty := ParseType(dot)
 		return Const{
 			s:  root.ps[1].(Atom).s,
-			ty: dot,
+			ty: ty,
 		}
+
+	case "call":
+		return Nop{}
+
+	case "store":
+		return Nop{}
+
+	case "set":
+		return Nop{}
+
+	case "br":
+		return Nop{}
+
+	case "br_table":
+		return Nop{}
+
+	case "br_if":
+		return Nop{}
+
+	case "drop":
+		return Nop{}
+
+	case "loop":
+		return Nop{}
+
+	case "store8":
+		return Nop{}
+
+	case "get":
+		return Nop{}
+
+	case "lt_u":
+		return Nop{}
+
+	case "select":
+		return Nop{}
+
+	case "return":
+		return Nop{}
+
+	case "call_indirect":
+		return Nop{}
+
+	case "reinterpret_i64":
+		return Nop{}
+
+	case "reinterpret_f64":
+		return Nop{}
+
+	case "shl":
+		return Nop{}
+
+	case "sub":
+		return Nop{}
+
+	case "add":
+		return Nop{}
 
 	default:
 		panic(k)
