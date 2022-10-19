@@ -1,31 +1,106 @@
 package wasm
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"strings"
 	"testing"
 )
 
-type Reader struct {
-	r     io.Reader
-	depth int
+//
+
+type Part interface {
+	isPart()
 }
 
-func (r *Reader) Next() bool {
-	b := [1]byte{}
-	n, err := r.r.Read(b[:])
+type part struct{}
+
+func (p part) isPart() {}
+
+type Atom struct {
+	part
+	s string
+}
+
+type String struct {
+	part
+	s string
+}
+
+type List struct {
+	part
+	ps []Part
+}
+
+//
+
+type Reader struct {
+	r *bufio.Reader
+}
+
+func (r *Reader) read() byte {
+	b, err := r.r.ReadByte()
 	if err != nil {
-		if err != io.EOF {
-			panic(err)
+		if err == io.EOF {
+			return 0
 		}
-		return false
+		panic(err)
 	}
-	if n > 1 {
-		panic(n)
+	return b
+}
+
+func (r *Reader) next() string {
+	var sb strings.Builder
+
+l:
+	for {
+		b := r.read()
+		switch b {
+		case 0:
+			break l
+
+		case '(':
+			if sb.Len() < 1 {
+				return "("
+			}
+			break l
+
+		case ')':
+			if sb.Len() < 1 {
+				return ")"
+			}
+			if err := r.r.UnreadByte(); err != nil {
+				panic(err)
+			}
+			break l
+
+		case '"':
+			for {
+				b := r.read()
+				switch b {
+				case 0:
+					panic("mismatched quotes")
+
+				case '"':
+					break l
+
+				default:
+					sb.WriteByte(b)
+				}
+			}
+
+		case ' ', '\n', '\r', '\t':
+			if sb.Len() > 0 {
+				break l
+			}
+
+		default:
+			sb.WriteByte(b)
+		}
 	}
-	fmt.Println(b[0])
-	return true
+
+	return sb.String()
 }
 
 func TestWasm(t *testing.T) {
@@ -45,7 +120,12 @@ func TestWasm(t *testing.T) {
 )
 `
 
-	r := Reader{r: strings.NewReader(src)}
-	for r.Next() {
+	r := Reader{r: bufio.NewReader(strings.NewReader(src))}
+	for {
+		s := r.next()
+		if s == "" {
+			break
+		}
+		fmt.Println(s)
 	}
 }
