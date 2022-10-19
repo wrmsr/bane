@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	we "github.com/wrmsr/bane/exp/util/wasm/exprs"
+	wm "github.com/wrmsr/bane/exp/util/wasm/modules"
 	wp "github.com/wrmsr/bane/exp/util/wasm/parsing"
 	wt "github.com/wrmsr/bane/exp/util/wasm/types"
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -53,7 +54,7 @@ func BuildModule(root wp.List) {
 	}
 }
 
-func BuildFunc(root wp.List) Func {
+func BuildFunc(root wp.List) wm.Func {
 	if root.Ps[0].(wp.Atom).S != "func" {
 		panic("invalid func")
 	}
@@ -101,10 +102,10 @@ l:
 		body = bes[0]
 	}
 
-	return Func{
-		name: name,
+	return wm.Func{
+		Name: name,
 
-		body: body,
+		Body: body,
 	}
 }
 

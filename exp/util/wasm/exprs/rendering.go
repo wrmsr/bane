@@ -1,77 +1,11 @@
 package exprs
 
 import (
-	"fmt"
 	"io"
 
 	wr "github.com/wrmsr/bane/exp/util/wasm/rendering"
-	wt "github.com/wrmsr/bane/exp/util/wasm/types"
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
-
-//
-
-type Expr interface {
-	isExpr()
-
-	wr.Renderer
-	fmt.Stringer
-}
-
-type expr struct{}
-
-func (e expr) isExpr() {}
-
-//
-
-type Block struct {
-	expr
-	Id string
-	S  []Expr
-}
-
-var _ Expr = Block{}
-
-//
-
-type Const struct {
-	expr
-	S  string
-	Ty wt.Type
-}
-
-var _ Expr = Const{}
-
-//
-
-type Nop struct {
-	expr
-}
-
-var _ Expr = Nop{}
-
-//
-
-type Select struct {
-	expr
-	C Expr
-	T Expr
-	F Expr
-}
-
-var _ Expr = Select{}
-
-//
-
-type SetLocal struct {
-	expr
-	N string
-	V Expr
-}
-
-var _ Expr = SetLocal{}
-
-//
 
 func (e Block) Render(w io.Writer) {
 	d := iou.Dw(w).

@@ -1,4 +1,4 @@
-package wasm
+package modules
 
 import (
 	we "github.com/wrmsr/bane/exp/util/wasm/exprs"
@@ -6,20 +6,20 @@ import (
 )
 
 type Module struct {
-	funcs []Func
+	Funcs []Func
 }
 
 type Local struct {
-	name string
-	ty   wt.Type
+	Name string
+	Ty   wt.Type
 }
 
 type Func struct {
-	name string
+	Name string
 
-	res    wt.Type
-	params []wt.Type
-	vars   []wt.Type
+	Res    wt.Type
+	Params []wt.Type
+	Vars   []wt.Type
 
-	body we.Expr
+	Body we.Expr
 }
