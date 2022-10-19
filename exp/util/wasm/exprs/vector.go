@@ -156,7 +156,7 @@ vfbinop ::=
   | pmin
   | pmax
 
-//
+// conventions
 
 vunop ::=
     viunop
