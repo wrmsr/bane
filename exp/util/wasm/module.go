@@ -1,6 +1,9 @@
 package wasm
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Module struct{}
 
@@ -34,7 +37,7 @@ func BuildFunc(root List) {
 		panic("invalid func")
 	}
 	name := root.ps[1].(Atom).s
-	_ = name
+	fmt.Println(name)
 
 	i := 2
 l:
@@ -62,6 +65,26 @@ l:
 	for ; i < len(root.ps); i++ {
 		l := root.ps[i].(List)
 
-		fmt.Println(l)
+		BuildExpr(l)
+	}
+}
+
+func BuildExpr(root List) {
+	k := root.ps[0].(Atom).s
+	fmt.Println(k)
+
+	var dot string
+	if i := strings.Index(k, "."); i > 0 {
+		dot = k[i+i:]
+		k = k[:i]
+		fmt.Println(dot)
+	}
+
+	switch k {
+	case "block":
+		//
+
+	default:
+		panic(k)
 	}
 }
