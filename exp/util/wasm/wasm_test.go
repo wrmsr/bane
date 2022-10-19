@@ -76,15 +76,16 @@ l:
 			break l
 
 		case '"':
+			if sb.Len() > 0 {
+				panic("misplaced quote")
+			}
 			for {
 				b := r.read()
 				switch b {
 				case 0:
 					panic("mismatched quotes")
-
 				case '"':
 					break l
-
 				default:
 					sb.WriteByte(b)
 				}
