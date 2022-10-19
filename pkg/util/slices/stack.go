@@ -1,24 +1,18 @@
 package slices
 
-type Stack[T any] struct {
-	s []T
-}
+type Stack[T any] []T
 
 func (s *Stack[T]) Top() *T {
-	return &s.s[len(s.s)-1]
+	return &(*s)[len(*s)-1]
 }
 
 func (s *Stack[T]) Push(t T) {
-	s.s = append(s.s, t)
+	*s = append(*s, t)
 }
 
 func (s *Stack[T]) Pop() T {
-	l := len(s.s) - 1
-	r := s.s[l]
-	s.s = s.s[:l]
+	l := len(*s) - 1
+	r := (*s)[l]
+	*s = (*s)[:l]
 	return r
-}
-
-func (s *Stack[T]) Len() int {
-	return len(s.s)
 }
