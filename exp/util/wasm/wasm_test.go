@@ -194,6 +194,18 @@ func TestWasm(t *testing.T) {
       (set_local $temp
         (f64.const -2147483648)
       )
+      (set_local $temp
+        (f64.const -2147483648)
+      )
+      (set_local $temp
+        (f64.const -21474836480)
+      )
+      (set_local $temp
+        (f64.const 0.039625)
+      )
+      (set_local $temp
+        (f64.const -0.039625)
+      )
     )
   )
 )
