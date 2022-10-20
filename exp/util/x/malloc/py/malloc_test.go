@@ -1,4 +1,4 @@
-package malloc
+package py
 
 import (
 	"fmt"
