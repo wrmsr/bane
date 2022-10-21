@@ -312,31 +312,30 @@ alignmentSpecifier
     ;
 
 declarator
-    :   pointer? directDeclarator gccDeclaratorExtension*
+    : pointer? directDeclarator gccDeclaratorExtension*
     ;
 
 directDeclarator
-    : Identifier
-    | '(' declarator ')'
-    | directDeclarator '[' typeQualifierList? assignmentExpression? ']'
-    | directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
-    | directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
-    | directDeclarator '[' typeQualifierList? '*' ']'
-    | directDeclarator '(' parameterTypeList ')'
-    | directDeclarator '(' identifierList? ')'
-    | Identifier ':' DigitSequence  // bit field
-    | vcSpecificModifer Identifier // Visual C Extension
-    | '(' vcSpecificModifer declarator ')' // Visual C Extension
+    : Identifier                                                                 #identifierDirectDeclarator
+    | '(' declarator ')'                                                         #parenDirectDeclarator
+    | directDeclarator '[' typeQualifierList? assignmentExpression? ']'          #bracketDirectDeclarator
+    | directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'  #staticBracketDirectDeclarator
+    | directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'   #staticBracket2DirectDeclarator
+    | directDeclarator '[' typeQualifierList? '*' ']'                            #bracketStarDirectDeclarator
+    | directDeclarator '(' parameterTypeList ')'                                 #paramParenDirectDeclarator
+    | directDeclarator '(' identifierList? ')'                                   #identifierParenDirectDeclarator
+    | Identifier ':' DigitSequence                                               #bitFieldDirectDeclarator // bit field
+    | vcSpecificModifer Identifier                                               #vcSpecificDirectDeclarator // Visual C Extension
+    | '(' vcSpecificModifer declarator ')'                                       #vcSpecific2DirectDeclarator // Visual C Extension
     ;
 
 vcSpecificModifer
-    : ( '__cdecl'
-      | '__clrcall'
-      | '__stdcall'
-      | '__fastcall'
-      | '__thiscall'
-      | '__vectorcall'
-      )
+    : '__cdecl'
+    | '__clrcall'
+    | '__stdcall'
+    | '__fastcall'
+    | '__thiscall'
+    | '__vectorcall'
     ;
 
 gccDeclaratorExtension

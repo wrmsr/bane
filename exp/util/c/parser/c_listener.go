@@ -167,8 +167,38 @@ type CListener interface {
 	// EnterDeclarator is called when entering the declarator production.
 	EnterDeclarator(c *DeclaratorContext)
 
-	// EnterDirectDeclarator is called when entering the directDeclarator production.
-	EnterDirectDeclarator(c *DirectDeclaratorContext)
+	// EnterStaticBracket2DirectDeclarator is called when entering the staticBracket2DirectDeclarator production.
+	EnterStaticBracket2DirectDeclarator(c *StaticBracket2DirectDeclaratorContext)
+
+	// EnterBracketStarDirectDeclarator is called when entering the bracketStarDirectDeclarator production.
+	EnterBracketStarDirectDeclarator(c *BracketStarDirectDeclaratorContext)
+
+	// EnterBitFieldDirectDeclarator is called when entering the bitFieldDirectDeclarator production.
+	EnterBitFieldDirectDeclarator(c *BitFieldDirectDeclaratorContext)
+
+	// EnterVcSpecificDirectDeclarator is called when entering the vcSpecificDirectDeclarator production.
+	EnterVcSpecificDirectDeclarator(c *VcSpecificDirectDeclaratorContext)
+
+	// EnterParenDirectDeclarator is called when entering the parenDirectDeclarator production.
+	EnterParenDirectDeclarator(c *ParenDirectDeclaratorContext)
+
+	// EnterParamParenDirectDeclarator is called when entering the paramParenDirectDeclarator production.
+	EnterParamParenDirectDeclarator(c *ParamParenDirectDeclaratorContext)
+
+	// EnterBracketDirectDeclarator is called when entering the bracketDirectDeclarator production.
+	EnterBracketDirectDeclarator(c *BracketDirectDeclaratorContext)
+
+	// EnterStaticBracketDirectDeclarator is called when entering the staticBracketDirectDeclarator production.
+	EnterStaticBracketDirectDeclarator(c *StaticBracketDirectDeclaratorContext)
+
+	// EnterVcSpecific2DirectDeclarator is called when entering the vcSpecific2DirectDeclarator production.
+	EnterVcSpecific2DirectDeclarator(c *VcSpecific2DirectDeclaratorContext)
+
+	// EnterIdentifierParenDirectDeclarator is called when entering the identifierParenDirectDeclarator production.
+	EnterIdentifierParenDirectDeclarator(c *IdentifierParenDirectDeclaratorContext)
+
+	// EnterIdentifierDirectDeclarator is called when entering the identifierDirectDeclarator production.
+	EnterIdentifierDirectDeclarator(c *IdentifierDirectDeclaratorContext)
 
 	// EnterVcSpecificModifer is called when entering the vcSpecificModifer production.
 	EnterVcSpecificModifer(c *VcSpecificModiferContext)
@@ -431,8 +461,38 @@ type CListener interface {
 	// ExitDeclarator is called when exiting the declarator production.
 	ExitDeclarator(c *DeclaratorContext)
 
-	// ExitDirectDeclarator is called when exiting the directDeclarator production.
-	ExitDirectDeclarator(c *DirectDeclaratorContext)
+	// ExitStaticBracket2DirectDeclarator is called when exiting the staticBracket2DirectDeclarator production.
+	ExitStaticBracket2DirectDeclarator(c *StaticBracket2DirectDeclaratorContext)
+
+	// ExitBracketStarDirectDeclarator is called when exiting the bracketStarDirectDeclarator production.
+	ExitBracketStarDirectDeclarator(c *BracketStarDirectDeclaratorContext)
+
+	// ExitBitFieldDirectDeclarator is called when exiting the bitFieldDirectDeclarator production.
+	ExitBitFieldDirectDeclarator(c *BitFieldDirectDeclaratorContext)
+
+	// ExitVcSpecificDirectDeclarator is called when exiting the vcSpecificDirectDeclarator production.
+	ExitVcSpecificDirectDeclarator(c *VcSpecificDirectDeclaratorContext)
+
+	// ExitParenDirectDeclarator is called when exiting the parenDirectDeclarator production.
+	ExitParenDirectDeclarator(c *ParenDirectDeclaratorContext)
+
+	// ExitParamParenDirectDeclarator is called when exiting the paramParenDirectDeclarator production.
+	ExitParamParenDirectDeclarator(c *ParamParenDirectDeclaratorContext)
+
+	// ExitBracketDirectDeclarator is called when exiting the bracketDirectDeclarator production.
+	ExitBracketDirectDeclarator(c *BracketDirectDeclaratorContext)
+
+	// ExitStaticBracketDirectDeclarator is called when exiting the staticBracketDirectDeclarator production.
+	ExitStaticBracketDirectDeclarator(c *StaticBracketDirectDeclaratorContext)
+
+	// ExitVcSpecific2DirectDeclarator is called when exiting the vcSpecific2DirectDeclarator production.
+	ExitVcSpecific2DirectDeclarator(c *VcSpecific2DirectDeclaratorContext)
+
+	// ExitIdentifierParenDirectDeclarator is called when exiting the identifierParenDirectDeclarator production.
+	ExitIdentifierParenDirectDeclarator(c *IdentifierParenDirectDeclaratorContext)
+
+	// ExitIdentifierDirectDeclarator is called when exiting the identifierDirectDeclarator production.
+	ExitIdentifierDirectDeclarator(c *IdentifierDirectDeclaratorContext)
 
 	// ExitVcSpecificModifer is called when exiting the vcSpecificModifer production.
 	ExitVcSpecificModifer(c *VcSpecificModiferContext)

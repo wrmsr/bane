@@ -339,11 +339,77 @@ func (s *BaseCListener) EnterDeclarator(ctx *DeclaratorContext) {}
 // ExitDeclarator is called when production declarator is exited.
 func (s *BaseCListener) ExitDeclarator(ctx *DeclaratorContext) {}
 
-// EnterDirectDeclarator is called when production directDeclarator is entered.
-func (s *BaseCListener) EnterDirectDeclarator(ctx *DirectDeclaratorContext) {}
+// EnterStaticBracket2DirectDeclarator is called when production staticBracket2DirectDeclarator is entered.
+func (s *BaseCListener) EnterStaticBracket2DirectDeclarator(ctx *StaticBracket2DirectDeclaratorContext) {
+}
 
-// ExitDirectDeclarator is called when production directDeclarator is exited.
-func (s *BaseCListener) ExitDirectDeclarator(ctx *DirectDeclaratorContext) {}
+// ExitStaticBracket2DirectDeclarator is called when production staticBracket2DirectDeclarator is exited.
+func (s *BaseCListener) ExitStaticBracket2DirectDeclarator(ctx *StaticBracket2DirectDeclaratorContext) {
+}
+
+// EnterBracketStarDirectDeclarator is called when production bracketStarDirectDeclarator is entered.
+func (s *BaseCListener) EnterBracketStarDirectDeclarator(ctx *BracketStarDirectDeclaratorContext) {}
+
+// ExitBracketStarDirectDeclarator is called when production bracketStarDirectDeclarator is exited.
+func (s *BaseCListener) ExitBracketStarDirectDeclarator(ctx *BracketStarDirectDeclaratorContext) {}
+
+// EnterBitFieldDirectDeclarator is called when production bitFieldDirectDeclarator is entered.
+func (s *BaseCListener) EnterBitFieldDirectDeclarator(ctx *BitFieldDirectDeclaratorContext) {}
+
+// ExitBitFieldDirectDeclarator is called when production bitFieldDirectDeclarator is exited.
+func (s *BaseCListener) ExitBitFieldDirectDeclarator(ctx *BitFieldDirectDeclaratorContext) {}
+
+// EnterVcSpecificDirectDeclarator is called when production vcSpecificDirectDeclarator is entered.
+func (s *BaseCListener) EnterVcSpecificDirectDeclarator(ctx *VcSpecificDirectDeclaratorContext) {}
+
+// ExitVcSpecificDirectDeclarator is called when production vcSpecificDirectDeclarator is exited.
+func (s *BaseCListener) ExitVcSpecificDirectDeclarator(ctx *VcSpecificDirectDeclaratorContext) {}
+
+// EnterParenDirectDeclarator is called when production parenDirectDeclarator is entered.
+func (s *BaseCListener) EnterParenDirectDeclarator(ctx *ParenDirectDeclaratorContext) {}
+
+// ExitParenDirectDeclarator is called when production parenDirectDeclarator is exited.
+func (s *BaseCListener) ExitParenDirectDeclarator(ctx *ParenDirectDeclaratorContext) {}
+
+// EnterParamParenDirectDeclarator is called when production paramParenDirectDeclarator is entered.
+func (s *BaseCListener) EnterParamParenDirectDeclarator(ctx *ParamParenDirectDeclaratorContext) {}
+
+// ExitParamParenDirectDeclarator is called when production paramParenDirectDeclarator is exited.
+func (s *BaseCListener) ExitParamParenDirectDeclarator(ctx *ParamParenDirectDeclaratorContext) {}
+
+// EnterBracketDirectDeclarator is called when production bracketDirectDeclarator is entered.
+func (s *BaseCListener) EnterBracketDirectDeclarator(ctx *BracketDirectDeclaratorContext) {}
+
+// ExitBracketDirectDeclarator is called when production bracketDirectDeclarator is exited.
+func (s *BaseCListener) ExitBracketDirectDeclarator(ctx *BracketDirectDeclaratorContext) {}
+
+// EnterStaticBracketDirectDeclarator is called when production staticBracketDirectDeclarator is entered.
+func (s *BaseCListener) EnterStaticBracketDirectDeclarator(ctx *StaticBracketDirectDeclaratorContext) {
+}
+
+// ExitStaticBracketDirectDeclarator is called when production staticBracketDirectDeclarator is exited.
+func (s *BaseCListener) ExitStaticBracketDirectDeclarator(ctx *StaticBracketDirectDeclaratorContext) {
+}
+
+// EnterVcSpecific2DirectDeclarator is called when production vcSpecific2DirectDeclarator is entered.
+func (s *BaseCListener) EnterVcSpecific2DirectDeclarator(ctx *VcSpecific2DirectDeclaratorContext) {}
+
+// ExitVcSpecific2DirectDeclarator is called when production vcSpecific2DirectDeclarator is exited.
+func (s *BaseCListener) ExitVcSpecific2DirectDeclarator(ctx *VcSpecific2DirectDeclaratorContext) {}
+
+// EnterIdentifierParenDirectDeclarator is called when production identifierParenDirectDeclarator is entered.
+func (s *BaseCListener) EnterIdentifierParenDirectDeclarator(ctx *IdentifierParenDirectDeclaratorContext) {
+}
+
+// ExitIdentifierParenDirectDeclarator is called when production identifierParenDirectDeclarator is exited.
+func (s *BaseCListener) ExitIdentifierParenDirectDeclarator(ctx *IdentifierParenDirectDeclaratorContext) {
+}
+
+// EnterIdentifierDirectDeclarator is called when production identifierDirectDeclarator is entered.
+func (s *BaseCListener) EnterIdentifierDirectDeclarator(ctx *IdentifierDirectDeclaratorContext) {}
+
+// ExitIdentifierDirectDeclarator is called when production identifierDirectDeclarator is exited.
+func (s *BaseCListener) ExitIdentifierDirectDeclarator(ctx *IdentifierDirectDeclaratorContext) {}
 
 // EnterVcSpecificModifer is called when production vcSpecificModifer is entered.
 func (s *BaseCListener) EnterVcSpecificModifer(ctx *VcSpecificModiferContext) {}

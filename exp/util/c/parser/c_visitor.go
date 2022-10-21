@@ -167,8 +167,38 @@ type CVisitor interface {
 	// Visit a parse tree produced by CParser#declarator.
 	VisitDeclarator(ctx *DeclaratorContext) interface{}
 
-	// Visit a parse tree produced by CParser#directDeclarator.
-	VisitDirectDeclarator(ctx *DirectDeclaratorContext) interface{}
+	// Visit a parse tree produced by CParser#staticBracket2DirectDeclarator.
+	VisitStaticBracket2DirectDeclarator(ctx *StaticBracket2DirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#bracketStarDirectDeclarator.
+	VisitBracketStarDirectDeclarator(ctx *BracketStarDirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#bitFieldDirectDeclarator.
+	VisitBitFieldDirectDeclarator(ctx *BitFieldDirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#vcSpecificDirectDeclarator.
+	VisitVcSpecificDirectDeclarator(ctx *VcSpecificDirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#parenDirectDeclarator.
+	VisitParenDirectDeclarator(ctx *ParenDirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#paramParenDirectDeclarator.
+	VisitParamParenDirectDeclarator(ctx *ParamParenDirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#bracketDirectDeclarator.
+	VisitBracketDirectDeclarator(ctx *BracketDirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#staticBracketDirectDeclarator.
+	VisitStaticBracketDirectDeclarator(ctx *StaticBracketDirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#vcSpecific2DirectDeclarator.
+	VisitVcSpecific2DirectDeclarator(ctx *VcSpecific2DirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#identifierParenDirectDeclarator.
+	VisitIdentifierParenDirectDeclarator(ctx *IdentifierParenDirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#identifierDirectDeclarator.
+	VisitIdentifierDirectDeclarator(ctx *IdentifierDirectDeclaratorContext) interface{}
 
 	// Visit a parse tree produced by CParser#vcSpecificModifer.
 	VisitVcSpecificModifer(ctx *VcSpecificModiferContext) interface{}

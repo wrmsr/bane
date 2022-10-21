@@ -300,7 +300,7 @@ func (v *parseVisitor) VisitAlignmentSpecifier(ctx *parser.AlignmentSpecifierCon
 }
 
 func (v *parseVisitor) VisitDeclarator(ctx *parser.DeclaratorContext) any {
-	panic("implement me")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitDirectDeclarator(ctx *parser.DirectDeclaratorContext) any {
@@ -441,4 +441,50 @@ func (v *parseVisitor) VisitForExpression(ctx *parser.ForExpressionContext) any 
 
 func (v *parseVisitor) VisitJumpStatement(ctx *parser.JumpStatementContext) any {
 	panic("implement me")
+}
+
+func (v *parseVisitor) VisitStaticBracket2DirectDeclarator(ctx *parser.StaticBracket2DirectDeclaratorContext) interface{} {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitBracketStarDirectDeclarator(ctx *parser.BracketStarDirectDeclaratorContext) interface{} {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitBitFieldDirectDeclarator(ctx *parser.BitFieldDirectDeclaratorContext) interface{} {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitVcSpecificDirectDeclarator(ctx *parser.VcSpecificDirectDeclaratorContext) interface{} {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitParenDirectDeclarator(ctx *parser.ParenDirectDeclaratorContext) interface{} {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitParamParenDirectDeclarator(ctx *parser.ParamParenDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *parseVisitor) VisitBracketDirectDeclarator(ctx *parser.BracketDirectDeclaratorContext) interface{} {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitStaticBracketDirectDeclarator(ctx *parser.StaticBracketDirectDeclaratorContext) interface{} {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitVcSpecific2DirectDeclarator(ctx *parser.VcSpecific2DirectDeclaratorContext) interface{} {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitIdentifierParenDirectDeclarator(ctx *parser.IdentifierParenDirectDeclaratorContext) interface{} {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitIdentifierDirectDeclarator(ctx *parser.IdentifierDirectDeclaratorContext) interface{} {
+	return Identifier{
+		S: ctx.Identifier().GetText(),
+	}
 }

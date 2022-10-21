@@ -220,7 +220,47 @@ func (v *BaseCVisitor) VisitDeclarator(ctx *DeclaratorContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseCVisitor) VisitDirectDeclarator(ctx *DirectDeclaratorContext) interface{} {
+func (v *BaseCVisitor) VisitStaticBracket2DirectDeclarator(ctx *StaticBracket2DirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitBracketStarDirectDeclarator(ctx *BracketStarDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitBitFieldDirectDeclarator(ctx *BitFieldDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitVcSpecificDirectDeclarator(ctx *VcSpecificDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitParenDirectDeclarator(ctx *ParenDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitParamParenDirectDeclarator(ctx *ParamParenDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitBracketDirectDeclarator(ctx *BracketDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitStaticBracketDirectDeclarator(ctx *StaticBracketDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitVcSpecific2DirectDeclarator(ctx *VcSpecific2DirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitIdentifierParenDirectDeclarator(ctx *IdentifierParenDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitIdentifierDirectDeclarator(ctx *IdentifierDirectDeclaratorContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
