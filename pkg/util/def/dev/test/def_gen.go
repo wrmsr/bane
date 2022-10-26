@@ -1,3 +1,5 @@
+//go:build !nodev
+
 package test
 
 import (
@@ -13,6 +15,7 @@ var _def_init_once sync.Once
 func _def_init() {
 	_def_init_once.Do(func() {
 		spec := def.X_getPackageSpec()
+		_ = spec
 
 		var zero_Foo Foo
 		struct_spec__Foo := spec.Struct(reflect.TypeOf(zero_Foo))
@@ -82,19 +85,6 @@ func (f *Foo) init() {
 	f._def_init_barf()
 }
 
-func _def_inl_Baz(t InlineThing, y int) int {
-	var __def_inl_0 int
-	__def_inl_1 := y
-	{
-		{
-			__def_inl_0 = t.x + __def_inl_1
-			goto __def_inl_2
-		}
-	__def_inl_2:
-	}
-
-	return __def_inl_0 + 1
-}
 func _def_inl_Bar(x, y int) int {
 	var __def_inl_0 int
 	__def_inl_1 := x
@@ -118,4 +108,17 @@ func _def_inl_Bar(x, y int) int {
 	}
 
 	return __def_inl_4
+}
+func _def_inl_Baz(t InlineThing, y int) int {
+	var __def_inl_0 int
+	__def_inl_1 := y
+	{
+		{
+			__def_inl_0 = t.x + __def_inl_1
+			goto __def_inl_2
+		}
+	__def_inl_2:
+	}
+
+	return __def_inl_0 + 1
 }

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/def"
 )
 
 //
@@ -38,6 +39,12 @@ func DimsOf(s ...Dim) Dims {
 
 	return ds
 }
+
+var _ = def.Inline(
+	Dims.CheckEqualLen,
+	Dims.Len,
+	Dims.Get,
+)
 
 func (ds Dims) Equals(o Dims) bool {
 	if ds._l != o._l {

@@ -10,6 +10,11 @@ func StridesOf(s ...Dim) Strides {
 	return Strides{DimsOf(s...)}
 }
 
+var _ = def.Inline(
+	Strides.Offset,
+	Strides._offset,
+)
+
 func (st Strides) Equals(o Strides) bool {
 	return st.Dims.Equals(o.Dims)
 }
@@ -30,8 +35,6 @@ func (st Strides) Offset(idxs Dims) Dim {
 
 	return st._offset(idxs)
 }
-
-var _ = def.Inline(Strides._offset)
 
 func (st Strides) _offset(idxs Dims) Dim {
 	l := st.Len()

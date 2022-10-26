@@ -58,11 +58,19 @@ func (v View) Offset() Dim      { return v.o }
 
 func (v View) DataSize() Dim { return v.sh.Get(0) * v.st.Get(0) }
 
-var _ = def.Inline(View.Index)
+var _ = def.Inline(
+	View.Index,
+)
 
 func (v View) Index(idxs Dims) Dim {
 	return v.st.Offset(idxs) + v.o
 }
+
+//var _ = def.WithInline(foo)
+//
+//func foo(v View) Dim {
+//	return v.Index(DimsOf(2, 2))
+//}
 
 //
 

@@ -70,6 +70,7 @@ func (fg *FileGen) Gen() string {
 			gg.ShortVarOf(
 				"spec",
 				gg.CallOf(gg.SelectOf("def", "X_getPackageSpec"))),
+			gg.AssignOf("_", "spec"),
 			fg.initStmts,
 		)}}
 
