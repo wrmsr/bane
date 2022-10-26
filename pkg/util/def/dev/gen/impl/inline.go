@@ -6,6 +6,7 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
+	"go/types"
 	"strconv"
 	"strings"
 
@@ -51,6 +52,7 @@ func findFuncNames(decl *ast.FuncDecl) maps.Set[string] {
 
 type funcInliner struct {
 	decl *FuncDecl
+	ti   *types.Info
 	im   map[string]*FuncDecl
 
 	names  maps.Set[string]
@@ -186,7 +188,7 @@ func (fil *funcInliner) doExpr(expr ast.Expr) (ast.Expr, []ast.Stmt) {
 	out := astutil.Apply(expr, nil, func(cursor *astutil.Cursor) bool {
 		switch node := cursor.Node().(type) {
 		case *ast.CallExpr:
-			fnam := nameFuncRef(node.Fun)
+			fnam := nameFuncRef(node.Fun, fil.ti)
 			idecl := fil.im[fnam]
 			if idecl == nil {
 				return true
@@ -256,7 +258,7 @@ func (il *inliner) inlineFuncs() gg.Decls {
 
 	im := make(map[string]*FuncDecl)
 	for id := range il.ps.Inlines() {
-		n := nameFuncRef(id)
+		n := nameFuncRef(id, il.pkg.TypesInfo)
 		decl := il.rsv.FuncDecl(n)
 		if decl == nil {
 			panic(n)
@@ -265,7 +267,7 @@ func (il *inliner) inlineFuncs() gg.Decls {
 	}
 
 	for wid := range il.ps.WithInlines() {
-		n := nameFuncRef(wid)
+		n := nameFuncRef(wid, il.pkg.TypesInfo)
 		decl := il.rsv.FuncDecl(n)
 		if decl == nil {
 			panic(n)
@@ -273,6 +275,7 @@ func (il *inliner) inlineFuncs() gg.Decls {
 
 		id := (&funcInliner{
 			decl: decl,
+			ti:   il.pkg.TypesInfo,
 			im:   im,
 		}).inlineFunc()
 

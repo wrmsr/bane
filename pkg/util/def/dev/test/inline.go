@@ -28,6 +28,24 @@ func Bar(x, y int) int {
 	return Inlined1(Inlined0(x, y), y)
 }
 
+//
+
+type InlineThing struct {
+	x int
+}
+
+var _ = def.Inline(InlineThing.Frob)
+
+func (t InlineThing) Frob(y int) int {
+	return t.x + y
+}
+
+var _ = def.WithInline(Baz)
+
+func Baz(t InlineThing, y int) int {
+	return t.Frob(y) + 1
+}
+
 // ==>
 
 //func _def_inl_Bar(x, y int) int {

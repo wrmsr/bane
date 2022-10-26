@@ -4,6 +4,7 @@ package impl
 
 import (
 	"go/ast"
+	"go/types"
 
 	"golang.org/x/tools/go/packages"
 
@@ -45,12 +46,17 @@ func nameFuncDecl(fd *ast.FuncDecl) string {
 	return n
 }
 
-func nameFuncRef(e any) string {
+func nameFuncRef(e any, ti *types.Info) string {
 	switch e := e.(type) {
 	case string:
 		return e
 	case *ast.Ident:
 		return e.Name
+	case *ast.SelectorExpr:
+		ty := ti.Types[e.X]
+		l := ty.Type.(*types.Named).Obj().Name()
+		r := e.Sel.Name
+		return l + "." + r
 	default:
 		panic(e)
 	}
