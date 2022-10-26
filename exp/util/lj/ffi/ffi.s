@@ -147,4 +147,5 @@ TEXT ·Ffi_call(SB),NOSPLIT,$0
 
     CALL ·runtime_procUnpin(SB)
 
+    MOVD ZR, ret+8(FP)
 	RET
