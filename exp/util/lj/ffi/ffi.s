@@ -144,8 +144,8 @@ TEXT ·Ffi_call(SB),NOSPLIT,$0
     MOVD cs+0(FP), R9
     MOVD CCallState_Fn(R9), R9
     CALL R9
+    MOVD R0, ret+8(FP)
 
     CALL ·runtime_procUnpin(SB)
 
-    MOVD ZR, ret+8(FP)
 	RET
