@@ -15,3 +15,9 @@ func TestImpl(t *testing.T) {
 	s := Run(cwd)
 	fmt.Println(s)
 }
+
+func TestImpl2(t *testing.T) {
+	cwd := filepath.Join(paths.FindProjectRoot(), "pkg/util/ndarray")
+	s := Run(cwd)
+	fmt.Println(s)
+}

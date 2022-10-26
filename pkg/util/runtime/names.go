@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -25,9 +26,16 @@ func (n ParsedName) String() string {
 }
 
 func ParseName(name string) ParsedName {
-	if strings.IndexByte(name, '[') >= 0 {
-		panic("generics not supported")
+	if lb := strings.IndexByte(name, '['); lb >= 0 {
+		check.Equal(name[0], '(')
+		rp := strings.LastIndexByte(name, ')')
+		check.Equal(name[rp+1], '.')
+		return ParsedName{
+			Pkg: name[1:lb],
+			Obj: name[rp+2:],
+		}
 	}
+
 	sl := strings.LastIndexByte(name, '/')
 	if sl < 0 {
 		return ParsedName{Obj: name}

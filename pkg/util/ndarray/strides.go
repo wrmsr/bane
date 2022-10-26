@@ -1,5 +1,7 @@
 package ndarray
 
+import "github.com/wrmsr/bane/pkg/util/def"
+
 type Strides struct {
 	Dims
 }
@@ -28,6 +30,8 @@ func (st Strides) Offset(idxs Dims) Dim {
 
 	return st._offset(idxs)
 }
+
+var _ = def.Inline(Strides._offset)
 
 func (st Strides) _offset(idxs Dims) Dim {
 	l := st.Len()

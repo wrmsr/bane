@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/def"
 )
 
 //
@@ -56,6 +57,8 @@ func (v View) Strides() Strides { return v.st }
 func (v View) Offset() Dim      { return v.o }
 
 func (v View) DataSize() Dim { return v.sh.Get(0) * v.st.Get(0) }
+
+var _ = def.Inline(View.Index)
 
 func (v View) Index(idxs Dims) Dim {
 	return v.st.Offset(idxs) + v.o
