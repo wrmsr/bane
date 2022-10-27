@@ -257,7 +257,7 @@ structDeclaration // The first two rules have priority order and cannot be simpl
     ;
 
 specifierQualifierList
-    : (typeSpecifier| typeQualifier) specifierQualifierList?
+    : (typeSpecifier | typeQualifier) specifierQualifierList?
     ;
 
 structDeclaratorList

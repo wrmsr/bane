@@ -1662,7 +1662,7 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 				k.id = bt.Choose(k2.id > k3.id, k2.id, k3.id)
 				continue
 			}
-			// fallthrough
+			fallthrough
 		case 1:
 			if cp_opt(cp, CTOK_OROR) {
 				cp_expr_sub(cp, &k2, 2)
@@ -1670,7 +1670,7 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 				k.id = CTID_INT32
 				continue
 			}
-			// fallthrough
+			fallthrough
 		case 2:
 			if cp_opt(cp, CTOK_ANDAND) {
 				cp_expr_sub(cp, &k2, 3)
@@ -1678,7 +1678,7 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 				k.id = CTID_INT32
 				continue
 			}
-			// fallthrough
+			fallthrough
 		case 3:
 			if cp_opt(cp, '|') {
 				cp_expr_sub(cp, &k2, 4)
@@ -1688,7 +1688,7 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 				} // Trivial promotion to unsigned.
 				continue
 			}
-			// fallthrough
+			fallthrough
 		case 4:
 			if cp_opt(cp, '^') {
 				cp_expr_sub(cp, &k2, 5)
@@ -1698,7 +1698,7 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 				} // Trivial promotion to unsigned.
 				continue
 			}
-			// fallthrough
+			fallthrough
 		case 5:
 			if cp_opt(cp, '&') {
 				cp_expr_sub(cp, &k2, 6)
@@ -1708,7 +1708,7 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 				} // Trivial promotion to unsigned.
 				continue
 			}
-			// fallthrough
+			fallthrough
 		case 6:
 			if cp_opt(cp, CTOK_EQ) {
 				cp_expr_sub(cp, &k2, 7)
@@ -1721,7 +1721,7 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 				k.id = CTID_INT32
 				continue
 			}
-			// fallthrough
+			fallthrough
 		case 7:
 			if cp_opt(cp, '<') {
 				cp_expr_sub(cp, &k2, 8)
@@ -1760,7 +1760,7 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 				k.id = CTID_INT32
 				continue
 			}
-			// fallthrough
+			fallthrough
 		case 8:
 			if cp_opt(cp, CTOK_SHL) {
 				cp_expr_sub(cp, &k2, 9)
@@ -1775,7 +1775,7 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 				}
 				continue
 			}
-			// fallthrough
+			fallthrough
 		case 9:
 			if cp_opt(cp, '+') {
 				cp_expr_sub(cp, &k2, 10)
@@ -1792,7 +1792,7 @@ func cp_expr_infix(cp *CPState, k *CPValue, pri int) {
 				} // Trivial promotion to unsigned.
 				continue
 			}
-			// fallthrough
+			fallthrough
 		case 10:
 			if cp_opt(cp, '*') {
 				cp_expr_unary(cp, &k2)
