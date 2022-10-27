@@ -66,11 +66,11 @@ func (v View) Index(idxs Dims) Dim {
 	return v.st.Offset(idxs) + v.o
 }
 
-//var _ = def.WithInline(foo)
-//
-//func foo(v View) Dim {
-//	return v.Index(DimsOf(2, 2))
-//}
+var _ = def.WithInline(foo)
+
+func foo(v View) Dim {
+	return v.Index(DimsOf(2, 2))
+}
 
 //
 

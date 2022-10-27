@@ -11,6 +11,8 @@ func StridesOf(s ...Dim) Strides {
 }
 
 var _ = def.Inline(
+	// FIXME: def.resolver needs to find embeddings
+	//Strides.CheckEqualLen,
 	Strides.Offset,
 	Strides._offset,
 )

@@ -17,6 +17,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/go/gen"
 	"github.com/wrmsr/bane/pkg/util/maps"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func findFuncNames(decl *ast.FuncDecl) maps.Set[string] {
@@ -99,6 +100,22 @@ func defAssign(n string, e ast.Expr) ast.Stmt {
 	}
 }
 
+func replaceIdents(n ast.Node, m map[string]string) ast.Node {
+	return astutil.Apply(n, nil, func(cursor *astutil.Cursor) bool {
+		switch n := cursor.Node().(type) {
+		case *ast.Ident:
+			if w, ok := m[n.Name]; ok {
+				cursor.Replace(&ast.Ident{Name: w})
+			}
+		}
+		return true
+	})
+}
+
+func returnsToGotos(body *ast.BlockStmt) {
+
+}
+
 func (fil *funcInliner) doTransform(idecl *FuncDecl, outn string, paramns []string, argns []string) []ast.Stmt {
 	el := fil.nextName()
 
@@ -137,6 +154,7 @@ func (fil *funcInliner) doTransform(idecl *FuncDecl, outn string, paramns []stri
 				}
 
 			}
+
 			return true
 		}).(ast.Stmt)
 	}
@@ -154,21 +172,42 @@ func (fil *funcInliner) doInline(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr,
 
 	params := check.Single(idecl.Decl.Type.Params.List).Names
 	check.Equal(len(params), len(call.Args))
-	paramns := make([]string, len(params))
-	for i, p := range params {
-		paramns[i] = p.Name
+	m := make(map[string]string)
+	paramns := make([]string, 0, len(params)+1)
+	var tn string
+	if idecl.Decl.Recv != nil && len(idecl.Decl.Recv.List) > 0 {
+		rn := check.Single(check.Single(idecl.Decl.Recv.List).Names).Name
+		sx := call.Fun.(*ast.SelectorExpr).X
+		var si *ast.Ident
+		for {
+			if si2, ok := sx.(*ast.Ident); ok {
+				si = si2
+				break
+			}
+			sx = sx.(*ast.SelectorExpr).X
+		}
+		tn = si.Name
+		paramns = append(paramns, rn)
+	}
+	for _, p := range params {
+		paramns = append(paramns, p.Name)
 	}
 
 	outn := fil.nextName()
 	stmts = append(stmts, defVar(outn, check.Single(idecl.Decl.Type.Results.List).Type))
 
-	argns := make([]string, len(call.Args))
-	for i := range call.Args {
-		argns[i] = fil.nextName()
+	argns := make([]string, 0, len(call.Args)+1)
+	if tn != "" {
+		tan := fil.nextName()
+		argns = append(argns, tan)
+		stmts = append(stmts, defAssign(tan, &ast.Ident{Name: tn}))
+	}
+	for i := 0; i < len(call.Args); i++ {
+		argns = append(argns, fil.nextName())
 	}
 
 	for i, a := range call.Args {
-		an := argns[i]
+		an := argns[i+bt.Choose(tn != "", 1, 0)]
 		ae, as := fil.doExpr(a)
 
 		stmts = append(stmts, as...)

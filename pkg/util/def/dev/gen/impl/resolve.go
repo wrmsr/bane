@@ -72,6 +72,7 @@ func newResolver(pkg *packages.Package) *Resolver {
 			switch decl := decl.(type) {
 			case *ast.FuncDecl:
 				n := nameFuncDecl(decl)
+				// FIXME: find embeddings
 				if _, ok := r.funcDecls[n]; ok {
 					panic(n)
 				}
