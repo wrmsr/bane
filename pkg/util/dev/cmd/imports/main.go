@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -37,7 +36,7 @@ func main() {
 	}
 
 	mf := filepath.Join(rd, "go.mod")
-	mc := check.Must1(ioutil.ReadFile(mf))
+	mc := check.Must1(os.ReadFile(mf))
 	mo := check.Must1(modfile.Parse(mf, mc, dontFixRetract))
 	mp := mo.Module.Mod.Path
 

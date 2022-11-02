@@ -6,7 +6,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -131,6 +130,6 @@ func BindR{{- .n_a -}}x{{- .n_b -}}x{{- .n_r -}}{{if .t_abr}}[{{.t_abr}} any]{{e
 	if noWrite {
 		fmt.Println(s)
 	} else {
-		check.Must(ioutil.WriteFile("bind_gen.go", []byte(s), 0644))
+		check.Must(os.WriteFile("bind_gen.go", []byte(s), 0644))
 	}
 }

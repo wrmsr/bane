@@ -5,7 +5,7 @@ package docker
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"regexp"
 
 	"gopkg.in/yaml.v3"
@@ -37,7 +37,7 @@ type ComposeConfig struct {
 
 func ReadComposeConfig(paths []string) (*ComposeConfig, error) {
 	ms := slices.Map(func(p string) map[string]any {
-		b := check.Must1(ioutil.ReadFile(p))
+		b := check.Must1(os.ReadFile(p))
 		var o map[string]any
 		check.Must(yaml.NewDecoder(bytes.NewReader(b)).Decode(&o))
 		return o

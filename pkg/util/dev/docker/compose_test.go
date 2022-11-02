@@ -5,7 +5,7 @@ package docker
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -18,7 +18,7 @@ import (
 )
 
 func TestCompose(t *testing.T) {
-	b := check.Must1(ioutil.ReadFile(filepath.Join(paths.FindProjectRoot(), "docker", "docker-compose.yml")))
+	b := check.Must1(os.ReadFile(filepath.Join(paths.FindProjectRoot(), "docker", "docker-compose.yml")))
 	var cfg ComposeConfig
 	check.Must(yaml.NewDecoder(bytes.NewReader(b)).Decode(&cfg))
 	fmt.Println(cfg)
@@ -26,7 +26,7 @@ func TestCompose(t *testing.T) {
 
 func TestComposeMerge(t *testing.T) {
 	bs := slices.Map(func(n string) map[string]any {
-		b := check.Must1(ioutil.ReadFile(filepath.Join(paths.FindProjectRoot(), "docker", n)))
+		b := check.Must1(os.ReadFile(filepath.Join(paths.FindProjectRoot(), "docker", n)))
 		var o map[string]any
 		check.Must(yaml.NewDecoder(bytes.NewReader(b)).Decode(&o))
 		return o

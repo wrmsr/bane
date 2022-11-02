@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -37,7 +36,7 @@ func main() {
 				strings.HasSuffix(info.Name(), "_dev.go") ||
 				slices.Contains(strings.Split(path, string(filepath.Separator)), "dev")
 
-			src := string(check.Must1(ioutil.ReadFile(path)))
+			src := string(check.Must1(os.ReadFile(path)))
 			hasDevPrefix := strings.HasPrefix(src, devPrefix)
 
 			var newSrc string
@@ -56,7 +55,7 @@ func main() {
 			}
 
 			fmt.Println(path)
-			check.Must(ioutil.WriteFile(path, []byte(newSrc), info.Mode().Perm()))
+			check.Must(os.WriteFile(path, []byte(newSrc), info.Mode().Perm()))
 
 			numModified++
 			return nil

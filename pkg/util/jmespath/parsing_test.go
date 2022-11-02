@@ -3,7 +3,7 @@ package jmespath
 import (
 	"fmt"
 	"io/fs"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -126,7 +126,7 @@ func TestParsing2(t *testing.T) {
 		if info.IsDir() || !strings.HasSuffix(path, ".json") {
 			return nil
 		}
-		buf := check.Must1(ioutil.ReadFile(path))
+		buf := check.Must1(os.ReadFile(path))
 		tis := check.Must1(ju.UnmarshalAs[[]TestItem](buf))
 		for _, ti := range tis {
 			for _, tc := range ti.Cases {
