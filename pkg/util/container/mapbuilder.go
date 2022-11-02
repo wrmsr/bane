@@ -1,3 +1,6 @@
+/*
+See also maps/builder.go
+*/
 package container
 
 import (

@@ -60,8 +60,13 @@ func (e SetLocal) Render(w io.Writer) {
 	d.Byte(')')
 }
 
-func (e Block) String() string    { return wr.RenderString(e) }
-func (e Const) String() string    { return wr.RenderString(e) }
-func (e Nop) String() string      { return wr.RenderString(e) }
-func (e Select) String() string   { return wr.RenderString(e) }
-func (e SetLocal) String() string { return wr.RenderString(e) }
+func (e Unreachable) Render(w io.Writer) {
+	iou.Dw(w).String("(unreachable)")
+}
+
+func (e Block) String() string       { return wr.RenderString(e) }
+func (e Const) String() string       { return wr.RenderString(e) }
+func (e Nop) String() string         { return wr.RenderString(e) }
+func (e Select) String() string      { return wr.RenderString(e) }
+func (e SetLocal) String() string    { return wr.RenderString(e) }
+func (e Unreachable) String() string { return wr.RenderString(e) }

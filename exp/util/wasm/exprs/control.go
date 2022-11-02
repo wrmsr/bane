@@ -47,3 +47,11 @@ type Select struct {
 }
 
 var _ Expr = Select{}
+
+//
+
+type Unreachable struct {
+	expr
+}
+
+var _ Expr = Unreachable{}

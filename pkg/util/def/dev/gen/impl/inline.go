@@ -17,7 +17,6 @@ import (
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/go/gen"
 	"github.com/wrmsr/bane/pkg/util/maps"
-	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func findFuncNames(decl *ast.FuncDecl) maps.Set[string] {
@@ -51,6 +50,12 @@ func findFuncNames(decl *ast.FuncDecl) maps.Set[string] {
 	return names
 }
 
+type inlineRemap struct {
+	argExpr   ast.Expr
+	tempName  string
+	paramName string
+}
+
 type funcInliner struct {
 	decl *FuncDecl
 	ti   *types.Info
@@ -58,6 +63,8 @@ type funcInliner struct {
 
 	names  maps.Set[string]
 	nameCt int
+
+	remaps []inlineRemap
 }
 
 func (fil *funcInliner) nextName() string {
@@ -112,19 +119,10 @@ func replaceIdents(n ast.Node, m map[string]string) ast.Node {
 	})
 }
 
-func returnsToGotos(body *ast.BlockStmt) {
-
-}
-
-func (fil *funcInliner) doTransform(idecl *FuncDecl, outn string, paramns []string, argns []string) []ast.Stmt {
-	el := fil.nextName()
-
-	stmts := fil.doBlock(idecl.Decl.Body)
-
+func returnsToGotos(stmts []ast.Stmt, valueName, labelName string) []ast.Stmt {
 	for i, s := range stmts {
 		stmts[i] = astutil.Apply(s, nil, func(cursor *astutil.Cursor) bool {
 			switch n := cursor.Node().(type) {
-
 			case *ast.ReturnStmt:
 				cursor.Replace(
 					&ast.BlockStmt{
@@ -132,7 +130,7 @@ func (fil *funcInliner) doTransform(idecl *FuncDecl, outn string, paramns []stri
 							&ast.AssignStmt{
 								Tok: token.ASSIGN,
 								Lhs: []ast.Expr{
-									&ast.Ident{Name: outn},
+									&ast.Ident{Name: valueName},
 								},
 								Rhs: []ast.Expr{
 									check.Single(n.Results),
@@ -140,27 +138,17 @@ func (fil *funcInliner) doTransform(idecl *FuncDecl, outn string, paramns []stri
 							},
 							&ast.BranchStmt{
 								Tok:   token.GOTO,
-								Label: &ast.Ident{Name: el},
+								Label: &ast.Ident{Name: labelName},
 							},
 						},
 					})
-
-			case *ast.Ident:
-				for i, pn := range paramns {
-					if n.Name == pn {
-						cursor.Replace(&ast.Ident{Name: argns[i]})
-						break
-					}
-				}
-
 			}
-
 			return true
 		}).(ast.Stmt)
 	}
 
 	stmts = append(stmts, &ast.LabeledStmt{
-		Label: &ast.Ident{Name: el},
+		Label: &ast.Ident{Name: labelName},
 		Stmt:  &ast.EmptyStmt{},
 	})
 
@@ -170,55 +158,48 @@ func (fil *funcInliner) doTransform(idecl *FuncDecl, outn string, paramns []stri
 func (fil *funcInliner) doInline(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr, []ast.Stmt) {
 	var stmts []ast.Stmt
 
+	outName := fil.nextName()
+	stmts = append(stmts, defVar(outName, check.Single(idecl.Decl.Type.Results.List).Type))
+
 	params := check.Single(idecl.Decl.Type.Params.List).Names
 	check.Equal(len(params), len(call.Args))
-	m := make(map[string]string)
-	paramns := make([]string, 0, len(params)+1)
-	var tn string
+
 	if idecl.Decl.Recv != nil && len(idecl.Decl.Recv.List) > 0 {
-		rn := check.Single(check.Single(idecl.Decl.Recv.List).Names).Name
-		sx := call.Fun.(*ast.SelectorExpr).X
-		var si *ast.Ident
-		for {
-			if si2, ok := sx.(*ast.Ident); ok {
-				si = si2
-				break
-			}
-			sx = sx.(*ast.SelectorExpr).X
-		}
-		tn = si.Name
-		paramns = append(paramns, rn)
-	}
-	for _, p := range params {
-		paramns = append(paramns, p.Name)
+		fil.remaps = append(fil.remaps, inlineRemap{
+			argExpr:   call.Fun.(*ast.SelectorExpr).X,
+			tempName:  fil.nextName(),
+			paramName: check.Single(check.Single(idecl.Decl.Recv.List).Names).Name,
+		})
 	}
 
-	outn := fil.nextName()
-	stmts = append(stmts, defVar(outn, check.Single(idecl.Decl.Type.Results.List).Type))
-
-	argns := make([]string, 0, len(call.Args)+1)
-	if tn != "" {
-		tan := fil.nextName()
-		argns = append(argns, tan)
-		stmts = append(stmts, defAssign(tan, &ast.Ident{Name: tn}))
-	}
-	for i := 0; i < len(call.Args); i++ {
-		argns = append(argns, fil.nextName())
+	for i, p := range params {
+		fil.remaps = append(fil.remaps, inlineRemap{
+			argExpr:   call.Args[i],
+			tempName:  fil.nextName(),
+			paramName: p.Name,
+		})
 	}
 
-	for i, a := range call.Args {
-		an := argns[i+bt.Choose(tn != "", 1, 0)]
-		ae, as := fil.doExpr(a)
-
+	for _, r := range fil.remaps {
+		ae, as := fil.doExpr(r.argExpr)
 		stmts = append(stmts, as...)
-		stmts = append(stmts, defAssign(an, ae))
+		stmts = append(stmts, defAssign(r.tempName, ae))
 	}
 
-	istmts := fil.doTransform(idecl, outn, paramns, argns)
+	identMap := make(map[string]string)
+	for _, r := range fil.remaps {
+		identMap[r.paramName] = r.tempName
+	}
+	bodyStmts := fil.doBlock(idecl.Decl.Body)
+	for i, s := range bodyStmts {
+		bodyStmts[i] = replaceIdents(s, identMap).(ast.Stmt)
+	}
 
-	stmts = append(stmts, &ast.BlockStmt{List: istmts})
+	stmts = append(stmts, &ast.BlockStmt{
+		List: returnsToGotos(bodyStmts, outName, fil.nextName()),
+	})
 
-	return &ast.Ident{Name: outn}, stmts
+	return &ast.Ident{Name: outName}, stmts
 }
 
 func (fil *funcInliner) doExpr(expr ast.Expr) (ast.Expr, []ast.Stmt) {
