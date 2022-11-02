@@ -97,8 +97,6 @@ func _def_inl_Bar(x, y int) int {
 	__def_inl_3:
 	}
 	var __def_inl_4 int
-	__def_inl_1 := x
-	__def_inl_2 := y
 	__def_inl_5 := __def_inl_0
 	__def_inl_6 := y
 	{

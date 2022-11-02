@@ -22,17 +22,12 @@ func _def_inl_foo(v View) Dim {
 	__def_inl_2 := DimsOf(2, 2)
 	{
 		var __def_inl_3 Dim
-		__def_inl_1 := __def_inl_1
-		__def_inl_2 := DimsOf(2, 2)
-		__def_inl_4 := __def_inl_1.__def_inl_4
+		__def_inl_4 := __def_inl_1.
+			st
 		__def_inl_5 := __def_inl_2
 		{
 			__def_inl_4.CheckEqualLen(__def_inl_5)
 			var __def_inl_6 Dim
-			__def_inl_1 := __def_inl_1
-			__def_inl_2 := DimsOf(2, 2)
-			__def_inl_4 := __def_inl_1.__def_inl_4
-			__def_inl_5 := __def_inl_5
 			__def_inl_7 := __def_inl_4
 			__def_inl_8 := __def_inl_5
 			{

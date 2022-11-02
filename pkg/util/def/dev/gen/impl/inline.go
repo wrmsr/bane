@@ -50,12 +50,6 @@ func findFuncNames(decl *ast.FuncDecl) maps.Set[string] {
 	return names
 }
 
-type inlineRemap struct {
-	argExpr   ast.Expr
-	tempName  string
-	paramName string
-}
-
 type funcInliner struct {
 	decl *FuncDecl
 	ti   *types.Info
@@ -63,8 +57,6 @@ type funcInliner struct {
 
 	names  maps.Set[string]
 	nameCt int
-
-	remaps []inlineRemap
 }
 
 func (fil *funcInliner) nextName() string {
@@ -156,6 +148,13 @@ func returnsToGotos(stmts []ast.Stmt, valueName, labelName string) []ast.Stmt {
 }
 
 func (fil *funcInliner) doInline(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr, []ast.Stmt) {
+	type remap struct {
+		argExpr   ast.Expr
+		tempName  string
+		paramName string
+	}
+	var remaps []remap
+
 	var stmts []ast.Stmt
 
 	outName := fil.nextName()
@@ -165,7 +164,7 @@ func (fil *funcInliner) doInline(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr,
 	check.Equal(len(params), len(call.Args))
 
 	if idecl.Decl.Recv != nil && len(idecl.Decl.Recv.List) > 0 {
-		fil.remaps = append(fil.remaps, inlineRemap{
+		remaps = append(remaps, remap{
 			argExpr:   call.Fun.(*ast.SelectorExpr).X,
 			tempName:  fil.nextName(),
 			paramName: check.Single(check.Single(idecl.Decl.Recv.List).Names).Name,
@@ -173,21 +172,21 @@ func (fil *funcInliner) doInline(call *ast.CallExpr, idecl *FuncDecl) (ast.Expr,
 	}
 
 	for i, p := range params {
-		fil.remaps = append(fil.remaps, inlineRemap{
+		remaps = append(remaps, remap{
 			argExpr:   call.Args[i],
 			tempName:  fil.nextName(),
 			paramName: p.Name,
 		})
 	}
 
-	for _, r := range fil.remaps {
+	for _, r := range remaps {
 		ae, as := fil.doExpr(r.argExpr)
 		stmts = append(stmts, as...)
 		stmts = append(stmts, defAssign(r.tempName, ae))
 	}
 
 	identMap := make(map[string]string)
-	for _, r := range fil.remaps {
+	for _, r := range remaps {
 		identMap[r.paramName] = r.tempName
 	}
 	bodyStmts := fil.doBlock(idecl.Decl.Body)
