@@ -66,6 +66,8 @@ func (v View) Index(idxs Dims) Dim {
 	return v.st.Offset(idxs) + v.o
 }
 
+// TODO: test code, remove
+
 var _ = def.WithInline(foo)
 
 func foo(v View) Dim {
