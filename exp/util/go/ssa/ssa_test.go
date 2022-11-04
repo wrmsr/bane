@@ -24,4 +24,11 @@ func TestSsa(t *testing.T) {
 	ssainfo := results[0].Result.(*buildssa.SSA)
 
 	fmt.Println(ssainfo)
+	for _, f := range ssainfo.SrcFuncs {
+		for _, b := range f.Blocks {
+			for _, i := range b.Instrs {
+				fmt.Println(i)
+			}
+		}
+	}
 }
