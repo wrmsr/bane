@@ -1,5 +1,8 @@
 package test
 
 func B(x, y int) int {
-	return A(x, y) * 2
+	for i := 0; i < y; i++ {
+		x += A(x, y) * 2
+	}
+	return x
 }
