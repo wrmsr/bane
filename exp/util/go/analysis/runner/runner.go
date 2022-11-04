@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"go/types"
 	"log"
-	"os"
 	"reflect"
 	"sort"
 	"strings"
@@ -36,37 +35,16 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-func LoadPackages(a *analysis.Analyzer, dir string, patterns ...string) ([]*packages.Package, error) {
-	mode := packages.NeedName |
-		packages.NeedFiles |
-		packages.NeedCompiledGoFiles |
-		packages.NeedImports |
-		packages.NeedTypes |
-		packages.NeedTypesSizes |
-		packages.NeedSyntax |
-		packages.NeedTypesInfo |
-		packages.NeedDeps
-
-	cfg := &packages.Config{
-		Mode:  mode,
-		Dir:   dir,
-		Tests: true,
-		Env:   append(os.Environ(), "GOPATH="+dir, "GO111MODULE=off", "GOPROXY=off"),
-	}
-	pkgs, err := packages.Load(cfg, patterns...)
-	if err != nil {
-		return nil, err
-	}
-
-	if !a.RunDespiteErrors {
-		packages.PrintErrors(pkgs)
-	}
-
-	if len(pkgs) == 0 {
-		return nil, fmt.Errorf("no packages matched %s", patterns)
-	}
-	return pkgs, nil
-}
+const PackageMode = 0 |
+	packages.NeedName |
+	packages.NeedFiles |
+	packages.NeedCompiledGoFiles |
+	packages.NeedImports |
+	packages.NeedTypes |
+	packages.NeedTypesSizes |
+	packages.NeedSyntax |
+	packages.NeedTypesInfo |
+	packages.NeedDeps
 
 type Options struct {
 	Sequential bool
