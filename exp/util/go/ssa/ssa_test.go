@@ -22,7 +22,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package ssa
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -49,7 +48,7 @@ func run(
 	var mode ssa.BuilderMode
 
 	mode |= ssa.PrintPackages | ssa.PrintFunctions
-	//mode |= ssa.InstantiateGenerics
+	mode |= ssa.InstantiateGenerics
 
 	prog := ssa.NewProgram(fset, mode)
 
@@ -118,18 +117,20 @@ func TestSsa(t *testing.T) {
 		pkg.TypesInfo,
 	))
 
+	_ = ssainfo
+
 	//results := runner.Run(buildssa.Analyzer, pkgs, runner.Options{})
 	//ssainfo := results[0].Result.(*buildssa.SSA)
 
-	fmt.Println(ssainfo)
-	for _, f := range ssainfo.SrcFuncs {
-		fmt.Println(f)
-		for _, b := range f.Blocks {
-			for _, i := range b.Instrs {
-				fmt.Println(i)
-			}
-			fmt.Println()
-		}
-		fmt.Println()
-	}
+	//fmt.Println(ssainfo)
+	//for _, f := range ssainfo.SrcFuncs {
+	//	fmt.Println(f)
+	//	for _, b := range f.Blocks {
+	//		for _, i := range b.Instrs {
+	//			fmt.Println(i)
+	//		}
+	//		fmt.Println()
+	//	}
+	//	fmt.Println()
+	//}
 }
