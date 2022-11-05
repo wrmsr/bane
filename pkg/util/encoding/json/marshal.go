@@ -68,9 +68,13 @@ func FromMarshal(mv msh.Value) (Node, error) {
 		return Null{}, nil
 
 	case msh.Bool:
-		if mv.
+		if mv.V() {
+			return True{}, nil
+		}
+		return False{}, nil
 
 	case msh.Int:
+		return Number{S: mv.V()}
 
 	case msh.Float:
 

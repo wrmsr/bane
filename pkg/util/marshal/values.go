@@ -118,6 +118,8 @@ type Float struct {
 	v float64
 }
 
+func (v Float) V() float64 { return v.v }
+
 func (v Float) Interface() any {
 	return v.v
 }
@@ -128,6 +130,8 @@ type Number struct {
 	numeric
 	v big.Rat
 }
+
+func (v Number) V() big.Rat { return v.v }
 
 func (v Number) Interface() any {
 	return v.v
@@ -140,6 +144,8 @@ type String struct {
 	v string
 }
 
+func (v String) V() string { return v.v }
+
 func (v String) Interface() any {
 	return v.v
 }
@@ -150,6 +156,8 @@ type Bytes struct {
 	simple
 	v []byte
 }
+
+func (v Bytes) V() []byte { return v.v }
 
 func (v Bytes) Interface() any {
 	return v.v
@@ -174,6 +182,8 @@ type Array struct {
 	v []Value
 }
 
+func (v Array) V() []Value { return v.v }
+
 func (v Array) Interface() any {
 	return v
 }
@@ -185,6 +195,8 @@ type Object struct {
 	v []bt.Kv[Value, Value]
 }
 
+func (v Object) V() []bt.Kv[Value, Value] { return v.v }
+
 func (v Object) Interface() any {
 	return v.v // FIXME: ?
 }
@@ -195,6 +207,8 @@ type Any struct {
 	simple
 	v any
 }
+
+func (v Any) V() any { return v.v }
 
 func (v Any) Interface() any {
 	return v.v
