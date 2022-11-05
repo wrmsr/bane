@@ -16,30 +16,76 @@ var _ = msh.Register(rfl.TypeOf[Node](),
 	msh.SetImplOf[Null](),
 )
 
-func ToMarshal(n Node) msh.Value {
+func ToMarshal(n Node) (msh.Value, error) {
 	switch n := n.(type) {
+
 	case Object:
 		kvs := make([]bt.Kv[msh.Value, msh.Value], len(n.Pairs))
 		for i, p := range n.Pairs {
-			kvs[i] = bt.KvOf[msh.Value, msh.Value](msh.MakeString(p.K), ToMarshal(p.V))
+			k := msh.MakeString(p.K)
+			v, err := ToMarshal(p.V)
+			if err != nil {
+				return nil, err
+			}
+			kvs[i] = bt.KvOf[msh.Value, msh.Value](k, v)
 		}
-		return msh.MakeObject(kvs...)
+		return msh.MakeObject(kvs...), nil
+
 	case Array:
 		mvs := make([]msh.Value, len(n.Values))
 		for i, e := range n.Values {
-			mvs[i] = ToMarshal(e)
+			mv, err := ToMarshal(e)
+			if err != nil {
+				return nil, err
+			}
+			mvs[i] = mv
 		}
-		return msh.MakeArray(mvs...)
+		return msh.MakeArray(mvs...), nil
+
 	case String:
-		return msh.MakeString(n.S)
+		return msh.MakeString(n.S), nil
+
 	case Number:
-		panic(n)
+		return msh.JsonUnmarshal([]byte(n.S))
+
 	case True:
-		return msh.MakeBool(true)
+		return msh.MakeBool(true), nil
+
 	case False:
-		return msh.MakeBool(false)
+		return msh.MakeBool(false), nil
+
 	case Null:
-		return msh.MakeNull()
+		return msh.MakeNull(), nil
+
 	}
 	panic(n)
+}
+
+func FromMarshal(mv msh.Value) (Node, error) {
+	switch mv := mv.(type) {
+
+	case msh.Null:
+		return Null{}, nil
+
+	case msh.Bool:
+		if mv.
+
+	case msh.Int:
+
+	case msh.Float:
+
+	case msh.Number:
+
+	case msh.String:
+
+	case msh.Bytes:
+
+	case msh.Array:
+
+	case msh.Object:
+
+	case msh.Any:
+
+	}
+	panic(mv)
 }

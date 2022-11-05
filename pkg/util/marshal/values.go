@@ -69,6 +69,8 @@ type Bool struct {
 	v bool
 }
 
+func (v Bool) V() bool { return v.v }
+
 var (
 	_trueValue  = Bool{v: true}
 	_falseValue = Bool{v: false}
@@ -97,6 +99,9 @@ type Int struct {
 	v int64
 	u bool
 }
+
+func (v Int) V() int64 { return v.v }
+func (v Int) U() bool  { return v.u }
 
 func (v Int) Interface() any {
 	if v.u {
