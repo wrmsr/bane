@@ -131,7 +131,7 @@ func TestParsing2(t *testing.T) {
 		tis := check.Must1(ju.UnmarshalAs[[]TestItem](buf))
 		for _, ti := range tis {
 			for _, tc := range ti.Cases {
-				if tc.Error == NoError {
+				if tc.Error == NoError && tc.Bench == NoBench {
 					fmt.Println(tc.Expression)
 
 					root := testParse(tc.Expression)
