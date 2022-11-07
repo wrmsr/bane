@@ -133,20 +133,27 @@ func TestParsing2(t *testing.T) {
 			for _, tc := range ti.Cases {
 				if tc.Error == NoError {
 					fmt.Println(tc.Expression)
+
 					root := testParse(tc.Expression)
 					fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&root)))))
-					o := Evaluator[any]{rt: SimpleRuntime{}}.Eval(root, ti.Given)
+
+					rt := SimpleRuntime{}
+					rt.AddFunctions(Functions...)
+
+					o := Evaluator[any]{rt: rt}.Eval(root, ti.Given)
 					fmt.Println(o)
+
 					if tc.Result.Present() {
 						r := tc.Result.Value()
 						if !reflect.DeepEqual(o, r) {
-							Evaluator[any]{rt: SimpleRuntime{}}.Eval(root, ti.Given)
+							Evaluator[any]{rt: rt}.Eval(root, ti.Given)
 							tu.AssertDeepEqual(t, o, r)
 						}
 					}
 				}
 			}
 		}
+
 		return nil
 	}))
 }

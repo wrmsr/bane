@@ -36,7 +36,9 @@ type Runtime[T any] interface {
 
 //
 
-type SimpleRuntime struct{}
+type SimpleRuntime struct {
+	fns map[string]Function
+}
 
 var _ Runtime[any] = SimpleRuntime{}
 
@@ -137,8 +139,18 @@ func (r SimpleRuntime) ToIterable(obj any) []any {
 	return nil
 }
 
+func (r *SimpleRuntime) AddFunctions(fns ...Function) {
+	for _, fn := range fns {
+		if r.fns == nil {
+			r.fns = make(map[string]Function)
+		}
+		r.fns[fn.Name] = fn
+	}
+}
+
 func (r SimpleRuntime) InvokeFunction(name string, args []Arg[any]) any {
-	panic("implement me")
+	fn := r.fns[name]
+	return fn.Fn(args)
 }
 
 func (r SimpleRuntime) CreateBool(value bool) any {
