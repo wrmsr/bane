@@ -80,8 +80,8 @@ func (e Evaluator[T]) EvalFlattenObject(node *FlattenObject, obj T) T {
 func (e Evaluator[T]) EvalCall(node *Call, obj T) T {
 	args := make([]Arg[T], len(node.Args))
 	for i, arg := range node.Args {
-		if arg, ok := arg.(ExprRef); ok {
-			args[i] = Arg[T]{Node: arg}
+		if er, ok := arg.(ExprRef); ok {
+			args[i] = Arg[T]{Node: er}
 		} else {
 			args[i] = Arg[T]{Value: e.Eval(arg, obj)}
 		}

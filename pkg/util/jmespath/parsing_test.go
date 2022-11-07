@@ -17,6 +17,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/jmespath/parser"
 	ju "github.com/wrmsr/bane/pkg/util/json"
 	msh "github.com/wrmsr/bane/pkg/util/marshal"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 func testParse(s string) Node {
@@ -107,11 +108,11 @@ func (e *TestBench) UnmarshalText(b []byte) error {
 }
 
 type TestCase struct {
-	Expression string    `json:"expression"`
-	Result     any       `json:"result"`
-	Error      TestError `json:"error"`
-	Bench      TestBench `json:"bench"`
-	Comment    string    `json:"comment"`
+	Expression string           `json:"expression"`
+	Result     bt.Optional[any] `json:"result"`
+	Error      TestError        `json:"error"`
+	Bench      TestBench        `json:"bench"`
+	Comment    string           `json:"comment"`
 }
 
 type TestItem struct {
@@ -136,9 +137,12 @@ func TestParsing2(t *testing.T) {
 					fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&root)))))
 					o := Evaluator[any]{rt: SimpleRuntime{}}.Eval(root, ti.Given)
 					fmt.Println(o)
-					if !reflect.DeepEqual(o, tc.Result) {
-						Evaluator[any]{rt: SimpleRuntime{}}.Eval(root, ti.Given)
-						tu.AssertDeepEqual(t, o, tc.Result)
+					if tc.Result.Present() {
+						r := tc.Result.Value()
+						if !reflect.DeepEqual(o, r) {
+							Evaluator[any]{rt: SimpleRuntime{}}.Eval(root, ti.Given)
+							tu.AssertDeepEqual(t, o, r)
+						}
 					}
 				}
 			}
