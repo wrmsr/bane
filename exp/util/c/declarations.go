@@ -40,3 +40,13 @@ type ParameterList struct {
 	Ps []ParameterDeclaration
 	Va bool
 }
+
+//
+
+type FunctionDeclaration struct {
+	declaration
+	Ds DeclarationSpecifiers
+	D  Declarator
+	// FIXME: Dl DeclarationList
+	B CompoundStatement
+}

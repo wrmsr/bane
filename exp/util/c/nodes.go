@@ -12,14 +12,9 @@ func (n node) isNode() {}
 
 //
 
-type CompilationUnit struct {
+type TranslationUnit struct {
 	node
-}
-
-//
-
-type FunctionDefinition struct {
-	node
+	Ds []Declaration
 }
 
 //

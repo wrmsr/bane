@@ -59,11 +59,16 @@ func (v *parseVisitor) VisitErrorNode(node antlr.ErrorNode) any {
 }
 
 func (v *parseVisitor) VisitCompilationUnit(ctx *parser.CompilationUnitContext) any {
-	return v.VisitChildren(ctx)
+	return v.Visit(ctx.TranslationUnit())
 }
 
 func (v *parseVisitor) VisitTranslationUnit(ctx *parser.TranslationUnitContext) any {
-	return v.VisitChildren(ctx)
+	eds := ctx.AllExternalDeclaration()
+	ds := make([]Declaration, len(eds))
+	for i, ed := range eds {
+		ds[i] = v.Visit(ed).(Declaration)
+	}
+	return TranslationUnit{Ds: ds}
 }
 
 func (v *parseVisitor) VisitExternalDeclaration(ctx *parser.ExternalDeclarationContext) any {
@@ -71,16 +76,17 @@ func (v *parseVisitor) VisitExternalDeclaration(ctx *parser.ExternalDeclarationC
 }
 
 func (v *parseVisitor) VisitFunctionDefinition(ctx *parser.FunctionDefinitionContext) any {
+	var fd FunctionDeclaration
 	if ds := ctx.DeclarationSpecifiers(); ds != nil {
-		dsn := v.Visit(ds)
-		_ = dsn
+		fd.Ds = v.Visit(ds).(DeclarationSpecifiers)
 	}
-	_ = v.Visit(ctx.Declarator())
+	fd.D = v.Visit(ctx.Declarator()).(Declarator)
 	if dl := ctx.DeclarationList(); dl != nil {
+		// FIXME:
 		_ = v.Visit(dl)
 	}
-	_ = v.Visit(ctx.CompoundStatement())
-	return v.VisitChildren(ctx)
+	fd.B = v.Visit(ctx.CompoundStatement()).(CompoundStatement)
+	return fd
 }
 
 func (v *parseVisitor) VisitDeclarationList(ctx *parser.DeclarationListContext) any {
