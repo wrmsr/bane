@@ -22,6 +22,23 @@ type IdentifierDeclarator struct {
 
 //
 
+type TypeQualifierList struct {
+	node
+	S []TypeQualifier
+}
+
+type PointerLevel struct {
+	Q  *TypeQualifierList
+	Ca bool
+}
+
+type Pointer struct {
+	node
+	S []PointerLevel
+}
+
+//
+
 type ParameterListDeclarator struct {
 	declarator
 	D  Declarator

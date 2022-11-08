@@ -104,7 +104,26 @@ func (v *parseVisitor) VisitDeclarationSpecifiers2(ctx *parser.DeclarationSpecif
 }
 
 func (v *parseVisitor) VisitDeclarationSpecifier(ctx *parser.DeclarationSpecifierContext) any {
-	return v.VisitChildren(ctx)
+	var s any
+	if c := ctx.StorageClassSpecifier(); c != nil {
+		panic(c)
+	}
+	if c := ctx.TypeSpecifier(); c != nil {
+		s = v.Visit(c)
+	}
+	if c := ctx.TypeQualifier(); c != nil {
+		s = v.Visit(c)
+	}
+	if c := ctx.FunctionSpecifier(); c != nil {
+		panic(c)
+	}
+	if c := ctx.AlignmentSpecifier(); c != nil {
+		panic(c)
+	}
+	if s == nil {
+		panic("unhandled")
+	}
+	return DeclarationSpecifier{S: s}
 }
 
 func (v *parseVisitor) VisitInitDeclaratorList(ctx *parser.InitDeclaratorListContext) any {
@@ -250,7 +269,7 @@ func (v *parseVisitor) VisitTypeSpecifier(ctx *parser.TypeSpecifierContext) any 
 	if c := ctx.ConstantExpression(); c != nil {
 		panic("unimplemented")
 	}
-	return DeclarationSpecifier{S: BuiltinTypeSpecifier{T: ParseBuiltinType(ctx.GetText())}}
+	return ParseBuiltinType(ctx.GetText())
 }
 
 func (v *parseVisitor) VisitStructOrUnionSpecifier(ctx *parser.StructOrUnionSpecifierContext) any {
@@ -302,7 +321,7 @@ func (v *parseVisitor) VisitAtomicTypeSpecifier(ctx *parser.AtomicTypeSpecifierC
 }
 
 func (v *parseVisitor) VisitTypeQualifier(ctx *parser.TypeQualifierContext) any {
-	panic("unimplemented")
+	return ParseTypeQualifier(ctx.GetText())
 }
 
 func (v *parseVisitor) VisitFunctionSpecifier(ctx *parser.FunctionSpecifierContext) any {
@@ -346,11 +365,32 @@ func (v *parseVisitor) VisitNestedParenthesesBlock(ctx *parser.NestedParentheses
 }
 
 func (v *parseVisitor) VisitPointer(ctx *parser.PointerContext) any {
-	panic("unimplemented")
+	var s []PointerLevel
+	for _, c := range ctx.GetChildren() {
+		switch c := c.(type) {
+		case *antlr.TerminalNodeImpl:
+			s = append(s, PointerLevel{Ca: c.GetSymbol().GetTokenType() == parser.CParserCaret})
+		case *parser.TypeQualifierListContext:
+			l := &s[len(s)-1]
+			if l.Q != nil {
+				panic(l.Q)
+			}
+			q := v.Visit(c).(TypeQualifierList)
+			l.Q = &q
+		default:
+			panic(c)
+		}
+	}
+	return Pointer{S: s}
 }
 
 func (v *parseVisitor) VisitTypeQualifierList(ctx *parser.TypeQualifierListContext) any {
-	panic("unimplemented")
+	tqs := ctx.AllTypeQualifier()
+	s := make([]TypeQualifier, len(tqs))
+	for i, tq := range tqs {
+		s[i] = v.Visit(tq).(TypeQualifier)
+	}
+	return TypeQualifierList{S: s}
 }
 
 func (v *parseVisitor) VisitParameterTypeList(ctx *parser.ParameterTypeListContext) any {
