@@ -36,6 +36,8 @@ import (
 	gg "github.com/wrmsr/bane/pkg/util/go/gen"
 )
 
+//
+
 type SSA struct {
 	Pkg      *ssa.Package
 	SrcFuncs []*ssa.Function
@@ -103,14 +105,23 @@ func run(
 	return &SSA{Pkg: ssapkg, SrcFuncs: funcs}, nil
 }
 
+//
+
 type FuncTransformer struct {
 	fn *ssa.Function
+
+	vns map[ssa.Value]int
 }
 
 func (ft *FuncTransformer) DoValue(value ssa.Value) gg.Expr {
+	if _, ok := value.(ssa.Instruction); ok {
+		return gg.NewIdent(fmt.Sprintf("_ssa_%d", ft.vns[value]))
+	}
 	switch value := value.(type) {
 	case *ssa.Parameter:
 		return gg.NewIdent(value.Name())
+	case *ssa.Const:
+		return gg.LitOf(value.Value.String())
 	}
 	panic(value)
 }
@@ -173,7 +184,15 @@ func (ft *FuncTransformer) DoBlock(block *ssa.BasicBlock) {
 }
 
 func (ft *FuncTransformer) Transform() {
-	//ft.fn.Locals
+	ft.vns = make(map[ssa.Value]int)
+	for _, b := range ft.fn.Blocks {
+		for _, i := range b.Instrs {
+			if v, ok := i.(ssa.Value); ok {
+				ft.vns[v] = len(ft.vns)
+			}
+		}
+	}
+
 	for _, b := range ft.fn.Blocks {
 		ft.DoBlock(b)
 	}
