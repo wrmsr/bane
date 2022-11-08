@@ -22,6 +22,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package ssa
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -32,6 +33,7 @@ import (
 
 	"github.com/wrmsr/bane/exp/util/go/analysis/runner"
 	"github.com/wrmsr/bane/pkg/util/check"
+	gg "github.com/wrmsr/bane/pkg/util/go/gen"
 )
 
 type SSA struct {
@@ -101,6 +103,82 @@ func run(
 	return &SSA{Pkg: ssapkg, SrcFuncs: funcs}, nil
 }
 
+type FuncTransformer struct {
+	fn *ssa.Function
+}
+
+func (ft *FuncTransformer) DoValue(value ssa.Value) gg.Expr {
+	switch value := value.(type) {
+	case *ssa.Parameter:
+		return gg.NewIdent(value.Name())
+	}
+	panic(value)
+}
+
+func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
+	switch instr := instr.(type) {
+	case *ssa.BinOp:
+		x := ft.DoValue(instr.X)
+		y := ft.DoValue(instr.Y)
+		_ = x
+		_ = y
+		return nil
+	}
+	panic(instr)
+}
+
+func (ft *FuncTransformer) DoBlock(block *ssa.BasicBlock) {
+	for _, instr := range block.Instrs {
+		ft.DoInstr(instr)
+	}
+}
+
+func (ft *FuncTransformer) Transform() {
+	//ft.fn.Locals
+	for _, b := range ft.fn.Blocks {
+		ft.DoBlock(b)
+	}
+}
+
+/*
+case *ssa.DebugRef:
+case *ssa.UnOp:
+case *ssa.BinOp:
+case *ssa.Call:
+case *ssa.ChangeInterface:
+case *ssa.ChangeType:
+case *ssa.Convert:
+case *ssa.SliceToArrayPointer:
+case *ssa.MakeInterface:
+case *ssa.Extract:
+case *ssa.Slice:
+case *ssa.Return:
+case *ssa.RunDefers:
+case *ssa.Panic:
+case *ssa.Send:
+case *ssa.Store:
+case *ssa.If:
+case *ssa.Jump:
+case *ssa.Defer:
+case *ssa.Go:
+case *ssa.MakeChan:
+case *ssa.Alloc:
+case *ssa.MakeSlice:
+case *ssa.MakeMap:
+case *ssa.Range:
+case *ssa.Next:
+case *ssa.FieldAddr:
+case *ssa.Field:
+case *ssa.IndexAddr:
+case *ssa.Index:
+case *ssa.Lookup:
+case *ssa.MapUpdate:
+case *ssa.TypeAssert:
+case *ssa.MakeClosure:
+case *ssa.Phi:
+case *ssa.Select:
+*/
+
 func TestSsa(t *testing.T) {
 	pkgs := check.Must1(packages.Load(
 		&packages.Config{
@@ -118,6 +196,11 @@ func TestSsa(t *testing.T) {
 	))
 
 	_ = ssainfo
+	fmt.Println(ssainfo)
+
+	fn := ssainfo.SrcFuncs[0]
+	ft := FuncTransformer{fn: fn}
+	ft.Transform()
 
 	//results := runner.Run(buildssa.Analyzer, pkgs, runner.Options{})
 	//ssainfo := results[0].Result.(*buildssa.SSA)
