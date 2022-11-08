@@ -468,7 +468,25 @@ func (v *parseVisitor) VisitStaticAssertDeclaration(ctx *parser.StaticAssertDecl
 }
 
 func (v *parseVisitor) VisitStatement(ctx *parser.StatementContext) any {
-	panic("unimplemented")
+	if e := ctx.LabeledStatement(); e != nil {
+		panic(e)
+	}
+	if e := ctx.CompoundStatement(); e != nil {
+		panic(e)
+	}
+	if e := ctx.ExpressionStatement(); e != nil {
+		return v.Visit(e)
+	}
+	if e := ctx.SelectionStatement(); e != nil {
+		panic(e)
+	}
+	if e := ctx.IterationStatement(); e != nil {
+		panic(e)
+	}
+	if e := ctx.JumpStatement(); e != nil {
+		return v.Visit(e)
+	}
+	panic("unhandled")
 }
 
 func (v *parseVisitor) VisitLabeledStatement(ctx *parser.LabeledStatementContext) any {
@@ -500,7 +518,7 @@ func (v *parseVisitor) VisitBlockItem(ctx *parser.BlockItemContext) any {
 }
 
 func (v *parseVisitor) VisitExpressionStatement(ctx *parser.ExpressionStatementContext) any {
-	panic("unimplemented")
+	return v.Visit(ctx.Expression())
 }
 
 func (v *parseVisitor) VisitSelectionStatement(ctx *parser.SelectionStatementContext) any {
@@ -524,7 +542,16 @@ func (v *parseVisitor) VisitForExpression(ctx *parser.ForExpressionContext) any 
 }
 
 func (v *parseVisitor) VisitJumpStatement(ctx *parser.JumpStatementContext) any {
-	panic("unimplemented")
+	switch s := ctx.GetChild(0).(*antlr.TerminalNodeImpl).GetSymbol(); s.GetTokenType() {
+	case parser.CParserReturn:
+		var e Expression
+		if ec := ctx.Expression(); ec != nil {
+			e = v.Visit(ec).(Expression)
+		}
+		return ReturnStatement{V: e}
+	default:
+		panic(s)
+	}
 }
 
 func (v *parseVisitor) VisitStaticBracket2DirectDeclarator(ctx *parser.StaticBracket2DirectDeclaratorContext) any {

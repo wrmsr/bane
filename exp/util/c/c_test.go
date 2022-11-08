@@ -21,6 +21,9 @@ func TestC(t *testing.T) {
 	}{
 		{`1`, ex},
 		{`int`, ts},
+		{`int foo(int x) {
+			return x;
+		}`, cu},
 		{`int main(int argc, const char * const *argv) {
 			printf("hi\n");
 			return 0;

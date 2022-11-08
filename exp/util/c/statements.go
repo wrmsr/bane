@@ -28,3 +28,23 @@ type CompoundStatement struct {
 	statement
 	S []BlockItem
 }
+
+//
+
+type JumpStatement interface {
+	Statement
+	isJumpStatement()
+}
+
+type jumpStatement struct {
+	statement
+}
+
+func (s jumpStatement) isJumpStatement() {}
+
+//
+
+type ReturnStatement struct {
+	jumpStatement
+	V Expression
+}
