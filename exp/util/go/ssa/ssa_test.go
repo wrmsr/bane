@@ -179,12 +179,12 @@ func (ft *FuncTransformer) Transform() {
 	}
 }
 
-func TestSsa(t *testing.T) {
+func testSsa(t *testing.T, patterns []string) {
 	pkgs := check.Must1(packages.Load(
 		&packages.Config{
 			Mode: runner.PackageMode,
 		},
-		"github.com/wrmsr/bane/exp/util/go/ssa/test",
+		patterns...,
 	))
 
 	pkg := check.Single(pkgs)
@@ -216,4 +216,12 @@ func TestSsa(t *testing.T) {
 	//	}
 	//	fmt.Println()
 	//}
+}
+
+func TestSsa(t *testing.T) {
+	testSsa(t, []string{"github.com/wrmsr/bane/exp/util/go/ssa/test"})
+}
+
+func TestSsa2(t *testing.T) {
+	testSsa(t, []string{"github.com/wrmsr/bane/pkg/util/ndarray"})
 }
