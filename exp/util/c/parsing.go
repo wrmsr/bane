@@ -535,11 +535,9 @@ func (v *parseVisitor) VisitParenDirectDeclarator(ctx *parser.ParenDirectDeclara
 }
 
 func (v *parseVisitor) VisitParamParenDirectDeclarator(ctx *parser.ParamParenDirectDeclaratorContext) any {
-	dd := v.Visit(ctx.DirectDeclarator())
-	_ = dd
-	ps := v.Visit(ctx.ParameterTypeList())
-	_ = ps
-	return v.VisitChildren(ctx)
+	d := v.Visit(ctx.DirectDeclarator()).(Declarator)
+	ps := v.Visit(ctx.ParameterTypeList()).(ParameterList)
+	return ParameterListDeclarator{D: d, Ps: ps}
 }
 
 func (v *parseVisitor) VisitBracketDirectDeclarator(ctx *parser.BracketDirectDeclaratorContext) any {
