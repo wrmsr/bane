@@ -333,7 +333,15 @@ func (v *parseVisitor) VisitAlignmentSpecifier(ctx *parser.AlignmentSpecifierCon
 }
 
 func (v *parseVisitor) VisitDeclarator(ctx *parser.DeclaratorContext) any {
-	return v.VisitChildren(ctx)
+	if gces := ctx.AllGccDeclaratorExtension(); len(gces) > 0 {
+		panic(gces)
+	}
+	d := v.Visit(ctx.DirectDeclarator()).(Declarator)
+	if p := ctx.Pointer(); p != nil {
+		pn := v.Visit(p).(Pointer)
+		d = PointerDeclarator{P: pn, D: d}
+	}
+	return d
 }
 
 func (v *parseVisitor) VisitDirectDeclarator(ctx *parser.DirectDeclaratorContext) any {

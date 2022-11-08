@@ -37,6 +37,12 @@ type Pointer struct {
 	S []PointerLevel
 }
 
+type PointerDeclarator struct {
+	declarator
+	P Pointer
+	D Declarator
+}
+
 //
 
 type ParameterListDeclarator struct {
