@@ -4,6 +4,7 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 
 	"github.com/wrmsr/bane/exp/util/c/parser"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type parseVisitor struct{}
@@ -475,7 +476,19 @@ func (v *parseVisitor) VisitLabeledStatement(ctx *parser.LabeledStatementContext
 }
 
 func (v *parseVisitor) VisitCompoundStatement(ctx *parser.CompoundStatementContext) any {
-	panic("unimplemented")
+	var s []BlockItem
+	if bil := ctx.BlockItemList(); bil != nil {
+		bis := bil.(*parser.BlockItemListContext).AllBlockItem()
+		s = make([]BlockItem, len(bis))
+		for i, bi := range bis {
+			e := v.Visit(bi)
+			if !bt.Is[Declaration](e) && !bt.Is[Statement](e) {
+				panic(e)
+			}
+			s[i] = e
+		}
+	}
+	return CompoundStatement{S: s}
 }
 
 func (v *parseVisitor) VisitBlockItemList(ctx *parser.BlockItemListContext) any {

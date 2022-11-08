@@ -19,3 +19,12 @@ type ExpressionStatement struct {
 	statement
 	Expression Expression
 }
+
+//
+
+type BlockItem = any // Declaration | Statement
+
+type CompoundStatement struct {
+	statement
+	S []BlockItem
+}
