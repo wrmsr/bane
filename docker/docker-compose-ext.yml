@@ -7,4 +7,4 @@ services:
     platform: 'linux/x86_64'
 
   bane-postgres:
-    image: 'postgres:14'
+    image: 'postgres:15'
