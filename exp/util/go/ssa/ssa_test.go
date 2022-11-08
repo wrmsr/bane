@@ -115,11 +115,11 @@ type FuncTransformer struct {
 
 func (ft *FuncTransformer) DoValue(value ssa.Value) gg.Expr {
 	if _, ok := value.(ssa.Instruction); ok {
-		return gg.NewIdent(fmt.Sprintf("_ssa_%d", ft.vns[value]))
+		return gg.IdentOf(fmt.Sprintf("_ssa_%d", ft.vns[value]))
 	}
 	switch value := value.(type) {
 	case *ssa.Parameter:
-		return gg.NewIdent(value.Name())
+		return gg.IdentOf(value.Name())
 	case *ssa.Const:
 		return gg.LitOf(value.Value.String())
 	}
@@ -131,9 +131,14 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 	case *ssa.BinOp:
 		x := ft.DoValue(instr.X)
 		y := ft.DoValue(instr.Y)
-		_ = x
-		_ = y
-		return nil
+		return gg.AssignOf(
+			ft.DoValue(instr),
+			gg.InfixOf(gg.AddOp, x, y),
+		)
+
+	case *ssa.Return:
+		v := ft.DoValue(check.Single(instr.Results))
+		return gg.Return{Expr: v}
 
 	// register
 	case *ssa.UnOp:
@@ -163,7 +168,6 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 
 	// void
 	case *ssa.DebugRef:
-	case *ssa.Return:
 	case *ssa.RunDefers:
 	case *ssa.Panic:
 	case *ssa.Send:
@@ -179,7 +183,8 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 
 func (ft *FuncTransformer) DoBlock(block *ssa.BasicBlock) {
 	for _, instr := range block.Instrs {
-		ft.DoInstr(instr)
+		s := ft.DoInstr(instr)
+		fmt.Println(gg.RenderString(s))
 	}
 }
 

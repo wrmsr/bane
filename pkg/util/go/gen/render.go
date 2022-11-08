@@ -256,6 +256,14 @@ func Render(w *iou.IndentWriter, n Node) {
 		}
 		w.WriteString("\n")
 
+	case Return:
+		w.WriteString("return")
+		if n.Expr != nil {
+			w.WriteString(" ")
+			Render(w, n.Expr)
+		}
+		w.WriteString("\n")
+
 	case ShortVar:
 		Render(w, n.Name)
 		w.WriteString(" := ")

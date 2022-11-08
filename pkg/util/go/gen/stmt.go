@@ -146,6 +146,13 @@ func IfOf(cond Expr, then Block) If {
 
 //
 
+type Return struct {
+	stmt
+	Expr Expr
+}
+
+//
+
 type ShortVar struct {
 	Name  Ident
 	Value Expr
