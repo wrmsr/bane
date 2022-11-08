@@ -496,7 +496,7 @@ func (v *parseVisitor) VisitBlockItemList(ctx *parser.BlockItemListContext) any 
 }
 
 func (v *parseVisitor) VisitBlockItem(ctx *parser.BlockItemContext) any {
-	panic("unimplemented")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitExpressionStatement(ctx *parser.ExpressionStatementContext) any {
