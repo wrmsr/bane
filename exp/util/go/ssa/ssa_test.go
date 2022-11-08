@@ -115,6 +115,48 @@ func (ft *FuncTransformer) DoValue(value ssa.Value) gg.Expr {
 	panic(value)
 }
 
+/*
+	// register
+	case *ssa.BinOp:
+	case *ssa.UnOp:
+	case *ssa.Call:
+	case *ssa.ChangeInterface:
+	case *ssa.ChangeType:
+	case *ssa.Convert:
+	case *ssa.SliceToArrayPointer:
+	case *ssa.MakeInterface:
+	case *ssa.Extract:
+	case *ssa.Slice:
+	case *ssa.MakeChan:
+	case *ssa.Alloc:
+	case *ssa.MakeSlice:
+	case *ssa.MakeMap:
+	case *ssa.Range:
+	case *ssa.Next:
+	case *ssa.FieldAddr:
+	case *ssa.Field:
+	case *ssa.IndexAddr:
+	case *ssa.Index:
+	case *ssa.Lookup:
+	case *ssa.TypeAssert:
+	case *ssa.MakeClosure:
+	case *ssa.Phi:
+	case *ssa.Select:
+
+	// void
+	case *ssa.DebugRef:
+	case *ssa.Return:
+	case *ssa.RunDefers:
+	case *ssa.Panic:
+	case *ssa.Send:
+	case *ssa.Store:
+	case *ssa.If:
+	case *ssa.Go:
+	case *ssa.Jump:
+	case *ssa.Defer:
+	case *ssa.MapUpdate:
+*/
+
 func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 	switch instr := instr.(type) {
 	case *ssa.BinOp:
@@ -123,6 +165,45 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 		_ = x
 		_ = y
 		return nil
+
+	// register
+	case *ssa.UnOp:
+	case *ssa.Call:
+	case *ssa.ChangeInterface:
+	case *ssa.ChangeType:
+	case *ssa.Convert:
+	case *ssa.SliceToArrayPointer:
+	case *ssa.MakeInterface:
+	case *ssa.Extract:
+	case *ssa.Slice:
+	case *ssa.MakeChan:
+	case *ssa.Alloc:
+	case *ssa.MakeSlice:
+	case *ssa.MakeMap:
+	case *ssa.Range:
+	case *ssa.Next:
+	case *ssa.FieldAddr:
+	case *ssa.Field:
+	case *ssa.IndexAddr:
+	case *ssa.Index:
+	case *ssa.Lookup:
+	case *ssa.TypeAssert:
+	case *ssa.MakeClosure:
+	case *ssa.Phi:
+	case *ssa.Select:
+
+	// void
+	case *ssa.DebugRef:
+	case *ssa.Return:
+	case *ssa.RunDefers:
+	case *ssa.Panic:
+	case *ssa.Send:
+	case *ssa.Store:
+	case *ssa.If:
+	case *ssa.Go:
+	case *ssa.Jump:
+	case *ssa.Defer:
+	case *ssa.MapUpdate:
 	}
 	panic(instr)
 }
@@ -139,45 +220,6 @@ func (ft *FuncTransformer) Transform() {
 		ft.DoBlock(b)
 	}
 }
-
-/*
-case *ssa.DebugRef:
-case *ssa.UnOp:
-case *ssa.BinOp:
-case *ssa.Call:
-case *ssa.ChangeInterface:
-case *ssa.ChangeType:
-case *ssa.Convert:
-case *ssa.SliceToArrayPointer:
-case *ssa.MakeInterface:
-case *ssa.Extract:
-case *ssa.Slice:
-case *ssa.Return:
-case *ssa.RunDefers:
-case *ssa.Panic:
-case *ssa.Send:
-case *ssa.Store:
-case *ssa.If:
-case *ssa.Jump:
-case *ssa.Defer:
-case *ssa.Go:
-case *ssa.MakeChan:
-case *ssa.Alloc:
-case *ssa.MakeSlice:
-case *ssa.MakeMap:
-case *ssa.Range:
-case *ssa.Next:
-case *ssa.FieldAddr:
-case *ssa.Field:
-case *ssa.IndexAddr:
-case *ssa.Index:
-case *ssa.Lookup:
-case *ssa.MapUpdate:
-case *ssa.TypeAssert:
-case *ssa.MakeClosure:
-case *ssa.Phi:
-case *ssa.Select:
-*/
 
 func TestSsa(t *testing.T) {
 	pkgs := check.Must1(packages.Load(
