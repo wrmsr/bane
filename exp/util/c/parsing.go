@@ -1,6 +1,8 @@
 package c
 
 import (
+	"fmt"
+
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 
 	"github.com/wrmsr/bane/exp/util/c/parser"
@@ -28,6 +30,14 @@ func (v *parseVisitor) aggregateResult(aggregate, nextResult any) any {
 		panic("must not be nil")
 	}
 	return nextResult
+}
+
+func (v *parseVisitor) error(e error) any {
+	panic(e)
+}
+
+func (v *parseVisitor) unimplemented(ctx antlr.ParserRuleContext) any {
+	return v.error(fmt.Errorf("unimplemented: %s", ctx))
 }
 
 //
@@ -516,7 +526,7 @@ func (v *parseVisitor) VisitCompoundStatement(ctx *parser.CompoundStatementConte
 }
 
 func (v *parseVisitor) VisitBlockItemList(ctx *parser.BlockItemListContext) any {
-	panic("unimplemented")
+	return v.unimplemented(ctx)
 }
 
 func (v *parseVisitor) VisitBlockItem(ctx *parser.BlockItemContext) any {
