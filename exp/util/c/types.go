@@ -6,82 +6,87 @@ type TypeSpecifier interface {
 	isTypeSpecifier()
 }
 
-type typeSpecifier struct {
-	node
-}
+type typeSpecifier struct{}
 
 func (t typeSpecifier) isTypeSpecifier() {}
 
 //
 
-type SimpleType interface {
-	isSimpleType()
+type TypedefTypeSpecifier struct {
+	typeSpecifier
+	I Identifier
+}
+
+//
+
+type BuiltinType interface {
+	isBuiltinType()
 
 	Name() string
 }
 
-type simpleType struct {
+type builtinType struct {
 	typeSpecifier
 }
 
-func (t simpleType) isSimpleType() {}
+func (t builtinType) isBuiltinType() {}
 
 //
 
 type Void struct {
-	simpleType
+	builtinType
 }
 
 type Char struct {
-	simpleType
+	builtinType
 }
 
 type Short struct {
-	simpleType
+	builtinType
 }
 
 type Int struct {
-	simpleType
+	builtinType
 }
 
 type Long struct {
-	simpleType
+	builtinType
 }
 
 type Float struct {
-	simpleType
+	builtinType
 }
 
 type Double struct {
-	simpleType
+	builtinType
 }
 
 type Signed struct {
-	simpleType
+	builtinType
 }
 
 type Unsigned struct {
-	simpleType
+	builtinType
 }
 
 type Bool struct {
-	simpleType
+	builtinType
 }
 
 type Complex struct {
-	simpleType
+	builtinType
 }
 
 type M128 struct {
-	simpleType
+	builtinType
 }
 
 type M128d struct {
-	simpleType
+	builtinType
 }
 
 type M128i struct {
-	simpleType
+	builtinType
 }
 
 func (t Void) Name() string     { return "void" }
@@ -99,7 +104,7 @@ func (t M128) Name() string     { return "__m128" }
 func (t M128d) Name() string    { return "__m128d" }
 func (t M128i) Name() string    { return "__m128i" }
 
-func ParseSimpleType(s string) SimpleType {
+func ParseBuiltinType(s string) BuiltinType {
 	switch s {
 	case "void":
 		return Void{}
@@ -131,6 +136,13 @@ func ParseSimpleType(s string) SimpleType {
 		return M128i{}
 	}
 	panic(s)
+}
+
+//
+
+type BuiltinTypeSpecifier struct {
+	typeSpecifier
+	T BuiltinType
 }
 
 //

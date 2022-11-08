@@ -70,23 +70,37 @@ func (v *parseVisitor) VisitExternalDeclaration(ctx *parser.ExternalDeclarationC
 }
 
 func (v *parseVisitor) VisitFunctionDefinition(ctx *parser.FunctionDefinitionContext) any {
+	if ds := ctx.DeclarationSpecifiers(); ds != nil {
+		dsn := v.Visit(ds)
+		_ = dsn
+	}
+	_ = v.Visit(ctx.Declarator())
+	if dl := ctx.DeclarationList(); dl != nil {
+		_ = v.Visit(dl)
+	}
+	_ = v.Visit(ctx.CompoundStatement())
 	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitDeclarationList(ctx *parser.DeclarationListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitDeclaration(ctx *parser.DeclarationContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitDeclarationSpecifiers(ctx *parser.DeclarationSpecifiersContext) any {
-	return v.VisitChildren(ctx)
+	ds := ctx.AllDeclarationSpecifier()
+	s := make([]DeclarationSpecifier, len(ds))
+	for i, d := range ds {
+		s[i] = v.Visit(d).(DeclarationSpecifier)
+	}
+	return DeclarationSpecifiers{S: s}
 }
 
 func (v *parseVisitor) VisitDeclarationSpecifiers2(ctx *parser.DeclarationSpecifiers2Context) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitDeclarationSpecifier(ctx *parser.DeclarationSpecifierContext) any {
@@ -94,11 +108,11 @@ func (v *parseVisitor) VisitDeclarationSpecifier(ctx *parser.DeclarationSpecifie
 }
 
 func (v *parseVisitor) VisitInitDeclaratorList(ctx *parser.InitDeclaratorListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitInitDeclarator(ctx *parser.InitDeclaratorContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitPrimaryExpression(ctx *parser.PrimaryExpressionContext) any {
@@ -125,15 +139,15 @@ func (v *parseVisitor) VisitPrimaryExpression(ctx *parser.PrimaryExpressionConte
 }
 
 func (v *parseVisitor) VisitGenericSelection(ctx *parser.GenericSelectionContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitGenericAssocList(ctx *parser.GenericAssocListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitGenericAssociation(ctx *parser.GenericAssociationContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitPostfixExpression(ctx *parser.PostfixExpressionContext) any {
@@ -141,7 +155,7 @@ func (v *parseVisitor) VisitPostfixExpression(ctx *parser.PostfixExpressionConte
 }
 
 func (v *parseVisitor) VisitArgumentExpressionList(ctx *parser.ArgumentExpressionListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitUnaryExpression(ctx *parser.UnaryExpressionContext) any {
@@ -149,7 +163,7 @@ func (v *parseVisitor) VisitUnaryExpression(ctx *parser.UnaryExpressionContext) 
 }
 
 func (v *parseVisitor) VisitUnaryOperator(ctx *parser.UnaryOperatorContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitCastExpression(ctx *parser.CastExpressionContext) any {
@@ -205,7 +219,7 @@ func (v *parseVisitor) VisitAssignmentExpression(ctx *parser.AssignmentExpressio
 }
 
 func (v *parseVisitor) VisitAssignmentOperator(ctx *parser.AssignmentOperatorContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitExpression(ctx *parser.ExpressionContext) any {
@@ -213,90 +227,90 @@ func (v *parseVisitor) VisitExpression(ctx *parser.ExpressionContext) any {
 }
 
 func (v *parseVisitor) VisitConstantExpression(ctx *parser.ConstantExpressionContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitStorageClassSpecifier(ctx *parser.StorageClassSpecifierContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitTypeSpecifier(ctx *parser.TypeSpecifierContext) any {
 	if c := ctx.AtomicTypeSpecifier(); c != nil {
-		panic("implement me")
+		panic("unimplemented")
 	}
 	if c := ctx.StructOrUnionSpecifier(); c != nil {
-		panic("implement me")
+		panic("unimplemented")
 	}
 	if c := ctx.EnumSpecifier(); c != nil {
-		panic("implement me")
+		panic("unimplemented")
 	}
 	if c := ctx.TypedefName(); c != nil {
-		panic("implement me")
+		panic("unimplemented")
 	}
 	if c := ctx.ConstantExpression(); c != nil {
-		panic("implement me")
+		panic("unimplemented")
 	}
-	return ParseSimpleType(ctx.GetText())
+	return DeclarationSpecifier{S: BuiltinTypeSpecifier{T: ParseBuiltinType(ctx.GetText())}}
 }
 
 func (v *parseVisitor) VisitStructOrUnionSpecifier(ctx *parser.StructOrUnionSpecifierContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitStructOrUnion(ctx *parser.StructOrUnionContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitStructDeclarationList(ctx *parser.StructDeclarationListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitStructDeclaration(ctx *parser.StructDeclarationContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitSpecifierQualifierList(ctx *parser.SpecifierQualifierListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitStructDeclaratorList(ctx *parser.StructDeclaratorListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitStructDeclarator(ctx *parser.StructDeclaratorContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitEnumSpecifier(ctx *parser.EnumSpecifierContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitEnumeratorList(ctx *parser.EnumeratorListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitEnumerator(ctx *parser.EnumeratorContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitEnumerationConstant(ctx *parser.EnumerationConstantContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitAtomicTypeSpecifier(ctx *parser.AtomicTypeSpecifierContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitTypeQualifier(ctx *parser.TypeQualifierContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitFunctionSpecifier(ctx *parser.FunctionSpecifierContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitAlignmentSpecifier(ctx *parser.AlignmentSpecifierContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitDeclarator(ctx *parser.DeclaratorContext) any {
@@ -304,183 +318,196 @@ func (v *parseVisitor) VisitDeclarator(ctx *parser.DeclaratorContext) any {
 }
 
 func (v *parseVisitor) VisitDirectDeclarator(ctx *parser.DirectDeclaratorContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitVcSpecificModifer(ctx *parser.VcSpecificModiferContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitGccDeclaratorExtension(ctx *parser.GccDeclaratorExtensionContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitGccAttributeSpecifier(ctx *parser.GccAttributeSpecifierContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitGccAttributeList(ctx *parser.GccAttributeListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitGccAttribute(ctx *parser.GccAttributeContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitNestedParenthesesBlock(ctx *parser.NestedParenthesesBlockContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitPointer(ctx *parser.PointerContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitTypeQualifierList(ctx *parser.TypeQualifierListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitParameterTypeList(ctx *parser.ParameterTypeListContext) any {
-	panic("implement me")
+	pl := v.Visit(ctx.ParameterList()).(ParameterList)
+	// FIXME: '...'
+	return pl
 }
 
 func (v *parseVisitor) VisitParameterList(ctx *parser.ParameterListContext) any {
-	panic("implement me")
+	pds := ctx.AllParameterDeclaration()
+	ps := make([]ParameterDeclaration, len(pds))
+	for i, pd := range pds {
+		ps[i] = v.Visit(pd).(ParameterDeclaration)
+	}
+	return ParameterList{Ps: ps}
 }
 
 func (v *parseVisitor) VisitParameterDeclaration(ctx *parser.ParameterDeclarationContext) any {
-	panic("implement me")
+	ds := v.Visit(ctx.DeclarationSpecifiers()).(DeclarationSpecifiers)
+	d := v.Visit(ctx.Declarator()).(Declarator)
+	return ParameterDeclaration{S: ds, D: d}
 }
 
 func (v *parseVisitor) VisitIdentifierList(ctx *parser.IdentifierListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitTypeName(ctx *parser.TypeNameContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitAbstractDeclarator(ctx *parser.AbstractDeclaratorContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitDirectAbstractDeclarator(ctx *parser.DirectAbstractDeclaratorContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitTypedefName(ctx *parser.TypedefNameContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitInitializer(ctx *parser.InitializerContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitInitializerList(ctx *parser.InitializerListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitDesignation(ctx *parser.DesignationContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitDesignatorList(ctx *parser.DesignatorListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitDesignator(ctx *parser.DesignatorContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitStaticAssertDeclaration(ctx *parser.StaticAssertDeclarationContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitStatement(ctx *parser.StatementContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitLabeledStatement(ctx *parser.LabeledStatementContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitCompoundStatement(ctx *parser.CompoundStatementContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitBlockItemList(ctx *parser.BlockItemListContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitBlockItem(ctx *parser.BlockItemContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitExpressionStatement(ctx *parser.ExpressionStatementContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitSelectionStatement(ctx *parser.SelectionStatementContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitIterationStatement(ctx *parser.IterationStatementContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitForCondition(ctx *parser.ForConditionContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitForDeclaration(ctx *parser.ForDeclarationContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitForExpression(ctx *parser.ForExpressionContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitJumpStatement(ctx *parser.JumpStatementContext) any {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitStaticBracket2DirectDeclarator(ctx *parser.StaticBracket2DirectDeclaratorContext) interface{} {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitBracketStarDirectDeclarator(ctx *parser.BracketStarDirectDeclaratorContext) interface{} {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitBitFieldDirectDeclarator(ctx *parser.BitFieldDirectDeclaratorContext) interface{} {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitVcSpecificDirectDeclarator(ctx *parser.VcSpecificDirectDeclaratorContext) interface{} {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitParenDirectDeclarator(ctx *parser.ParenDirectDeclaratorContext) interface{} {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitParamParenDirectDeclarator(ctx *parser.ParamParenDirectDeclaratorContext) interface{} {
+	dd := v.Visit(ctx.DirectDeclarator())
+	_ = dd
+	ps := v.Visit(ctx.ParameterTypeList())
+	_ = ps
 	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitBracketDirectDeclarator(ctx *parser.BracketDirectDeclaratorContext) interface{} {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitStaticBracketDirectDeclarator(ctx *parser.StaticBracketDirectDeclaratorContext) interface{} {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitVcSpecific2DirectDeclarator(ctx *parser.VcSpecific2DirectDeclaratorContext) interface{} {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitIdentifierParenDirectDeclarator(ctx *parser.IdentifierParenDirectDeclaratorContext) interface{} {
-	panic("implement me")
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitIdentifierDirectDeclarator(ctx *parser.IdentifierDirectDeclaratorContext) interface{} {
