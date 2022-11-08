@@ -2,13 +2,6 @@ package c
 
 //
 
-type ExpressionStatement struct {
-	statement
-	Expression Expression
-}
-
-//
-
 type Expression interface {
 	Node
 	isExpression()

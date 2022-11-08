@@ -12,3 +12,10 @@ type statement struct {
 }
 
 func (s statement) isStatement() {}
+
+//
+
+type ExpressionStatement struct {
+	statement
+	Expression Expression
+}

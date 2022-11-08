@@ -466,27 +466,27 @@ func (v *parseVisitor) VisitJumpStatement(ctx *parser.JumpStatementContext) any 
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitStaticBracket2DirectDeclarator(ctx *parser.StaticBracket2DirectDeclaratorContext) interface{} {
+func (v *parseVisitor) VisitStaticBracket2DirectDeclarator(ctx *parser.StaticBracket2DirectDeclaratorContext) any {
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitBracketStarDirectDeclarator(ctx *parser.BracketStarDirectDeclaratorContext) interface{} {
+func (v *parseVisitor) VisitBracketStarDirectDeclarator(ctx *parser.BracketStarDirectDeclaratorContext) any {
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitBitFieldDirectDeclarator(ctx *parser.BitFieldDirectDeclaratorContext) interface{} {
+func (v *parseVisitor) VisitBitFieldDirectDeclarator(ctx *parser.BitFieldDirectDeclaratorContext) any {
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitVcSpecificDirectDeclarator(ctx *parser.VcSpecificDirectDeclaratorContext) interface{} {
+func (v *parseVisitor) VisitVcSpecificDirectDeclarator(ctx *parser.VcSpecificDirectDeclaratorContext) any {
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitParenDirectDeclarator(ctx *parser.ParenDirectDeclaratorContext) interface{} {
+func (v *parseVisitor) VisitParenDirectDeclarator(ctx *parser.ParenDirectDeclaratorContext) any {
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitParamParenDirectDeclarator(ctx *parser.ParamParenDirectDeclaratorContext) interface{} {
+func (v *parseVisitor) VisitParamParenDirectDeclarator(ctx *parser.ParamParenDirectDeclaratorContext) any {
 	dd := v.Visit(ctx.DirectDeclarator())
 	_ = dd
 	ps := v.Visit(ctx.ParameterTypeList())
@@ -494,24 +494,22 @@ func (v *parseVisitor) VisitParamParenDirectDeclarator(ctx *parser.ParamParenDir
 	return v.VisitChildren(ctx)
 }
 
-func (v *parseVisitor) VisitBracketDirectDeclarator(ctx *parser.BracketDirectDeclaratorContext) interface{} {
+func (v *parseVisitor) VisitBracketDirectDeclarator(ctx *parser.BracketDirectDeclaratorContext) any {
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitStaticBracketDirectDeclarator(ctx *parser.StaticBracketDirectDeclaratorContext) interface{} {
+func (v *parseVisitor) VisitStaticBracketDirectDeclarator(ctx *parser.StaticBracketDirectDeclaratorContext) any {
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitVcSpecific2DirectDeclarator(ctx *parser.VcSpecific2DirectDeclaratorContext) interface{} {
+func (v *parseVisitor) VisitVcSpecific2DirectDeclarator(ctx *parser.VcSpecific2DirectDeclaratorContext) any {
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitIdentifierParenDirectDeclarator(ctx *parser.IdentifierParenDirectDeclaratorContext) interface{} {
+func (v *parseVisitor) VisitIdentifierParenDirectDeclarator(ctx *parser.IdentifierParenDirectDeclaratorContext) any {
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitIdentifierDirectDeclarator(ctx *parser.IdentifierDirectDeclaratorContext) interface{} {
-	return Identifier{
-		S: ctx.Identifier().GetText(),
-	}
+func (v *parseVisitor) VisitIdentifierDirectDeclarator(ctx *parser.IdentifierDirectDeclaratorContext) any {
+	return IdentifierDeclarator{I: Identifier{S: ctx.Identifier().GetText()}}
 }

@@ -7,7 +7,9 @@ type Declarator interface {
 	isDeclarator()
 }
 
-type declarator struct{}
+type declarator struct {
+	node
+}
 
 func (d declarator) isDeclarator() {}
 
