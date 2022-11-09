@@ -1,7 +1,87 @@
 /*
 https://webassembly.github.io/spec/core/_download/WebAssembly.pdf
 
+##
+
+	clang++ \
+		--target=wasm32 \
+		-nostdlib \
+		-O3 \
+		-Wl,--no-entry \
+		-Wl,--export-all \
+		-Wl,--lto-O3 \
+		-Wl,--allow-undefined \
+		-Wl,--import-memory \
+		-o sqlite3.wasm \
+		c/sqlite/sqlite3.c
+
+==
+
+https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-16/wasi-sdk-16.0-linux.tar.gz
+https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-16/wasi-sysroot-16.0.tar.gz
+https://github.com/WebAssembly/wabt/releases/download/1.0.30/wabt-1.0.30-ubuntu.tar.gz
+
+wasi-sdk-16.0/bin/clang sqlite-amalgamation-3390400/sqlite3.c --sysroot wasi-sysroot -o sqlite3.wasm -DLONGDOUBLE_TYPE=double -DSQLITE_THREADSAFE=0 -D_WASI_EMULATED_MMAN
+
+==
+
 docker run --rm -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk emcc /src/c/sqlite/sqlite3.c -o sqlite3.wat
+
+==
+
+cd wasm-install
+
+	bin/clang \
+		-I sysroot/include \
+		-emit-llvm \
+		--target=wasm32 \
+		-Oz \
+		-c bin/emscripten/tests/sqlite/sqlite3.c \
+		-o bin/emscripten/tests/sqlite/sqlite3.bc \
+		-DSQLITE_DISABLE_LFS \
+		-DLONGDOUBLE_TYPE=double \
+		-DSQLITE_THREADSAFE=0
+
+bin/llvm-dis bin/emscripten/tests/sqlite/sqlite3.bc
+bin/llc -asm-verbose=false bin/emscripten/tests/sqlite/sqlite3.bc -o bin/emscripten/tests/sqlite/sqlite3.s
+bin/s2wasm bin/emscripten/tests/sqlite/sqlite3.s > bin/emscripten/tests/sqlite/sqlite3.wast
+
+==
+
+wasm-install/bin/clang -I wasm-install/sysroot/include --target=wasm32 -emit-llvm -c a.c -o a.bc
+wasm-install/bin/llvm-dis a.bc
+wasm-install/bin/llc -asm-verbose=false a.bc -o a.s
+wasm-install/bin/s2wasm a.s > a.wast
+
+==
+
+wasm-install/bin/clang -I wasm-install/sysroot/include --target=wasm32 -emit-llvm -O0 -fno-inline -c a.c -o a.bc && wasm-install/bin/llvm-dis a.bc && wasm-install/bin/llc -asm-verbose=false a.bc -o a.s && wasm-install/bin/s2wasm a.s > a.wast
+
+==
+
+git clone https://github.com/WebAssembly/musl/
+cd musl
+git checkout wasm-prototype-1
+./libc.py --clang_dir /root/wasm-install/bin --binaryen_dir /root/wasm-install/bin --sexpr_wasm /root/wasm-install/bin/sexpr-wasm --musl /root/musl
+x86_64-linux-gnu/asm/unistd_32.h
+
+==
+
+https://aransentin.github.io/cwasm/
+
+-nostartfiles -nostdlib
+
+	docker run --rm -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk emcc \
+			--no-entry \
+			-flto \
+	        -O3 \
+			-Wl,--import-memory \
+	        -Wl,--no-entry \
+	        -Wl,--export-all \
+	        -Wl,--lto-O3 \
+	        -Wl,--allow-undefined \
+	        -o sqlite3.wasm \
+	        /src/c/sqlite/sqlite3.c
 
 TODO:
   - https://github.com/WebAssembly/testsuite
