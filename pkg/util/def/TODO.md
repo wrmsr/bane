@@ -71,3 +71,5 @@
 - const generic (template) params - ints - dense4/8, mat3x3x3, ... - ** type checked, valid runnable template **
     - switching factories
     - auto interface
+- inline:
+    - CLOSURES - loop bodies
