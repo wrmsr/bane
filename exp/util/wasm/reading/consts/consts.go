@@ -489,97 +489,97 @@ const (
 	Demote_F64X2_Zero_F32X4     = 0xFD_94
 	PromoteLow_F32X4_F64X2      = 0xFD_95
 
+	CustomSection    = 0
+	TypeSection      = 1
+	ImportSection    = 2
+	FunctionSection  = 3
+	TableSection     = 4
+	MemorySection    = 5
+	GlobalSection    = 6
+	ExportSection    = 7
+	StartSection     = 8
+	ElementSection   = 9
+	CodeSection      = 10
+	DataSection      = 11
+	DataCountSection = 12
+
+	FuncImport   = 0x00
+	TableImport  = 0x01
+	MemImport    = 0x02
+	GlobalImport = 0x03
+
+	FuncExport   = 0x00
+	TableExport  = 0x01
+	MemExport    = 0x01
+	GlobalExport = 0x03
+
 	/*
 
-		   CustomSection = 0
-		   TypeSection = 1
-		   ImportSection = 2
-		   FunctionSection = 3
-		   TableSection = 4
-		   MemorySection = 5
-		   GlobalSection = 6
-		   ExportSection = 7
-		   StartSection = 8
-		   ElementSection = 9
-		   CodeSection = 10
-		   DataSection = 11
-		   DataCountSection = 12
+	   elemsec ::= seg* :section9(vec(elem)) ⇒ seg*
+	   elem ::=
+	   0:u32 𝑒:expr 𝑦 * :vec(funcidx) ⇒ {type funcref, init ((ref.func 𝑦) end) * , mode active {table 0, offset 𝑒}}
+	   | 1:u32 et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode passive}
+	   | 2:u32 𝑥:tableidx 𝑒:expr et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode active {table 𝑥, offset 𝑒}}
+	   | 3:u32 et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode declarative}
+	   | 4:u32 𝑒:expr el * :vec(expr) ⇒ {type funcref, init el * , mode active {table 0, offset 𝑒}}
+	   | 5:u32 et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode passive}
+	   | 6:u32 𝑥:tableidx 𝑒:expr et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode active {table 𝑥, offset 𝑒}}
+	   | 7:u32 et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode declarative}
+	   elemkind ::= 0x00 ⇒ funcref
 
-			FuncImport = 0x00
-		   TableImport = 0x01
-		   MemImport = 0x02
-		   GlobalImport = 0x03
+	   codesec ::= code* :section10(vec(code)) ⇒ code*
+	   code ::= size:u32 code:func ⇒ code (if size = ||func||)
+	   func ::= (𝑡 * ) * :vec(locals) 𝑒:expr ⇒ concat((𝑡 * ) * ), 𝑒 (if |concat((𝑡 * ) * )| < 2 32)
+	   locals ::= 𝑛:u32 𝑡:valtype ⇒ 𝑡 𝑛
 
-		FuncExport = 0x00
-		TableExport = 0x01
-		MemExport = 0x01
-		GlobalExport = 0x03
+	   datasec ::= seg* :section11(vec(data)) ⇒ seg*
+	   data ::=
+	   0:u32 𝑒:expr 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode active {memory 0, offset 𝑒}}
+	   | 1:u32 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode passive}
+	   | 2:u32 𝑥:memidx 𝑒:expr 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode active {memory 𝑥, offset 𝑒}}
 
-		   elemsec ::= seg* :section9(vec(elem)) ⇒ seg*
-		   elem ::=
-		   0:u32 𝑒:expr 𝑦 * :vec(funcidx) ⇒ {type funcref, init ((ref.func 𝑦) end) * , mode active {table 0, offset 𝑒}}
-		   | 1:u32 et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode passive}
-		   | 2:u32 𝑥:tableidx 𝑒:expr et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode active {table 𝑥, offset 𝑒}}
-		   | 3:u32 et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode declarative}
-		   | 4:u32 𝑒:expr el * :vec(expr) ⇒ {type funcref, init el * , mode active {table 0, offset 𝑒}}
-		   | 5:u32 et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode passive}
-		   | 6:u32 𝑥:tableidx 𝑒:expr et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode active {table 𝑥, offset 𝑒}}
-		   | 7:u32 et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode declarative}
-		   elemkind ::= 0x00 ⇒ funcref
+	   datacountsec ::= n ? :section12(u32) ⇒ n ?
 
-		   codesec ::= code* :section10(vec(code)) ⇒ code*
-		   code ::= size:u32 code:func ⇒ code (if size = ||func||)
-		   func ::= (𝑡 * ) * :vec(locals) 𝑒:expr ⇒ concat((𝑡 * ) * ), 𝑒 (if |concat((𝑡 * ) * )| < 2 32)
-		   locals ::= 𝑛:u32 𝑡:valtype ⇒ 𝑡 𝑛
-
-		   datasec ::= seg* :section11(vec(data)) ⇒ seg*
-		   data ::=
-		   0:u32 𝑒:expr 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode active {memory 0, offset 𝑒}}
-		   | 1:u32 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode passive}
-		   | 2:u32 𝑥:memidx 𝑒:expr 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode active {memory 𝑥, offset 𝑒}}
-
-		   datacountsec ::= n ? :section12(u32) ⇒ n ?
-
-		   magic ::= 0x00 0x61 0x73 0x6D
-		   version ::= 0x01 0x00 0x00 0x00
-		   module ::= magic
-		   version
-		   customsec*
-		   functype* : typesec
-		   customsec*
-		   import* : importsec
-		   customsec*
-		   typeidx 𝑛: funcsec
-		   customsec*
-		   table* : tablesec
-		   customsec*
-		   mem* : memsec
-		   customsec*
-		   global * : globalsec
-		   customsec*
-		   export* : exportsec
-		   customsec*
-		   start ? : startsec
-		   customsec*
-		   elem* : elemsec
-		   customsec*
-		   𝑚? : datacountsec
-		   customsec*
-		   code𝑛 : codesec
-		   customsec*
-		   data𝑚: datasec
-		   customsec* ⇒ { types functype* ,
-		   	funcs func𝑛,
-		   	tables table* ,
-		   	mems mem* ,
-		   	globals global * ,
-		   	elems elem* ,
-		   	datas data𝑚,
-		   	start start ? ,
-		   	imports import* ,
-		   	exports export* }
-		   (if 𝑚? ̸= 𝜖 ∨ dataidx(code𝑛 ) = ∅)
-		   func𝑛 [𝑖] = {type typeidx 𝑛 [𝑖], locals 𝑡 * 𝑖 , body 𝑒𝑖}
+	   magic ::= 0x00 0x61 0x73 0x6D
+	   version ::= 0x01 0x00 0x00 0x00
+	   module ::= magic
+	   version
+	   customsec*
+	   functype* : typesec
+	   customsec*
+	   import* : importsec
+	   customsec*
+	   typeidx 𝑛: funcsec
+	   customsec*
+	   table* : tablesec
+	   customsec*
+	   mem* : memsec
+	   customsec*
+	   global * : globalsec
+	   customsec*
+	   export* : exportsec
+	   customsec*
+	   start ? : startsec
+	   customsec*
+	   elem* : elemsec
+	   customsec*
+	   𝑚? : datacountsec
+	   customsec*
+	   code𝑛 : codesec
+	   customsec*
+	   data𝑚: datasec
+	   customsec* ⇒ { types functype* ,
+	   	funcs func𝑛,
+	   	tables table* ,
+	   	mems mem* ,
+	   	globals global * ,
+	   	elems elem* ,
+	   	datas data𝑚,
+	   	start start ? ,
+	   	imports import* ,
+	   	exports export* }
+	   (if 𝑚? ̸= 𝜖 ∨ dataidx(code𝑛 ) = ∅)
+	   func𝑛 [𝑖] = {type typeidx 𝑛 [𝑖], locals 𝑡 * 𝑖 , body 𝑒𝑖}
 
 	*/
 
