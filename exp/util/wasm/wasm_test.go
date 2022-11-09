@@ -1,6 +1,8 @@
 /*
 https://webassembly.github.io/spec/core/_download/WebAssembly.pdf
 
+docker run --rm -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk emcc /src/c/sqlite/sqlite3.c -o sqlite3.wat
+
 TODO:
   - https://github.com/WebAssembly/testsuite
 */

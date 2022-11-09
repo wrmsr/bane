@@ -7,9 +7,17 @@ else
     TTY_ENV_ARGS=""
 fi
 
+DOCKER_CONTAINER="docker-bane-dev-1"
+if ! [ $# -eq 0 ] ; then
+    if [ "$1" == "--amd64" ] ; then
+        DOCKER_CONTAINER="docker-bane-dev-amd64-1"
+        shift
+    fi
+fi
+
 docker exec \
     $TTY_ENV_ARGS \
     --privileged \
     --detach-keys 'ctrl-o,ctrl-d' \
-    -it docker-bane-dev-1 \
+    -it "$DOCKER_CONTAINER" \
     $*
