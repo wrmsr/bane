@@ -246,383 +246,338 @@ const (
 	TruncSatF64S_I64 = 0xFC_06
 	TruncSatF64U_I64 = 0xFC_07
 
+	Load_V128        = 0xFD_00
+	Load8x8S_V128    = 0xFD_01
+	Load8x8U_V128    = 0xFD_02
+	Load16x4S_V128   = 0xFD_03
+	Load16x4U_V128   = 0xFD_04
+	Load32x2S_V128   = 0xFD_05
+	Load32x2U_V128   = 0xFD_06
+	Load8Splat_V128  = 0xFD_07
+	Load16Splat_V128 = 0xFD_08
+	Load32Splat_V128 = 0xFD_09
+	Load64Splat_V128 = 0xFD_0A
+	Load32Zero_V128  = 0xFD_5C
+	Load64Zero_V128  = 0xFD_5D
+	Store_V128       = 0xFD_0B
+	Load8Lane_V128   = 0xFD_54
+	Load16Lane_V128  = 0xFD_55
+	Load32Lane_V128  = 0xFD_56
+	Load64Lane_V128  = 0xFD_67
+	Store8Lane_V128  = 0xFD_58
+	Store16Lane_V128 = 0xFD_59
+	Store32Lane_V128 = 0xFD_5A
+	Store64Lane_V128 = 0xFD_5B
+
+	Const_V128 = 0xFD_0C
+
+	Shuffle_I8X16 = 0xFD_0D
+
+	ExtractLaneS_I8X16 = 0xFD_15
+	ExtractLaneU_I8X16 = 0xFD_16
+	ReplaceLane_I8X16  = 0xFD_17
+	ExtractLaneS_I16X8 = 0xFD_18
+	ExtractLaneU_I16X8 = 0xFD_19
+	ReplaceLane_I16X8  = 0xFD_1A
+	ExtractLane_I32X4  = 0xFD_1B
+	ReplaceLane_I32X4  = 0xFD_1C
+	ExtractLane_I64X2  = 0xFD_1D
+	ReplaceLane_I64X2  = 0xFD_1E
+	ExtractLane_F32X4  = 0xFD_1F
+	ReplaceLane_F32X4  = 0xFD_20
+	ExtractLane_F64X2  = 0xFD_21
+	ReplaceLane_F64X2  = 0xFD_22
+
+	Swizzle_I8X16               = 0xFD_14
+	Splat_I8X16                 = 0xFD_15
+	Splat_I16X8                 = 0xFD_16
+	Splat_I32X4                 = 0xFD_17
+	Splat_I64X2                 = 0xFD_18
+	Splat_F32X4                 = 0xFD_19
+	Splat_F64X2                 = 0xFD_20
+	Eq_I8X16                    = 0xFD_35
+	Ne_I8X16                    = 0xFD_36
+	LtS_I8X16                   = 0xFD_37
+	LtU_I8X16                   = 0xFD_38
+	GtS_I8X16                   = 0xFD_39
+	GtU_I8X16                   = 0xFD_40
+	LeS_I8X16                   = 0xFD_41
+	LeU_I8X16                   = 0xFD_42
+	GeS_I8X16                   = 0xFD_43
+	GeU_I8X16                   = 0xFD_44
+	Eq_I16X8                    = 0xFD_45
+	Ne_I16X8                    = 0xFD_46
+	LtS_I16X8                   = 0xFD_47
+	LtU_I16X8                   = 0xFD_48
+	GtS_I16X8                   = 0xFD_49
+	GtU_I16X8                   = 0xFD_50
+	LeS_I16X8                   = 0xFD_51
+	LeU_I16X8                   = 0xFD_52
+	GeS_I16X8                   = 0xFD_53
+	GeU_I16X8                   = 0xFD_54
+	Eq_I32X4                    = 0xFD_55
+	Ne_I32X4                    = 0xFD_56
+	LtS_I32X4                   = 0xFD_57
+	LtU_I32X4                   = 0xFD_58
+	GtS_I32X4                   = 0xFD_59
+	GtU_I32X4                   = 0xFD_60
+	LeS_I32X4                   = 0xFD_61
+	LeU_I32X4                   = 0xFD_62
+	GeS_I32X4                   = 0xFD_63
+	GeU_I32X4                   = 0xFD_64
+	Eq_I64X2                    = 0xFD_214
+	Ne_I64X2                    = 0xFD_215
+	LtS_I64X2                   = 0xFD_216
+	GtS_I64X2                   = 0xFD_217
+	LeS_I64X2                   = 0xFD_218
+	GeS_I64X2                   = 0xFD_219
+	Eq_F32X4                    = 0xFD_65
+	Ne_F32X4                    = 0xFD_66
+	Lt_F32X4                    = 0xFD_67
+	Gt_F32X4                    = 0xFD_68
+	Le_F32X4                    = 0xFD_69
+	Ge_F32X4                    = 0xFD_70
+	Eq_F64X2                    = 0xFD_71
+	Ne_F64X2                    = 0xFD_72
+	Lt_F64X2                    = 0xFD_73
+	Gt_F64X2                    = 0xFD_74
+	Le_F64X2                    = 0xFD_75
+	Ge_F64X2                    = 0xFD_76
+	Not_v128                    = 0xFD_77
+	And_v128                    = 0xFD_78
+	Andnot_v128                 = 0xFD_79
+	Or_v128                     = 0xFD_80
+	Xor_v128                    = 0xFD_81
+	Bitselect_v128              = 0xFD_82
+	AnyTrue_v128                = 0xFD_83
+	Abs_I8X16                   = 0xFD_96
+	Neg_I8X16                   = 0xFD_97
+	Popcnt_I8X16                = 0xFD_98
+	AllTrue_I8X16               = 0xFD_99
+	Bitmask_I8X16               = 0xFD_100
+	Narrow_I16X8S_I8X16         = 0xFD_101
+	Narrow_I16X8U_I8X16         = 0xFD_102
+	Shl_I8X16                   = 0xFD_107
+	ShrS_I8X16                  = 0xFD_108
+	ShrU_I8X16                  = 0xFD_109
+	Add_I8X16                   = 0xFD_110
+	AddSatS_I8X16               = 0xFD_111
+	AddSatU_I8X16               = 0xFD_112
+	Sub_I8X16                   = 0xFD_113
+	SubSatS_I8X16               = 0xFD_114
+	SubSatU_I8X16               = 0xFD_115
+	MinS_I8X16                  = 0xFD_118
+	MinU_I8X16                  = 0xFD_119
+	MaxS_I8X16                  = 0xFD_120
+	MaxU_I8X16                  = 0xFD_121
+	AvgrU_I8X16                 = 0xFD_123
+	ExtaddPairwise_I8X16S_I16X8 = 0xFD_124
+	ExtaddPairwise_I8X16U_I16X8 = 0xFD_125
+	Abs_I16X8                   = 0xFD_128
+	Neg_I16X8                   = 0xFD_129
+	Q15mulrSatS_I16X8           = 0xFD_130
+	AllTrue_I16X8               = 0xFD_131
+	Bitmask_I16X8               = 0xFD_132
+	Narrow_I32X4S_I16X8         = 0xFD_133
+	Narrow_I32X4U_I16X8         = 0xFD_134
+	ExtendLow_I8X16S_I16X8      = 0xFD_135
+	ExtendHigh_I8X16S_I16X8     = 0xFD_136
+	ExtendLow_I8X16U_I16X8      = 0xFD_137
+	ExtendHigh_I8X16U_I16X8     = 0xFD_138
+	Shl_I16X8                   = 0xFD_139
+	ShrS_I16X8                  = 0xFD_140
+	ShrU_I16X8                  = 0xFD_141
+	Add_I16X8                   = 0xFD_142
+	AddSatS_I16X8               = 0xFD_143
+	AddSatU_I16X8               = 0xFD_144
+	Sub_I16X8                   = 0xFD_145
+	SubSatS_I16X8               = 0xFD_146
+	SubSatU_I16X8               = 0xFD_147
+	Mul_I16X8                   = 0xFD_149
+	MinS_I16X8                  = 0xFD_150
+	MinU_I16X8                  = 0xFD_151
+	MaxS_I16X8                  = 0xFD_152
+	MaxU_I16X8                  = 0xFD_153
+	AvgrU_I16X8                 = 0xFD_155
+	ExtmulLow_I8X16S_I16X8      = 0xFD_156
+	ExtmulHigh_I8X16S_I16X8     = 0xFD_157
+	ExtmulLow_I8X16U_I16X8      = 0xFD_158
+	ExtmulHigh_I8X16U_I16X8     = 0xFD_159
+	ExtaddPairwise_I16X8S_I32X4 = 0xFD_126
+	ExtaddPairwise_I16X8U_I32X4 = 0xFD_127
+	Abs_I32X4                   = 0xFD_160
+	Neg_I32X4                   = 0xFD_161
+	AllTrue_I32X4               = 0xFD_163
+	Bitmask_I32X4               = 0xFD_164
+	ExtendLow_I16X8S_I32X4      = 0xFD_167
+	ExtendHigh_I16X8S_I32X4     = 0xFD_168
+	ExtendLow_I16X8U_I32X4      = 0xFD_169
+	ExtendHigh_I16X8U_I32X4     = 0xFD_170
+	Shl_I32X4                   = 0xFD_171
+	ShrS_I32X4                  = 0xFD_172
+	ShrU_I32X4                  = 0xFD_173
+	Add_I32X4                   = 0xFD_174
+	Sub_I32X4                   = 0xFD_177
+	Mul_I32X4                   = 0xFD_181
+	MinS_I32X4                  = 0xFD_182
+	MinU_I32X4                  = 0xFD_183
+	MaxS_I32X4                  = 0xFD_184
+	MaxU_I32X4                  = 0xFD_185
+	Dot_I16X8S_I32X4            = 0xFD_186
+	ExtmulLow_I16X8S_I32X4      = 0xFD_188
+	ExtmulHigh_I16X8S_I32X4     = 0xFD_189
+	ExtmulLow_I16X8U_I32X4      = 0xFD_190
+	ExtmulHigh_I16X8U_I32X4     = 0xFD_191
+	Abs_I64X2                   = 0xFD_192
+	Neg_I64X2                   = 0xFD_193
+	AllTrue_I64X2               = 0xFD_195
+	Bitmask_I64X2               = 0xFD_196
+	ExtendLow_I32X4S_I64X2      = 0xFD_199
+	ExtendHigh_I32X4S_I64X2     = 0xFD_200
+	ExtendLow_I32X4U_I64X2      = 0xFD_201
+	ExtendHigh_I32X4U_I64X2     = 0xFD_202
+	Shl_I64X2                   = 0xFD_203
+	ShrS_I64X2                  = 0xFD_204
+	ShrU_I64X2                  = 0xFD_205
+	Add_I64X2                   = 0xFD_206
+	Sub_I64X2                   = 0xFD_209
+	Mul_I64X2                   = 0xFD_213
+	ExtmulLow_I32X4S_I64X2      = 0xFD_220
+	ExtmulHigh_I32X4S_I64X2     = 0xFD_221
+	ExtmulLow_I32X4U_I64X2      = 0xFD_222
+	ExtmulHigh_I32X4U_I64X2     = 0xFD_223
+	Ceil_F32X4                  = 0xFD_103
+	Floor_F32X4                 = 0xFD_104
+	Trunc_F32X4                 = 0xFD_105
+	Nearest_F32X4               = 0xFD_106
+	Abs_F32X4                   = 0xFD_224
+	Neg_F32X4                   = 0xFD_225
+	Sqrt_F32X4                  = 0xFD_227
+	Add_F32X4                   = 0xFD_228
+	Sub_F32X4                   = 0xFD_229
+	Mul_F32X4                   = 0xFD_230
+	Div_F32X4                   = 0xFD_231
+	Min_F32X4                   = 0xFD_232
+	Max_F32X4                   = 0xFD_233
+	Pmin_F32X4                  = 0xFD_234
+	Pmax_F32X4                  = 0xFD_235
+	Ceil_F64X2                  = 0xFD_116
+	Floor_F64X2                 = 0xFD_117
+	Trunc_F64X2                 = 0xFD_122
+	Nearest_F64X2               = 0xFD_148
+	Abs_F64X2                   = 0xFD_236
+	Neg_F64X2                   = 0xFD_237
+	Sqrt_F64X2                  = 0xFD_239
+	Add_F64X2                   = 0xFD_240
+	Sub_F64X2                   = 0xFD_241
+	Mul_F64X2                   = 0xFD_242
+	Div_F64X2                   = 0xFD_243
+	Min_F64X2                   = 0xFD_244
+	Max_F64X2                   = 0xFD_245
+	Pmin_F64X2                  = 0xFD_246
+	Pmax_F64X2                  = 0xFD_247
+	TruncSat_F32X4S_I32X4       = 0xFD_248
+	TruncSat_F32X4U_I32X4       = 0xFD_249
+	Convert_I32X4S_F32X4        = 0xFD_250
+	Convert_I32X4U_F32X4        = 0xFD_251
+	TruncSat_F64X2S_Zero_I32X4  = 0xFD_252
+	TruncSat_F64X2U_Zero_I32X4  = 0xFD_253
+	ConvertLow_I32X4S_F64X2     = 0xFD_254
+	ConvertLow_I32X4U_F64X2     = 0xFD_255
+	Demote_F64X2_Zero_F32X4     = 0xFD_94
+	PromoteLow_F32X4_F64X2      = 0xFD_95
+
 	/*
-	   laneidx ::= 𝑙:byte ⇒ 𝑙
-	   instr ::= . . .
-	   | 0xFD 0:u32 𝑚:memarg ⇒ v128.load 𝑚
-	   | 0xFD 1:u32 𝑚:memarg ⇒ v128.load8x8_s 𝑚
-	   | 0xFD 2:u32 𝑚:memarg ⇒ v128.load8x8_u 𝑚
-	   | 0xFD 3:u32 𝑚:memarg ⇒ v128.load16x4_s 𝑚
-	   | 0xFD 4:u32 𝑚:memarg ⇒ v128.load16x4_u 𝑚
-	   | 0xFD 5:u32 𝑚:memarg ⇒ v128.load32x2_s 𝑚
-	   | 0xFD 6:u32 𝑚:memarg ⇒ v128.load32x2_u 𝑚
-	   | 0xFD 7:u32 𝑚:memarg ⇒ v128.load8_splat 𝑚
-	   | 0xFD 8:u32 𝑚:memarg ⇒ v128.load16_splat 𝑚
-	   | 0xFD 9:u32 𝑚:memarg ⇒ v128.load32_splat 𝑚
-	   | 0xFD 10:u32 𝑚:memarg ⇒ v128.load64_splat 𝑚
-	   | 0xFD 92:u32 𝑚:memarg ⇒ v128.load32_zero 𝑚
-	   | 0xFD 93:u32 𝑚:memarg ⇒ v128.load64_zero 𝑚
-	   | 0xFD 11:u32 𝑚:memarg ⇒ v128.store 𝑚
-	   | 0xFD 84:u32 𝑚:memarg 𝑙:laneidx ⇒ v128.load8_lane 𝑚 𝑙
-	   | 0xFD 85:u32 𝑚:memarg 𝑙:laneidx ⇒ v128.load16_lane 𝑚 𝑙
-	   | 0xFD 86:u32 𝑚:memarg 𝑙:laneidx ⇒ v128.load32_lane 𝑚 𝑙
-	   | 0xFD 87:u32 𝑚:memarg 𝑙:laneidx ⇒ v128.load64_lane 𝑚 𝑙
-	   | 0xFD 88:u32 𝑚:memarg 𝑙:laneidx ⇒ v128.store8_lane 𝑚 𝑙
-	   | 0xFD 89:u32 𝑚:memarg 𝑙:laneidx ⇒ v128.store16_lane 𝑚 𝑙
-	   | 0xFD 90:u32 𝑚:memarg 𝑙:laneidx ⇒ v128.store32_lane 𝑚 𝑙
-	   | 0xFD 91:u32 𝑚:memarg 𝑙:laneidx ⇒ v128.store64_lane 𝑚 𝑙
 
-	   instr ::= . . .
-	   | 0xFD 12:u32 (𝑏:byte) 16 ⇒ v128.const bytes−1 i128(𝑏0 . . . 𝑏15)
+		   CustomSection = 0
+		   TypeSection = 1
+		   ImportSection = 2
+		   FunctionSection = 3
+		   TableSection = 4
+		   MemorySection = 5
+		   GlobalSection = 6
+		   ExportSection = 7
+		   StartSection = 8
+		   ElementSection = 9
+		   CodeSection = 10
+		   DataSection = 11
+		   DataCountSection = 12
 
-	   instr ::= . . .
-	   | 0xFD 13:u32 (𝑙:laneidx) 16 ⇒ i8x16.shuffle 𝑙 16
+			FuncImport = 0x00
+		   TableImport = 0x01
+		   MemImport = 0x02
+		   GlobalImport = 0x03
 
-	   instr ::= . . .
-	   | 0xFD 21:u32 𝑙:laneidx ⇒ i8x16.extract_lane_s 𝑙
-	   | 0xFD 22:u32 𝑙:laneidx ⇒ i8x16.extract_lane_u 𝑙
-	   | 0xFD 23:u32 𝑙:laneidx ⇒ i8x16.replace_lane 𝑙
-	   | 0xFD 24:u32 𝑙:laneidx ⇒ i16x8.extract_lane_s 𝑙
-	   | 0xFD 25:u32 𝑙:laneidx ⇒ i16x8.extract_lane_u 𝑙
-	   | 0xFD 26:u32 𝑙:laneidx ⇒ i16x8.replace_lane 𝑙
-	   | 0xFD 27:u32 𝑙:laneidx ⇒ i32x4.extract_lane 𝑙
-	   | 0xFD 28:u32 𝑙:laneidx ⇒ i32x4.replace_lane 𝑙
-	   | 0xFD 29:u32 𝑙:laneidx ⇒ i64x2.extract_lane 𝑙
-	   | 0xFD 30:u32 𝑙:laneidx ⇒ i64x2.replace_lane 𝑙
-	   | 0xFD 31:u32 𝑙:laneidx ⇒ f32x4.extract_lane 𝑙
-	   | 0xFD 32:u32 𝑙:laneidx ⇒ f32x4.replace_lane 𝑙
-	   | 0xFD 33:u32 𝑙:laneidx ⇒ f64x2.extract_lane 𝑙
-	   | 0xFD 34:u32 𝑙:laneidx ⇒ f64x2.replace_lane 𝑙
+		FuncExport = 0x00
+		TableExport = 0x01
+		MemExport = 0x01
+		GlobalExport = 0x03
 
-	   instr ::= . . .
-	   | 0xFD 14:u32 ⇒ i8x16.swizzle
-	   | 0xFD 15:u32 ⇒ i8x16.splat
-	   | 0xFD 16:u32 ⇒ i16x8.splat
-	   | 0xFD 17:u32 ⇒ i32x4.splat
-	   | 0xFD 18:u32 ⇒ i64x2.splat
-	   | 0xFD 19:u32 ⇒ f32x4.splat
-	   | 0xFD 20:u32 ⇒ f64x2.splat
-	   | 0xFD 35:u32 ⇒ i8x16.eq
-	   | 0xFD 36:u32 ⇒ i8x16.ne
-	   | 0xFD 37:u32 ⇒ i8x16.lt_s
-	   | 0xFD 38:u32 ⇒ i8x16.lt_u
-	   | 0xFD 39:u32 ⇒ i8x16.gt_s
-	   | 0xFD 40:u32 ⇒ i8x16.gt_u
-	   | 0xFD 41:u32 ⇒ i8x16.le_s
-	   | 0xFD 42:u32 ⇒ i8x16.le_u
-	   | 0xFD 43:u32 ⇒ i8x16.ge_s
-	   | 0xFD 44:u32 ⇒ i8x16.ge_u
-	   | 0xFD 45:u32 ⇒ i16x8.eq
-	   | 0xFD 46:u32 ⇒ i16x8.ne
-	   | 0xFD 47:u32 ⇒ i16x8.lt_s
-	   | 0xFD 48:u32 ⇒ i16x8.lt_u
-	   | 0xFD 49:u32 ⇒ i16x8.gt_s
-	   | 0xFD 50:u32 ⇒ i16x8.gt_u
-	   | 0xFD 51:u32 ⇒ i16x8.le_s
-	   | 0xFD 52:u32 ⇒ i16x8.le_u
-	   | 0xFD 53:u32 ⇒ i16x8.ge_s
-	   | 0xFD 54:u32 ⇒ i16x8.ge_u
-	   | 0xFD 55:u32 ⇒ i32x4.eq
-	   | 0xFD 56:u32 ⇒ i32x4.ne
-	   | 0xFD 57:u32 ⇒ i32x4.lt_s
-	   | 0xFD 58:u32 ⇒ i32x4.lt_u
-	   | 0xFD 59:u32 ⇒ i32x4.gt_s
-	   | 0xFD 60:u32 ⇒ i32x4.gt_u
-	   | 0xFD 61:u32 ⇒ i32x4.le_s
-	   | 0xFD 62:u32 ⇒ i32x4.le_u
-	   | 0xFD 63:u32 ⇒ i32x4.ge_s
-	   | 0xFD 64:u32 ⇒ i32x4.ge_u
-	   | 0xFD 214:u32 ⇒ i64x2.eq
-	   | 0xFD 215:u32 ⇒ i64x2.ne
-	   | 0xFD 216:u32 ⇒ i64x2.lt_s
-	   | 0xFD 217:u32 ⇒ i64x2.gt_s
-	   | 0xFD 218:u32 ⇒ i64x2.le_s
-	   | 0xFD 219:u32 ⇒ i64x2.ge_s
-	   | 0xFD 65:u32 ⇒ f32x4.eq
-	   | 0xFD 66:u32 ⇒ f32x4.ne
-	   | 0xFD 67:u32 ⇒ f32x4.lt
-	   | 0xFD 68:u32 ⇒ f32x4.gt
-	   | 0xFD 69:u32 ⇒ f32x4.le
-	   | 0xFD 70:u32 ⇒ f32x4.ge
-	   | 0xFD 71:u32 ⇒ f64x2.eq
-	   | 0xFD 72:u32 ⇒ f64x2.ne
-	   | 0xFD 73:u32 ⇒ f64x2.lt
-	   | 0xFD 74:u32 ⇒ f64x2.gt
-	   | 0xFD 75:u32 ⇒ f64x2.le
-	   | 0xFD 76:u32 ⇒ f64x2.ge
-	   | 0xFD 77:u32 ⇒ v128.not
-	   | 0xFD 78:u32 ⇒ v128.and
-	   | 0xFD 79:u32 ⇒ v128.andnot
-	   | 0xFD 80:u32 ⇒ v128.or
-	   | 0xFD 81:u32 ⇒ v128.xor
-	   | 0xFD 82:u32 ⇒ v128.bitselect
-	   | 0xFD 83:u32 ⇒ v128.any_true
-	   | 0xFD 96:u32 ⇒ i8x16.abs
-	   | 0xFD 97:u32 ⇒ i8x16.neg
-	   | 0xFD 98:u32 ⇒ i8x16.popcnt
-	   | 0xFD 99:u32 ⇒ i8x16.all_true
-	   | 0xFD 100:u32 ⇒ i8x16.bitmask
-	   | 0xFD 101:u32 ⇒ i8x16.narrow_i16x8_s
-	   | 0xFD 102:u32 ⇒ i8x16.narrow_i16x8_u
-	   | 0xFD 107:u32 ⇒ i8x16.shl
-	   | 0xFD 108:u32 ⇒ i8x16.shr_s
-	   | 0xFD 109:u32 ⇒ i8x16.shr_u
-	   | 0xFD 110:u32 ⇒ i8x16.add
-	   | 0xFD 111:u32 ⇒ i8x16.add_sat_s
-	   | 0xFD 112:u32 ⇒ i8x16.add_sat_u
-	   | 0xFD 113:u32 ⇒ i8x16.sub
-	   | 0xFD 114:u32 ⇒ i8x16.sub_sat_s
-	   | 0xFD 115:u32 ⇒ i8x16.sub_sat_u
-	   | 0xFD 118:u32 ⇒ i8x16.min_s
-	   | 0xFD 119:u32 ⇒ i8x16.min_u
-	   | 0xFD 120:u32 ⇒ i8x16.max_s
-	   | 0xFD 121:u32 ⇒ i8x16.max_u
-	   | 0xFD 123:u32 ⇒ i8x16.avgr_u
-	   | 0xFD 124:u32 ⇒ i16x8.extadd_pairwise_i8x16_s
-	   | 0xFD 125:u32 ⇒ i16x8.extadd_pairwise_i8x16_u
-	   | 0xFD 128:u32 ⇒ i16x8.abs
-	   | 0xFD 129:u32 ⇒ i16x8.neg
-	   | 0xFD 130:u32 ⇒ i16x8.q15mulr_sat_s
-	   | 0xFD 131:u32 ⇒ i16x8.all_true
-	   | 0xFD 132:u32 ⇒ i16x8.bitmask
-	   | 0xFD 133:u32 ⇒ i16x8.narrow_i32x4_s
-	   | 0xFD 134:u32 ⇒ i16x8.narrow_i32x4_u
-	   | 0xFD 135:u32 ⇒ i16x8.extend_low_i8x16_s
-	   | 0xFD 136:u32 ⇒ i16x8.extend_high_i8x16_s
-	   | 0xFD 137:u32 ⇒ i16x8.extend_low_i8x16_u
-	   | 0xFD 138:u32 ⇒ i16x8.extend_high_i8x16_u
-	   | 0xFD 139:u32 ⇒ i16x8.shl
-	   | 0xFD 140:u32 ⇒ i16x8.shr_s
-	   | 0xFD 141:u32 ⇒ i16x8.shr_u
-	   | 0xFD 142:u32 ⇒ i16x8.add
-	   | 0xFD 143:u32 ⇒ i16x8.add_sat_s
-	   | 0xFD 144:u32 ⇒ i16x8.add_sat_u
-	   | 0xFD 145:u32 ⇒ i16x8.sub
-	   | 0xFD 146:u32 ⇒ i16x8.sub_sat_s
-	   | 0xFD 147:u32 ⇒ i16x8.sub_sat_u
-	   | 0xFD 149:u32 ⇒ i16x8.mul
-	   | 0xFD 150:u32 ⇒ i16x8.min_s
-	   | 0xFD 151:u32 ⇒ i16x8.min_u
-	   | 0xFD 152:u32 ⇒ i16x8.max_s
-	   | 0xFD 153:u32 ⇒ i16x8.max_u
-	   | 0xFD 155:u32 ⇒ i16x8.avgr_u
-	   | 0xFD 156:u32 ⇒ i16x8.extmul_low_i8x16_s
-	   | 0xFD 157:u32 ⇒ i16x8.extmul_high_i8x16_s
-	   | 0xFD 158:u32 ⇒ i16x8.extmul_low_i8x16_u
-	   | 0xFD 159:u32 ⇒ i16x8.extmul_high_i8x16_u
-	   | 0xFD 126:u32 ⇒ i32x4.extadd_pairwise_i16x8_s
-	   | 0xFD 127:u32 ⇒ i32x4.extadd_pairwise_i16x8_u
-	   | 0xFD 160:u32 ⇒ i32x4.abs
-	   | 0xFD 161:u32 ⇒ i32x4.neg
-	   | 0xFD 163:u32 ⇒ i32x4.all_true
-	   | 0xFD 164:u32 ⇒ i32x4.bitmask
-	   | 0xFD 167:u32 ⇒ i32x4.extend_low_i16x8_s
-	   | 0xFD 168:u32 ⇒ i32x4.extend_high_i16x8_s
-	   | 0xFD 169:u32 ⇒ i32x4.extend_low_i16x8_u
-	   | 0xFD 170:u32 ⇒ i32x4.extend_high_i16x8_u
-	   | 0xFD 171:u32 ⇒ i32x4.shl
-	   | 0xFD 172:u32 ⇒ i32x4.shr_s
-	   | 0xFD 173:u32 ⇒ i32x4.shr_u
-	   | 0xFD 174:u32 ⇒ i32x4.add
-	   | 0xFD 177:u32 ⇒ i32x4.sub
-	   | 0xFD 181:u32 ⇒ i32x4.mul
-	   | 0xFD 182:u32 ⇒ i32x4.min_s
-	   | 0xFD 183:u32 ⇒ i32x4.min_u
-	   | 0xFD 184:u32 ⇒ i32x4.max_s
-	   | 0xFD 185:u32 ⇒ i32x4.max_u
-	   | 0xFD 186:u32 ⇒ i32x4.dot_i16x8_s
-	   | 0xFD 188:u32 ⇒ i32x4.extmul_low_i16x8_s
-	   | 0xFD 189:u32 ⇒ i32x4.extmul_high_i16x8_s
-	   | 0xFD 190:u32 ⇒ i32x4.extmul_low_i16x8_u
-	   | 0xFD 191:u32 ⇒ i32x4.extmul_high_i16x8_u
-	   | 0xFD 192:u32 ⇒ i64x2.abs
-	   | 0xFD 193:u32 ⇒ i64x2.neg
-	   | 0xFD 195:u32 ⇒ i64x2.all_true
-	   | 0xFD 196:u32 ⇒ i64x2.bitmask
-	   | 0xFD 199:u32 ⇒ i64x2.extend_low_i32x4_s
-	   | 0xFD 200:u32 ⇒ i64x2.extend_high_i32x4_s
-	   | 0xFD 201:u32 ⇒ i64x2.extend_low_i32x4_u
-	   | 0xFD 202:u32 ⇒ i64x2.extend_high_i32x4_u
-	   | 0xFD 203:u32 ⇒ i64x2.shl
-	   | 0xFD 204:u32 ⇒ i64x2.shr_s
-	   | 0xFD 205:u32 ⇒ i64x2.shr_u
-	   | 0xFD 206:u32 ⇒ i64x2.add
-	   | 0xFD 209:u32 ⇒ i64x2.sub
-	   | 0xFD 213:u32 ⇒ i64x2.mul
-	   | 0xFD 220:u32 ⇒ i64x2.extmul_low_i32x4_s
-	   | 0xFD 221:u32 ⇒ i64x2.extmul_high_i32x4_s
-	   | 0xFD 222:u32 ⇒ i64x2.extmul_low_i32x4_u
-	   | 0xFD 223:u32 ⇒ i64x2.extmul_high_i32x4_u
-	   | 0xFD 103:u32 ⇒ f32x4.ceil
-	   | 0xFD 104:u32 ⇒ f32x4.floor
-	   | 0xFD 105:u32 ⇒ f32x4.trunc
-	   | 0xFD 106:u32 ⇒ f32x4.nearest
-	   | 0xFD 224:u32 ⇒ f32x4.abs
-	   | 0xFD 225:u32 ⇒ f32x4.neg
-	   | 0xFD 227:u32 ⇒ f32x4.sqrt
-	   | 0xFD 228:u32 ⇒ f32x4.add
-	   | 0xFD 229:u32 ⇒ f32x4.sub
-	   | 0xFD 230:u32 ⇒ f32x4.mul
-	   | 0xFD 231:u32 ⇒ f32x4.div
-	   | 0xFD 232:u32 ⇒ f32x4.min
-	   | 0xFD 233:u32 ⇒ f32x4.max
-	   | 0xFD 234:u32 ⇒ f32x4.pmin
-	   | 0xFD 235:u32 ⇒ f32x4.pmax
-	   | 0xFD 116:u32 ⇒ f64x2.ceil
-	   | 0xFD 117:u32 ⇒ f64x2.floor
-	   | 0xFD 122:u32 ⇒ f64x2.trunc
-	   | 0xFD 148:u32 ⇒ f64x2.nearest
-	   | 0xFD 236:u32 ⇒ f64x2.abs
-	   | 0xFD 237:u32 ⇒ f64x2.neg
-	   | 0xFD 239:u32 ⇒ f64x2.sqrt
-	   | 0xFD 240:u32 ⇒ f64x2.add
-	   | 0xFD 241:u32 ⇒ f64x2.sub
-	   | 0xFD 242:u32 ⇒ f64x2.mul
-	   | 0xFD 243:u32 ⇒ f64x2.div
-	   | 0xFD 244:u32 ⇒ f64x2.min
-	   | 0xFD 245:u32 ⇒ f64x2.max
-	   | 0xFD 246:u32 ⇒ f64x2.pmin
-	   | 0xFD 247:u32 ⇒ f64x2.pmax
-	   | 0xFD 248:u32 ⇒ i32x4.trunc_sat_f32x4_s
-	   | 0xFD 249:u32 ⇒ i32x4.trunc_sat_f32x4_u
-	   | 0xFD 250:u32 ⇒ f32x4.convert_i32x4_s
-	   | 0xFD 251:u32 ⇒ f32x4.convert_i32x4_u
-	   | 0xFD 252:u32 ⇒ i32x4.trunc_sat_f64x2_s_zero
-	   | 0xFD 253:u32 ⇒ i32x4.trunc_sat_f64x2_u_zero
-	   | 0xFD 254:u32 ⇒ f64x2.convert_low_i32x4_s
-	   | 0xFD 255:u32 ⇒ f64x2.convert_low_i32x4_u
-	   | 0xFD 94:u32 ⇒ f32x4.demote_f64x2_zero
-	   | 0xFD 95:u32 ⇒ f64x2.promote_low_f32x4
+		   elemsec ::= seg* :section9(vec(elem)) ⇒ seg*
+		   elem ::=
+		   0:u32 𝑒:expr 𝑦 * :vec(funcidx) ⇒ {type funcref, init ((ref.func 𝑦) end) * , mode active {table 0, offset 𝑒}}
+		   | 1:u32 et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode passive}
+		   | 2:u32 𝑥:tableidx 𝑒:expr et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode active {table 𝑥, offset 𝑒}}
+		   | 3:u32 et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode declarative}
+		   | 4:u32 𝑒:expr el * :vec(expr) ⇒ {type funcref, init el * , mode active {table 0, offset 𝑒}}
+		   | 5:u32 et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode passive}
+		   | 6:u32 𝑥:tableidx 𝑒:expr et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode active {table 𝑥, offset 𝑒}}
+		   | 7:u32 et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode declarative}
+		   elemkind ::= 0x00 ⇒ funcref
 
-	   expr ::= (in:instr) * 0x0B ⇒ in* end
+		   codesec ::= code* :section10(vec(code)) ⇒ code*
+		   code ::= size:u32 code:func ⇒ code (if size = ||func||)
+		   func ::= (𝑡 * ) * :vec(locals) 𝑒:expr ⇒ concat((𝑡 * ) * ), 𝑒 (if |concat((𝑡 * ) * )| < 2 32)
+		   locals ::= 𝑛:u32 𝑡:valtype ⇒ 𝑡 𝑛
 
-	   e.
-	   typeidx ::= 𝑥:u32 ⇒ 𝑥
-	   funcidx ::= 𝑥:u32 ⇒ 𝑥
-	   tableidx ::= 𝑥:u32 ⇒ 𝑥
-	   memidx ::= 𝑥:u32 ⇒ 𝑥
-	   globalidx ::= 𝑥:u32 ⇒ 𝑥
-	   elemidx ::= 𝑥:u32 ⇒ 𝑥
-	   dataidx ::= 𝑥:u32 ⇒ 𝑥
-	   localidx ::= 𝑥:u32 ⇒ 𝑥
-	   labelidx ::= 𝑙:u32 ⇒ �
+		   datasec ::= seg* :section11(vec(data)) ⇒ seg*
+		   data ::=
+		   0:u32 𝑒:expr 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode active {memory 0, offset 𝑒}}
+		   | 1:u32 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode passive}
+		   | 2:u32 𝑥:memidx 𝑒:expr 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode active {memory 𝑥, offset 𝑒}}
 
-	   .
-	   section𝑁 (B) ::= 𝑁:byte size:u32 cont:B ⇒ cont (if size = ||B||)
-	   | 𝜖 ⇒ 𝜖
+		   datacountsec ::= n ? :section12(u32) ⇒ n ?
 
-	   Id Section
-	   0 custom section
-	   1 type section
-	   2 import section
-	   3 function section
-	   4 table section
-	   5 memory section
-	   6 global section
-	   7 export section
-	   8 start section
-	   9 element section
-	   10 code section
-	   11 data section
-	   12 data count section
-
-	   typesec ::= ft* : section1(vec(functype)) ⇒ ft*
-
-	   importsec ::= im* :section2(vec(import)) ⇒ im*
-	   import ::= mod:name nm:name 𝑑:importdesc ⇒ {module mod, name nm, desc 𝑑}
-	   importdesc ::= 0x00 𝑥:typeidx ⇒ func 𝑥
-	   | 0x01 tt:tabletype ⇒ table tt
-	   | 0x02 mt:memtype ⇒ mem mt
-	   | 0x03 gt:globaltype ⇒ global gt
-
-	   funcsec ::= 𝑥 * :section3(vec(typeidx)) ⇒ �
-
-	   tablesec ::= tab* :section4(vec(table)) ⇒ tab*
-	   table ::= tt:tabletype ⇒ {type tt}
-
-	   memsec ::= mem* :section5(vec(mem)) ⇒ mem*
-	   mem ::= mt:memtype ⇒ {type mt}
-
-	   globalsec ::= glob* :section6(vec(global)) ⇒ glob*
-	   global ::= gt:globaltype 𝑒:expr ⇒ {type gt, init 𝑒}
-
-	   exportsec ::= ex * :section7(vec(export)) ⇒ ex *
-	   export ::= nm:name 𝑑:exportdesc ⇒ {name nm, desc 𝑑}
-	   exportdesc ::= 0x00 𝑥:funcidx ⇒ func 𝑥
-	   | 0x01 𝑥:tableidx ⇒ table 𝑥
-	   | 0x02 𝑥:memidx ⇒ mem 𝑥
-	   | 0x03 𝑥:globalidx ⇒ global 𝑥
-
-	   startsec ::= st ? :section8(start) ⇒ st ?
-	   start ::= 𝑥:funcidx ⇒ {func 𝑥}
-
-	   elemsec ::= seg* :section9(vec(elem)) ⇒ seg*
-	   elem ::=
-	   0:u32 𝑒:expr 𝑦 * :vec(funcidx) ⇒ {type funcref, init ((ref.func 𝑦) end) * , mode active {table 0, offset 𝑒}}
-	   | 1:u32 et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode passive}
-	   | 2:u32 𝑥:tableidx 𝑒:expr et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode active {table 𝑥, offset 𝑒}}
-	   | 3:u32 et : elemkind 𝑦 * :vec(funcidx) ⇒ {type et, init ((ref.func 𝑦) end) * , mode declarative}
-	   | 4:u32 𝑒:expr el * :vec(expr) ⇒ {type funcref, init el * , mode active {table 0, offset 𝑒}}
-	   | 5:u32 et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode passive}
-	   | 6:u32 𝑥:tableidx 𝑒:expr et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode active {table 𝑥, offset 𝑒}}
-	   | 7:u32 et : reftype el * :vec(expr) ⇒ {type 𝑒𝑡, init el * , mode declarative}
-	   elemkind ::= 0x00 ⇒ funcref
-
-
-	   codesec ::= code* :section10(vec(code)) ⇒ code*
-	   code ::= size:u32 code:func ⇒ code (if size = ||func||)
-	   func ::= (𝑡 * ) * :vec(locals) 𝑒:expr ⇒ concat((𝑡 * ) * ), 𝑒 (if |concat((𝑡 * ) * )| < 2 32)
-	   locals ::= 𝑛:u32 𝑡:valtype ⇒ 𝑡 𝑛
-
-
-	   datasec ::= seg* :section11(vec(data)) ⇒ seg*
-	   data ::=
-	   0:u32 𝑒:expr 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode active {memory 0, offset 𝑒}}
-	   | 1:u32 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode passive}
-	   | 2:u32 𝑥:memidx 𝑒:expr 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode active {memory 𝑥, offset 𝑒}}
-
-	   datacountsec ::= n ? :section12(u32) ⇒ n ?
-
-	   magic ::= 0x00 0x61 0x73 0x6D
-	   version ::= 0x01 0x00 0x00 0x00
-	   module ::= magic
-	   version
-	   customsec*
-	   functype* : typesec
-	   customsec*
-	   import* : importsec
-	   customsec*
-	   typeidx 𝑛: funcsec
-	   customsec*
-	   table* : tablesec
-	   customsec*
-	   mem* : memsec
-	   customsec*
-	   global * : globalsec
-	   customsec*
-	   export* : exportsec
-	   customsec*
-	   start ? : startsec
-	   customsec*
-	   elem* : elemsec
-	   customsec*
-	   𝑚? : datacountsec
-	   customsec*
-	   code𝑛 : codesec
-	   customsec*
-	   data𝑚: datasec
-	   customsec* ⇒ { types functype* ,
-	   	funcs func𝑛,
-	   	tables table* ,
-	   	mems mem* ,
-	   	globals global * ,
-	   	elems elem* ,
-	   	datas data𝑚,
-	   	start start ? ,
-	   	imports import* ,
-	   	exports export* }
-	   (if 𝑚? ̸= 𝜖 ∨ dataidx(code𝑛 ) = ∅)
-	   func𝑛 [𝑖] = {type typeidx 𝑛 [𝑖], locals 𝑡 * 𝑖 , body 𝑒𝑖}
+		   magic ::= 0x00 0x61 0x73 0x6D
+		   version ::= 0x01 0x00 0x00 0x00
+		   module ::= magic
+		   version
+		   customsec*
+		   functype* : typesec
+		   customsec*
+		   import* : importsec
+		   customsec*
+		   typeidx 𝑛: funcsec
+		   customsec*
+		   table* : tablesec
+		   customsec*
+		   mem* : memsec
+		   customsec*
+		   global * : globalsec
+		   customsec*
+		   export* : exportsec
+		   customsec*
+		   start ? : startsec
+		   customsec*
+		   elem* : elemsec
+		   customsec*
+		   𝑚? : datacountsec
+		   customsec*
+		   code𝑛 : codesec
+		   customsec*
+		   data𝑚: datasec
+		   customsec* ⇒ { types functype* ,
+		   	funcs func𝑛,
+		   	tables table* ,
+		   	mems mem* ,
+		   	globals global * ,
+		   	elems elem* ,
+		   	datas data𝑚,
+		   	start start ? ,
+		   	imports import* ,
+		   	exports export* }
+		   (if 𝑚? ̸= 𝜖 ∨ dataidx(code𝑛 ) = ∅)
+		   func𝑛 [𝑖] = {type typeidx 𝑛 [𝑖], locals 𝑡 * 𝑖 , body 𝑒𝑖}
 
 	*/
 
