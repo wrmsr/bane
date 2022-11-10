@@ -7,9 +7,12 @@ import (
 
 func TestLeb128(t *testing.T) {
 	l0 := EncodeU64(624485)
-	l1 := EncodeI64(-123456)
+	l1 := EncodeI64(123456)
+	l2 := EncodeI64(-123456)
 	fmt.Println(l0)
 	fmt.Println(l1)
+	fmt.Println(l2)
 	fmt.Println(DecodeU64(ReadSlice(l0.Slice())))
 	fmt.Println(DecodeI64(ReadSlice(l1.Slice())))
+	fmt.Println(DecodeI64(ReadSlice(l2.Slice())))
 }

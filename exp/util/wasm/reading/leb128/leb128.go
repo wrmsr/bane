@@ -108,17 +108,16 @@ func DecodeU64(r func() byte) uint64 {
 func DecodeI64(r func() byte) int64 {
 	var v int64
 	s := 0
-	size := 64
 	var b byte
 	for {
 		b = r()
-		v |= int64(b&0x6F) << s
+		v |= int64(b&0x7F) << s
 		s += 7
 		if (b & 0x80) == 0 {
 			break
 		}
 	}
-	if (s < size) && (b&0x80) != 0 {
+	if (s < 64) && (b&0x40) != 0 {
 		v |= int64(-1) << s
 	}
 	return v
