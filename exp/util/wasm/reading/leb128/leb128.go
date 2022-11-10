@@ -14,8 +14,8 @@ const (
 )
 
 type Leb128 struct {
-	L uint8
 	B [Size64]byte
+	L uint8
 }
 
 func (l Leb128) String() string {
@@ -32,12 +32,7 @@ func (l Leb128) String() string {
 	return sb.String()
 }
 
-type Int128 struct {
-	Hi int64
-	Lo int64
-}
-
-func EncodeU32(v uint32) (l Leb128) {
+func EncodeU64(v uint64) (l Leb128) {
 	for {
 		c := byte(v & 0x7F)
 		v >>= 7
@@ -51,7 +46,7 @@ func EncodeU32(v uint32) (l Leb128) {
 	}
 }
 
-func EncodeI32(v int32) (l Leb128) {
+func EncodeI64(v int64) (l Leb128) {
 	if v < 0 {
 		for {
 			c := byte(v & 0x7F)
@@ -77,4 +72,46 @@ func EncodeI32(v int32) (l Leb128) {
 			l.L++
 		}
 	}
+}
+
+func ReadBytes(s []byte) func() byte {
+	i := 0
+	return func() byte {
+		b := s[i]
+		i++
+		return b
+	}
+}
+
+func DecodeU64(r func() byte) uint64 {
+	var v uint64
+	s := 0
+	for {
+		b := r()
+		v |= uint64(b&0x7F) << s
+		if (b & 0x80) == 0 {
+			break
+		}
+		s += 7
+	}
+	return v
+}
+
+func DecodeI64(r func() byte) int64 {
+	var v int64
+	s := 0
+	size := 64
+	var b byte
+	for {
+		b = r()
+		v |= int64(b&0x6F) << s
+		s += 7
+		if (b & 0x80) == 0 {
+			break
+		}
+	}
+	if (s < size) && (b&0x80) != 0 {
+		v |= int64(-1) << s
+	}
+	return v
 }

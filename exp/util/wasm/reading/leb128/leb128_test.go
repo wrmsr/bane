@@ -6,6 +6,8 @@ import (
 )
 
 func TestLeb128(t *testing.T) {
-	fmt.Println(EncodeU32(uint32(624485)))
-	fmt.Println(EncodeI32(int32(-123456)))
+	l0 := EncodeU64(624485)
+	l1 := EncodeI64(-123456)
+	fmt.Println(l0)
+	fmt.Println(l1)
 }
