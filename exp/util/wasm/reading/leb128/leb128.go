@@ -32,6 +32,14 @@ func (l Leb128) String() string {
 	return sb.String()
 }
 
+func (l Leb128) Slice() []byte {
+	s := make([]byte, l.L)
+	for i := uint8(0); i < l.L; i++ {
+		s[i] = l.B[i]
+	}
+	return s
+}
+
 func EncodeU64(v uint64) (l Leb128) {
 	for {
 		c := byte(v & 0x7F)
@@ -74,7 +82,7 @@ func EncodeI64(v int64) (l Leb128) {
 	}
 }
 
-func ReadBytes(s []byte) func() byte {
+func ReadSlice(s []byte) func() byte {
 	i := 0
 	return func() byte {
 		b := s[i]
