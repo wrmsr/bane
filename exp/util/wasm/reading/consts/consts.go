@@ -564,6 +564,6 @@ const (
 	   | 2:u32 𝑥:memidx 𝑒:expr 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode active {memory 𝑥, offset 𝑒}}
 	*/
 
-	Magic   = 0x00_61_73_6D
-	Version = 0x01_00_00_00
+	Magic   = 0x6D_73_61_00
+	Version = 0x00_00_00_01
 )
