@@ -121,4 +121,39 @@ func TestReading(t *testing.T) {
 			fmt.Println(rty)
 		}
 	}
+
+	secTy = rf()
+	fmt.Println(secTy)
+	check.Equal(secTy, consts.ImportSection)
+
+	secSz = leb128.DecodeU64(rf)
+	fmt.Println(secSz)
+
+	numImps := int(leb128.DecodeU64(rf))
+	fmt.Println(numImps)
+
+	readStr := func() string {
+		l := int(leb128.DecodeU64(rf))
+		b := make([]byte, l)
+		check.Must1(r.Read(b))
+		return string(b)
+	}
+
+	for i := 0; i < numImps; i++ {
+		modName := readStr()
+		fmt.Println(modName)
+		fldName := readStr()
+		fmt.Println(fldName)
+
+		k := check.Must1(r.ReadByte())
+		fmt.Println(k)
+
+		switch k {
+		case consts.FuncImport:
+			idx := leb128.DecodeU64(rf)
+			fmt.Println(idx)
+		default:
+			panic(k)
+		}
+	}
 }
