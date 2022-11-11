@@ -48,7 +48,7 @@ func (r *ByteReader) Read(b []byte) (n int, err error) {
 
 func (r *ByteReader) ReadAt(b []byte, off int64) (n int, err error) {
 	if off < 0 {
-		return 0, errors.New("bytes.Reader.ReadAt: negative offset")
+		return 0, errors.New("negative offset")
 	}
 	if off >= int64(len(r.s)) {
 		return 0, io.EOF
