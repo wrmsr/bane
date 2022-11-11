@@ -36,9 +36,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 	var sfs []gg.StructField
 	var dflVds []gg.Var
 
-	initStmts := gg.Stmts{
-		gg.ExprStmtOf(gg.CallOf("_def_init")),
-	}
+	initStmts := gg.Stmts{}
 
 	rcvr := ss.Receiver()
 	if rcvr == "" {
@@ -77,9 +75,10 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 						gg.CallOf(gg.SelectOf(fsName, "Default")),
 						fg.ti.importedType(fs.Type()))))
 
+			if len(initStmts) > 0 {
+				initStmts.Append(gg.Blank{})
+			}
 			initStmts.Append(
-				gg.Blank{},
-
 				gg.AssignOf(gg.SelectOf("f", fs.Name()), dflName))
 		}
 	}
@@ -92,7 +91,9 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 
 	if len(ss.Inits()) > 0 {
 		fg.initStmts.Append(gg.Blank{})
-		initStmts.Append(gg.Blank{})
+		if len(initStmts) > 0 {
+			initStmts.Append(gg.Blank{})
+		}
 
 		var initVds []gg.Var
 		for i, o := range ss.Inits() {

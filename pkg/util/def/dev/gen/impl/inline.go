@@ -301,7 +301,10 @@ func (il *inliner) inlineFuncs() gg.Decls {
 		var sb strings.Builder
 		_ = printer.Fprint(&sb, il.pkg.Fset, id)
 
-		decls.Append(gg.Raw{Raw: sb.String()})
+		decls.Append(
+			gg.Raw{Raw: sb.String()},
+			gg.Blank{},
+		)
 	}
 
 	return decls

@@ -156,4 +156,33 @@ func TestReading(t *testing.T) {
 			panic(k)
 		}
 	}
+
+	secTy = rf()
+	fmt.Println(secTy)
+	check.Equal(secTy, consts.FunctionSection)
+
+	secSz = leb128.DecodeU64(rf)
+	fmt.Println(secSz)
+
+	numFuncs := int(leb128.DecodeU64(rf))
+	fmt.Println(numFuncs)
+
+	for i := 0; i < numFuncs; i++ {
+		sigIdx := leb128.DecodeU64(rf)
+		fmt.Println(sigIdx)
+	}
+
+	secTy = rf()
+	fmt.Println(secTy)
+	check.Equal(secTy, consts.TableSection)
+
+	secSz = leb128.DecodeU64(rf)
+	fmt.Println(secSz)
+
+	numTables := int(leb128.DecodeU64(rf))
+	fmt.Println(numTables)
+
+	for i := 0; i < numTables; i++ {
+
+	}
 }

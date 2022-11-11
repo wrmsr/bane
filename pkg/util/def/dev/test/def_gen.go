@@ -52,6 +52,10 @@ func _def_init() {
 	})
 }
 
+func init() {
+	_def_init()
+}
+
 type Foo struct {
 	bar       int
 	baz       int
@@ -73,8 +77,6 @@ var (
 )
 
 func (f *Foo) init() {
-	_def_init()
-
 	f.baz = _def_field_default__Foo__baz
 
 	f.dflInt = _def_field_default__Foo__dflInt
@@ -109,6 +111,7 @@ func _def_inl_Bar(x, y int) int {
 
 	return __def_inl_4
 }
+
 func _def_inl_Baz(t InlineThing, y int) int {
 	var __def_inl_0 int
 	__def_inl_1 := t

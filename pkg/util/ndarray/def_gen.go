@@ -1,6 +1,7 @@
 package ndarray
 
 import (
+	"reflect"
 	"sync"
 
 	"github.com/wrmsr/bane/pkg/util/def"
@@ -13,6 +14,10 @@ func _def_init() {
 		spec := def.X_getPackageSpec()
 		_ = spec
 	})
+}
+
+func init() {
+	_def_init()
 }
 
 func _def_inl_foo(v View) Dim {

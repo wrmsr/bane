@@ -86,6 +86,13 @@ func (fg *FileGen) Gen() string {
 					gg.SelectOf("_def_init_once", "Do"),
 					doInit))},
 
+		gg.Func{
+			Name: gg.NewIdent("init"),
+			Body: gg.NewBlock(
+				gg.ExprStmtOf(gg.CallOf("_def_init")),
+			),
+		},
+
 		fg.decls)
 
 	imps := fg.ti.imports()
