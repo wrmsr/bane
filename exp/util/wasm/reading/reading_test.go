@@ -93,7 +93,32 @@ func TestReading(t *testing.T) {
 
 	secTy := rf()
 	fmt.Println(secTy)
+	check.Equal(secTy, consts.TypeSection)
 
 	secSz := leb128.DecodeU64(rf)
 	fmt.Println(secSz)
+
+	numSigs := int(leb128.DecodeU64(rf))
+	fmt.Println(numSigs)
+
+	for i := 0; i < numSigs; i++ {
+		ty := check.Must1(r.ReadByte())
+		check.Equal(ty, consts.FuncType)
+
+		numParam := int(leb128.DecodeU64(rf))
+		fmt.Println(numParam)
+
+		for j := 0; j < numParam; j++ {
+			pty := leb128.DecodeI64(rf)
+			fmt.Println(pty)
+		}
+
+		numResult := int(leb128.DecodeU64(rf))
+		fmt.Println(numResult)
+
+		for j := 0; j < numResult; j++ {
+			rty := leb128.DecodeI64(rf)
+			fmt.Println(rty)
+		}
+	}
 }
