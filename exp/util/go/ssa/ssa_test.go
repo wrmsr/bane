@@ -128,6 +128,7 @@ func (ft *FuncTransformer) DoValue(value ssa.Value) gg.Expr {
 
 func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 	switch instr := instr.(type) {
+
 	case *ssa.BinOp:
 		x := ft.DoValue(instr.X)
 		y := ft.DoValue(instr.Y)
@@ -177,18 +178,21 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 	case *ssa.Jump:
 	case *ssa.Defer:
 	case *ssa.MapUpdate:
+
 	}
 	panic(instr)
 }
 
-func (ft *FuncTransformer) DoBlock(block *ssa.BasicBlock) {
+func (ft *FuncTransformer) DoBlock(block *ssa.BasicBlock) []gg.Stmt {
+	var body []gg.Stmt
 	for _, instr := range block.Instrs {
 		s := ft.DoInstr(instr)
-		fmt.Println(gg.RenderString(s))
+		body = append(body, s)
 	}
+	return body
 }
 
-func (ft *FuncTransformer) Transform() {
+func (ft *FuncTransformer) Transform() gg.Func {
 	ft.vns = make(map[ssa.Value]int)
 	for _, b := range ft.fn.Blocks {
 		for _, i := range b.Instrs {
@@ -198,8 +202,17 @@ func (ft *FuncTransformer) Transform() {
 		}
 	}
 
+	var body []gg.Stmt
 	for _, b := range ft.fn.Blocks {
-		ft.DoBlock(b)
+		s := ft.DoBlock(b)
+		body = append(body, s...)
+	}
+
+	return gg.Func{
+		Name: gg.NewIdent(ft.fn.Name()),
+		Body: &gg.Block{
+			Body: body,
+		},
 	}
 }
 
@@ -224,7 +237,9 @@ func testSsa(t *testing.T, patterns []string) {
 
 	fn := ssainfo.SrcFuncs[0]
 	ft := FuncTransformer{fn: fn}
-	ft.Transform()
+
+	gfn := ft.Transform()
+	fmt.Println(gg.RenderString(gfn))
 
 	//results := runner.Run(buildssa.Analyzer, pkgs, runner.Options{})
 	//ssainfo := results[0].Result.(*buildssa.SSA)
