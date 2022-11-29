@@ -113,15 +113,25 @@ type FuncTransformer struct {
 	vns map[ssa.Value]int
 }
 
+func (ft *FuncTransformer) instrIdent(instr ssa.Instruction) gg.Ident {
+	n, ok := ft.vns[instr.(ssa.Value)]
+	check.Ok(ok)
+	return gg.IdentOf(fmt.Sprintf("_ssa_%d", n))
+}
+
 func (ft *FuncTransformer) DoValue(value ssa.Value) gg.Expr {
-	if _, ok := value.(ssa.Instruction); ok {
-		return gg.IdentOf(fmt.Sprintf("_ssa_%d", ft.vns[value]))
+	if instr, ok := value.(ssa.Instruction); ok {
+		return ft.instrIdent(instr)
 	}
+
 	switch value := value.(type) {
+
 	case *ssa.Parameter:
 		return gg.IdentOf(value.Name())
+
 	case *ssa.Const:
 		return gg.LitOf(value.Value.String())
+
 	}
 	panic(value)
 }
@@ -230,15 +240,6 @@ func (ft *FuncTransformer) rawType(typ types.Type) gg.Type {
 }
 
 func (ft *FuncTransformer) Transform() gg.Func {
-	ft.vns = make(map[ssa.Value]int)
-	for _, b := range ft.fn.Blocks {
-		for _, i := range b.Instrs {
-			if v, ok := i.(ssa.Value); ok {
-				ft.vns[v] = len(ft.vns)
-			}
-		}
-	}
-
 	gfn := gg.Func{
 		Name: gg.NewIdent(ft.fn.Name()),
 	}
@@ -257,6 +258,20 @@ func (ft *FuncTransformer) Transform() gg.Func {
 	}
 
 	var body []gg.Stmt
+
+	ft.vns = make(map[ssa.Value]int)
+	for _, b := range ft.fn.Blocks {
+		for _, i := range b.Instrs {
+			if v, ok := i.(ssa.Value); ok {
+				ft.vns[v] = len(ft.vns)
+				body = append(body, gg.Var{
+					Name: ft.instrIdent(i),
+					Type: ft.rawType(v.Type()),
+				})
+			}
+		}
+	}
+
 	for _, b := range ft.fn.Blocks {
 		s := ft.DoBlock(b)
 		body = append(body, s...)
