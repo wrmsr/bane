@@ -143,6 +143,9 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 			gg.InfixOf(gg.InfixOpFromToken(instr.Op), x, y),
 		)
 
+	case *ssa.Phi:
+		return nil
+
 	case *ssa.UnOp:
 		x := ft.DoValue(instr.X)
 		return gg.AssignOf(
@@ -171,7 +174,6 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 	case *ssa.Lookup:
 	case *ssa.TypeAssert:
 	case *ssa.MakeClosure:
-	case *ssa.Phi:
 	case *ssa.Select:
 
 	// void
@@ -216,9 +218,15 @@ func (ft *FuncTransformer) DoBlock(block *ssa.BasicBlock) []gg.Stmt {
 
 	for _, instr := range block.Instrs {
 		s := ft.DoInstr(instr)
-		body = append(body, s)
+		if s != nil {
+			body = append(body, s)
+		}
 	}
 	return body
+}
+
+func (ft *FuncTransformer) rawType(typ types.Type) gg.Type {
+	return gg.Raw{Raw: types.TypeString(typ, types.RelativeTo(ft.fn.Package().Pkg))}
 }
 
 func (ft *FuncTransformer) Transform() gg.Func {
@@ -231,18 +239,34 @@ func (ft *FuncTransformer) Transform() gg.Func {
 		}
 	}
 
+	gfn := gg.Func{
+		Name: gg.NewIdent(ft.fn.Name()),
+	}
+
+	for _, p := range ft.fn.Params {
+		gfn.Params = append(gfn.Params, gg.Param{
+			Name: gg.NewIdent(p.Name()),
+			Type: ft.rawType(p.Type()),
+		})
+	}
+
+	rtt := ft.fn.Signature.Results()
+	if rtt.Len() > 0 {
+		check.Equal(rtt.Len(), 1)
+		gfn.Type = ft.rawType(rtt.At(0).Type())
+	}
+
 	var body []gg.Stmt
 	for _, b := range ft.fn.Blocks {
 		s := ft.DoBlock(b)
 		body = append(body, s...)
 	}
 
-	return gg.Func{
-		Name: gg.NewIdent(ft.fn.Name()),
-		Body: &gg.Block{
-			Body: body,
-		},
+	gfn.Body = &gg.Block{
+		Body: body,
 	}
+
+	return gfn
 }
 
 func testSsa(t *testing.T, patterns []string) {
