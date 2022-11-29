@@ -200,7 +200,6 @@ func Render(w *iou.IndentWriter, n Node) {
 
 	case Unary:
 		w.WriteString(n.Op.String())
-		w.WriteString(" ")
 		Render(w, n.Arg)
 
 	// raw

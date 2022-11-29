@@ -316,6 +316,7 @@ const (
 	InvalidUnaryOp UnaryOp = iota
 
 	NotOp
+	NegOp
 )
 
 func (o UnaryOp) String() string {
@@ -323,6 +324,9 @@ func (o UnaryOp) String() string {
 
 	case NotOp:
 		return "!"
+
+	case NegOp:
+		return "-"
 
 	}
 	panic(fmt.Errorf("invalid unary op: %d", o))

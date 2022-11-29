@@ -134,15 +134,21 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 		y := ft.DoValue(instr.Y)
 		return gg.AssignOf(
 			ft.DoValue(instr),
-			gg.InfixOf(gg.AddOp, x, y),
+			gg.InfixOf(gg.InfixOpFromToken(instr.Op), x, y),
 		)
 
 	case *ssa.Return:
 		v := ft.DoValue(check.Single(instr.Results))
 		return gg.Return{Expr: v}
 
-	// register
 	case *ssa.UnOp:
+		x := ft.DoValue(instr.X)
+		return gg.AssignOf(
+			ft.DoValue(instr),
+			gg.UnaryOf(gg.UnaryOpFromToken(instr.Op), x),
+		)
+
+	// register
 	case *ssa.Call:
 	case *ssa.ChangeInterface:
 	case *ssa.ChangeType:
