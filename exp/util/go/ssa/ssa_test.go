@@ -107,10 +107,27 @@ func run(
 
 //
 
+type ftBlockDstPhi struct {
+	phi *ssa.Phi
+	v   ssa.Value
+}
+
+type ftBlockDst struct {
+	b    *ssa.BasicBlock
+	phis []ftBlockDstPhi
+}
+
+type ftBlock struct {
+	b    *ssa.BasicBlock
+	dsts map[*ssa.BasicBlock]*ftBlockDst
+}
+
 type FuncTransformer struct {
 	fn *ssa.Function
 
 	vns map[ssa.Value]int
+
+	bs map[*ssa.BasicBlock]*ftBlock
 }
 
 func (ft *FuncTransformer) instrIdent(instr ssa.Instruction) gg.Ident {
@@ -140,7 +157,11 @@ func (ft *FuncTransformer) blockIdent(block *ssa.BasicBlock) gg.Ident {
 	return gg.Ident{Name: fmt.Sprintf("_ssa_block_%d", block.Index)}
 }
 
-func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
+func (ft *FuncTransformer) doPhiSrc(src, dst *ssa.BasicBlock) []gg.Stmt {
+
+}
+
+func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) []gg.Stmt {
 	switch instr := instr.(type) {
 
 	// register
@@ -148,20 +169,20 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 	case *ssa.BinOp:
 		x := ft.DoValue(instr.X)
 		y := ft.DoValue(instr.Y)
-		return gg.AssignOf(
+		return []gg.Stmt{gg.AssignOf(
 			ft.DoValue(instr),
 			gg.InfixOf(gg.InfixOpFromToken(instr.Op), x, y),
-		)
+		)}
 
 	case *ssa.Phi:
 		return nil
 
 	case *ssa.UnOp:
 		x := ft.DoValue(instr.X)
-		return gg.AssignOf(
+		return []gg.Stmt{gg.AssignOf(
 			ft.DoValue(instr),
 			gg.UnaryOf(gg.UnaryOpFromToken(instr.Op), x),
-		)
+		)}
 
 	case *ssa.Call:
 	case *ssa.ChangeInterface:
@@ -191,20 +212,20 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 	case *ssa.If:
 		bl := instr.Block()
 		x := ft.DoValue(instr.Cond)
-		return gg.IfElseOf(
+		return []gg.Stmt{gg.IfElseOf(
 			x,
 			gg.Block{Body: []gg.Stmt{gg.Goto{Name: ft.blockIdent(bl.Succs[0])}}},
 			gg.Block{Body: []gg.Stmt{gg.Goto{Name: ft.blockIdent(bl.Succs[1])}}},
-		)
+		)}
 
 	case *ssa.Jump:
-		return gg.Goto{
+		return []gg.Stmt{gg.Goto{
 			Name: ft.blockIdent(instr.Block().Succs[0]),
-		}
+		}}
 
 	case *ssa.Return:
 		v := ft.DoValue(check.Single(instr.Results))
-		return gg.Return{Expr: v}
+		return []gg.Stmt{gg.Return{Expr: v}}
 
 	case *ssa.DebugRef:
 	case *ssa.RunDefers:
@@ -228,9 +249,7 @@ func (ft *FuncTransformer) DoBlock(block *ssa.BasicBlock) []gg.Stmt {
 
 	for _, instr := range block.Instrs {
 		s := ft.DoInstr(instr)
-		if s != nil {
-			body = append(body, s)
-		}
+		body = append(body, s...)
 	}
 	return body
 }
@@ -240,6 +259,35 @@ func (ft *FuncTransformer) rawType(typ types.Type) gg.Type {
 }
 
 func (ft *FuncTransformer) Transform() gg.Func {
+	ft.bs = make(map[*ssa.BasicBlock]*ftBlock)
+	for _, b := range ft.fn.Blocks {
+		ft.bs[b] = &ftBlock{
+			b:    b,
+			dsts: make(map[*ssa.BasicBlock]*ftBlockDst),
+		}
+	}
+
+	for _, b := range ft.fn.Blocks {
+		for _, i := range b.Instrs {
+			if phi, ok := i.(*ssa.Phi); ok {
+				for predi, predv := range phi.Edges {
+					ftpred := ft.bs[b.Preds[predi]]
+
+					ftd := ftpred.dsts[b]
+					if ftd == nil {
+						ftd = &ftBlockDst{b: b}
+						ftpred.dsts[b] = ftd
+					}
+
+					ftd.phis = append(ftd.phis, ftBlockDstPhi{
+						phi: phi,
+						v:   predv,
+					})
+				}
+			}
+		}
+	}
+
 	gfn := gg.Func{
 		Name: gg.NewIdent(ft.fn.Name()),
 	}
