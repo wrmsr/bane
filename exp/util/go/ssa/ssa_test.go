@@ -126,8 +126,14 @@ func (ft *FuncTransformer) DoValue(value ssa.Value) gg.Expr {
 	panic(value)
 }
 
+func (ft *FuncTransformer) blockIdent(block *ssa.BasicBlock) gg.Ident {
+	return gg.Ident{Name: fmt.Sprintf("_ssa_block_%d", block.Index)}
+}
+
 func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 	switch instr := instr.(type) {
+
+	// register
 
 	case *ssa.BinOp:
 		x := ft.DoValue(instr.X)
@@ -137,10 +143,6 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 			gg.InfixOf(gg.InfixOpFromToken(instr.Op), x, y),
 		)
 
-	case *ssa.Return:
-		v := ft.DoValue(check.Single(instr.Results))
-		return gg.Return{Expr: v}
-
 	case *ssa.UnOp:
 		x := ft.DoValue(instr.X)
 		return gg.AssignOf(
@@ -148,7 +150,6 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 			gg.UnaryOf(gg.UnaryOpFromToken(instr.Op), x),
 		)
 
-	// register
 	case *ssa.Call:
 	case *ssa.ChangeInterface:
 	case *ssa.ChangeType:
@@ -174,14 +175,31 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 	case *ssa.Select:
 
 	// void
+
+	case *ssa.If:
+		bl := instr.Block()
+		x := ft.DoValue(instr.Cond)
+		return gg.IfElseOf(
+			x,
+			gg.Block{Body: []gg.Stmt{gg.Goto{Name: ft.blockIdent(bl.Succs[0])}}},
+			gg.Block{Body: []gg.Stmt{gg.Goto{Name: ft.blockIdent(bl.Succs[1])}}},
+		)
+
+	case *ssa.Jump:
+		return gg.Goto{
+			Name: ft.blockIdent(instr.Block().Succs[0]),
+		}
+
+	case *ssa.Return:
+		v := ft.DoValue(check.Single(instr.Results))
+		return gg.Return{Expr: v}
+
 	case *ssa.DebugRef:
 	case *ssa.RunDefers:
 	case *ssa.Panic:
 	case *ssa.Send:
 	case *ssa.Store:
-	case *ssa.If:
 	case *ssa.Go:
-	case *ssa.Jump:
 	case *ssa.Defer:
 	case *ssa.MapUpdate:
 
@@ -191,6 +209,11 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) gg.Stmt {
 
 func (ft *FuncTransformer) DoBlock(block *ssa.BasicBlock) []gg.Stmt {
 	var body []gg.Stmt
+
+	if len(block.Preds) > 0 {
+		body = append(body, gg.Label{Name: ft.blockIdent(block)})
+	}
+
 	for _, instr := range block.Instrs {
 		s := ft.DoInstr(instr)
 		body = append(body, s)

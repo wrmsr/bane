@@ -124,6 +124,14 @@ func ExprStmtOf(expr any) ExprStmt {
 
 //
 
+type Goto struct {
+	Name Ident
+
+	stmt
+}
+
+//
+
 type If struct {
 	Cond Expr
 	Then Block
@@ -146,9 +154,18 @@ func IfOf(cond Expr, then Block) If {
 
 //
 
-type Return struct {
+type Label struct {
+	Name Ident
+
 	stmt
+}
+
+//
+
+type Return struct {
 	Expr Expr
+
+	stmt
 }
 
 //

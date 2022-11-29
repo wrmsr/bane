@@ -244,6 +244,11 @@ func Render(w *iou.IndentWriter, n Node) {
 		Render(w, n.Expr)
 		w.WriteString("\n")
 
+	case Goto:
+		w.WriteString("goto ")
+		Render(w, n.Name)
+		w.WriteString("\n")
+
 	case If:
 		w.WriteString("if ")
 		Render(w, n.Cond)
@@ -254,6 +259,10 @@ func Render(w *iou.IndentWriter, n Node) {
 			Render(w, n.Else)
 		}
 		w.WriteString("\n")
+
+	case Label:
+		Render(w, n.Name)
+		w.WriteString(":\n")
 
 	case Return:
 		w.WriteString("return")
