@@ -158,7 +158,20 @@ func (ft *FuncTransformer) blockIdent(block *ssa.BasicBlock) gg.Ident {
 }
 
 func (ft *FuncTransformer) doPhiSrc(src, dst *ssa.BasicBlock) []gg.Stmt {
+	ftsrc := ft.bs[src]
+	ftdst := ftsrc.dsts[dst]
+	if ftdst == nil || len(ftdst.phis) < 1 {
+		return nil
+	}
 
+	ret := make([]gg.Stmt, len(ftdst.phis))
+	for i, p := range ftdst.phis {
+		ret[i] = gg.AssignOf(
+			ft.DoValue(p.phi),
+			ft.DoValue(p.v),
+		)
+	}
+	return ret
 }
 
 func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) []gg.Stmt {
