@@ -54,12 +54,12 @@ type MutSliceList[T any] struct {
 	l SliceList[T]
 }
 
-func NewSliceMutList[T any](it bt.Iterable[T]) *MutSliceList[T] {
+func NewMutSliceList[T any](it bt.Iterable[T]) *MutSliceList[T] {
 	return &MutSliceList[T]{l: NewSliceList(it)}
 }
 
 func NewMutSliceListOf[T any](vs ...T) *MutSliceList[T] {
-	return NewSliceMutList(its.Of(vs...))
+	return NewMutSliceList(its.Of(vs...))
 }
 
 func WrapSlice[T any](s []T) MutList[T] {

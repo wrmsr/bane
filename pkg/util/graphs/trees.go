@@ -53,7 +53,7 @@ func NewTree[T any](root T, walk func(T) bt.Iterable[T], he bt.HashEqImpl[T]) (*
 		he:   he,
 	}
 
-	nodes := ctr.NewSliceMutList[T](nil)
+	nodes := ctr.NewMutSliceList[T](nil)
 	nodeSet := ctr.NewMutHashEqSet[T](he, nil)
 
 	parentsByNode := ctr.NewMutHashEqMap[bt.Optional[T], bt.Optional[T]](bt.OptionalHashEq(he), nil)

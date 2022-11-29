@@ -51,7 +51,7 @@ func buildStructFields(root []*FieldInfo) StructFields {
 	byPath := ctr.NewMutSliceMap[string, *FieldInfo](nil)
 	for _, fi := range all {
 		ctr.GetOrMake[string, ctr.MutList[*FieldInfo]](byName, fi.name.s, func() ctr.MutList[*FieldInfo] {
-			return ctr.NewSliceMutList[*FieldInfo](nil)
+			return ctr.NewMutSliceList[*FieldInfo](nil)
 		}).Append(fi)
 		if byPath.Contains(fi.path) {
 			panic(fmt.Errorf("duplicate field path: %s", fi.path))
