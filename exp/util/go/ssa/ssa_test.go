@@ -157,20 +157,23 @@ func (ft *FuncTransformer) blockIdent(block *ssa.BasicBlock) gg.Ident {
 	return gg.Ident{Name: fmt.Sprintf("_ssa_block_%d", block.Index)}
 }
 
-func (ft *FuncTransformer) doPhiSrc(src, dst *ssa.BasicBlock) []gg.Stmt {
+func (ft *FuncTransformer) doPhiSrc(src, dst *ssa.BasicBlock, rest ...gg.Stmt) []gg.Stmt {
 	ftsrc := ft.bs[src]
 	ftdst := ftsrc.dsts[dst]
 	if ftdst == nil || len(ftdst.phis) < 1 {
-		return nil
+		return rest
 	}
 
-	ret := make([]gg.Stmt, len(ftdst.phis))
+	ret := make([]gg.Stmt, len(ftdst.phis)+len(rest))
+
 	for i, p := range ftdst.phis {
 		ret[i] = gg.AssignOf(
 			ft.DoValue(p.phi),
 			ft.DoValue(p.v),
 		)
 	}
+
+	copy(ret[len(ftdst.phis):], rest)
 	return ret
 }
 
@@ -227,14 +230,27 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) []gg.Stmt {
 		x := ft.DoValue(instr.Cond)
 		return []gg.Stmt{gg.IfElseOf(
 			x,
-			gg.Block{Body: []gg.Stmt{gg.Goto{Name: ft.blockIdent(bl.Succs[0])}}},
-			gg.Block{Body: []gg.Stmt{gg.Goto{Name: ft.blockIdent(bl.Succs[1])}}},
+			gg.Block{Body: ft.doPhiSrc(
+				bl,
+				bl.Succs[0],
+				gg.Goto{Name: ft.blockIdent(bl.Succs[0])},
+			)},
+			gg.Block{Body: ft.doPhiSrc(
+				bl,
+				bl.Succs[1],
+				gg.Goto{Name: ft.blockIdent(bl.Succs[1])},
+			)},
 		)}
 
 	case *ssa.Jump:
-		return []gg.Stmt{gg.Goto{
-			Name: ft.blockIdent(instr.Block().Succs[0]),
-		}}
+		dst := instr.Block().Succs[0]
+		return ft.doPhiSrc(
+			instr.Block(),
+			dst,
+			gg.Goto{
+				Name: ft.blockIdent(dst),
+			},
+		)
 
 	case *ssa.Return:
 		v := ft.DoValue(check.Single(instr.Results))
