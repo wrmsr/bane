@@ -26,6 +26,8 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"math"
+	"strings"
 	"testing"
 
 	"golang.org/x/tools/go/packages"
@@ -190,6 +192,26 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) []gg.Stmt {
 			gg.InfixOf(gg.InfixOpFromToken(instr.Op), x, y),
 		)}
 
+	case *ssa.Call:
+		cc := instr.Common()
+		var gfn gg.Expr
+		if !cc.IsInvoke() {
+			gfn = gg.Raw{Raw: ft.rawRelValue(cc.Value)}
+		} else {
+			panic("nyi")
+		}
+		args := make([]gg.Expr, len(cc.Args))
+		for i, a := range cc.Args {
+			args[i] = ft.DoValue(a)
+		}
+		return []gg.Stmt{gg.AssignOf(
+			ft.DoValue(instr),
+			gg.Call{
+				Func: gfn,
+				Args: args,
+			},
+		)}
+
 	case *ssa.Phi:
 		return nil
 
@@ -200,7 +222,6 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) []gg.Stmt {
 			gg.UnaryOf(gg.UnaryOpFromToken(instr.Op), x),
 		)}
 
-	case *ssa.Call:
 	case *ssa.ChangeInterface:
 	case *ssa.ChangeType:
 	case *ssa.Convert:
@@ -284,7 +305,29 @@ func (ft *FuncTransformer) DoBlock(block *ssa.BasicBlock) []gg.Stmt {
 }
 
 func (ft *FuncTransformer) rawType(typ types.Type) gg.Type {
-	return gg.Raw{Raw: types.TypeString(typ, types.RelativeTo(ft.fn.Package().Pkg))}
+	s := types.TypeString(typ, types.RelativeTo(ft.fn.Package().Pkg))
+	s = strings.ReplaceAll(s, "interface{}", "any")
+	return gg.Raw{Raw: s}
+}
+
+func (ft *FuncTransformer) rawMember(m ssa.Member) string {
+	if pkg := m.Package().Pkg; pkg != nil && pkg != ft.fn.Pkg.Pkg {
+		return fmt.Sprintf("%s.%s", pkg.Path(), m.Name())
+	}
+	return m.Name()
+}
+
+func (ft *FuncTransformer) rawRelValue(v ssa.Value) string {
+	from := ft.fn.Pkg.Pkg
+
+	switch v := v.(type) {
+	case ssa.Member: // *Function or *Global
+		return v.RelString(from)
+	case *ssa.Const:
+		return v.RelString(from)
+	}
+
+	return v.Name()
 }
 
 func (ft *FuncTransformer) Transform() gg.Func {
@@ -341,10 +384,20 @@ func (ft *FuncTransformer) Transform() gg.Func {
 		for _, i := range b.Instrs {
 			if v, ok := i.(ssa.Value); ok {
 				ft.vns[v] = len(ft.vns)
-				body = append(body, gg.Var{
-					Name: ft.instrIdent(i),
-					Type: ft.rawType(v.Type()),
-				})
+				id := ft.instrIdent(i)
+				body = append(
+					body,
+					gg.Var{
+						Name: id,
+						Type: ft.rawType(v.Type()),
+					},
+					gg.Assign{
+						Var: gg.Ident{
+							Name: "_",
+						},
+						Value: id,
+					},
+				)
 			}
 		}
 	}
@@ -380,11 +433,14 @@ func testSsa(t *testing.T, patterns []string) {
 	_ = ssainfo
 	fmt.Println(ssainfo)
 
-	fn := ssainfo.SrcFuncs[0]
-	ft := FuncTransformer{fn: fn}
+	for i := 0; i < 2; i++ {
+		fn := ssainfo.SrcFuncs[i]
+		ft := FuncTransformer{fn: fn}
 
-	gfn := ft.Transform()
-	fmt.Println(gg.RenderString(gfn))
+		gfn := ft.Transform()
+		fmt.Println(gg.RenderString(gfn))
+		fmt.Println()
+	}
 
 	//results := runner.Run(buildssa.Analyzer, pkgs, runner.Options{})
 	//ssainfo := results[0].Result.(*buildssa.SSA)
@@ -408,4 +464,83 @@ func TestSsa(t *testing.T) {
 
 func TestSsa2(t *testing.T) {
 	testSsa(t, []string{"github.com/wrmsr/bane/pkg/util/ndarray"})
+}
+
+//
+
+func init() {
+	math.Jn(0, 0)
+}
+
+//
+
+func A(x int, y int) int {
+	var _ssa_0 bool
+	_ = _ssa_0
+	var _ssa_1 int
+	_ = _ssa_1
+	var _ssa_2 int
+	_ = _ssa_2
+	var _ssa_3 int
+	_ = _ssa_3
+	var _ssa_4 int
+	_ = _ssa_4
+	var _ssa_5 int
+	_ = _ssa_5
+	_ssa_0 = x > 0
+	if _ssa_0 {
+		goto _ssa_block_1
+	} else {
+		_ssa_2 = x
+		goto _ssa_block_2
+	}
+_ssa_block_1:
+	_ssa_1 = x + 1
+	_ssa_2 = _ssa_1
+	goto _ssa_block_2
+_ssa_block_2:
+	_ssa_3 = -_ssa_2
+	_ssa_4 = _ssa_3 + y
+	_ssa_5 = _ssa_4 + 1
+	return _ssa_5
+}
+
+func B(x int, y int) int {
+	var _ssa_0 float64
+	_ = _ssa_0
+	var _ssa_1 int
+	_ = _ssa_1
+	var _ssa_2 int
+	_ = _ssa_2
+	var _ssa_3 int
+	_ = _ssa_3
+	var _ssa_4 int
+	_ = _ssa_4
+	var _ssa_5 int
+	_ = _ssa_5
+	var _ssa_6 int
+	_ = _ssa_6
+	var _ssa_7 bool
+	_ = _ssa_7
+	_ssa_0 = math.Jn(x, 0)
+	_ssa_5 = x
+	_ssa_6 = 0
+	goto _ssa_block_3
+_ssa_block_1:
+	_ssa_1 = A(_ssa_5, y)
+	_ssa_2 = _ssa_1 * 2
+	_ssa_3 = _ssa_5 + _ssa_2
+	_ssa_4 = _ssa_6 + 1
+	_ssa_5 = _ssa_3
+	_ssa_6 = _ssa_4
+	goto _ssa_block_3
+_ssa_block_2:
+	return _ssa_5
+_ssa_block_3:
+	_ssa_7 = _ssa_6 < y
+	if _ssa_7 {
+		goto _ssa_block_1
+	} else {
+		goto _ssa_block_2
+	}
 }

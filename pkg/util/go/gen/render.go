@@ -255,7 +255,7 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString(" ")
 		Render(w, n.Then)
 		if !n.Else.Empty() {
-			w.WriteString("else ")
+			w.WriteString(" else ")
 			Render(w, n.Else)
 		}
 		w.WriteString("\n")
