@@ -301,6 +301,7 @@ func (ft *FuncTransformer) DoBlock(block *ssa.BasicBlock) []gg.Stmt {
 		s := ft.DoInstr(instr)
 		body = append(body, s...)
 	}
+
 	return body
 }
 
@@ -319,14 +320,15 @@ func (ft *FuncTransformer) rawMember(m ssa.Member) string {
 
 func (ft *FuncTransformer) rawRelValue(v ssa.Value) string {
 	from := ft.fn.Pkg.Pkg
-
 	switch v := v.(type) {
+
 	case ssa.Member: // *Function or *Global
 		return v.RelString(from)
+
 	case *ssa.Const:
 		return v.RelString(from)
-	}
 
+	}
 	return v.Name()
 }
 
