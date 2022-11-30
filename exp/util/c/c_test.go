@@ -15,19 +15,23 @@ func TestC(t *testing.T) {
 	ex := func(p *parser.CParser) antlr.ParseTree { return p.PrimaryExpression() }
 	ts := func(p *parser.CParser) antlr.ParseTree { return p.TypeSpecifier() }
 
+	_ = cu
+	_ = ex
+	_ = ts
+
 	for _, src := range []struct {
 		s   string
 		pfn func(p *parser.CParser) antlr.ParseTree
 	}{
-		{`1`, ex},
-		{`int`, ts},
-		{`int foo(int x) {
-			return x;
-		}`, cu},
-		{`int main(int argc, const char * const *argv) {
-			printf("hi\n");
-			return 0;
-		}`, cu},
+		//{`1`, ex},
+		//{`int`, ts},
+		//{`int foo(int x) {
+		//	return x;
+		//}`, cu},
+		//{`int main(int argc, const char * const *argv) {
+		//	printf("hi\n");
+		//	return 0;
+		//}`, cu},
 		{`int main(int argc, const char * const *argv) {
 			int c = argc + 2;
 			printf("hi %d\n", c);
