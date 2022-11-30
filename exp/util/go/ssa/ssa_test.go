@@ -189,7 +189,7 @@ func (ft *FuncTransformer) DoInstr(instr ssa.Instruction) []gg.Stmt {
 		y := ft.DoValue(instr.Y)
 		return []gg.Stmt{gg.AssignOf(
 			ft.DoValue(instr),
-			gg.InfixOf(gg.InfixOpFromToken(instr.Op), x, y),
+			gg.BinaryOf(gg.BinaryOpFromToken(instr.Op), x, y),
 		)}
 
 	case *ssa.Call:

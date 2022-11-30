@@ -140,6 +140,16 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString("&")
 		Render(w, n.Value)
 
+	case Binary:
+		for i, a := range n.Args {
+			if i > 0 {
+				w.WriteString(" ")
+				w.WriteString(n.Op.String())
+				w.WriteString(" ")
+			}
+			Render(w, a)
+		}
+
 	case Call:
 		Render(w, n.Func)
 		w.WriteString("(")
@@ -166,16 +176,6 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString("[")
 		Render(w, n.Index)
 		w.WriteString("]")
-
-	case Infix:
-		for i, a := range n.Args {
-			if i > 0 {
-				w.WriteString(" ")
-				w.WriteString(n.Op.String())
-				w.WriteString(" ")
-			}
-			Render(w, a)
-		}
 
 	case Lit:
 		w.WriteString(n.String)

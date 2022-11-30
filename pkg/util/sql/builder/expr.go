@@ -21,36 +21,10 @@ func (e expr) isExpr() {}
 
 //
 
-type Lit struct {
-	expr
-	String string
-}
-
-func NewLiteral(s string) Lit {
-	return Lit{
-		String: check.NotZero(s),
-	}
-}
-
-//
-
-type Ident struct {
-	expr
-	Name string
-}
-
-func NewIdent(name string) Ident {
-	return Ident{
-		Name: check.NotZero(name),
-	}
-}
-
-//
-
-type InfixOp int8
+type BinaryOp int8
 
 const (
-	InvalidInfixOp InfixOp = iota
+	InvalidBinaryOp BinaryOp = iota
 
 	AddOp
 	SubOp
@@ -68,7 +42,7 @@ const (
 	OrOp
 )
 
-func (o InfixOp) String() string {
+func (o BinaryOp) String() string {
 	switch o {
 
 	case AddOp:
@@ -99,10 +73,10 @@ func (o InfixOp) String() string {
 		return "OR"
 
 	}
-	panic(fmt.Errorf("invalid infix op: %d", o))
+	panic(fmt.Errorf("invalid binary op: %d", o))
 }
 
-func (o InfixOp) IsBoolean() bool {
+func (o BinaryOp) IsBoolean() bool {
 	switch o {
 	case
 		AndOp,
@@ -112,43 +86,69 @@ func (o InfixOp) IsBoolean() bool {
 	return false
 }
 
-type InfixExpr struct {
+type BinaryExpr struct {
 	expr
-	Op   InfixOp
+	Op   BinaryOp
 	Args []Expr
 }
 
-func NewInfixExpr(op InfixOp, args ...Expr) InfixExpr {
-	return InfixExpr{
+func NewBinaryExpr(op BinaryOp, args ...Expr) BinaryExpr {
+	return BinaryExpr{
 		Op:   op,
 		Args: check.NotEmptySlice(args),
 	}
 }
 
-func NewInfixExprOrSelf(op InfixOp, args ...Expr) Expr {
+func NewBinaryExprOrSelf(op BinaryOp, args ...Expr) Expr {
 	if len(args) == 1 {
 		return args[0]
 	}
-	return NewInfixExpr(
+	return NewBinaryExpr(
 		op,
 		args...,
 	)
 }
 
-func Add(args ...Expr) Expr { return NewInfixExprOrSelf(AddOp, args...) }
-func Sub(args ...Expr) Expr { return NewInfixExprOrSelf(SubOp, args...) }
-func Mul(args ...Expr) Expr { return NewInfixExprOrSelf(MulOp, args...) }
-func Div(args ...Expr) Expr { return NewInfixExprOrSelf(DivOp, args...) }
+func Add(args ...Expr) Expr { return NewBinaryExprOrSelf(AddOp, args...) }
+func Sub(args ...Expr) Expr { return NewBinaryExprOrSelf(SubOp, args...) }
+func Mul(args ...Expr) Expr { return NewBinaryExprOrSelf(MulOp, args...) }
+func Div(args ...Expr) Expr { return NewBinaryExprOrSelf(DivOp, args...) }
 
-func Lt(args ...Expr) Expr  { return NewInfixExprOrSelf(LtOp, args...) }
-func Lte(args ...Expr) Expr { return NewInfixExprOrSelf(LteOp, args...) }
-func Eq(args ...Expr) Expr  { return NewInfixExprOrSelf(EqOp, args...) }
-func Ne(args ...Expr) Expr  { return NewInfixExprOrSelf(NeOp, args...) }
-func Gt(args ...Expr) Expr  { return NewInfixExprOrSelf(GtOp, args...) }
-func Gte(args ...Expr) Expr { return NewInfixExprOrSelf(GteOp, args...) }
+func Lt(args ...Expr) Expr  { return NewBinaryExprOrSelf(LtOp, args...) }
+func Lte(args ...Expr) Expr { return NewBinaryExprOrSelf(LteOp, args...) }
+func Eq(args ...Expr) Expr  { return NewBinaryExprOrSelf(EqOp, args...) }
+func Ne(args ...Expr) Expr  { return NewBinaryExprOrSelf(NeOp, args...) }
+func Gt(args ...Expr) Expr  { return NewBinaryExprOrSelf(GtOp, args...) }
+func Gte(args ...Expr) Expr { return NewBinaryExprOrSelf(GteOp, args...) }
 
-func And(args ...Expr) Expr { return NewInfixExprOrSelf(AndOp, args...) }
-func Or(args ...Expr) Expr  { return NewInfixExprOrSelf(OrOp, args...) }
+func And(args ...Expr) Expr { return NewBinaryExprOrSelf(AndOp, args...) }
+func Or(args ...Expr) Expr  { return NewBinaryExprOrSelf(OrOp, args...) }
+
+//
+
+type Lit struct {
+	expr
+	String string
+}
+
+func NewLiteral(s string) Lit {
+	return Lit{
+		String: check.NotZero(s),
+	}
+}
+
+//
+
+type Ident struct {
+	expr
+	Name string
+}
+
+func NewIdent(name string) Ident {
+	return Ident{
+		Name: check.NotZero(name),
+	}
+}
 
 //
 

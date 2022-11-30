@@ -65,6 +65,132 @@ type Addr struct {
 
 //
 
+type BinaryOp int8
+
+const (
+	InvalidBinaryOp BinaryOp = iota
+
+	AddOp
+	SubOp
+	MulOp
+	DivOp
+	ModOp
+
+	LtOp
+	LteOp
+	EqOp
+	NeOp
+	GtOp
+	GteOp
+
+	BitAndOp
+	BitOrOp
+	BitXorOp
+
+	AndOp
+	OrOp
+)
+
+func (o BinaryOp) String() string {
+	switch o {
+
+	case AddOp:
+		return "+"
+	case SubOp:
+		return "-"
+	case MulOp:
+		return "*"
+	case DivOp:
+		return "/"
+	case ModOp:
+		return "%"
+
+	case LtOp:
+		return "<"
+	case LteOp:
+		return "<="
+	case EqOp:
+		return "="
+	case NeOp:
+		return "!="
+	case GtOp:
+		return ">"
+	case GteOp:
+		return ">="
+
+	case BitAndOp:
+		return "&"
+	case BitOrOp:
+		return "|"
+	case BitXorOp:
+		return "^"
+
+	case AndOp:
+		return "&&"
+	case OrOp:
+		return "||"
+
+	}
+	panic(fmt.Errorf("invalid binary op: %d", o))
+}
+
+func (o BinaryOp) IsBit() bool {
+	switch o {
+	case
+		BitAndOp,
+		BitOrOp,
+		BitXorOp:
+		return true
+	}
+	return false
+}
+
+func (o BinaryOp) IsBoolean() bool {
+	switch o {
+	case
+		AndOp,
+		OrOp:
+		return true
+	}
+	return false
+}
+
+type Binary struct {
+	Op   BinaryOp
+	Args []Expr
+
+	expr
+}
+
+func BinaryOf(op BinaryOp, args ...Expr) Binary {
+	return Binary{
+		Op:   op,
+		Args: check.NotEmptySlice(args),
+	}
+}
+
+func Add(args ...Expr) Expr { return BinaryOf(AddOp, args...) }
+func Sub(args ...Expr) Expr { return BinaryOf(SubOp, args...) }
+func Mul(args ...Expr) Expr { return BinaryOf(MulOp, args...) }
+func Div(args ...Expr) Expr { return BinaryOf(DivOp, args...) }
+func Mod(args ...Expr) Expr { return BinaryOf(ModOp, args...) }
+
+func Lt(args ...Expr) Expr  { return BinaryOf(LtOp, args...) }
+func Lte(args ...Expr) Expr { return BinaryOf(LteOp, args...) }
+func Eq(args ...Expr) Expr  { return BinaryOf(EqOp, args...) }
+func Ne(args ...Expr) Expr  { return BinaryOf(NeOp, args...) }
+func Gt(args ...Expr) Expr  { return BinaryOf(GtOp, args...) }
+func Gte(args ...Expr) Expr { return BinaryOf(GteOp, args...) }
+
+func BitAnd(args ...Expr) Expr { return BinaryOf(BitAndOp, args...) }
+func BitOr(args ...Expr) Expr  { return BinaryOf(BitOrOp, args...) }
+func BitXor(args ...Expr) Expr { return BinaryOf(BitXorOp, args...) }
+
+func And(args ...Expr) Expr { return BinaryOf(AndOp, args...) }
+func Or(args ...Expr) Expr  { return BinaryOf(OrOp, args...) }
+
+//
+
 type Call struct {
 	Func Expr
 	Args []Expr
@@ -147,132 +273,6 @@ func IndexOf(value, index any) Index {
 		Index: ExprOf(index),
 	}
 }
-
-//
-
-type InfixOp int8
-
-const (
-	InvalidInfixOp InfixOp = iota
-
-	AddOp
-	SubOp
-	MulOp
-	DivOp
-	ModOp
-
-	LtOp
-	LteOp
-	EqOp
-	NeOp
-	GtOp
-	GteOp
-
-	BitAndOp
-	BitOrOp
-	BitXorOp
-
-	AndOp
-	OrOp
-)
-
-func (o InfixOp) String() string {
-	switch o {
-
-	case AddOp:
-		return "+"
-	case SubOp:
-		return "-"
-	case MulOp:
-		return "*"
-	case DivOp:
-		return "/"
-	case ModOp:
-		return "%"
-
-	case LtOp:
-		return "<"
-	case LteOp:
-		return "<="
-	case EqOp:
-		return "="
-	case NeOp:
-		return "!="
-	case GtOp:
-		return ">"
-	case GteOp:
-		return ">="
-
-	case BitAndOp:
-		return "&"
-	case BitOrOp:
-		return "|"
-	case BitXorOp:
-		return "^"
-
-	case AndOp:
-		return "&&"
-	case OrOp:
-		return "||"
-
-	}
-	panic(fmt.Errorf("invalid infix op: %d", o))
-}
-
-func (o InfixOp) IsBit() bool {
-	switch o {
-	case
-		BitAndOp,
-		BitOrOp,
-		BitXorOp:
-		return true
-	}
-	return false
-}
-
-func (o InfixOp) IsBoolean() bool {
-	switch o {
-	case
-		AndOp,
-		OrOp:
-		return true
-	}
-	return false
-}
-
-type Infix struct {
-	Op   InfixOp
-	Args []Expr
-
-	expr
-}
-
-func InfixOf(op InfixOp, args ...Expr) Infix {
-	return Infix{
-		Op:   op,
-		Args: check.NotEmptySlice(args),
-	}
-}
-
-func Add(args ...Expr) Expr { return InfixOf(AddOp, args...) }
-func Sub(args ...Expr) Expr { return InfixOf(SubOp, args...) }
-func Mul(args ...Expr) Expr { return InfixOf(MulOp, args...) }
-func Div(args ...Expr) Expr { return InfixOf(DivOp, args...) }
-func Mod(args ...Expr) Expr { return InfixOf(ModOp, args...) }
-
-func Lt(args ...Expr) Expr  { return InfixOf(LtOp, args...) }
-func Lte(args ...Expr) Expr { return InfixOf(LteOp, args...) }
-func Eq(args ...Expr) Expr  { return InfixOf(EqOp, args...) }
-func Ne(args ...Expr) Expr  { return InfixOf(NeOp, args...) }
-func Gt(args ...Expr) Expr  { return InfixOf(GtOp, args...) }
-func Gte(args ...Expr) Expr { return InfixOf(GteOp, args...) }
-
-func BitAnd(args ...Expr) Expr { return InfixOf(BitAndOp, args...) }
-func BitOr(args ...Expr) Expr  { return InfixOf(BitOrOp, args...) }
-func BitXor(args ...Expr) Expr { return InfixOf(BitXorOp, args...) }
-
-func And(args ...Expr) Expr { return InfixOf(AndOp, args...) }
-func Or(args ...Expr) Expr  { return InfixOf(OrOp, args...) }
 
 //
 

@@ -11,13 +11,7 @@ func Render(w iou.DiscardStringWriter, n Node) {
 
 	// expr
 
-	case Lit:
-		w.WriteString(n.String)
-
-	case Ident:
-		w.WriteString(n.Name)
-
-	case InfixExpr:
+	case BinaryExpr:
 		for i, a := range n.Args {
 			if i > 0 {
 				w.WriteString(" ")
@@ -26,6 +20,12 @@ func Render(w iou.DiscardStringWriter, n Node) {
 			}
 			Render(w, a)
 		}
+
+	case Lit:
+		w.WriteString(n.String)
+
+	case Ident:
+		w.WriteString(n.Name)
 
 	case UnaryExpr:
 		w.WriteString(n.Op.String())

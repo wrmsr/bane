@@ -2,7 +2,7 @@ package gen
 
 import "go/token"
 
-func InfixOpFromToken(tok token.Token) InfixOp {
+func BinaryOpFromToken(tok token.Token) BinaryOp {
 	switch tok {
 
 	case token.ADD:
