@@ -15,10 +15,16 @@ func (d declaration) isDeclaration() {}
 
 //
 
-type DeclarationSpecifier struct {
-	node
-	S any // TypeSpecifier | StorageClassSpecifier | TypeQualifier | FunctionSpecifier | AlignmentSpecifier
+type DeclarationSpecifier interface {
+	isDeclarationSpecifier()
 }
+
+func (t typeSpecifier) isDeclarationSpecifier()         {}
+func (s StorageClassSpecifier) isDeclarationSpecifier() {}
+func (q TypeQualifier) isDeclarationSpecifier()         {}
+
+// func (s FunctionSpecifier) isDeclarationSpecifier()  {}
+// func (s AlignmentSpecifier) isDeclarationSpecifier() {}
 
 //
 

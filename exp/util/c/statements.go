@@ -22,7 +22,12 @@ type ExpressionStatement struct {
 
 //
 
-type BlockItem = any // Declaration | Statement
+type BlockItem interface {
+	isBlockItem()
+}
+
+func (d declaration) isBlockItem() {}
+func (s statement) isBlockItem()   {}
 
 type CompoundStatement struct {
 	statement

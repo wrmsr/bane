@@ -7,7 +7,6 @@ import (
 
 	"github.com/wrmsr/bane/exp/util/c/parser"
 	"github.com/wrmsr/bane/pkg/util/check"
-	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 type parseVisitor struct{}
@@ -116,6 +115,7 @@ func (v *parseVisitor) VisitDeclaration(ctx *parser.DeclarationContext) any {
 				s[i] = v.Visit(id).(InitDeclarator)
 			}
 		}
+		panic(s)
 	}
 	panic("unimplemented")
 }
@@ -153,7 +153,7 @@ func (v *parseVisitor) VisitDeclarationSpecifier(ctx *parser.DeclarationSpecifie
 	if s == nil {
 		panic("unhandled")
 	}
-	return DeclarationSpecifier{S: s}
+	return s
 }
 
 func (v *parseVisitor) VisitInitDeclaratorList(ctx *parser.InitDeclaratorListContext) any {
@@ -272,8 +272,30 @@ func (v *parseVisitor) VisitMultiplicativeExpression(ctx *parser.MultiplicativeE
 	return v.VisitChildren(ctx)
 }
 
+func parseBinaryOp(i int) BinaryOp {
+	switch i {
+
+	case parser.CParserPlus:
+		return AddOp
+
+	}
+	panic(i)
+}
+
 func (v *parseVisitor) VisitAdditiveExpression(ctx *parser.AdditiveExpressionContext) any {
-	return v.VisitChildren(ctx)
+	cs := ctx.GetChildren()
+	ret := v.Visit(cs[0].(antlr.ParseTree)).(Expression)
+	for i := 1; i < len(cs); i += 2 {
+		ot := cs[i].(*antlr.TerminalNodeImpl).GetSymbol().GetTokenType()
+		op := parseBinaryOp(ot)
+		r := v.Visit(cs[i+1].(antlr.ParseTree)).(Expression)
+		ret = Binary{
+			Op: op,
+			L:  ret,
+			R:  r,
+		}
+	}
+	return ret
 }
 
 func (v *parseVisitor) VisitShiftExpression(ctx *parser.ShiftExpressionContext) any {
@@ -581,10 +603,7 @@ func (v *parseVisitor) VisitCompoundStatement(ctx *parser.CompoundStatementConte
 		s = make([]BlockItem, len(bis))
 		for i, bi := range bis {
 			e := v.Visit(bi)
-			if !bt.Is[Declaration](e) && !bt.Is[Statement](e) {
-				panic(e)
-			}
-			s[i] = e
+			s[i] = e.(BlockItem)
 		}
 	}
 	return CompoundStatement{S: s}
