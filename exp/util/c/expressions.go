@@ -12,3 +12,12 @@ type expression struct {
 }
 
 func (e expression) isExpression() {}
+
+//
+
+type Call struct {
+	Fn   Expression
+	Args []Expression
+
+	expression
+}

@@ -6,6 +6,7 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 
 	"github.com/wrmsr/bane/exp/util/c/parser"
+	"github.com/wrmsr/bane/pkg/util/check"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -187,7 +188,28 @@ func (v *parseVisitor) VisitGenericAssociation(ctx *parser.GenericAssociationCon
 }
 
 func (v *parseVisitor) VisitPostfixExpression(ctx *parser.PostfixExpressionContext) any {
-	return v.VisitChildren(ctx)
+	if pe := ctx.PrimaryExpression(); pe != nil {
+		check.Nil(ctx.TypeName())
+		check.Nil(ctx.InitializerList())
+		es := ctx.AllExpression()
+		is := ctx.AllIdentifier()
+		if len(es) < 1 && len(is) < 1 {
+			fn := v.Visit(pe).(Expression)
+			var args []Expression
+			if aels := ctx.AllArgumentExpressionList(); len(aels) > 0 {
+				aes := check.Single(aels).(*parser.ArgumentExpressionListContext).AllAssignmentExpression()
+				args = make([]Expression, len(aes))
+				for i, ae := range aes {
+					args[i] = v.Visit(ae).(Expression)
+				}
+			}
+			return Call{
+				Fn:   fn,
+				Args: args,
+			}
+		}
+	}
+	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitArgumentExpressionList(ctx *parser.ArgumentExpressionListContext) any {

@@ -104,7 +104,7 @@ postfixExpression
     ;
 
 argumentExpressionList
-    :   assignmentExpression (',' assignmentExpression)*
+    : assignmentExpression (',' assignmentExpression)*
     ;
 
 unaryExpression
