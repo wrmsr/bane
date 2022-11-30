@@ -27,7 +27,9 @@ BREW_DEPS=\
 PYTHON_DEPS=\
 	ipython \
 	numpy \
+	pandas \
 	torch \
+	torchvision \
 	\
 	'git+https://github.com/wrmsr/tinygrad' \
 

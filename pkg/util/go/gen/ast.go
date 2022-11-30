@@ -29,6 +29,13 @@ func InfixOpFromToken(tok token.Token) InfixOp {
 	case token.GEQ:
 		return GteOp
 
+	case token.AND:
+		return BitAndOp
+	case token.OR:
+		return BitOrOp
+	case token.XOR:
+		return BitXorOp
+
 	case token.LAND:
 		return AndOp
 	case token.LOR:
@@ -43,9 +50,15 @@ func UnaryOpFromToken(tok token.Token) UnaryOp {
 
 	case token.NOT:
 		return NotOp
-
 	case token.SUB:
 		return NegOp
+	case token.XOR:
+		return InvOp
+
+	case token.INC:
+		return IncOp
+	case token.DEC:
+		return DecOp
 
 	}
 	panic(tok)

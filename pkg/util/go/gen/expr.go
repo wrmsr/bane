@@ -168,6 +168,10 @@ const (
 	GtOp
 	GteOp
 
+	BitAndOp
+	BitOrOp
+	BitXorOp
+
 	AndOp
 	OrOp
 )
@@ -199,6 +203,13 @@ func (o InfixOp) String() string {
 	case GteOp:
 		return ">="
 
+	case BitAndOp:
+		return "&"
+	case BitOrOp:
+		return "|"
+	case BitXorOp:
+		return "^"
+
 	case AndOp:
 		return "&&"
 	case OrOp:
@@ -206,6 +217,17 @@ func (o InfixOp) String() string {
 
 	}
 	panic(fmt.Errorf("invalid infix op: %d", o))
+}
+
+func (o InfixOp) IsBit() bool {
+	switch o {
+	case
+		BitAndOp,
+		BitOrOp,
+		BitXorOp:
+		return true
+	}
+	return false
 }
 
 func (o InfixOp) IsBoolean() bool {
@@ -244,6 +266,10 @@ func Eq(args ...Expr) Expr  { return InfixOf(EqOp, args...) }
 func Ne(args ...Expr) Expr  { return InfixOf(NeOp, args...) }
 func Gt(args ...Expr) Expr  { return InfixOf(GtOp, args...) }
 func Gte(args ...Expr) Expr { return InfixOf(GteOp, args...) }
+
+func BitAnd(args ...Expr) Expr { return InfixOf(BitAndOp, args...) }
+func BitOr(args ...Expr) Expr  { return InfixOf(BitOrOp, args...) }
+func BitXor(args ...Expr) Expr { return InfixOf(BitXorOp, args...) }
 
 func And(args ...Expr) Expr { return InfixOf(AndOp, args...) }
 func Or(args ...Expr) Expr  { return InfixOf(OrOp, args...) }
@@ -317,6 +343,10 @@ const (
 
 	NotOp
 	NegOp
+	InvOp
+
+	IncOp
+	DecOp
 )
 
 func (o UnaryOp) String() string {
@@ -324,12 +354,36 @@ func (o UnaryOp) String() string {
 
 	case NotOp:
 		return "!"
-
 	case NegOp:
 		return "-"
+	case InvOp:
+		return "^"
+
+	case IncOp:
+		return "++"
+	case DecOp:
+		return "--"
 
 	}
 	panic(fmt.Errorf("invalid unary op: %d", o))
+}
+
+func (o UnaryOp) IsPrefix() bool {
+	switch o {
+
+	case
+		NotOp,
+		NegOp,
+		InvOp:
+		return true
+
+	case
+		IncOp,
+		DecOp:
+		return false
+
+	}
+	panic(o)
 }
 
 type Unary struct {
@@ -347,3 +401,8 @@ func UnaryOf(op UnaryOp, arg any) Unary {
 }
 
 func Not(arg Expr) Expr { return UnaryOf(NotOp, arg) }
+func Neg(arg Expr) Expr { return UnaryOf(NegOp, arg) }
+func Inv(arg Expr) Expr { return UnaryOf(InvOp, arg) }
+
+func Inc(arg Expr) Expr { return UnaryOf(IncOp, arg) }
+func Dec(arg Expr) Expr { return UnaryOf(DecOp, arg) }

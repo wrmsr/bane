@@ -199,8 +199,13 @@ func Render(w *iou.IndentWriter, n Node) {
 		w.WriteString(")")
 
 	case Unary:
-		w.WriteString(n.Op.String())
+		if n.Op.IsPrefix() {
+			w.WriteString(n.Op.String())
+		}
 		Render(w, n.Arg)
+		if !n.Op.IsPrefix() {
+			w.WriteString(n.Op.String())
+		}
 
 	// raw
 
