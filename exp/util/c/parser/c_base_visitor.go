@@ -72,6 +72,10 @@ func (v *BaseCVisitor) VisitPostfixExpression(ctx *PostfixExpressionContext) int
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseCVisitor) VisitPostfixExpression2(ctx *PostfixExpression2Context) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseCVisitor) VisitArgumentExpressionList(ctx *ArgumentExpressionListContext) interface{} {
 	return v.VisitChildren(ctx)
 }

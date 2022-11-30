@@ -56,6 +56,9 @@ type CVisitor interface {
 	// Visit a parse tree produced by CParser#postfixExpression.
 	VisitPostfixExpression(ctx *PostfixExpressionContext) interface{}
 
+	// Visit a parse tree produced by CParser#postfixExpression2.
+	VisitPostfixExpression2(ctx *PostfixExpression2Context) interface{}
+
 	// Visit a parse tree produced by CParser#argumentExpressionList.
 	VisitArgumentExpressionList(ctx *ArgumentExpressionListContext) interface{}
 

@@ -117,6 +117,12 @@ func (s *BaseCListener) EnterPostfixExpression(ctx *PostfixExpressionContext) {}
 // ExitPostfixExpression is called when production postfixExpression is exited.
 func (s *BaseCListener) ExitPostfixExpression(ctx *PostfixExpressionContext) {}
 
+// EnterPostfixExpression2 is called when production postfixExpression2 is entered.
+func (s *BaseCListener) EnterPostfixExpression2(ctx *PostfixExpression2Context) {}
+
+// ExitPostfixExpression2 is called when production postfixExpression2 is exited.
+func (s *BaseCListener) ExitPostfixExpression2(ctx *PostfixExpression2Context) {}
+
 // EnterArgumentExpressionList is called when production argumentExpressionList is entered.
 func (s *BaseCListener) EnterArgumentExpressionList(ctx *ArgumentExpressionListContext) {}
 

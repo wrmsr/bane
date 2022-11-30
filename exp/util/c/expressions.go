@@ -16,8 +16,7 @@ func (e expression) isExpression() {}
 //
 
 type Call struct {
+	expression
 	Fn   Expression
 	Args []Expression
-
-	expression
 }

@@ -188,28 +188,49 @@ func (v *parseVisitor) VisitGenericAssociation(ctx *parser.GenericAssociationCon
 }
 
 func (v *parseVisitor) VisitPostfixExpression(ctx *parser.PostfixExpressionContext) any {
+	var ret Expression
 	if pe := ctx.PrimaryExpression(); pe != nil {
 		check.Nil(ctx.TypeName())
 		check.Nil(ctx.InitializerList())
-		es := ctx.AllExpression()
-		is := ctx.AllIdentifier()
-		if len(es) < 1 && len(is) < 1 {
-			fn := v.Visit(pe).(Expression)
-			var args []Expression
-			if aels := ctx.AllArgumentExpressionList(); len(aels) > 0 {
-				aes := check.Single(aels).(*parser.ArgumentExpressionListContext).AllAssignmentExpression()
-				args = make([]Expression, len(aes))
-				for i, ae := range aes {
-					args[i] = v.Visit(ae).(Expression)
-				}
-			}
-			return Call{
-				Fn:   fn,
-				Args: args,
-			}
+		ret = v.Visit(pe).(Expression)
+	}
+
+	check.NotNil(ret)
+	for _, pe2 := range ctx.AllPostfixExpression2() {
+		rhs := v.Visit(pe2).(Expression)
+		switch rhs := rhs.(type) {
+
+		case Call:
+			check.Nil(rhs.Fn)
+			rhs.Fn = ret
+			ret = rhs
+
+		default:
+			panic(rhs)
 		}
 	}
-	panic("unimplemented")
+
+	return ret
+}
+
+func (v *parseVisitor) VisitPostfixExpression2(ctx *parser.PostfixExpression2Context) any {
+	switch s := ctx.GetChild(0).(*antlr.TerminalNodeImpl).GetSymbol(); s.GetTokenType() {
+
+	case parser.CParserLeftParen:
+		var args []Expression
+		if ael := ctx.ArgumentExpressionList(); ael != nil {
+			aes := ael.(*parser.ArgumentExpressionListContext).AllAssignmentExpression()
+			args = make([]Expression, len(aes))
+			for i, ae := range aes {
+				args[i] = v.Visit(ae).(Expression)
+			}
+		}
+		return Call{
+			Args: args,
+		}
+
+	}
+	panic("nyi")
 }
 
 func (v *parseVisitor) VisitArgumentExpressionList(ctx *parser.ArgumentExpressionListContext) any {
@@ -556,7 +577,8 @@ func (v *parseVisitor) VisitBlockItem(ctx *parser.BlockItemContext) any {
 }
 
 func (v *parseVisitor) VisitExpressionStatement(ctx *parser.ExpressionStatementContext) any {
-	return v.Visit(ctx.Expression())
+	e := v.Visit(ctx.Expression()).(Expression)
+	return ExpressionStatement{Expression: e}
 }
 
 func (v *parseVisitor) VisitSelectionStatement(ctx *parser.SelectionStatementContext) any {

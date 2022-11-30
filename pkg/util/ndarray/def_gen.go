@@ -1,6 +1,7 @@
 package ndarray
 
 import (
+	"reflect"
 	"sync"
 
 	"github.com/wrmsr/bane/pkg/util/def"
@@ -25,7 +26,8 @@ func _def_inl_foo(v View) Dim {
 	__def_inl_2 := DimsOf(2, 2)
 	{
 		var __def_inl_3 Dim
-		__def_inl_4 := __def_inl_1.st
+		__def_inl_4 := __def_inl_1.
+			st
 		__def_inl_5 := __def_inl_2
 		{
 			__def_inl_4.CheckEqualLen(__def_inl_5)

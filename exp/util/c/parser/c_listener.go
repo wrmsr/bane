@@ -56,6 +56,9 @@ type CListener interface {
 	// EnterPostfixExpression is called when entering the postfixExpression production.
 	EnterPostfixExpression(c *PostfixExpressionContext)
 
+	// EnterPostfixExpression2 is called when entering the postfixExpression2 production.
+	EnterPostfixExpression2(c *PostfixExpression2Context)
+
 	// EnterArgumentExpressionList is called when entering the argumentExpressionList production.
 	EnterArgumentExpressionList(c *ArgumentExpressionListContext)
 
@@ -349,6 +352,9 @@ type CListener interface {
 
 	// ExitPostfixExpression is called when exiting the postfixExpression production.
 	ExitPostfixExpression(c *PostfixExpressionContext)
+
+	// ExitPostfixExpression2 is called when exiting the postfixExpression2 production.
+	ExitPostfixExpression2(c *PostfixExpression2Context)
 
 	// ExitArgumentExpressionList is called when exiting the argumentExpressionList production.
 	ExitArgumentExpressionList(c *ArgumentExpressionListContext)

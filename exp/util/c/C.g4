@@ -99,8 +99,15 @@ genericAssociation
     ;
 
 postfixExpression
-    : (primaryExpression | '__extension__'? '(' typeName ')' '{' initializerList ','? '}')
-      ('[' expression ']' | '(' argumentExpressionList? ')' | ('.' | '->') Identifier | ('++' | '--'))*
+    : (primaryExpression | '__extension__'? '(' typeName ')' '{' initializerList ','? '}') postfixExpression2*
+    ;
+
+postfixExpression2
+    : '[' expression ']'
+    | '(' argumentExpressionList? ')'
+    | ('.' | '->') Identifier
+    | '++'
+    | '--'
     ;
 
 argumentExpressionList

@@ -38,3 +38,6 @@
       to `mapstructure:"-"` as default behaviour.
     - MatchName - MatchName is the function used to match the map key to the struct field name or tag. Defaults
       to `strings.EqualFold`. This can be used to implement case-sensitive tag values, support snake casing, etc.
+
+- poly
+    - embedding inheritance

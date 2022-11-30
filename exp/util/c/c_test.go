@@ -29,6 +29,8 @@ func TestC(t *testing.T) {
 			return 0;
 		}`, cu},
 	} {
+		fmt.Println(src.s)
+
 		is := antlr.NewInputStream(src.s)
 		lexer := parser.NewCLexer(is)
 		stream := antlr.NewCommonTokenStream(lexer, 0)
@@ -47,5 +49,9 @@ func TestC(t *testing.T) {
 
 		n := tree.Accept(v)
 		fmt.Printf("%#v\n", n)
+
+		//fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(n)))))
+
+		fmt.Println()
 	}
 }
