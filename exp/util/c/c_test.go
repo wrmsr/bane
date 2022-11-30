@@ -28,6 +28,11 @@ func TestC(t *testing.T) {
 			printf("hi\n");
 			return 0;
 		}`, cu},
+		{`int main(int argc, const char * const *argv) {
+			int c = argc + 2;
+			printf("hi %d\n", c);
+			return 0;
+		}`, cu},
 	} {
 		fmt.Println(src.s)
 
@@ -43,6 +48,8 @@ func TestC(t *testing.T) {
 		fmt.Println(tree)
 
 		antlru.Dump(tree, "")
+
+		//tu.AssertNoErr(t, dot.Open(context.Background(), dot.RenderString(antlru.Dot(tree))))
 
 		v := &parseVisitor{}
 		//v.BaseParseTreeVisitor = v

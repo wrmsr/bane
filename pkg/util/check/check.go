@@ -77,6 +77,13 @@ func EmptySlice[T any](s []T, details ...any) []T {
 	return s
 }
 
+func NotEmptyStr(s string, details ...any) string {
+	if s == "" {
+		panic(checkError("must not be empty string", []any{s}, details...))
+	}
+	return s
+}
+
 func Between[T constraints.Ordered](v, lo, hi T, details ...any) T {
 	if v < lo || v > hi {
 		panic(checkError("must be between", []any{v, lo, hi}, details...))

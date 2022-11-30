@@ -2,6 +2,7 @@ package dot
 
 import (
 	"html"
+	"strings"
 
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
@@ -90,4 +91,10 @@ func Render(w iou.DiscardStringWriter, o any) {
 	default:
 		panic(typeError(o))
 	}
+}
+
+func RenderString(o any) string {
+	var sb strings.Builder
+	Render(iou.NewDiscardStringWriter(&sb), o)
+	return sb.String()
 }
