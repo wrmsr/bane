@@ -161,7 +161,14 @@ func (v *parseVisitor) VisitInitDeclaratorList(ctx *parser.InitDeclaratorListCon
 }
 
 func (v *parseVisitor) VisitInitDeclarator(ctx *parser.InitDeclaratorContext) any {
-	panic("unimplemented")
+	dcl := v.Visit(ctx.Declarator()).(Declarator)
+	if i := ctx.Initializer(); i != nil {
+		dcl = InitDeclarator{
+			D: dcl,
+			I: v.Visit(i).(Expression),
+		}
+	}
+	return dcl
 }
 
 func (v *parseVisitor) VisitPrimaryExpression(ctx *parser.PrimaryExpressionContext) any {
@@ -515,6 +522,9 @@ func (v *parseVisitor) VisitTypedefName(ctx *parser.TypedefNameContext) any {
 }
 
 func (v *parseVisitor) VisitInitializer(ctx *parser.InitializerContext) any {
+	if ae := ctx.AssignmentExpression(); ae != nil {
+		return v.Visit(ae)
+	}
 	panic("unimplemented")
 }
 
