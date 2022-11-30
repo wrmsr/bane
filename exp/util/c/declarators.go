@@ -22,6 +22,14 @@ type IdentifierDeclarator struct {
 
 //
 
+type InitDeclarator struct {
+	declarator
+	D Declarator
+	I Expression
+}
+
+//
+
 type TypeQualifierList struct {
 	node
 	S []TypeQualifier

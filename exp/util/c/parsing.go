@@ -105,6 +105,18 @@ func (v *parseVisitor) VisitDeclarationList(ctx *parser.DeclarationListContext) 
 }
 
 func (v *parseVisitor) VisitDeclaration(ctx *parser.DeclarationContext) any {
+	if ds := ctx.DeclarationSpecifiers(); ds != nil {
+		dss := v.Visit(ds).(DeclarationSpecifiers)
+		_ = dss
+		var s []Declarator
+		if idl := ctx.InitDeclaratorList(); idl != nil {
+			ids := idl.(*parser.InitDeclaratorListContext).AllInitDeclarator()
+			s = make([]Declarator, len(ids))
+			for i, id := range ids {
+				s[i] = v.Visit(id).(InitDeclarator)
+			}
+		}
+	}
 	panic("unimplemented")
 }
 
