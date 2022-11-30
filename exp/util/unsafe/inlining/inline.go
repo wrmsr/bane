@@ -35,12 +35,15 @@ func main() {
 	lst := ctr.NewMutSliceList[foo](nil)
 	lst.Append(foo{s: "hi"})
 
+	// no inline, cross package and generic
 	fmt.Println(lst.Len())
 
+	// no inline, generic
 	p := unsafe.Pointer(&(*lst))
 	plst2 := (*_ctr_MutSliceList[foo])(p)
 	fmt.Println(plst2.Len())
 
+	// inlines
 	p = unsafe.Pointer(&(*lst))
 	plst3 := (*_ctr_foo_MutSliceList)(p)
 	fmt.Println(plst3.Len())
