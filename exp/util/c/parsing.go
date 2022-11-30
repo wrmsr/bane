@@ -115,7 +115,10 @@ func (v *parseVisitor) VisitDeclaration(ctx *parser.DeclarationContext) any {
 				s[i] = v.Visit(id).(InitDeclarator)
 			}
 		}
-		panic(s)
+		return DeclaratorsDeclaration{
+			S:  dss,
+			Ds: s,
+		}
 	}
 	panic("unimplemented")
 }

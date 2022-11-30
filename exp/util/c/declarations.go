@@ -26,11 +26,15 @@ func (q TypeQualifier) isDeclarationSpecifier()         {}
 // func (s FunctionSpecifier) isDeclarationSpecifier()  {}
 // func (s AlignmentSpecifier) isDeclarationSpecifier() {}
 
-//
-
 type DeclarationSpecifiers struct {
 	node
 	S []DeclarationSpecifier
+}
+
+type DeclaratorsDeclaration struct {
+	declaration
+	S  DeclarationSpecifiers
+	Ds []Declarator
 }
 
 //
