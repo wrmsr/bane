@@ -60,3 +60,9 @@ type FunctionDeclaration struct {
 	// FIXME: Dl DeclarationList
 	B CompoundStatement
 }
+
+//
+
+type StructDeclaration struct {
+	declaration
+}

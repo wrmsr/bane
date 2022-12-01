@@ -76,7 +76,8 @@ func (v *parseVisitor) VisitTranslationUnit(ctx *parser.TranslationUnitContext) 
 	eds := ctx.AllExternalDeclaration()
 	ds := make([]Declaration, len(eds))
 	for i, ed := range eds {
-		ds[i] = v.Visit(ed).(Declaration)
+		e := v.Visit(ed)
+		ds[i] = e.(Declaration)
 	}
 	return TranslationUnit{Ds: ds}
 }
