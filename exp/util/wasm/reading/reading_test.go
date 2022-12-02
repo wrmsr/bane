@@ -81,252 +81,278 @@ func NewByteReader(b []byte) *ByteReader {
 
 //
 
-func TestReading(t *testing.T) {
-	src := check.Must1(os.ReadFile(filepath.Join(paths.FindProjectRoot(), "exp", "util", "wasm", "test", "go", "main_tiny.wasm")))
-	r := NewByteReader(src)
+type ModuleReader struct {
+	r *ByteReader
+}
 
-	var magic int32
-	check.Must(binary.Read(r, binary.LittleEndian, &magic))
+func (r *ModuleReader) readByte() byte {
+	return check.Must1(r.r.ReadByte())
+}
+
+func (r *ModuleReader) readI64() int64 {
+	return leb128.DecodeI64(r.readByte)
+}
+
+func (r *ModuleReader) readU64() uint64 {
+	return leb128.DecodeU64(r.readByte)
+}
+
+func (r *ModuleReader) readI32le() int32 {
+	var v int32
+	check.Must(binary.Read(r.r, binary.LittleEndian, &v))
+	return v
+}
+
+func (r *ModuleReader) ReadModule() {
+	magic := r.readI32le()
 	check.Equal(magic, consts.Magic)
 
-	var version int32
-	check.Must(binary.Read(r, binary.LittleEndian, &version))
+	version := r.readI32le()
 	check.Equal(version, consts.Version)
 
-	rf := func() byte {
-		return check.Must1(r.ReadByte())
+	for r.r.Len() > 0 {
+		r.readSection()
 	}
 
-	//
+	check.Equal(r.r.Len(), 0)
+}
 
-	secTy := rf()
-	fmt.Println(secTy)
-	check.Equal(secTy, consts.TypeSection)
+func (r *ModuleReader) readSection() {
+	secTy := r.readByte()
+	secSz := r.readU64()
 
-	secSz := leb128.DecodeU64(rf)
-	fmt.Println(secSz)
+	switch secTy {
 
-	numSigs := int(leb128.DecodeU64(rf))
-	fmt.Println(numSigs)
+	case consts.TypeSection:
+		numSigs := int(r.readU64())
+		for i := 0; i < numSigs; i++ {
+			ty := r.readByte()
+			check.Equal(ty, consts.FuncType)
 
-	for i := 0; i < numSigs; i++ {
-		ty := check.Must1(r.ReadByte())
-		check.Equal(ty, consts.FuncType)
+			numParam := int(r.readU64())
+			for j := 0; j < numParam; j++ {
+				pty := r.readI64()
+				_ = pty
+			}
 
-		numParam := int(leb128.DecodeU64(rf))
-		fmt.Println(numParam)
-
-		for j := 0; j < numParam; j++ {
-			pty := leb128.DecodeI64(rf)
-			fmt.Println(pty)
+			numResult := int(r.readU64())
+			for j := 0; j < numResult; j++ {
+				rty := r.readI64()
+				_ = rty
+			}
 		}
 
-		numResult := int(leb128.DecodeU64(rf))
-		fmt.Println(numResult)
+	default:
+		fmt.Printf("unhandled section: %v %v\n", secTy, secSz)
+		check.Must(r.r.Skip(int64(secSz)))
 
-		for j := 0; j < numResult; j++ {
-			rty := leb128.DecodeI64(rf)
-			fmt.Println(rty)
-		}
 	}
+}
 
+//
+
+func TestReading(t *testing.T) {
+	src := check.Must1(os.ReadFile(filepath.Join(paths.FindProjectRoot(), "exp", "util", "wasm", "test", "go", "main_tiny.wasm")))
+	r := &ModuleReader{r: NewByteReader(src)}
+	r.ReadModule()
+
+	////
 	//
-
-	secTy = rf()
-	fmt.Println(secTy)
-	check.Equal(secTy, consts.ImportSection)
-
-	secSz = leb128.DecodeU64(rf)
-	fmt.Println(secSz)
-
-	numImps := int(leb128.DecodeU64(rf))
-	fmt.Println(numImps)
-
-	readStr := func() string {
-		l := int(leb128.DecodeU64(rf))
-		b := make([]byte, l)
-		check.Must1(r.Read(b))
-		return string(b)
-	}
-
-	for i := 0; i < numImps; i++ {
-		modName := readStr()
-		fmt.Println(modName)
-		fldName := readStr()
-		fmt.Println(fldName)
-
-		k := check.Must1(r.ReadByte())
-		fmt.Println(k)
-
-		switch k {
-		case consts.FuncImport:
-			idx := leb128.DecodeU64(rf)
-			fmt.Println(idx)
-		default:
-			panic(k)
-		}
-	}
-
+	//secTy = rf()
+	//fmt.Println(secTy)
+	//check.Equal(secTy, consts.ImportSection)
 	//
-
-	secTy = rf()
-	fmt.Println(secTy)
-	check.Equal(secTy, consts.FunctionSection)
-
-	secSz = leb128.DecodeU64(rf)
-	fmt.Println(secSz)
-
-	numFuncs := int(leb128.DecodeU64(rf))
-	fmt.Println(numFuncs)
-
-	for i := 0; i < numFuncs; i++ {
-		sigIdx := leb128.DecodeU64(rf)
-		fmt.Println(sigIdx)
-	}
-
+	//secSz = leb128.DecodeU64(rf)
+	//fmt.Println(secSz)
 	//
-
-	secTy = rf()
-	fmt.Println(secTy)
-	check.Equal(secTy, consts.TableSection)
-
-	secSz = leb128.DecodeU64(rf)
-	fmt.Println(secSz)
-
-	//numTables := int(leb128.DecodeU64(rf))
-	//fmt.Println(numTables)
+	//numImps := int(leb128.DecodeU64(rf))
+	//fmt.Println(numImps)
 	//
-	//for i := 0; i < numTables; i++ {
-	//
+	//readStr := func() string {
+	//	l := int(leb128.DecodeU64(rf))
+	//	b := make([]byte, l)
+	//	check.Must1(r.Read(b))
+	//	return string(b)
 	//}
-
-	check.Must(r.Skip(int64(secSz)))
-
 	//
-
-	secTy = rf()
-	fmt.Println(secTy)
-	check.Equal(secTy, consts.MemorySection)
-
-	secSz = leb128.DecodeU64(rf)
-	fmt.Println(secSz)
-	check.Must(r.Skip(int64(secSz)))
-
+	//for i := 0; i < numImps; i++ {
+	//	modName := readStr()
+	//	fmt.Println(modName)
+	//	fldName := readStr()
+	//	fmt.Println(fldName)
 	//
-
-	secTy = rf()
-	fmt.Println(secTy)
-	check.Equal(secTy, consts.GlobalSection)
-
-	secSz = leb128.DecodeU64(rf)
-	fmt.Println(secSz)
-	check.Must(r.Skip(int64(secSz)))
-
+	//	k := check.Must1(r.ReadByte())
+	//	fmt.Println(k)
 	//
-
-	secTy = rf()
-	fmt.Println(secTy)
-	check.Equal(secTy, consts.ExportSection)
-
-	secSz = leb128.DecodeU64(rf)
-	fmt.Println(secSz)
-	check.Must(r.Skip(int64(secSz)))
-
+	//	switch k {
+	//	case consts.FuncImport:
+	//		idx := leb128.DecodeU64(rf)
+	//		fmt.Println(idx)
+	//	default:
+	//		panic(k)
+	//	}
+	//}
 	//
-
-	secTy = rf()
-	fmt.Println(secTy)
-	check.Equal(secTy, consts.ElementSection)
-
-	secSz = leb128.DecodeU64(rf)
-	fmt.Println(secSz)
-	check.Must(r.Skip(int64(secSz)))
-
+	////
 	//
-
-	secTy = rf()
-	fmt.Println(secTy)
-	check.Equal(secTy, consts.DataCountSection)
-
-	secSz = leb128.DecodeU64(rf)
-	fmt.Println(secSz)
-	check.Must(r.Skip(int64(secSz)))
-
+	//secTy = rf()
+	//fmt.Println(secTy)
+	//check.Equal(secTy, consts.FunctionSection)
 	//
-
-	secTy = rf()
-	fmt.Println(secTy)
-	check.Equal(secTy, consts.CodeSection)
-
-	secSz = leb128.DecodeU64(rf)
-	fmt.Println(secSz)
+	//secSz = leb128.DecodeU64(rf)
+	//fmt.Println(secSz)
+	//
+	//numFuncs := int(leb128.DecodeU64(rf))
+	//fmt.Println(numFuncs)
+	//
+	//for i := 0; i < numFuncs; i++ {
+	//	sigIdx := leb128.DecodeU64(rf)
+	//	fmt.Println(sigIdx)
+	//}
+	//
+	////
+	//
+	//secTy = rf()
+	//fmt.Println(secTy)
+	//check.Equal(secTy, consts.TableSection)
+	//
+	//secSz = leb128.DecodeU64(rf)
+	//fmt.Println(secSz)
+	//
+	////numTables := int(leb128.DecodeU64(rf))
+	////fmt.Println(numTables)
+	////
+	////for i := 0; i < numTables; i++ {
+	////
+	////}
+	//
 	//check.Must(r.Skip(int64(secSz)))
-
-	numFuncBodies := int(leb128.DecodeU64(rf))
-	fmt.Println(numFuncBodies)
-
-	readTy := func() int {
-		lty := int(leb128.DecodeI64(rf))
-		fmt.Println(lty)
-
-		return lty
-	}
-
-	for i := 0; i < numFuncBodies; i++ {
-		bodySize := int(leb128.DecodeU64(rf))
-		fmt.Println(bodySize)
-
-		startPos := r.Tell()
-		endPos := startPos + int64(bodySize)
-
-		numLocals := int(leb128.DecodeU64(rf))
-		fmt.Println(numLocals)
-
-		for j := 0; j < numLocals; j++ {
-			numLocalTys := int(leb128.DecodeU64(rf))
-			fmt.Println(numLocalTys)
-
-			readTy()
-		}
-
-		for r.Tell() < endPos {
-			o := int(check.Must1(r.ReadByte()))
-
-			if o == consts.MathPrefix || o == consts.SimdPrefix {
-				o = (o << 8) | int(check.Must1(r.ReadByte()))
-			}
-
-			fmt.Println(o)
-
-			switch o {
-			case consts.Block:
-				panic(o)
-
-			default:
-				panic(o)
-			}
-		}
-	}
-
 	//
-
-	secTy = rf()
-	fmt.Println(secTy)
-	check.Equal(secTy, consts.DataSection)
-
-	secSz = leb128.DecodeU64(rf)
-	fmt.Println(secSz)
-	check.Must(r.Skip(int64(secSz)))
-
+	////
 	//
-
-	for r.Len() > 0 {
-		secTy = rf()
-		fmt.Println(secTy)
-		check.Equal(secTy, consts.CustomSection)
-
-		secSz = leb128.DecodeU64(rf)
-		fmt.Println(secSz)
-		check.Must(r.Skip(int64(secSz)))
-	}
+	//secTy = rf()
+	//fmt.Println(secTy)
+	//check.Equal(secTy, consts.MemorySection)
+	//
+	//secSz = leb128.DecodeU64(rf)
+	//fmt.Println(secSz)
+	//check.Must(r.Skip(int64(secSz)))
+	//
+	////
+	//
+	//secTy = rf()
+	//fmt.Println(secTy)
+	//check.Equal(secTy, consts.GlobalSection)
+	//
+	//secSz = leb128.DecodeU64(rf)
+	//fmt.Println(secSz)
+	//check.Must(r.Skip(int64(secSz)))
+	//
+	////
+	//
+	//secTy = rf()
+	//fmt.Println(secTy)
+	//check.Equal(secTy, consts.ExportSection)
+	//
+	//secSz = leb128.DecodeU64(rf)
+	//fmt.Println(secSz)
+	//check.Must(r.Skip(int64(secSz)))
+	//
+	////
+	//
+	//secTy = rf()
+	//fmt.Println(secTy)
+	//check.Equal(secTy, consts.ElementSection)
+	//
+	//secSz = leb128.DecodeU64(rf)
+	//fmt.Println(secSz)
+	//check.Must(r.Skip(int64(secSz)))
+	//
+	////
+	//
+	//secTy = rf()
+	//fmt.Println(secTy)
+	//check.Equal(secTy, consts.DataCountSection)
+	//
+	//secSz = leb128.DecodeU64(rf)
+	//fmt.Println(secSz)
+	//check.Must(r.Skip(int64(secSz)))
+	//
+	////
+	//
+	//secTy = rf()
+	//fmt.Println(secTy)
+	//check.Equal(secTy, consts.CodeSection)
+	//
+	//secSz = leb128.DecodeU64(rf)
+	//fmt.Println(secSz)
+	////check.Must(r.Skip(int64(secSz)))
+	//
+	//numFuncBodies := int(leb128.DecodeU64(rf))
+	//fmt.Println(numFuncBodies)
+	//
+	//readTy := func() int {
+	//	lty := int(leb128.DecodeI64(rf))
+	//	fmt.Println(lty)
+	//
+	//	return lty
+	//}
+	//
+	//for i := 0; i < numFuncBodies; i++ {
+	//	bodySize := int(leb128.DecodeU64(rf))
+	//	fmt.Println(bodySize)
+	//
+	//	startPos := r.Tell()
+	//	endPos := startPos + int64(bodySize)
+	//
+	//	numLocals := int(leb128.DecodeU64(rf))
+	//	fmt.Println(numLocals)
+	//
+	//	for j := 0; j < numLocals; j++ {
+	//		numLocalTys := int(leb128.DecodeU64(rf))
+	//		fmt.Println(numLocalTys)
+	//
+	//		readTy()
+	//	}
+	//
+	//	for r.Tell() < endPos {
+	//		o := int(check.Must1(r.ReadByte()))
+	//
+	//		if o == consts.MathPrefix || o == consts.SimdPrefix {
+	//			o = (o << 8) | int(check.Must1(r.ReadByte()))
+	//		}
+	//
+	//		fmt.Println(o)
+	//
+	//		switch o {
+	//		case consts.Block:
+	//			panic(o)
+	//
+	//		default:
+	//			panic(o)
+	//		}
+	//	}
+	//}
+	//
+	////
+	//
+	//secTy = rf()
+	//fmt.Println(secTy)
+	//check.Equal(secTy, consts.DataSection)
+	//
+	//secSz = leb128.DecodeU64(rf)
+	//fmt.Println(secSz)
+	//check.Must(r.Skip(int64(secSz)))
+	//
+	////
+	//
+	//for r.Len() > 0 {
+	//	secTy = rf()
+	//	fmt.Println(secTy)
+	//	check.Equal(secTy, consts.CustomSection)
+	//
+	//	secSz = leb128.DecodeU64(rf)
+	//	fmt.Println(secSz)
+	//	check.Must(r.Skip(int64(secSz)))
+	//}
 }
