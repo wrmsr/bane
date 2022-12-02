@@ -167,6 +167,53 @@ func (r *ModuleReader) readSection() {
 			}
 		}
 
+	case consts.FunctionSection:
+		numFuncs := int(r.readU64())
+		for i := 0; i < numFuncs; i++ {
+			sigIdx := r.readU64()
+			_ = sigIdx
+		}
+
+	case consts.TableSection:
+		//numTables := int(r.readU64())
+		//for i := 0; i < numTables; i++ {
+		//}
+		check.Must(r.r.Skip(int64(secSz)))
+
+	case consts.CodeSection:
+		numFuncBodies := int(r.readU64())
+
+		for i := 0; i < numFuncBodies; i++ {
+			bodySize := int(r.readU64())
+
+			startPos := r.r.Tell()
+			endPos := startPos + int64(bodySize)
+
+			numLocals := int(r.readU64())
+			for j := 0; j < numLocals; j++ {
+				numTys := int(r.readU64())
+				_ = numTys
+				ty := r.readI64()
+				_ = ty
+			}
+
+			for r.r.Tell() < endPos {
+				o := int(r.readByte())
+
+				if o == consts.MathPrefix || o == consts.SimdPrefix {
+					o = (o << 8) | int(r.readByte())
+				}
+
+				switch o {
+				case consts.Block:
+					panic(o)
+
+				default:
+					panic(o)
+				}
+			}
+		}
+
 	default:
 		fmt.Printf("unhandled section: %v %v\n", secTy, secSz)
 		check.Must(r.r.Skip(int64(secSz)))
@@ -181,166 +228,4 @@ func TestReading(t *testing.T) {
 	r := &ModuleReader{r: NewByteReader(src)}
 	r.ReadModule()
 
-	////
-	//
-	//secTy = rf()
-	//fmt.Println(secTy)
-	//check.Equal(secTy, consts.FunctionSection)
-	//
-	//secSz = leb128.DecodeU64(rf)
-	//fmt.Println(secSz)
-	//
-	//numFuncs := int(leb128.DecodeU64(rf))
-	//fmt.Println(numFuncs)
-	//
-	//for i := 0; i < numFuncs; i++ {
-	//	sigIdx := leb128.DecodeU64(rf)
-	//	fmt.Println(sigIdx)
-	//}
-	//
-	////
-	//
-	//secTy = rf()
-	//fmt.Println(secTy)
-	//check.Equal(secTy, consts.TableSection)
-	//
-	//secSz = leb128.DecodeU64(rf)
-	//fmt.Println(secSz)
-	//
-	////numTables := int(leb128.DecodeU64(rf))
-	////fmt.Println(numTables)
-	////
-	////for i := 0; i < numTables; i++ {
-	////
-	////}
-	//
-	//check.Must(r.Skip(int64(secSz)))
-	//
-	////
-	//
-	//secTy = rf()
-	//fmt.Println(secTy)
-	//check.Equal(secTy, consts.MemorySection)
-	//
-	//secSz = leb128.DecodeU64(rf)
-	//fmt.Println(secSz)
-	//check.Must(r.Skip(int64(secSz)))
-	//
-	////
-	//
-	//secTy = rf()
-	//fmt.Println(secTy)
-	//check.Equal(secTy, consts.GlobalSection)
-	//
-	//secSz = leb128.DecodeU64(rf)
-	//fmt.Println(secSz)
-	//check.Must(r.Skip(int64(secSz)))
-	//
-	////
-	//
-	//secTy = rf()
-	//fmt.Println(secTy)
-	//check.Equal(secTy, consts.ExportSection)
-	//
-	//secSz = leb128.DecodeU64(rf)
-	//fmt.Println(secSz)
-	//check.Must(r.Skip(int64(secSz)))
-	//
-	////
-	//
-	//secTy = rf()
-	//fmt.Println(secTy)
-	//check.Equal(secTy, consts.ElementSection)
-	//
-	//secSz = leb128.DecodeU64(rf)
-	//fmt.Println(secSz)
-	//check.Must(r.Skip(int64(secSz)))
-	//
-	////
-	//
-	//secTy = rf()
-	//fmt.Println(secTy)
-	//check.Equal(secTy, consts.DataCountSection)
-	//
-	//secSz = leb128.DecodeU64(rf)
-	//fmt.Println(secSz)
-	//check.Must(r.Skip(int64(secSz)))
-	//
-	////
-	//
-	//secTy = rf()
-	//fmt.Println(secTy)
-	//check.Equal(secTy, consts.CodeSection)
-	//
-	//secSz = leb128.DecodeU64(rf)
-	//fmt.Println(secSz)
-	////check.Must(r.Skip(int64(secSz)))
-	//
-	//numFuncBodies := int(leb128.DecodeU64(rf))
-	//fmt.Println(numFuncBodies)
-	//
-	//readTy := func() int {
-	//	lty := int(leb128.DecodeI64(rf))
-	//	fmt.Println(lty)
-	//
-	//	return lty
-	//}
-	//
-	//for i := 0; i < numFuncBodies; i++ {
-	//	bodySize := int(leb128.DecodeU64(rf))
-	//	fmt.Println(bodySize)
-	//
-	//	startPos := r.Tell()
-	//	endPos := startPos + int64(bodySize)
-	//
-	//	numLocals := int(leb128.DecodeU64(rf))
-	//	fmt.Println(numLocals)
-	//
-	//	for j := 0; j < numLocals; j++ {
-	//		numLocalTys := int(leb128.DecodeU64(rf))
-	//		fmt.Println(numLocalTys)
-	//
-	//		readTy()
-	//	}
-	//
-	//	for r.Tell() < endPos {
-	//		o := int(check.Must1(r.ReadByte()))
-	//
-	//		if o == consts.MathPrefix || o == consts.SimdPrefix {
-	//			o = (o << 8) | int(check.Must1(r.ReadByte()))
-	//		}
-	//
-	//		fmt.Println(o)
-	//
-	//		switch o {
-	//		case consts.Block:
-	//			panic(o)
-	//
-	//		default:
-	//			panic(o)
-	//		}
-	//	}
-	//}
-	//
-	////
-	//
-	//secTy = rf()
-	//fmt.Println(secTy)
-	//check.Equal(secTy, consts.DataSection)
-	//
-	//secSz = leb128.DecodeU64(rf)
-	//fmt.Println(secSz)
-	//check.Must(r.Skip(int64(secSz)))
-	//
-	////
-	//
-	//for r.Len() > 0 {
-	//	secTy = rf()
-	//	fmt.Println(secTy)
-	//	check.Equal(secTy, consts.CustomSection)
-	//
-	//	secSz = leb128.DecodeU64(rf)
-	//	fmt.Println(secSz)
-	//	check.Must(r.Skip(int64(secSz)))
-	//}
 }
