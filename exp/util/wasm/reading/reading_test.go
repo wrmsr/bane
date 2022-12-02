@@ -103,6 +103,13 @@ func (r *ModuleReader) readI32le() int32 {
 	return v
 }
 
+func (r *ModuleReader) readString() string {
+	l := r.readU64()
+	b := make([]byte, l)
+	check.Must1(r.r.Read(b))
+	return string(b)
+}
+
 func (r *ModuleReader) ReadModule() {
 	magic := r.readI32le()
 	check.Equal(magic, consts.Magic)
@@ -142,6 +149,24 @@ func (r *ModuleReader) readSection() {
 			}
 		}
 
+	case consts.ImportSection:
+		numImps := int(r.readU64())
+		for i := 0; i < numImps; i++ {
+			modName := r.readString()
+			_ = modName
+			fldName := r.readString()
+			_ = fldName
+
+			k := r.readByte()
+			switch k {
+			case consts.FuncImport:
+				idx := r.readU64()
+				_ = idx
+			default:
+				panic(k)
+			}
+		}
+
 	default:
 		fmt.Printf("unhandled section: %v %v\n", secTy, secSz)
 		check.Must(r.r.Skip(int64(secSz)))
@@ -156,43 +181,6 @@ func TestReading(t *testing.T) {
 	r := &ModuleReader{r: NewByteReader(src)}
 	r.ReadModule()
 
-	////
-	//
-	//secTy = rf()
-	//fmt.Println(secTy)
-	//check.Equal(secTy, consts.ImportSection)
-	//
-	//secSz = leb128.DecodeU64(rf)
-	//fmt.Println(secSz)
-	//
-	//numImps := int(leb128.DecodeU64(rf))
-	//fmt.Println(numImps)
-	//
-	//readStr := func() string {
-	//	l := int(leb128.DecodeU64(rf))
-	//	b := make([]byte, l)
-	//	check.Must1(r.Read(b))
-	//	return string(b)
-	//}
-	//
-	//for i := 0; i < numImps; i++ {
-	//	modName := readStr()
-	//	fmt.Println(modName)
-	//	fldName := readStr()
-	//	fmt.Println(fldName)
-	//
-	//	k := check.Must1(r.ReadByte())
-	//	fmt.Println(k)
-	//
-	//	switch k {
-	//	case consts.FuncImport:
-	//		idx := leb128.DecodeU64(rf)
-	//		fmt.Println(idx)
-	//	default:
-	//		panic(k)
-	//	}
-	//}
-	//
 	////
 	//
 	//secTy = rf()
