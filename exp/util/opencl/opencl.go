@@ -19,21 +19,6 @@ import (
 	"github.com/wrmsr/bane/pkg/util/check"
 )
 
-type OpenClError struct {
-	Code int
-}
-
-func (e OpenClError) Error() string {
-	return fmt.Sprintf("opencl error: %d", e.Code)
-}
-
-func toErr(code C.cl_int) error {
-	if code == 0 {
-		return nil
-	}
-	return OpenClError{Code: int(code)}
-}
-
 func GetPlatforms() {
 	var n C.cl_uint
 	check.Must(toErr(C.clGetPlatformIDs(0, nil, &n)))
@@ -41,25 +26,32 @@ func GetPlatforms() {
 	platformIds := make([]C.cl_platform_id, int(n))
 	check.Must(toErr(C.clGetPlatformIDs(n, &platformIds[0], nil)))
 
-	//fmt.Println(platformIds)
-	//var devices []*Device
-	//for _, p := range platformIds {
-	//	var n C.cl_uint
-	//	err = toErr(C.clGetDeviceIDs(p, C.cl_device_type(deviceType), 0, nil, &n))
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	deviceIds := make([]C.cl_device_id, int(n))
-	//	err = toErr(C.clGetDeviceIDs(p, C.cl_device_type(deviceType), n, &deviceIds[0], nil))
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	for _, d := range deviceIds {
-	//		device, err := newDevice(d)
-	//		if err != nil {
-	//			return nil, err
-	//		}
-	//		devices = append(devices, device)
-	//	}
-	//}
+	for _, platformId := range platformIds {
+		const maxDeviceCount = 64
+		var deviceIds [maxDeviceCount]C.cl_device_id
+		var numDevices C.cl_uint
+		check.Must(toErr(C.clGetDeviceIDs(
+			platformId,
+			C.cl_device_type(C.CL_DEVICE_TYPE_ALL),
+			C.cl_uint(maxDeviceCount),
+			&deviceIds[0],
+			&numDevices,
+		)))
+		if numDevices > maxDeviceCount {
+			numDevices = maxDeviceCount
+		}
+
+		var err C.cl_int
+		clContext := C.clCreateContext(
+			nil,
+			C.cl_uint(len(deviceIds)),
+			&deviceIds[0],
+			nil,
+			nil,
+			&err,
+		)
+		check.Must(toErr(err))
+
+		fmt.Println(clContext)
+	}
 }

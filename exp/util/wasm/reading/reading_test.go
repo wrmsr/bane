@@ -206,7 +206,68 @@ func (r *ModuleReader) readSection() {
 
 				switch o {
 				case consts.Block:
-					panic(o)
+					ty := r.readI64()
+					_ = ty
+
+				case
+					consts.LocalGet,
+					consts.LocalSet,
+					consts.GlobalGet,
+					consts.GlobalSet:
+					idx := r.readU64()
+					_ = idx
+
+				case consts.Call:
+					idx := r.readU64()
+					_ = idx
+
+				case consts.Const_I32:
+					v := int32(r.readI64())
+					_ = v
+
+				case consts.Const_I64:
+					v := r.readI64()
+					_ = v
+
+				case
+					consts.Eqz_I32,
+					consts.Eq_I32,
+					consts.Ne_I32,
+					consts.LtS_I32,
+					consts.LtU_I32,
+					consts.GtS_I32,
+					consts.GtU_I32,
+					consts.LeS_I32,
+					consts.LeU_I32,
+					consts.GeS_I32,
+					consts.GeU_I32,
+
+					consts.Eqz_I64,
+					consts.Eq_I64,
+					consts.Ne_I64,
+					consts.LtS_I64,
+					consts.LtU_I64,
+					consts.GtS_I64,
+					consts.GtU_I64,
+					consts.LeS_I64,
+					consts.LeU_I64,
+					consts.GeS_I64,
+					consts.GeU_I64,
+
+					consts.Eq_F32,
+					consts.Ne_F32,
+					consts.Lt_F32,
+					consts.Gt_F32,
+					consts.Le_F32,
+					consts.Ge_F32,
+
+					consts.Eq_F64,
+					consts.Ne_F64,
+					consts.Lt_F64,
+					consts.Gt_F64,
+					consts.Le_F64,
+					consts.Ge_F64:
+					//
 
 				default:
 					panic(o)
