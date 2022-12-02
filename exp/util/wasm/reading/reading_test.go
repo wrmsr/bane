@@ -33,9 +33,7 @@ func (r *ByteReader) Len() int {
 
 func (r *ByteReader) Size() int64 { return int64(len(r.s)) }
 
-func (r *ByteReader) Tell() int64 {
-	return r.i
-}
+func (r *ByteReader) Tell() int64 { return r.i }
 
 func (r *ByteReader) Read(b []byte) (n int, err error) {
 	if r.i >= int64(len(r.s)) {
@@ -67,6 +65,14 @@ func (r *ByteReader) ReadByte() (byte, error) {
 	b := r.s[r.i]
 	r.i++
 	return b, nil
+}
+
+func (r *ByteReader) Skip(n int64) error {
+	if (r.i + n) > int64(len(r.s)) {
+		return io.EOF
+	}
+	r.i += n
+	return nil
 }
 
 func NewByteReader(b []byte) *ByteReader {
@@ -179,10 +185,78 @@ func TestReading(t *testing.T) {
 	secSz = leb128.DecodeU64(rf)
 	fmt.Println(secSz)
 
-	numTables := int(leb128.DecodeU64(rf))
-	fmt.Println(numTables)
+	//numTables := int(leb128.DecodeU64(rf))
+	//fmt.Println(numTables)
+	//
+	//for i := 0; i < numTables; i++ {
+	//
+	//}
 
-	for i := 0; i < numTables; i++ {
+	check.Must(r.Skip(int64(secSz)))
 
+	secTy = rf()
+	fmt.Println(secTy)
+	check.Equal(secTy, consts.MemorySection)
+
+	secSz = leb128.DecodeU64(rf)
+	fmt.Println(secSz)
+	check.Must(r.Skip(int64(secSz)))
+
+	secTy = rf()
+	fmt.Println(secTy)
+	check.Equal(secTy, consts.GlobalSection)
+
+	secSz = leb128.DecodeU64(rf)
+	fmt.Println(secSz)
+	check.Must(r.Skip(int64(secSz)))
+
+	secTy = rf()
+	fmt.Println(secTy)
+	check.Equal(secTy, consts.ExportSection)
+
+	secSz = leb128.DecodeU64(rf)
+	fmt.Println(secSz)
+	check.Must(r.Skip(int64(secSz)))
+
+	secTy = rf()
+	fmt.Println(secTy)
+	check.Equal(secTy, consts.ElementSection)
+
+	secSz = leb128.DecodeU64(rf)
+	fmt.Println(secSz)
+	check.Must(r.Skip(int64(secSz)))
+
+	secTy = rf()
+	fmt.Println(secTy)
+	check.Equal(secTy, consts.DataCountSection)
+
+	secSz = leb128.DecodeU64(rf)
+	fmt.Println(secSz)
+	check.Must(r.Skip(int64(secSz)))
+
+	secTy = rf()
+	fmt.Println(secTy)
+	check.Equal(secTy, consts.CodeSection)
+
+	secSz = leb128.DecodeU64(rf)
+	fmt.Println(secSz)
+	check.Must(r.Skip(int64(secSz)))
+
+	secTy = rf()
+	fmt.Println(secTy)
+	check.Equal(secTy, consts.DataSection)
+
+	secSz = leb128.DecodeU64(rf)
+	fmt.Println(secSz)
+	check.Must(r.Skip(int64(secSz)))
+
+	for r.Len() > 0 {
+		secTy = rf()
+		fmt.Println(secTy)
+		check.Equal(secTy, consts.CustomSection)
+
+		secSz = leb128.DecodeU64(rf)
+		fmt.Println(secSz)
+		check.Must(r.Skip(int64(secSz)))
 	}
 }
