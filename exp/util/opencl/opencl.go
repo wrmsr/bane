@@ -19,6 +19,13 @@ import (
 	"github.com/wrmsr/bane/pkg/util/check"
 )
 
+func toErr(code C.cl_int) error {
+	if code == C.CL_SUCCESS {
+		return nil
+	}
+	return OpenClError{Code: int(code)}
+}
+
 func GetPlatforms() {
 	var n C.cl_uint
 	check.Must(toErr(C.clGetPlatformIDs(0, nil, &n)))
@@ -44,7 +51,7 @@ func GetPlatforms() {
 		var err C.cl_int
 		clContext := C.clCreateContext(
 			nil,
-			C.cl_uint(len(deviceIds)),
+			C.cl_uint(numDevices),
 			&deviceIds[0],
 			nil,
 			nil,
@@ -52,6 +59,17 @@ func GetPlatforms() {
 		)
 		check.Must(toErr(err))
 
-		fmt.Println(clContext)
+		defer func() { C.clReleaseContext(clContext) }()
+
+		clQueue := C.clCreateCommandQueue(
+			clContext,
+			deviceIds[0],
+			C.cl_command_queue_properties(0),
+			&err,
+		)
+		check.Must(toErr(err))
+		check.NotNil(clQueue)
+
+		fmt.Println(clQueue)
 	}
 }

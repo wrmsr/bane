@@ -76,10 +76,3 @@ type OpenClError struct {
 func (e OpenClError) Error() string {
 	return fmt.Sprintf("opencl error: %d", e.Code)
 }
-
-func toErr(code C.cl_int) error {
-	if code == C.CL_SUCCESS {
-		return nil
-	}
-	return OpenClError{Code: int(code)}
-}
