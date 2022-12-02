@@ -97,6 +97,8 @@ func TestReading(t *testing.T) {
 		return check.Must1(r.ReadByte())
 	}
 
+	//
+
 	secTy := rf()
 	fmt.Println(secTy)
 	check.Equal(secTy, consts.TypeSection)
@@ -127,6 +129,8 @@ func TestReading(t *testing.T) {
 			fmt.Println(rty)
 		}
 	}
+
+	//
 
 	secTy = rf()
 	fmt.Println(secTy)
@@ -163,6 +167,8 @@ func TestReading(t *testing.T) {
 		}
 	}
 
+	//
+
 	secTy = rf()
 	fmt.Println(secTy)
 	check.Equal(secTy, consts.FunctionSection)
@@ -177,6 +183,8 @@ func TestReading(t *testing.T) {
 		sigIdx := leb128.DecodeU64(rf)
 		fmt.Println(sigIdx)
 	}
+
+	//
 
 	secTy = rf()
 	fmt.Println(secTy)
@@ -194,6 +202,8 @@ func TestReading(t *testing.T) {
 
 	check.Must(r.Skip(int64(secSz)))
 
+	//
+
 	secTy = rf()
 	fmt.Println(secTy)
 	check.Equal(secTy, consts.MemorySection)
@@ -201,6 +211,8 @@ func TestReading(t *testing.T) {
 	secSz = leb128.DecodeU64(rf)
 	fmt.Println(secSz)
 	check.Must(r.Skip(int64(secSz)))
+
+	//
 
 	secTy = rf()
 	fmt.Println(secTy)
@@ -210,6 +222,8 @@ func TestReading(t *testing.T) {
 	fmt.Println(secSz)
 	check.Must(r.Skip(int64(secSz)))
 
+	//
+
 	secTy = rf()
 	fmt.Println(secTy)
 	check.Equal(secTy, consts.ExportSection)
@@ -217,6 +231,8 @@ func TestReading(t *testing.T) {
 	secSz = leb128.DecodeU64(rf)
 	fmt.Println(secSz)
 	check.Must(r.Skip(int64(secSz)))
+
+	//
 
 	secTy = rf()
 	fmt.Println(secTy)
@@ -226,6 +242,8 @@ func TestReading(t *testing.T) {
 	fmt.Println(secSz)
 	check.Must(r.Skip(int64(secSz)))
 
+	//
+
 	secTy = rf()
 	fmt.Println(secTy)
 	check.Equal(secTy, consts.DataCountSection)
@@ -234,13 +252,63 @@ func TestReading(t *testing.T) {
 	fmt.Println(secSz)
 	check.Must(r.Skip(int64(secSz)))
 
+	//
+
 	secTy = rf()
 	fmt.Println(secTy)
 	check.Equal(secTy, consts.CodeSection)
 
 	secSz = leb128.DecodeU64(rf)
 	fmt.Println(secSz)
-	check.Must(r.Skip(int64(secSz)))
+	//check.Must(r.Skip(int64(secSz)))
+
+	numFuncBodies := int(leb128.DecodeU64(rf))
+	fmt.Println(numFuncBodies)
+
+	readTy := func() int {
+		lty := int(leb128.DecodeI64(rf))
+		fmt.Println(lty)
+
+		return lty
+	}
+
+	for i := 0; i < numFuncBodies; i++ {
+		bodySize := int(leb128.DecodeU64(rf))
+		fmt.Println(bodySize)
+
+		startPos := r.Tell()
+		endPos := startPos + int64(bodySize)
+
+		numLocals := int(leb128.DecodeU64(rf))
+		fmt.Println(numLocals)
+
+		for j := 0; j < numLocals; j++ {
+			numLocalTys := int(leb128.DecodeU64(rf))
+			fmt.Println(numLocalTys)
+
+			readTy()
+		}
+
+		for r.Tell() < endPos {
+			o := int(check.Must1(r.ReadByte()))
+
+			if o == consts.MathPrefix || o == consts.SimdPrefix {
+				o = (o << 8) | int(check.Must1(r.ReadByte()))
+			}
+
+			fmt.Println(o)
+
+			switch o {
+			case consts.Block:
+				panic(o)
+
+			default:
+				panic(o)
+			}
+		}
+	}
+
+	//
 
 	secTy = rf()
 	fmt.Println(secTy)
@@ -249,6 +317,8 @@ func TestReading(t *testing.T) {
 	secSz = leb128.DecodeU64(rf)
 	fmt.Println(secSz)
 	check.Must(r.Skip(int64(secSz)))
+
+	//
 
 	for r.Len() > 0 {
 		secTy = rf()

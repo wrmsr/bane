@@ -16,6 +16,8 @@ const (
 	// vectype
 
 	V128 = 0x7B
+	I8   = 0x7A
+	I16  = 0x79
 
 	// reftype
 
@@ -29,6 +31,11 @@ const (
 
 	ConstGlobalType = 0x00
 	VarGlobalType   = 0x01
+
+	// prefixes
+
+	MathPrefix = 0xFC
+	SimdPrefix = 0xFD
 
 	// control
 
