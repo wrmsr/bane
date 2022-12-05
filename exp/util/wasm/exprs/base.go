@@ -1,16 +1,13 @@
 package exprs
 
-import (
-	"fmt"
+import "github.com/wrmsr/bane/exp/util/wasm/text"
 
-	wr "github.com/wrmsr/bane/exp/util/wasm/rendering"
-)
+//
 
 type Expr interface {
 	isExpr()
 
-	wr.Renderer
-	fmt.Stringer
+	Text() text.Element
 }
 
 type expr struct{}

@@ -5,6 +5,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/wrmsr/bane/exp/util/wasm/text"
 	"github.com/wrmsr/bane/pkg/util/slices"
 )
 
@@ -79,11 +80,11 @@ l:
 	return sb.String()
 }
 
-func (r *Reader) ReadElement() Element {
-	var stk slices.Stack[[]Element]
+func (r *Reader) ReadElement() text.Element {
+	var stk slices.Stack[[]text.Element]
 l:
 	for {
-		var p Element
+		var p text.Element
 		switch s := r.readString(); {
 		case s == "":
 			break
@@ -97,18 +98,18 @@ l:
 				panic("mismatched parens")
 			}
 			if len(stk) < 2 {
-				return List{Ps: stk[0]}
+				return text.List{Ps: stk[0]}
 			}
-			p = List{Ps: stk.Pop()}
+			p = text.List{Ps: stk.Pop()}
 
 		case s[0] == '"':
 			if s[0] != '"' || s[len(s)-1] != '"' {
 				panic("mismatched quotes")
 			}
-			p = Quote{S: s[1 : len(s)-1]}
+			p = text.Quote{S: s[1 : len(s)-1]}
 
 		default:
-			p = Atom{S: s}
+			p = text.Atom{S: s}
 		}
 
 		if len(stk) > 0 {

@@ -1,46 +1,11 @@
-package parsing
+package text
 
 import (
-	"fmt"
 	"io"
 
 	wr "github.com/wrmsr/bane/exp/util/wasm/rendering"
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
-
-//
-
-type Element interface {
-	isElement()
-
-	wr.Renderer
-	fmt.Stringer
-}
-
-type element struct{}
-
-func (p element) isElement() {}
-
-type Atom struct {
-	element
-	S string
-}
-
-var _ Element = Atom{}
-
-type Quote struct {
-	element
-	S string
-}
-
-var _ Element = Quote{}
-
-type List struct {
-	element
-	Ps []Element
-}
-
-var _ Element = List{}
 
 //
 
@@ -67,6 +32,8 @@ func (e List) Render(w io.Writer) {
 	}
 	d.Byte(')')
 }
+
+//
 
 func (e Atom) String() string  { return wr.RenderString(e) }
 func (e Quote) String() string { return wr.RenderString(e) }

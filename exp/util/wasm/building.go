@@ -6,19 +6,19 @@ import (
 
 	we "github.com/wrmsr/bane/exp/util/wasm/exprs"
 	wm "github.com/wrmsr/bane/exp/util/wasm/modules"
-	wp "github.com/wrmsr/bane/exp/util/wasm/parsing"
+	"github.com/wrmsr/bane/exp/util/wasm/text"
 	wt "github.com/wrmsr/bane/exp/util/wasm/types"
 	"github.com/wrmsr/bane/pkg/util/check"
 )
 
-func BuildModule(root wp.List) {
-	if root.Ps[0].(wp.Atom).S != "module" {
+func BuildModule(root text.List) {
+	if root.Ps[0].(text.Atom).S != "module" {
 		panic("invalid module")
 	}
 
 	for _, c := range root.Ps[1:] {
-		l := c.(wp.List)
-		switch k := l.Ps[0].(wp.Atom).S; k {
+		l := c.(text.List)
+		switch k := l.Ps[0].(text.Atom).S; k {
 
 		case "memory":
 			//
@@ -54,17 +54,17 @@ func BuildModule(root wp.List) {
 	}
 }
 
-func BuildFunc(root wp.List) wm.Func {
-	if root.Ps[0].(wp.Atom).S != "func" {
+func BuildFunc(root text.List) wm.Func {
+	if root.Ps[0].(text.Atom).S != "func" {
 		panic("invalid func")
 	}
-	name := root.Ps[1].(wp.Atom).S
+	name := root.Ps[1].(text.Atom).S
 
 	i := 2
 l:
 	for ; i < len(root.Ps); i++ {
-		l := root.Ps[i].(wp.List)
-		switch k := l.Ps[0].(wp.Atom).S; k {
+		l := root.Ps[i].(text.List)
+		switch k := l.Ps[0].(text.Atom).S; k {
 
 		case "param":
 			//
@@ -85,7 +85,7 @@ l:
 
 	var bes []we.Expr
 	for ; i < len(root.Ps); i++ {
-		l := root.Ps[i].(wp.List)
+		l := root.Ps[i].(text.List)
 
 		be := BuildExpr(l)
 		bes = append(bes, be)
@@ -109,8 +109,8 @@ l:
 	}
 }
 
-func BuildExpr(root wp.List) we.Expr {
-	k := root.Ps[0].(wp.Atom).S
+func BuildExpr(root text.List) we.Expr {
+	k := root.Ps[0].(text.Atom).S
 
 	var dot string
 	if i := strings.Index(k, "."); i > 0 {
@@ -121,10 +121,10 @@ func BuildExpr(root wp.List) we.Expr {
 	switch k {
 
 	case "block":
-		id := root.Ps[1].(wp.Atom).S
+		id := root.Ps[1].(text.Atom).S
 		var s []we.Expr
 		for i := 2; i < len(root.Ps); i++ {
-			l := root.Ps[i].(wp.List)
+			l := root.Ps[i].(text.List)
 			s = append(s, BuildExpr(l))
 		}
 		return we.Block{
@@ -136,7 +136,7 @@ func BuildExpr(root wp.List) we.Expr {
 		check.Equal(len(root.Ps), 2)
 		ty := wt.ParseType(dot)
 		return we.Const{
-			S:  root.Ps[1].(wp.Atom).S,
+			S:  root.Ps[1].(text.Atom).S,
 			Ty: ty,
 		}
 
@@ -157,8 +157,8 @@ func BuildExpr(root wp.List) we.Expr {
 
 	case "set_local":
 		check.Equal(len(root.Ps), 3)
-		n := root.Ps[1].(wp.Atom).S
-		v := BuildExpr(root.Ps[2].(wp.List))
+		n := root.Ps[1].(text.Atom).S
+		v := BuildExpr(root.Ps[2].(text.List))
 		return we.SetLocal{
 			N: n,
 			V: v,
@@ -167,11 +167,11 @@ func BuildExpr(root wp.List) we.Expr {
 	//
 
 	case "select":
-		c := BuildExpr(root.Ps[1].(wp.List))
-		t := BuildExpr(root.Ps[2].(wp.List))
+		c := BuildExpr(root.Ps[1].(text.List))
+		t := BuildExpr(root.Ps[2].(text.List))
 		var f we.Expr
 		if len(root.Ps) > 3 {
-			f = BuildExpr(root.Ps[3].(wp.List))
+			f = BuildExpr(root.Ps[3].(text.List))
 		}
 		check.Condition(len(root.Ps) < 5)
 		return we.Select{

@@ -31,6 +31,16 @@ var _ Expr = Block{}
 
 //
 
+type If struct {
+	expr
+	Then []Expr
+	Else []Expr
+}
+
+var _ Expr = If{}
+
+//
+
 type Nop struct {
 	expr
 }

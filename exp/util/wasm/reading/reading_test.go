@@ -197,6 +197,7 @@ func (r *ModuleReader) readSection() {
 				_ = ty
 			}
 
+			//var es []exprs.Expr
 			for r.r.Tell() < endPos {
 				o := int(r.readByte())
 
