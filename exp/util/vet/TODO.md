@@ -1,1 +1,2 @@
 - NoDiscard
+- Const globals - structs, etc, try to enforce no modification
