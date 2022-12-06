@@ -32,6 +32,8 @@ const (
 	ConstGlobalType = 0x00
 	VarGlobalType   = 0x01
 
+	BlockType = 0x40
+
 	// prefixes
 
 	MathPrefix = 0xFC
@@ -39,7 +41,6 @@ const (
 
 	// control
 
-	BlockType    = 0x40
 	Unreachable  = 0x00
 	Nop          = 0x01
 	Block        = 0x02
@@ -527,6 +528,8 @@ const (
 	DemoteF64X2Zero_F32X4     = 0xFD_5E
 	PromoteLowF32X4_F64X2     = 0xFD_5F
 
+	// sections
+
 	CustomSection    = 0
 	TypeSection      = 1
 	ImportSection    = 2
@@ -570,6 +573,8 @@ const (
 	   | 1:u32 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode passive}
 	   | 2:u32 𝑥:memidx 𝑒:expr 𝑏 * :vec(byte) ⇒ {init 𝑏 * , mode active {memory 𝑥, offset 𝑒}}
 	*/
+
+	// special
 
 	Magic   = 0x6D_73_61_00
 	Version = 0x00_00_00_01

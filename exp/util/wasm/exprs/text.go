@@ -42,6 +42,10 @@ func (e If) Text() text.Element {
 	return l
 }
 
+func (e LocalGet) Text() text.Element {
+	return text.L("local_get", text.A(e.I))
+}
+
 func (e Nop) Text() text.Element {
 	return text.L("nop")
 }

@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/wrmsr/bane/exp/util/wasm/exprs"
 	"github.com/wrmsr/bane/exp/util/wasm/reading/consts"
 	"github.com/wrmsr/bane/exp/util/wasm/reading/leb128"
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -197,7 +198,7 @@ func (r *ModuleReader) readSection() {
 				_ = ty
 			}
 
-			//var es []exprs.Expr
+			var es []exprs.Expr
 			for r.r.Tell() < endPos {
 				o := int(r.readByte())
 
@@ -211,7 +212,11 @@ func (r *ModuleReader) readSection() {
 					_ = ty
 
 				case
-					consts.LocalGet,
+					consts.LocalGet:
+					idx := r.readU64()
+					es = append(es, exprs.LocalGet{I: int(idx)})
+
+				case
 					consts.LocalSet,
 					consts.GlobalGet,
 					consts.GlobalSet:

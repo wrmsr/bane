@@ -8,3 +8,12 @@ instr ::= ...
   | global.set globalidx
 */
 package exprs
+
+//
+
+type LocalGet struct {
+	expr
+	I int
+}
+
+var _ Expr = LocalGet{}

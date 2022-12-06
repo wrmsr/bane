@@ -21,6 +21,20 @@ func (e *List) Append(os ...any) *List {
 	return e
 }
 
+func A(o any) Atom {
+	switch o := o.(type) {
+
+	case Atom:
+		return o
+
+	case string:
+		return Atom{S: o}
+
+	default:
+		return Atom{S: fmt.Sprintf("%v", o)}
+	}
+}
+
 func Q(o any) Quote {
 	switch o := o.(type) {
 
