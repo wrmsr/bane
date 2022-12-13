@@ -28,6 +28,7 @@ PYTHON_DEPS=\
 	ipython \
 	numpy \
 	pandas \
+	pyyaml \
 	torch \
 	torchvision \
 	\
