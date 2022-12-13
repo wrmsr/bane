@@ -84,6 +84,18 @@ func (t F64) String() string { return wr.RenderString(t) }
 
 //
 
+type V128 struct {
+	type_
+}
+
+var _ Type = V128{}
+
+func (t V128) Render(w io.Writer) { iou.Dw(w).String("v128") }
+
+func (t V128) String() string { return wr.RenderString(t) }
+
+//
+
 func ParseType(s string) Type {
 	switch s {
 	case "i32":
@@ -94,6 +106,8 @@ func ParseType(s string) Type {
 		return F32{}
 	case "f64":
 		return F64{}
+	case "v128":
+		return V128{}
 	}
 	panic(s)
 }
