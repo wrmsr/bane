@@ -18,8 +18,11 @@ func render(ds []instrs.Def) string {
 	for i, d := range ds {
 		_, _ = fmt.Fprintf(&sb, "  {\"L\": \"%s\"", d.L)
 
+		wfr := func(k, v string) {
+			_, _ = fmt.Fprintf(&sb, ", \"%s\": %s", k, v)
+		}
 		wf := func(k, v string) {
-			_, _ = fmt.Fprintf(&sb, ", \"%s\": \"%s\"", k, v)
+			wfr(k, fmt.Sprintf("\"%s\"", v))
 		}
 		wf("N", d.N)
 
@@ -50,7 +53,7 @@ func render(ds []instrs.Def) string {
 			wf("Ma", d.Ma.String())
 		}
 		if d.Mz != 0 {
-			wf("Ma", strconv.Itoa(d.Mz))
+			wfr("Mz", strconv.Itoa(d.Mz))
 		}
 
 		_, _ = sb.WriteString("}")
