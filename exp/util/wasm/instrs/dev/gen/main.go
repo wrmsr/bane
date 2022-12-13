@@ -16,7 +16,7 @@ func render(ds []instrs.Def) string {
 	_, _ = sb.WriteString("[\n")
 
 	for i, d := range ds {
-		_, _ = fmt.Fprintf(&sb, "  {\"L\": \"%s\"", d.L)
+		_, _ = fmt.Fprintf(&sb, "  {\"L\": \"%s\"", d.Class)
 
 		wfr := func(k, v string) {
 			_, _ = fmt.Fprintf(&sb, ", \"%s\": %s", k, v)
@@ -24,9 +24,9 @@ func render(ds []instrs.Def) string {
 		wf := func(k, v string) {
 			wfr(k, fmt.Sprintf("\"%s\"", v))
 		}
-		wf("N", d.N)
+		wf("N", d.Name)
 
-		ox := strconv.FormatInt(int64(d.O), 16)
+		ox := strconv.FormatInt(int64(d.Op), 16)
 		if len(ox)%2 != 0 {
 			ox = "0" + ox
 		}
