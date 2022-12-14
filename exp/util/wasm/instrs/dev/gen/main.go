@@ -84,5 +84,11 @@ func main() {
 	var jds []JsonDef
 	check.Must(json.Unmarshal(jb, &jds))
 
-	fmt.Println(jds)
+	var sb strings.Builder
+
+	for i, jd := range jds {
+		_, _ = fmt.Fprintf(&sb, "Def{I: %d, N: \"%s\"}\n", i+1, jd.Name)
+	}
+
+	fmt.Println(sb.String())
 }
