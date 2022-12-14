@@ -1,8 +1,3 @@
-//
-/*
--
-	"L": "numeric", "N": "add_i32", "O": "6A", "T": "i32", "A": "i32", "B": "i32"
-*/
 package instrs
 
 import wt "github.com/wrmsr/bane/exp/util/wasm/types"
