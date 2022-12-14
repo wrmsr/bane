@@ -3,12 +3,15 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/wrmsr/bane/exp/util/wasm/instrs"
 	wt "github.com/wrmsr/bane/exp/util/wasm/types"
 	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/dev/paths"
 )
 
 func render(ds []instrs.Def) string {
@@ -75,13 +78,11 @@ type JsonDef struct {
 }
 
 func main() {
-	ds := instrs.All()
-
-	j := render(ds)
-	fmt.Print(j)
+	//jb := []byte(render(instrs.All()))
+	jb := check.Must1(os.ReadFile(filepath.Join(paths.FindProjectRoot(), "exp/util/wasm/instrs/dev/gen/defs.json")))
 
 	var jds []JsonDef
-	check.Must(json.Unmarshal([]byte(j), &jds))
+	check.Must(json.Unmarshal(jb, &jds))
 
 	fmt.Println(jds)
 }
