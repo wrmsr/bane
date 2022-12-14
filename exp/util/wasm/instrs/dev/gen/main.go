@@ -16,7 +16,7 @@ func render(ds []instrs.Def) string {
 	_, _ = sb.WriteString("[\n")
 
 	for i, d := range ds {
-		_, _ = fmt.Fprintf(&sb, "  {\"L\": \"%s\"", d.Class)
+		_, _ = fmt.Fprintf(&sb, "  {\"Class\": \"%s\"", d.Class)
 
 		wfr := func(k, v string) {
 			_, _ = fmt.Fprintf(&sb, ", \"%s\": %s", k, v)
@@ -24,30 +24,22 @@ func render(ds []instrs.Def) string {
 		wf := func(k, v string) {
 			wfr(k, fmt.Sprintf("\"%s\"", v))
 		}
-		wf("N", d.Name)
+		wf("Name", d.Name)
 
-		ox := strconv.FormatInt(int64(d.Op), 16)
-		if len(ox)%2 != 0 {
-			ox = "0" + ox
+		if ox := (d.Op & 0xFF00) >> 8; ox != 0 {
+			wf("OpPfx", strconv.FormatInt(int64(ox), 16))
 		}
-		var oy string
-		for j := 0; j < len(ox); j += 2 {
-			if j > 0 {
-				oy = "_" + oy
-			}
-			oy = ox[j:j+2] + oy
-		}
-		wf("O", oy)
+		wf("Op", strconv.FormatInt(int64(d.Op&0xFF), 16))
 
-		wt := func(k string, t wt.Type) {
+		wtf := func(k string, t wt.Type) {
 			if t != nil {
 				wf(k, t.String())
 			}
 		}
-		wt("T", d.T)
-		wt("A", d.A)
-		wt("B", d.B)
-		wt("C", d.C)
+		wtf("T", d.T)
+		wtf("A", d.A)
+		wtf("B", d.B)
+		wtf("C", d.C)
 
 		if d.Ma != 0 {
 			wf("Ma", d.Ma.String())
@@ -68,9 +60,10 @@ func render(ds []instrs.Def) string {
 }
 
 type JsonDef struct {
-	L string
-	N string
-	O string
+	Class string
+	Name  string
+	OpPfx string
+	Op    string
 
 	T string
 	A string

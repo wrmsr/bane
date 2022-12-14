@@ -75,8 +75,8 @@ const (
 	Op_Store8_I64  = 0x3C
 	Op_Store16_I64 = 0x3D
 	Op_Store32_I64 = 0x3E
-	Op_MemorySize  = 0x3F_00
-	Op_MemoryGrow  = 0x40_00
+	Op_MemorySize  = 0x3F
+	Op_MemoryGrow  = 0x40
 	Op_MemoryInit  = 0xFC_08
 	Op_DataDrop    = 0xFC_09
 	Op_MemoryCopy  = 0xFC_0A
