@@ -29,3 +29,13 @@ type Def struct {
 	Ma instrs.Access
 	Mz int
 }
+
+//
+
+type Instr = instrs.Instr
+
+const (
+	Control = instrs.Control
+)
+
+//

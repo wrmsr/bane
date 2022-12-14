@@ -94,7 +94,8 @@ func main() {
 	)
 
 	_, _ = sbInsts.WriteString("const (\n")
-	_, _ = sbDefs.WriteString("var defs := []Def{\n")
+	_, _ = sbInsts.WriteString("\t_ Instr = 0\n\n")
+	_, _ = sbDefs.WriteString("var defs = []Def{\n")
 
 	title := cases.Title(language.Und).String
 
@@ -113,16 +114,16 @@ func main() {
 
 		_, _ = fmt.Fprintf(&sbInsts, "%s = %d\n", n, i)
 
-		_, _ = sbDefs.WriteString("Def{")
+		_, _ = sbDefs.WriteString("{")
 
 		_, _ = fmt.Fprintf(&sbDefs, "I: %s", n)
 		_, _ = fmt.Fprintf(&sbDefs, ", Class: %s", title(jd.Class))
 		_, _ = fmt.Fprintf(&sbDefs, ", Name: \"%s\"", jd.Name)
 
 		if jd.OpPfx != "" {
-			_, _ = fmt.Fprintf(&sbDefs, ", OpPfx: 0x%s", strings.ToUpper(jd.OpPfx))
+			_, _ = fmt.Fprintf(&sbDefs, ", OpPfx: int8(0x%s)", strings.ToUpper(jd.OpPfx))
 		}
-		_, _ = fmt.Fprintf(&sbDefs, ", Op: 0x%s", strings.ToUpper(jd.Op))
+		_, _ = fmt.Fprintf(&sbDefs, ", Op: int8(0x%s)", strings.ToUpper(jd.Op))
 
 		wtf := func(k, v string) {
 			if v != "" {
