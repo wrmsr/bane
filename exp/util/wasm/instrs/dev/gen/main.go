@@ -93,6 +93,9 @@ func main() {
 		sbDefs  strings.Builder
 	)
 
+	_, _ = sbInsts.WriteString("const (\n")
+	_, _ = sbDefs.WriteString("var defs := []Def{\n")
+
 	title := cases.Title(language.Und).String
 
 	for j, jd := range jds {
@@ -138,8 +141,11 @@ func main() {
 			_, _ = fmt.Fprintf(&sbDefs, ", Mz: %d", jd.Mz)
 		}
 
-		_, _ = sbDefs.WriteString("}\n")
+		_, _ = sbDefs.WriteString("},\n")
 	}
+
+	_, _ = sbInsts.WriteString(")")
+	_, _ = sbDefs.WriteString("}")
 
 	fmt.Println(sbInsts.String())
 	fmt.Println(sbDefs.String())
