@@ -93,8 +93,12 @@ func main() {
 		i := j + 1
 		_, _ = sb.WriteString("Def{")
 		_, _ = fmt.Fprintf(&sb, "I: %d", i)
-		_, _ = fmt.Fprintf(&sb, ", \"Class\": %s", cases.Title(language.Und).String(jd.Class))
-		_, _ = fmt.Fprintf(&sb, ", \"Name\": \"%s\"", jd.Name)
+		_, _ = fmt.Fprintf(&sb, ", Class: %s", cases.Title(language.Und).String(jd.Class))
+		_, _ = fmt.Fprintf(&sb, ", Name: \"%s\"", jd.Name)
+		if jd.OpPfx != "" {
+			_, _ = fmt.Fprintf(&sb, ", OpPfx: 0x%s", strings.ToUpper(jd.OpPfx))
+		}
+		_, _ = fmt.Fprintf(&sb, ", Op: 0x%s", strings.ToUpper(jd.Op))
 		_, _ = sb.WriteString("}\n")
 	}
 
