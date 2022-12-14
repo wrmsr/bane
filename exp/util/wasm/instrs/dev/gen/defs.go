@@ -14,6 +14,8 @@ const (
 )
 
 type Def struct {
+	I instrs.Instr
+
 	Class instrs.Class
 	Name  string
 	OpPfx int8

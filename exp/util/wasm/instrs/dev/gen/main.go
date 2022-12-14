@@ -8,6 +8,9 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
 	"github.com/wrmsr/bane/exp/util/wasm/instrs"
 	wt "github.com/wrmsr/bane/exp/util/wasm/types"
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -86,8 +89,13 @@ func main() {
 
 	var sb strings.Builder
 
-	for i, jd := range jds {
-		_, _ = fmt.Fprintf(&sb, "Def{I: %d, N: \"%s\"}\n", i+1, jd.Name)
+	for j, jd := range jds {
+		i := j + 1
+		_, _ = sb.WriteString("Def{")
+		_, _ = fmt.Fprintf(&sb, "I: %d", i)
+		_, _ = fmt.Fprintf(&sb, ", \"Class\": %s", cases.Title(language.Und).String(jd.Class))
+		_, _ = fmt.Fprintf(&sb, ", \"Name\": \"%s\"", jd.Name)
+		_, _ = sb.WriteString("}\n")
 	}
 
 	fmt.Println(sb.String())
