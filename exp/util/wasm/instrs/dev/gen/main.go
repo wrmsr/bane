@@ -15,6 +15,7 @@ import (
 	wt "github.com/wrmsr/bane/exp/util/wasm/types"
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
+	stru "github.com/wrmsr/bane/pkg/util/strings"
 )
 
 func render(ds []instrs.Def) string {
@@ -33,9 +34,9 @@ func render(ds []instrs.Def) string {
 		wf("Name", d.Name)
 
 		if ox := (d.Op & 0xFF00) >> 8; ox != 0 {
-			wf("OpPfx", strconv.FormatInt(int64(ox), 16))
+			wf("OpPfx", fmt.Sprintf("%02X", ox))
 		}
-		wf("Op", strconv.FormatInt(int64(d.Op&0xFF), 16))
+		wf("Op", fmt.Sprintf("%02X", d.Op&0xFF))
 
 		wtf := func(k string, t wt.Type) {
 			if t != nil {
@@ -87,20 +88,59 @@ func main() {
 	var jds []JsonDef
 	check.Must(json.Unmarshal(jb, &jds))
 
-	var sb strings.Builder
+	var (
+		sbInsts strings.Builder
+		sbDefs  strings.Builder
+	)
+
+	title := cases.Title(language.Und).String
 
 	for j, jd := range jds {
 		i := j + 1
-		_, _ = sb.WriteString("Def{")
-		_, _ = fmt.Fprintf(&sb, "I: %d", i)
-		_, _ = fmt.Fprintf(&sb, ", Class: %s", cases.Title(language.Und).String(jd.Class))
-		_, _ = fmt.Fprintf(&sb, ", Name: \"%s\"", jd.Name)
-		if jd.OpPfx != "" {
-			_, _ = fmt.Fprintf(&sb, ", OpPfx: 0x%s", strings.ToUpper(jd.OpPfx))
+
+		_, _ = sbInsts.WriteString("\t")
+		_, _ = sbDefs.WriteString("\t")
+
+		n := stru.ToCamel(jd.Name)
+		if strings.Contains(n, ".") {
+			ps := strings.Split(n, ".")
+			check.Equal(len(ps), 2)
+			n = fmt.Sprintf("%s_%s", ps[0], title(ps[1]))
 		}
-		_, _ = fmt.Fprintf(&sb, ", Op: 0x%s", strings.ToUpper(jd.Op))
-		_, _ = sb.WriteString("}\n")
+
+		_, _ = fmt.Fprintf(&sbInsts, "%s = %d\n", n, i)
+
+		_, _ = sbDefs.WriteString("Def{")
+
+		_, _ = fmt.Fprintf(&sbDefs, "I: %s", n)
+		_, _ = fmt.Fprintf(&sbDefs, ", Class: %s", title(jd.Class))
+		_, _ = fmt.Fprintf(&sbDefs, ", Name: \"%s\"", jd.Name)
+
+		if jd.OpPfx != "" {
+			_, _ = fmt.Fprintf(&sbDefs, ", OpPfx: 0x%s", strings.ToUpper(jd.OpPfx))
+		}
+		_, _ = fmt.Fprintf(&sbDefs, ", Op: 0x%s", strings.ToUpper(jd.Op))
+
+		wtf := func(k, v string) {
+			if v != "" {
+				_, _ = fmt.Fprintf(&sbDefs, ", %s: %s", k, strings.ToUpper(v))
+			}
+		}
+		wtf("T", jd.T)
+		wtf("A", jd.A)
+		wtf("B", jd.B)
+		wtf("C", jd.C)
+
+		if jd.Ma != "" {
+			_, _ = fmt.Fprintf(&sbDefs, ", Ma: %s", title(jd.Ma))
+		}
+		if jd.Mz != 0 {
+			_, _ = fmt.Fprintf(&sbDefs, ", Mz: %d", jd.Mz)
+		}
+
+		_, _ = sbDefs.WriteString("}\n")
 	}
 
-	fmt.Println(sb.String())
+	fmt.Println(sbInsts.String())
+	fmt.Println(sbDefs.String())
 }

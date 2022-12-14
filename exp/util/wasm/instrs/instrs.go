@@ -198,7 +198,7 @@ var (
 	Add_I64    = _add(Def{Class: Numeric, Name: "add.i64", Op: Op_Add_I64, T: wt.I64{}, A: wt.I64{}, B: wt.I64{}})
 	Sub_I64    = _add(Def{Class: Numeric, Name: "sub.i64", Op: Op_Sub_I64, T: wt.I64{}, A: wt.I64{}, B: wt.I64{}})
 	Mul_I64    = _add(Def{Class: Numeric, Name: "mul.i64", Op: Op_Mul_I64, T: wt.I64{}, A: wt.I64{}, B: wt.I64{}})
-	DivS_I64   = _add(Def{Class: Numeric, Name: "div.s.i64", Op: Op_DivS_I64, T: wt.I64{}, A: wt.I64{}, B: wt.I64{}})
+	DivS_I64   = _add(Def{Class: Numeric, Name: "div_s.i64", Op: Op_DivS_I64, T: wt.I64{}, A: wt.I64{}, B: wt.I64{}})
 	DivU_I64   = _add(Def{Class: Numeric, Name: "div_u.i64", Op: Op_DivU_I64, T: wt.I64{}, A: wt.I64{}, B: wt.I64{}})
 	RemS_I64   = _add(Def{Class: Numeric, Name: "rem_s.i64", Op: Op_RemS_I64, T: wt.I64{}, A: wt.I64{}, B: wt.I64{}})
 	RemU_I64   = _add(Def{Class: Numeric, Name: "rem_u.i64", Op: Op_RemU_I64, T: wt.I64{}, A: wt.I64{}, B: wt.I64{}})
