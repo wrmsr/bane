@@ -99,18 +99,23 @@ func main() {
 
 	title := cases.Title(language.Und).String
 
-	for j, jd := range jds {
-		i := j + 1
-
-		_, _ = sbInsts.WriteString("\t")
-		_, _ = sbDefs.WriteString("\t")
-
+	mkName := func(jd JsonDef) string {
 		n := stru.ToCamel(jd.Name)
 		if strings.Contains(n, ".") {
 			ps := strings.Split(n, ".")
 			check.Equal(len(ps), 2)
 			n = fmt.Sprintf("%s_%s", ps[0], title(ps[1]))
 		}
+		return n
+	}
+
+	for j, jd := range jds {
+		i := j + 1
+
+		_, _ = sbInsts.WriteString("\t")
+		_, _ = sbDefs.WriteString("\t")
+
+		n := mkName(jd)
 
 		_, _ = fmt.Fprintf(&sbInsts, "%s = %d\n", n, i)
 
@@ -121,9 +126,9 @@ func main() {
 		_, _ = fmt.Fprintf(&sbDefs, ", Name: \"%s\"", jd.Name)
 
 		if jd.OpPfx != "" {
-			_, _ = fmt.Fprintf(&sbDefs, ", OpPfx: int8(0x%s)", strings.ToUpper(jd.OpPfx))
+			_, _ = fmt.Fprintf(&sbDefs, ", OpPfx: uint8(0x%s)", strings.ToUpper(jd.OpPfx))
 		}
-		_, _ = fmt.Fprintf(&sbDefs, ", Op: int8(0x%s)", strings.ToUpper(jd.Op))
+		_, _ = fmt.Fprintf(&sbDefs, ", Op: uint8(0x%s)", strings.ToUpper(jd.Op))
 
 		wtf := func(k, v string) {
 			if v != "" {
@@ -150,4 +155,44 @@ func main() {
 
 	fmt.Println(sbInsts.String())
 	fmt.Println(sbDefs.String())
+
+	var om [256]*[256]int
+
+	for j, jd := range jds {
+		var ox uint8
+		if jd.OpPfx != "" {
+			ox = uint8(check.Must1(strconv.ParseInt(jd.OpPfx, 16, 32)))
+		}
+
+		om2 := om[ox]
+		if om2 == nil {
+			om2 = new([256]int)
+			om[ox] = om2
+		}
+
+		op := uint8(check.Must1(strconv.ParseInt(jd.Op, 16, 32)))
+		check.Equal(om2[op], 0)
+		i := j + 1
+		om2[op] = i
+	}
+
+	var sbOpMap strings.Builder
+
+	_, _ = sbOpMap.WriteString("var opMap = [256]*[256]Instr{\n")
+	for i, om2 := range om {
+		if om2 == nil {
+			continue
+		}
+		_, _ = fmt.Fprintf(&sbOpMap, "\t0x%02X: &[256]Instr{\n", i)
+		for j, inst := range om2 {
+			if inst == 0 {
+				continue
+			}
+			_, _ = fmt.Fprintf(&sbOpMap, "\t\t0x%02X: %s\n", j, mkName(jds[inst-1]))
+		}
+		_, _ = sbOpMap.WriteString("\t},\n")
+	}
+	_, _ = sbOpMap.WriteString("}\n")
+
+	fmt.Println(sbOpMap.String())
 }

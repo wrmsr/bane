@@ -18,8 +18,8 @@ type Def struct {
 
 	Class instrs.Class
 	Name  string
-	OpPfx int8
-	Op    int8
+	OpPfx uint8
+	Op    uint8
 
 	T Prim
 	A Prim
