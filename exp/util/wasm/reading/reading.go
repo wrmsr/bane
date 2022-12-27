@@ -759,84 +759,88 @@ func (r *ModuleReader) readSection() {
 
 			var es []exprs.Expr
 			for r.r.Tell() < endPos {
-				o := int(r.readByte())
+				var opPfx int
+				op := int(r.readByte())
 
-				if o == consts.MathPrefix || o == consts.SimdPrefix {
-					o = (o << 8) | int(r.readByte())
+				if op == consts.MathPrefix || op == consts.SimdPrefix {
+					opPfx = op
+					op = int(r.readByte())
 				}
 
-				switch o {
+				inst := instrs.ByOp(int8(opPfx), int8(op))
 
-				case instrs.Op_Block:
+				switch inst.I() {
+
+				case instrs.Block:
 					ty := r.readI64()
 					_ = ty
 
 				case
-					instrs.Op_LocalGet:
+					instrs.LocalGet:
 					idx := r.readU64()
 					es = append(es, exprs.LocalGet{I: int(idx)})
 
 				case
-					instrs.Op_LocalSet,
-					instrs.Op_GlobalGet,
-					instrs.Op_GlobalSet:
+					instrs.LocalSet,
+					instrs.GlobalGet,
+					instrs.GlobalSet:
 					idx := r.readU64()
 					_ = idx
 
-				case instrs.Op_Call:
+				case instrs.Call:
 					idx := r.readU64()
 					_ = idx
 
-				case instrs.Op_Const_I32:
+				case instrs.Const_I32:
 					v := int32(r.readI64())
 					_ = v
 
-				case instrs.Op_Const_I64:
+				case instrs.Const_I64:
 					v := r.readI64()
 					_ = v
 
 				case
-					instrs.Op_Eqz_I32,
-					instrs.Op_Eq_I32,
-					instrs.Op_Ne_I32,
-					instrs.Op_LtS_I32,
-					instrs.Op_LtU_I32,
-					instrs.Op_GtS_I32,
-					instrs.Op_GtU_I32,
-					instrs.Op_LeS_I32,
-					instrs.Op_LeU_I32,
-					instrs.Op_GeS_I32,
-					instrs.Op_GeU_I32,
+					instrs.Eqz_I32,
+					instrs.Eq_I32,
+					instrs.Ne_I32,
+					instrs.LtS_I32,
+					instrs.LtU_I32,
+					instrs.GtS_I32,
+					instrs.GtU_I32,
+					instrs.LeS_I32,
+					instrs.LeU_I32,
+					instrs.GeS_I32,
+					instrs.GeU_I32,
 
-					instrs.Op_Eqz_I64,
-					instrs.Op_Eq_I64,
-					instrs.Op_Ne_I64,
-					instrs.Op_LtS_I64,
-					instrs.Op_LtU_I64,
-					instrs.Op_GtS_I64,
-					instrs.Op_GtU_I64,
-					instrs.Op_LeS_I64,
-					instrs.Op_LeU_I64,
-					instrs.Op_GeS_I64,
-					instrs.Op_GeU_I64,
+					instrs.Eqz_I64,
+					instrs.Eq_I64,
+					instrs.Ne_I64,
+					instrs.LtS_I64,
+					instrs.LtU_I64,
+					instrs.GtS_I64,
+					instrs.GtU_I64,
+					instrs.LeS_I64,
+					instrs.LeU_I64,
+					instrs.GeS_I64,
+					instrs.GeU_I64,
 
-					instrs.Op_Eq_F32,
-					instrs.Op_Ne_F32,
-					instrs.Op_Lt_F32,
-					instrs.Op_Gt_F32,
-					instrs.Op_Le_F32,
-					instrs.Op_Ge_F32,
+					instrs.Eq_F32,
+					instrs.Ne_F32,
+					instrs.Lt_F32,
+					instrs.Gt_F32,
+					instrs.Le_F32,
+					instrs.Ge_F32,
 
-					instrs.Op_Eq_F64,
-					instrs.Op_Ne_F64,
-					instrs.Op_Lt_F64,
-					instrs.Op_Gt_F64,
-					instrs.Op_Le_F64,
-					instrs.Op_Ge_F64:
+					instrs.Eq_F64,
+					instrs.Ne_F64,
+					instrs.Lt_F64,
+					instrs.Gt_F64,
+					instrs.Le_F64,
+					instrs.Ge_F64:
 					//
 
 				default:
-					panic(o)
+					panic(inst)
 				}
 			}
 		}

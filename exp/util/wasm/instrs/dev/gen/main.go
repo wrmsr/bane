@@ -100,7 +100,7 @@ func main() {
 	_, _ = sbInsts.WriteString("const (\n")
 	_, _ = sbInsts.WriteString("\t_ Instr = 0\n\n")
 	_, _ = sbDefs.WriteString("var defs = []Def{\n")
-	_, _ = sbDefs.WriteString("\t{Name: \"invalid\"},\n")
+	_, _ = sbDefs.WriteString("\t{name: \"invalid\", name2: \"Invalid\"},\n")
 
 	title := cases.Title(language.Und).String
 
@@ -126,31 +126,31 @@ func main() {
 
 		_, _ = sbDefs.WriteString("{")
 
-		_, _ = fmt.Fprintf(&sbDefs, "I: %s", n)
-		_, _ = fmt.Fprintf(&sbDefs, ", Class: %s", title(jd.Class))
-		_, _ = fmt.Fprintf(&sbDefs, ", Name: \"%s\"", jd.Name)
-		_, _ = fmt.Fprintf(&sbDefs, ", Name2: \"%s\"", n)
+		_, _ = fmt.Fprintf(&sbDefs, "i: %s", n)
+		_, _ = fmt.Fprintf(&sbDefs, ", class: %s", title(jd.Class))
+		_, _ = fmt.Fprintf(&sbDefs, ", name: \"%s\"", jd.Name)
+		_, _ = fmt.Fprintf(&sbDefs, ", name2: \"%s\"", n)
 
 		if jd.OpPfx != "" {
-			_, _ = fmt.Fprintf(&sbDefs, ", OpPfx: uint8(0x%s)", strings.ToUpper(jd.OpPfx))
+			_, _ = fmt.Fprintf(&sbDefs, ", opPfx: uint8(0x%s)", strings.ToUpper(jd.OpPfx))
 		}
-		_, _ = fmt.Fprintf(&sbDefs, ", Op: uint8(0x%s)", strings.ToUpper(jd.Op))
+		_, _ = fmt.Fprintf(&sbDefs, ", op: uint8(0x%s)", strings.ToUpper(jd.Op))
 
 		wtf := func(k, v string) {
 			if v != "" {
 				_, _ = fmt.Fprintf(&sbDefs, ", %s: wt.%s", k, strings.ToUpper(v))
 			}
 		}
-		wtf("T", jd.T)
-		wtf("A", jd.A)
-		wtf("B", jd.B)
-		wtf("C", jd.C)
+		wtf("t", jd.T)
+		wtf("a", jd.A)
+		wtf("b", jd.B)
+		wtf("c", jd.C)
 
 		if jd.Ma != "" {
-			_, _ = fmt.Fprintf(&sbDefs, ", Ma: %s", title(jd.Ma))
+			_, _ = fmt.Fprintf(&sbDefs, ", ma: %s", title(jd.Ma))
 		}
 		if jd.Mz != 0 {
-			_, _ = fmt.Fprintf(&sbDefs, ", Mz: %d", jd.Mz)
+			_, _ = fmt.Fprintf(&sbDefs, ", mz: %d", jd.Mz)
 		}
 
 		_, _ = sbDefs.WriteString("},\n")
@@ -219,8 +219,14 @@ func main() {
 	//
 
 	var sbSrc strings.Builder
-	_, _ = sbSrc.WriteString("package instrs\n\n")
-	_, _ = sbSrc.WriteString("import wt \"github.com/wrmsr/bane/exp/util/wasm/types\"\n\n")
+	_, _ = sbSrc.WriteString(`
+// Code generated from defs.json. DO NOT EDIT.
+
+package instrs
+
+import wt "github.com/wrmsr/bane/exp/util/wasm/types"
+
+`)
 	for _, sb := range []*strings.Builder{
 		&sbInsts,
 		&sbDefs,
@@ -232,8 +238,6 @@ func main() {
 		_, _ = sbSrc.WriteString("\n\n")
 	}
 	src := sbSrc.String()
-
-	fmt.Println(src)
 
 	src = string(check.Must1(format.Source([]byte(src))))
 
