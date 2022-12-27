@@ -1,8 +1,11 @@
+//go:build !nodev
+
 package main
 
 import (
 	"encoding/json"
 	"fmt"
+	"go/format"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -83,10 +86,13 @@ type JsonDef struct {
 
 func main() {
 	//jb := []byte(render(instrs.All()))
-	jb := check.Must1(os.ReadFile(filepath.Join(paths.FindProjectRoot(), "exp/util/wasm/instrs/dev/gen/defs.json")))
+	dir := filepath.Join(paths.FindProjectRoot(), "exp/util/wasm/instrs/dev/gen")
+	jb := check.Must1(os.ReadFile(filepath.Join(dir, "defs.json")))
 
 	var jds []JsonDef
 	check.Must(json.Unmarshal(jb, &jds))
+
+	//
 
 	var (
 		sbInsts strings.Builder
@@ -96,6 +102,7 @@ func main() {
 	_, _ = sbInsts.WriteString("const (\n")
 	_, _ = sbInsts.WriteString("\t_ Instr = 0\n\n")
 	_, _ = sbDefs.WriteString("var defs = []Def{\n")
+	_, _ = sbDefs.WriteString("\t{Name: \"invalid\"},\n")
 
 	title := cases.Title(language.Und).String
 
@@ -124,6 +131,7 @@ func main() {
 		_, _ = fmt.Fprintf(&sbDefs, "I: %s", n)
 		_, _ = fmt.Fprintf(&sbDefs, ", Class: %s", title(jd.Class))
 		_, _ = fmt.Fprintf(&sbDefs, ", Name: \"%s\"", jd.Name)
+		_, _ = fmt.Fprintf(&sbDefs, ", Name2: \"%s\"", n)
 
 		if jd.OpPfx != "" {
 			_, _ = fmt.Fprintf(&sbDefs, ", OpPfx: uint8(0x%s)", strings.ToUpper(jd.OpPfx))
@@ -153,8 +161,7 @@ func main() {
 	_, _ = sbInsts.WriteString(")")
 	_, _ = sbDefs.WriteString("}")
 
-	fmt.Println(sbInsts.String())
-	fmt.Println(sbDefs.String())
+	//
 
 	var om [256]*[256]int
 
@@ -183,16 +190,56 @@ func main() {
 		if om2 == nil {
 			continue
 		}
-		_, _ = fmt.Fprintf(&sbOpMap, "\t0x%02X: &[256]Instr{\n", i)
+		_, _ = fmt.Fprintf(&sbOpMap, "\t0x%02X: {\n", i)
 		for j, inst := range om2 {
 			if inst == 0 {
 				continue
 			}
-			_, _ = fmt.Fprintf(&sbOpMap, "\t\t0x%02X: %s\n", j, mkName(jds[inst-1]))
+			_, _ = fmt.Fprintf(&sbOpMap, "\t\t0x%02X: %s,\n", j, mkName(jds[inst-1]))
 		}
 		_, _ = sbOpMap.WriteString("\t},\n")
 	}
 	_, _ = sbOpMap.WriteString("}\n")
 
-	fmt.Println(sbOpMap.String())
+	//
+
+	var (
+		sbNameMap  strings.Builder
+		sbName2Map strings.Builder
+	)
+
+	_, _ = sbNameMap.WriteString("var nameMap = map[string]Instr{\n")
+	_, _ = sbName2Map.WriteString("var name2Map = map[string]Instr{\n")
+	for _, jd := range jds {
+		n := mkName(jd)
+		_, _ = fmt.Fprintf(&sbNameMap, "\t\"%s\": %s,\n", jd.Name, n)
+		_, _ = fmt.Fprintf(&sbName2Map, "\t\"%s\": %s,\n", n, n)
+	}
+	_, _ = sbNameMap.WriteString("}\n")
+	_, _ = sbName2Map.WriteString("}\n")
+
+	//
+
+	var sbSrc strings.Builder
+	_, _ = sbSrc.WriteString("package main\n\n")
+	for _, sb := range []*strings.Builder{
+		&sbInsts,
+		&sbDefs,
+		&sbOpMap,
+		&sbNameMap,
+		&sbName2Map,
+	} {
+		_, _ = sbSrc.WriteString(sb.String())
+		_, _ = sbSrc.WriteString("\n\n")
+	}
+	src := sbSrc.String()
+
+	fmt.Println(src)
+
+	src = string(check.Must1(format.Source([]byte(src))))
+
+	//
+
+	fp := filepath.Join(dir, "defs_gen.go")
+	check.Must(os.WriteFile(fp, []byte(src), 0644))
 }

@@ -1,3 +1,5 @@
+//go:build !nodev
+
 package main
 
 import "github.com/wrmsr/bane/exp/util/wasm/instrs"
@@ -18,6 +20,7 @@ type Def struct {
 
 	Class instrs.Class
 	Name  string
+	Name2 string
 	OpPfx uint8
 	Op    uint8
 
@@ -35,7 +38,19 @@ type Def struct {
 type Instr = instrs.Instr
 
 const (
-	Control = instrs.Control
+	Control    = instrs.Control
+	Memory     = instrs.Memory
+	Numeric    = instrs.Numeric
+	Parametric = instrs.Parametric
+	Reference  = instrs.Reference
+	Table      = instrs.Table
+	Variable   = instrs.Variable
+	Vector     = instrs.Vector
+)
+
+const (
+	Load  = instrs.Load
+	Store = instrs.Store
 )
 
 //

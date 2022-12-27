@@ -5,6 +5,9 @@ all: go tinygo
 go:
 	GOOS=js GOARCH=wasm go build -o main.wasm ./main.go
 	~/src/WebAssembly/wabt/build/wasm2wat main.wasm > main.wat
+
+.PHONY: go-c
+go-c: go
 	~/src/WebAssembly/wabt/build/wasm2c main.wasm > main.c
 
 .PHONY: tinygo
