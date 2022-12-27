@@ -14,60 +14,58 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/wrmsr/bane/exp/util/wasm/instrs"
-	wt "github.com/wrmsr/bane/exp/util/wasm/types"
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
 )
 
-func render(ds []instrs.Def) string {
-	var sb strings.Builder
-	_, _ = sb.WriteString("[\n")
-
-	for i, d := range ds {
-		_, _ = fmt.Fprintf(&sb, "  {\"Class\": \"%s\"", d.Class)
-
-		wfr := func(k, v string) {
-			_, _ = fmt.Fprintf(&sb, ", \"%s\": %s", k, v)
-		}
-		wf := func(k, v string) {
-			wfr(k, fmt.Sprintf("\"%s\"", v))
-		}
-		wf("Name", d.Name)
-
-		if ox := (d.Op & 0xFF00) >> 8; ox != 0 {
-			wf("OpPfx", fmt.Sprintf("%02X", ox))
-		}
-		wf("Op", fmt.Sprintf("%02X", d.Op&0xFF))
-
-		wtf := func(k string, t wt.Type) {
-			if t != nil {
-				wf(k, t.String())
-			}
-		}
-		wtf("T", d.T)
-		wtf("A", d.A)
-		wtf("B", d.B)
-		wtf("C", d.C)
-
-		if d.Ma != 0 {
-			wf("Ma", d.Ma.String())
-		}
-		if d.Mz != 0 {
-			wfr("Mz", strconv.Itoa(d.Mz))
-		}
-
-		_, _ = sb.WriteString("}")
-		if i < len(ds)-1 {
-			_, _ = sb.WriteString(",")
-		}
-		_, _ = sb.WriteString("\n")
-	}
-
-	_, _ = sb.WriteString("]\n")
-	return sb.String()
-}
+//func render(ds []instrs.Def) string {
+//	var sb strings.Builder
+//	_, _ = sb.WriteString("[\n")
+//
+//	for i, d := range ds {
+//		_, _ = fmt.Fprintf(&sb, "  {\"Class\": \"%s\"", d.Class)
+//
+//		wfr := func(k, v string) {
+//			_, _ = fmt.Fprintf(&sb, ", \"%s\": %s", k, v)
+//		}
+//		wf := func(k, v string) {
+//			wfr(k, fmt.Sprintf("\"%s\"", v))
+//		}
+//		wf("Name", d.Name)
+//
+//		if ox := (d.Op & 0xFF00) >> 8; ox != 0 {
+//			wf("OpPfx", fmt.Sprintf("%02X", ox))
+//		}
+//		wf("Op", fmt.Sprintf("%02X", d.Op&0xFF))
+//
+//		wtf := func(k string, t wt.Type) {
+//			if t != nil {
+//				wf(k, t.String())
+//			}
+//		}
+//		wtf("T", d.T)
+//		wtf("A", d.A)
+//		wtf("B", d.B)
+//		wtf("C", d.C)
+//
+//		if d.Ma != 0 {
+//			wf("Ma", d.Ma.String())
+//		}
+//		if d.Mz != 0 {
+//			wfr("Mz", strconv.Itoa(d.Mz))
+//		}
+//
+//		_, _ = sb.WriteString("}")
+//		if i < len(ds)-1 {
+//			_, _ = sb.WriteString(",")
+//		}
+//		_, _ = sb.WriteString("\n")
+//	}
+//
+//	_, _ = sb.WriteString("]\n")
+//	return sb.String()
+//}
 
 type JsonDef struct {
 	Class string
@@ -140,7 +138,7 @@ func main() {
 
 		wtf := func(k, v string) {
 			if v != "" {
-				_, _ = fmt.Fprintf(&sbDefs, ", %s: %s", k, strings.ToUpper(v))
+				_, _ = fmt.Fprintf(&sbDefs, ", %s: wt.%s", k, strings.ToUpper(v))
 			}
 		}
 		wtf("T", jd.T)
@@ -221,7 +219,8 @@ func main() {
 	//
 
 	var sbSrc strings.Builder
-	_, _ = sbSrc.WriteString("package main\n\n")
+	_, _ = sbSrc.WriteString("package instrs\n\n")
+	_, _ = sbSrc.WriteString("import wt \"github.com/wrmsr/bane/exp/util/wasm/types\"\n\n")
 	for _, sb := range []*strings.Builder{
 		&sbInsts,
 		&sbDefs,
@@ -240,6 +239,6 @@ func main() {
 
 	//
 
-	fp := filepath.Join(dir, "defs_gen.go")
+	fp := filepath.Join(dir, "../../defs_gen.go")
 	check.Must(os.WriteFile(fp, []byte(src), 0644))
 }
