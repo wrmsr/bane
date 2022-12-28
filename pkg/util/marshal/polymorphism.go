@@ -197,8 +197,8 @@ func buildRegistryPolymorphism(r *Registry, ty reflect.Type) *Polymorphism {
 	}
 	return NewPolymorphism(
 		ty,
-		slices.Map(func(ri RegistryItem) SetImpl { return ri.(SetImpl) }, ris),
-		slices.Map(func(ri RegistryItem) InheritImpls { return ri.(InheritImpls) }, his),
+		slices.Cast[RegistryItem, SetImpl](ris),
+		slices.Cast[RegistryItem, InheritImpls](his),
 		nil,
 	)
 }

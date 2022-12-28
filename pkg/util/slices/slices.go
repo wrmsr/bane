@@ -81,6 +81,14 @@ func Map[T, R any](fn func(t T) R, s []T) []R {
 	return r
 }
 
+func Cast[T, R any](s []T) []R {
+	r := make([]R, len(s))
+	for i, v := range s {
+		r[i] = bt.As[T, R](v)
+	}
+	return r
+}
+
 func Apply[T any](fn func(t T), s []T) {
 	for _, e := range s {
 		fn(e)
