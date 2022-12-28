@@ -56,12 +56,15 @@ type Polymorphism struct {
 
 	im map[reflect.Type]*SetImpl
 	tm map[string]*SetImpl
+	hm map[reflect.Type]*InheritImpls
+	nm map[string]*InheritImpls
 }
 
 func NewPolymorphism(ty reflect.Type, es []SetImpl, hs []InheritImpls, naming Naming) *Polymorphism {
 	if naming == nil {
 		naming = NopNaming()
 	}
+
 	im := make(map[reflect.Type]*SetImpl, len(es))
 	tm := make(map[string]*SetImpl, len(es))
 	for i := range es {
@@ -90,7 +93,26 @@ func NewPolymorphism(ty reflect.Type, es []SetImpl, hs []InheritImpls, naming Na
 			tm[a] = e
 		}
 	}
-	return &Polymorphism{ty: ty, es: es, im: im, tm: tm}
+
+	hm := make(map[reflect.Type]*InheritImpls, len(es))
+	nm := make(map[string]*InheritImpls, len(es))
+	for i := range hs {
+		h := &hs[i]
+		if h.Iface.Kind() != reflect.Interface {
+			panic(fmt.Errorf("inherits must be interfaces: %s <- %s", h.Iface, ty))
+		}
+	}
+
+	return &Polymorphism{
+		ty: ty,
+		es: es,
+		hs: hs,
+
+		im: im,
+		tm: tm,
+		hm: hm,
+		nm: nm,
+	}
 }
 
 ///
