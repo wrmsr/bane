@@ -4,6 +4,7 @@ package c
 
 type Statement interface {
 	Node
+	BlockItem
 	isStatement()
 }
 

@@ -3,6 +3,7 @@ package c
 //
 
 type TypeSpecifier interface {
+	DeclarationSpecifier
 	isTypeSpecifier()
 }
 

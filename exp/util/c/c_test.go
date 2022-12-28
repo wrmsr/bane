@@ -8,6 +8,9 @@ import (
 
 	"github.com/wrmsr/bane/exp/util/c/parser"
 	antlru "github.com/wrmsr/bane/pkg/util/antlr"
+	"github.com/wrmsr/bane/pkg/util/check"
+	ju "github.com/wrmsr/bane/pkg/util/json"
+	msh "github.com/wrmsr/bane/pkg/util/marshal"
 )
 
 /*
@@ -172,11 +175,11 @@ func TestC(t *testing.T) {
 		s   string
 		pfn func(p *parser.CParser) antlr.ParseTree
 	}{
-		//{`1`, ex},
-		//{`int`, ts},
-		//{`int foo(int x) {
-		//	return x;
-		//}`, cu},
+		{`1`, ex},
+		{`int`, ts},
+		{`int foo(int x) {
+			return x;
+		}`, cu},
 		//{`int main(int argc, const char * const *argv) {
 		//	printf("hi\n");
 		//	return 0;
@@ -223,7 +226,7 @@ func TestC(t *testing.T) {
 		n := tree.Accept(v)
 		fmt.Printf("%#v\n", n)
 
-		//fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(n)))))
+		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(n)))))
 
 		fmt.Println()
 	}

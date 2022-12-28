@@ -35,15 +35,30 @@ func SetImplOf[T any](tags ...string) SetImpl {
 
 ///
 
+type InheritImpls struct {
+	Iface reflect.Type
+}
+
+func (hi InheritImpls) isRegistryItem() {}
+
+func InheritImplsOf[T any]() InheritImpls {
+	return InheritImpls{
+		Iface: rfl.TypeOf[T](),
+	}
+}
+
+///
+
 type Polymorphism struct {
 	ty reflect.Type
 	es []SetImpl
+	hs []InheritImpls
 
 	im map[reflect.Type]*SetImpl
 	tm map[string]*SetImpl
 }
 
-func NewPolymorphism(ty reflect.Type, es []SetImpl, naming Naming) *Polymorphism {
+func NewPolymorphism(ty reflect.Type, es []SetImpl, hs []InheritImpls, naming Naming) *Polymorphism {
 	if naming == nil {
 		naming = NopNaming()
 	}
@@ -51,6 +66,9 @@ func NewPolymorphism(ty reflect.Type, es []SetImpl, naming Naming) *Polymorphism
 	tm := make(map[string]*SetImpl, len(es))
 	for i := range es {
 		e := &es[i]
+		if e.Impl.Kind() == reflect.Interface {
+			panic(fmt.Errorf("interfaces cannot be impls: %s -> %s", e.Impl, ty))
+		}
 		if !e.Impl.AssignableTo(ty) {
 			panic(fmt.Errorf("not assignable: %s -> %s", e.Impl, ty))
 		}
@@ -119,7 +137,6 @@ func (m PolymorphismMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Va
 	}
 
 	return MakeObject(bt.KvOf[Value, Value](e.k, mv)), nil
-
 }
 
 //
@@ -141,7 +158,10 @@ func NewPolymorphismMarshalerFactory(p *Polymorphism) MarshalerFactory {
 	})
 }
 
-var _setImplTy = rfl.TypeOf[SetImpl]()
+var (
+	_setImplTy      = rfl.TypeOf[SetImpl]()
+	_inheritImplsTy = rfl.TypeOf[InheritImpls]()
+)
 
 func buildRegistryPolymorphism(r *Registry, ty reflect.Type) *Polymorphism {
 	tr := r.Get(ty)
@@ -149,10 +169,16 @@ func buildRegistryPolymorphism(r *Registry, ty reflect.Type) *Polymorphism {
 		return nil
 	}
 	ris := tr.Get(_setImplTy)
-	if len(ris) < 1 {
+	his := tr.Get(_inheritImplsTy)
+	if len(ris) < 1 && len(his) < 1 {
 		return nil
 	}
-	return NewPolymorphism(ty, slices.Map(func(ri RegistryItem) SetImpl { return ri.(SetImpl) }, ris), nil)
+	return NewPolymorphism(
+		ty,
+		slices.Map(func(ri RegistryItem) SetImpl { return ri.(SetImpl) }, ris),
+		slices.Map(func(ri RegistryItem) InheritImpls { return ri.(InheritImpls) }, his),
+		nil,
+	)
 }
 
 func NewRegistryPolymorphismMarshalerFactory() MarshalerFactory {

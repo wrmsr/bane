@@ -1,6 +1,10 @@
 package marshal
 
-import "reflect"
+import (
+	"reflect"
+
+	rfl "github.com/wrmsr/bane/pkg/util/reflect"
+)
 
 //
 
@@ -12,6 +16,10 @@ func GlobalRegistry() *Registry {
 
 func Register(ty reflect.Type, items ...RegistryItem) *Registry {
 	return globalRegistry.Register(ty, items...)
+}
+
+func RegisterTo[T any](items ...RegistryItem) *Registry {
+	return globalRegistry.Register(rfl.TypeOf[T](), items...)
 }
 
 //

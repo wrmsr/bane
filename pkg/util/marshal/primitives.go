@@ -9,6 +9,7 @@ import (
 ///
 
 var primitiveTypes = map[reflect.Type]reflect.Type{
+	rfl.TypeOf[bool]():    rfl.TypeOf[bool](),
 	rfl.TypeOf[int]():     rfl.TypeOf[int64](),
 	rfl.TypeOf[int8]():    rfl.TypeOf[int64](),
 	rfl.TypeOf[int16]():   rfl.TypeOf[int64](),

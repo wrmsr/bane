@@ -10,6 +10,23 @@ import (
 
 type UnhandledTypeError struct{}
 
+//func (e UnhandledTypeError) Error() string {
+//	msg := "unhandled type"
+//	if len(e.Tys) > 0 {
+//		var sb strings.Builder
+//		_, _ = sb.WriteString(msg)
+//		_, _ = sb.WriteString(": ")
+//		for i, ty := range e.Tys {
+//			if i > 0 {
+//				_, _ = sb.WriteString(", ")
+//			}
+//			_, _ = sb.WriteString(ty.String())
+//		}
+//		msg = sb.String()
+//	}
+//	return msg
+//}
+
 func (e UnhandledTypeError) Error() string {
 	return "unhandled type"
 }
