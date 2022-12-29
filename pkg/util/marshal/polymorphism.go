@@ -169,34 +169,36 @@ var (
 	_inheritImplsTy = rfl.TypeOf[InheritImpls]()
 )
 
-func buildRegistryPolymorphism(r *Registry, ty reflect.Type) *Polymorphism {
-	tr := r.Get(ty)
-	if tr == nil {
-		return nil
-	}
-
+func getRegistryPolymorphismImpls(r *Registry, ty reflect.Type) []SetImpl {
 	var ris []SetImpl
-	ris = append(ris, slices.Cast[RegistryItem, SetImpl](tr.Get(_setImplTy))...)
+	var rec func(reflect.Type)
+	rec = func(ty reflect.Type) {
+		tr := r.Get(ty)
+		if tr == nil {
+			return
+		}
 
-	if his := tr.Get(_inheritImplsTy); len(his) > 0 {
-		for _, h_ := range his {
-			h := h_.(InheritImpls)
-			if h.Iface.Kind() != reflect.Interface {
-				panic(fmt.Errorf("inherits must be interfaces: %s <- %s", h.Iface, ty))
+		ris = append(ris, slices.Cast[RegistryItem, SetImpl](tr.Get(_setImplTy))...)
+
+		if his := tr.Get(_inheritImplsTy); len(his) > 0 {
+			for _, h_ := range his {
+				h := h_.(InheritImpls)
+				if h.Iface.Kind() != reflect.Interface {
+					panic(fmt.Errorf("inherits must be interfaces: %s <- %s", h.Iface, ty))
+				}
+				rec(h.Iface)
 			}
-			panic(h)
 		}
 	}
+	rec(ty)
+	return ris
+}
 
+func buildRegistryPolymorphism(r *Registry, ty reflect.Type) *Polymorphism {
+	ris := getRegistryPolymorphismImpls(r, ty)
 	if len(ris) < 1 {
 		return nil
 	}
-
-	//hm := make(map[reflect.Type]*InheritImpls, len(es))
-	//nm := make(map[string]*InheritImpls, len(es))
-	//for i := range hs {
-	//	h := &hs[i]
-	//}
 
 	return NewPolymorphism(
 		ty,
