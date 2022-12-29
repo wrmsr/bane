@@ -2,7 +2,7 @@
 
 package parser // Hocon
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 
 // HoconListener is a complete listener for a parse tree produced by HoconParser.
 type HoconListener interface {

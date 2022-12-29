@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 
 	"github.com/wrmsr/bane/pkg/util/jmespath/parser"
 )

@@ -27,7 +27,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package antlr
 
 import (
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 )
 
 type DelimitingSplitter struct {

@@ -2,7 +2,7 @@
 
 package parser // Protobuf3
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 
 // BaseProtobuf3Listener is a complete listener for a parse tree produced by Protobuf3Parser.
 type BaseProtobuf3Listener struct{}

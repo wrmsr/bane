@@ -1,7 +1,7 @@
 package antlr
 
 import (
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )

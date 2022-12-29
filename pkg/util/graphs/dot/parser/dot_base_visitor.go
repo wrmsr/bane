@@ -2,7 +2,7 @@
 
 package parser // Dot
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 
 type BaseDotVisitor struct {
 	*antlr.BaseParseTreeVisitor

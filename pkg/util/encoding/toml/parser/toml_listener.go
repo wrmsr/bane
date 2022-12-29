@@ -2,7 +2,7 @@
 
 package parser // Toml
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 
 // TomlListener is a complete listener for a parse tree produced by TomlParser.
 type TomlListener interface {

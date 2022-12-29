@@ -1,4 +1,5 @@
-//
+//go:build !nodev
+
 /*
 cp -rv $(go mod download -json 'github.com/antlr/antlr4/runtime/Go/antlr@v1.4.10' | jq -r '.Dir') runtime
 chmod -R u+w runtime
@@ -17,7 +18,7 @@ import (
 	"github.com/wrmsr/bane/pkg/util/check"
 )
 
-const AntlrPackage = "github.com/antlr/antlr4/runtime/Go/antlr"
+const AntlrPackage = "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 const AntlrVersion = "v1.4.10"
 
 type DownloadedGoMod struct {

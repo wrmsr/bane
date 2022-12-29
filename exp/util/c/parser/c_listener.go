@@ -2,7 +2,7 @@
 
 package parser // C
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 
 // CListener is a complete listener for a parse tree produced by CParser.
 type CListener interface {

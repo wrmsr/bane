@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 
 	"github.com/wrmsr/bane/pkg/util/slices"
 	stru "github.com/wrmsr/bane/pkg/util/strings"

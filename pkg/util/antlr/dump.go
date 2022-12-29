@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 )
 
 func Dump(obj any, prefix string) {
