@@ -363,7 +363,7 @@ func (v *parseVisitor) VisitTypeSpecifier(ctx *parser.TypeSpecifierContext) any 
 		panic("unimplemented")
 	}
 	if c := ctx.StructOrUnionSpecifier(); c != nil {
-		panic("unimplemented")
+		return v.Visit(c)
 	}
 	if c := ctx.EnumSpecifier(); c != nil {
 		panic("unimplemented")
@@ -378,7 +378,11 @@ func (v *parseVisitor) VisitTypeSpecifier(ctx *parser.TypeSpecifierContext) any 
 }
 
 func (v *parseVisitor) VisitStructOrUnionSpecifier(ctx *parser.StructOrUnionSpecifierContext) any {
-	panic("unimplemented")
+	ds := v.Visit(ctx.StructDeclarationList()).([]StructDeclaration)
+	return StructOrUnionSpecifier{
+		I:  ctx.Identifier().GetText(),
+		Ds: ds,
+	}
 }
 
 func (v *parseVisitor) VisitStructOrUnion(ctx *parser.StructOrUnionContext) any {
@@ -386,22 +390,63 @@ func (v *parseVisitor) VisitStructOrUnion(ctx *parser.StructOrUnionContext) any 
 }
 
 func (v *parseVisitor) VisitStructDeclarationList(ctx *parser.StructDeclarationListContext) any {
-	panic("unimplemented")
+	cs := ctx.AllStructDeclaration()
+	ds := make([]StructDeclaration, len(cs))
+	for i, c := range cs {
+		ds[i] = v.Visit(c).(StructDeclaration)
+	}
+	return ds
 }
 
 func (v *parseVisitor) VisitStructDeclaration(ctx *parser.StructDeclarationContext) any {
+	if sql := ctx.SpecifierQualifierList(); sql != nil {
+		ret := StructDeclaration{
+			Sqs: v.Visit(sql).([]SpecifierQualifier),
+		}
+		if sdl := ctx.StructDeclaratorList(); sdl != nil {
+			ret.Sds = v.Visit(sdl).([]StructDeclarator)
+		}
+		return ret
+	}
+	if sad := ctx.StaticAssertDeclaration(); sad != nil {
+		panic(sad)
+	}
 	panic("unimplemented")
 }
 
 func (v *parseVisitor) VisitSpecifierQualifierList(ctx *parser.SpecifierQualifierListContext) any {
-	panic("unimplemented")
+	var ret []SpecifierQualifier
+	cur := ctx
+	for {
+		if ts := cur.TypeSpecifier(); ts != nil {
+			ret = append(ret, v.Visit(ts).(SpecifierQualifier))
+		} else if tq := cur.TypeQualifier(); tq != nil {
+			ret = append(ret, v.Visit(tq).(SpecifierQualifier))
+		} else {
+			panic(cur)
+		}
+		nxt := cur.SpecifierQualifierList()
+		if nxt == nil {
+			break
+		}
+		cur = nxt.(*parser.SpecifierQualifierListContext)
+	}
+	return ret
 }
 
 func (v *parseVisitor) VisitStructDeclaratorList(ctx *parser.StructDeclaratorListContext) any {
-	panic("unimplemented")
+	cs := ctx.AllStructDeclarator()
+	ret := make([]StructDeclarator, len(cs))
+	for i, c := range cs {
+		ret[i] = v.Visit(c).(StructDeclarator)
+	}
+	return ret
 }
 
 func (v *parseVisitor) VisitStructDeclarator(ctx *parser.StructDeclaratorContext) any {
+	if c := ctx.ConstantExpression(); c != nil {
+		panic(c)
+	}
 	panic("unimplemented")
 }
 

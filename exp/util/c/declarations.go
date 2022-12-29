@@ -65,4 +65,6 @@ type FunctionDeclaration struct {
 
 type StructDeclaration struct {
 	declaration
+	Sqs []SpecifierQualifier
+	Sds []StructDeclarator
 }

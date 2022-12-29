@@ -239,3 +239,13 @@ func ParseTypeQualifier(s string) TypeQualifier {
 	}
 	panic(s)
 }
+
+//
+
+type SpecifierQualifier = any // TypeSpecifier | TypeQualifier
+
+type StructOrUnionSpecifier struct {
+	typeSpecifier
+	I  string
+	Ds []StructDeclaration
+}

@@ -58,3 +58,11 @@ type ParameterListDeclarator struct {
 	D  Declarator
 	Ps ParameterList
 }
+
+//
+
+type StructDeclarator struct {
+	declarator
+	D Declarator
+	// C Expression
+}
