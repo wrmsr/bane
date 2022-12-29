@@ -124,7 +124,31 @@ func main() {
 
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
-				return cmd.Run()
+				if err := cmd.Run(); err != nil {
+					return err
+				}
+
+				rp := filepath.Join(dir, "parser")
+				check.Must(filepath.Walk(rp, func(path string, info fs.FileInfo, err error) error {
+					if !strings.HasSuffix(info.Name(), ".go") {
+						return nil
+					}
+
+					fp := filepath.Join(rp, info.Name())
+					src := string(check.Must1(os.ReadFile(fp)))
+
+					src = strings.ReplaceAll(
+						src,
+						`"github.com/antlr/antlr4/runtime/Go/antlr"`,
+						`antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"`,
+					)
+
+					check.Must(os.WriteFile(fp, []byte(src), info.Mode()))
+
+					return nil
+				}))
+
+				return nil
 			})
 		}
 	}

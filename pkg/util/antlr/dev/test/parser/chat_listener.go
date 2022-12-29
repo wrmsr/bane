@@ -4,7 +4,7 @@
 
 package parser // Chat
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 
 // ChatListener is a complete listener for a parse tree produced by ChatParser.
 type ChatListener interface {
