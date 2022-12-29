@@ -11,7 +11,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
+	"os"
 	"os/exec"
 	"time"
 
@@ -19,7 +21,6 @@ import (
 )
 
 const AntlrPackage = "github.com/wrmsr/bane/pkg/util/antlr/runtime"
-const AntlrVersion = "v1.4.10"
 
 type DownloadedGoMod struct {
 	Path     string `json:"Path"`
@@ -42,6 +43,10 @@ type DownloadedGoMod struct {
 }
 
 func main() {
+	flags := flag.NewFlagSet("runtime", flag.ExitOnError)
+	check.Must(flags.Parse(os.Args[1:]))
+	antlrVer := flags.Args()[0]
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
 	defer cancel()
 
@@ -51,7 +56,7 @@ func main() {
 		"mod",
 		"download",
 		"-json",
-		fmt.Sprintf("%s@%s", AntlrPackage, AntlrVersion),
+		fmt.Sprintf("%s@%s", AntlrPackage, antlrVer),
 	)
 
 	var outb, errb bytes.Buffer
