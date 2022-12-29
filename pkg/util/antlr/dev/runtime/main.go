@@ -54,5 +54,5 @@ func main() {
 
 	var mod DownloadedGoMod
 	check.Must(json.Unmarshal(outb.Bytes(), &mod))
-	fmt.Println(mod)
+	fmt.Println(mod.Dir)
 }
