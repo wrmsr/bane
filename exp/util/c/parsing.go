@@ -419,9 +419,9 @@ func (v *parseVisitor) VisitSpecifierQualifierList(ctx *parser.SpecifierQualifie
 	cur := ctx
 	for {
 		if ts := cur.TypeSpecifier(); ts != nil {
-			ret = append(ret, v.Visit(ts).(SpecifierQualifier))
+			ret = append(ret, SpecifierQualifier{Ts: v.Visit(ts).(TypeSpecifier)})
 		} else if tq := cur.TypeQualifier(); tq != nil {
-			ret = append(ret, v.Visit(tq).(SpecifierQualifier))
+			ret = append(ret, SpecifierQualifier{Tq: v.Visit(tq).(TypeQualifier)})
 		} else {
 			panic(cur)
 		}

@@ -242,7 +242,10 @@ func ParseTypeQualifier(s string) TypeQualifier {
 
 //
 
-type SpecifierQualifier = any // TypeSpecifier | TypeQualifier
+type SpecifierQualifier struct {
+	Ts TypeSpecifier
+	Tq TypeQualifier
+}
 
 type StructOrUnionSpecifier struct {
 	typeSpecifier

@@ -15,7 +15,9 @@ var _ = msh.RegisterTo[DeclarationSpecifier](
 )
 
 var _ = msh.RegisterTo[TypeSpecifier](
+	msh.SetImplOf[Char](),
 	msh.SetImplOf[Int](),
+	msh.SetImplOf[Long](),
 	msh.SetImplOf[StructOrUnionSpecifier](),
 )
 
