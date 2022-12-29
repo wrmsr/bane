@@ -226,7 +226,8 @@ func TestC(t *testing.T) {
 		n := tree.Accept(v)
 		fmt.Printf("%#v\n", n)
 
-		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(n)))))
+		m := check.Must1(msh.Marshal(n))
+		fmt.Println(check.Must1(ju.MarshalPretty(m)))
 
 		fmt.Println()
 	}

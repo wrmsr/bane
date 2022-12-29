@@ -43,6 +43,7 @@ func TestPolymorphism(t *testing.T) {
 			{Impl: rfl.TypeOf[PolyC](), Tag: "c"},
 		},
 		nil,
+		nil,
 	)
 
 	sic := stu.NewStructInfoCache()

@@ -41,6 +41,11 @@ func UnhandledType() UnhandledTypeError { return unhandledType() }
 
 ///
 
+type BaseContext struct {
+}
+
+///
+
 type MarshalOpt interface {
 	isMarshalOpt()
 }
@@ -52,6 +57,8 @@ func (o BaseMarshalOpt) isMarshalOpt() {}
 //
 
 type MarshalContext struct {
+	BaseContext
+
 	Make func(ctx MarshalContext, ty reflect.Type) (Marshaler, error)
 	Opts ctr.TypeMap[MarshalOpt]
 	Reg  *Registry
@@ -132,6 +139,8 @@ func (o BaseUnmarshalOpt) isUnmarshalOpt() {}
 //
 
 type UnmarshalContext struct {
+	BaseContext
+
 	Make func(ctx UnmarshalContext, ty reflect.Type) (Unmarshaler, error)
 	Opts ctr.TypeMap[UnmarshalOpt]
 	Reg  *Registry

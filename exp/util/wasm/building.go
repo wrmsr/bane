@@ -134,10 +134,10 @@ func BuildExpr(root text.List) we.Expr {
 
 	case "const":
 		check.Equal(len(root.Ps), 2)
-		ty := wt.ParseType(dot)
+		ty := wt.ParsePrim(dot)
 		return we.Const{
 			S:  root.Ps[1].(text.Atom).S,
-			Ty: ty,
+			Ty: wt.PrimType{P: ty},
 		}
 
 	case "store":
