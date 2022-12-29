@@ -447,7 +447,9 @@ func (v *parseVisitor) VisitStructDeclarator(ctx *parser.StructDeclaratorContext
 	if c := ctx.ConstantExpression(); c != nil {
 		panic(c)
 	}
-	panic("unimplemented")
+	return StructDeclarator{
+		D: v.Visit(ctx.Declarator()).(Declarator),
+	}
 }
 
 func (v *parseVisitor) VisitEnumSpecifier(ctx *parser.EnumSpecifierContext) any {
