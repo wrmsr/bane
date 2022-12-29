@@ -5,8 +5,8 @@ import (
 )
 
 var _ = msh.RegisterTo[Declaration](
-	msh.SetImplOf[ParameterDeclaration](),
 	msh.SetImplOf[FunctionDeclaration](),
+	msh.SetImplOf[ParameterDeclaration](),
 )
 
 var _ = msh.RegisterTo[DeclarationSpecifier](
@@ -18,6 +18,7 @@ var _ = msh.RegisterTo[TypeSpecifier](
 )
 
 var _ = msh.RegisterTo[Declarator](
+	msh.SetImplOf[IdentifierDeclarator](),
 	msh.SetImplOf[ParameterListDeclarator](),
 )
 
