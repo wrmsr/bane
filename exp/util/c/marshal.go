@@ -24,6 +24,7 @@ var _ = msh.RegisterTo[TypeSpecifier](
 var _ = msh.RegisterTo[Declarator](
 	msh.SetImplOf[IdentifierDeclarator](),
 	msh.SetImplOf[ParameterListDeclarator](),
+	msh.SetImplOf[PointerDeclarator](),
 )
 
 var _ = msh.RegisterTo[BlockItem](

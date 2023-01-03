@@ -1,2 +1,3 @@
 - stack stabilizer
 - stream output (s3)
+- https://github.com/golang/go/discussions/54763
