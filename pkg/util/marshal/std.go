@@ -67,7 +67,7 @@ func (u StdTextUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.V
 		s = mv.v
 
 	default:
-		return rfl.Invalid(), unhandledType()
+		return rfl.Invalid(), unhandledTypeOf(reflect.TypeOf(mv))
 	}
 
 	rv := reflect.New(u.ty)

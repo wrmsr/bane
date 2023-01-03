@@ -25,7 +25,7 @@ func (m EnumMarshaler[T]) Marshal(ctx MarshalContext, rv reflect.Value) (Value, 
 	iv := rv.Interface()
 	it, ok := iv.(T)
 	if !ok {
-		return nil, unhandledType()
+		return nil, unhandledTypeOf(rv.Type())
 	}
 	mv, ok := m.m[it]
 	if !ok {
@@ -58,7 +58,7 @@ func (u EnumUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Valu
 		return v, nil
 
 	}
-	return rfl.Invalid(), unhandledType()
+	return rfl.Invalid(), unhandledTypeOf(reflect.TypeOf(mv))
 }
 
 ///
@@ -72,4 +72,15 @@ func SetEnumTypes[T comparable](m map[T]string) SetType {
 		Marshaler:   NewEnumMarshaler[T](m),
 		Unmarshaler: NewEnumUnmarshaler(i),
 	}
+}
+
+func SetStringerEnumTypes[T comparable](vs ...T) SetType {
+	m := make(map[T]string, len(vs))
+	for _, v := range vs {
+		var o any
+		o = v
+		s := o.(fmt.Stringer).String()
+		m[v] = s
+	}
+	return SetEnumTypes[T](m)
 }

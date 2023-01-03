@@ -134,7 +134,7 @@ func (m PolymorphismMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Va
 
 	e, ok := m.m[rv.Type()]
 	if !ok {
-		return nil, unhandledType()
+		return nil, unhandledTypeOf(rv.Type())
 	}
 
 	mv, err := e.m.Marshal(ctx, rv)
@@ -251,7 +251,7 @@ func (u PolymorphismUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (refl
 		return e.Unmarshal(ctx, kv.V)
 
 	}
-	return rfl.Invalid(), unhandledType()
+	return rfl.Invalid(), unhandledTypeOf(reflect.TypeOf(mv))
 }
 
 //

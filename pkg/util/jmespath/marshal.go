@@ -31,14 +31,14 @@ var _ = msh.Register(rfl.TypeOf[Node](),
 )
 
 var _ = msh.Register(rfl.TypeOf[CmpOp](),
-	msh.SetEnumTypes(map[CmpOp]string{
-		CmpEq: "=",
-		CmpNe: "!=",
-		CmpGt: ">",
-		CmpGe: ">=",
-		CmpLt: "<",
-		CmpLe: "<=",
-	}),
+	msh.SetStringerEnumTypes(
+		CmpEq,
+		CmpNe,
+		CmpGt,
+		CmpGe,
+		CmpLt,
+		CmpLe,
+	),
 )
 
 var _ = msh.Register(rfl.TypeOf[Target](),

@@ -8,6 +8,7 @@
 - register warming types
 - case folding impl on ctxs
 - type-switched polymorphic - if only impls are a userstring and userint
+- enum default omission
 
 - mapstruct:
     - ErrorUnused - If ErrorUnused is true, then it is an error for there to exist keys in the original map that were

@@ -15,7 +15,7 @@ var _ Marshaler = Base64Marshaler{}
 
 func (m Base64Marshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
 	if rv.Type() != rfl.Bytes() {
-		return nil, unhandledType()
+		return nil, unhandledTypeOf(rv.Type())
 	}
 
 	if rv.IsNil() {
@@ -53,7 +53,7 @@ func (u Base64Unmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Va
 		return reflect.ValueOf(b), nil
 
 	}
-	return rfl.Invalid(), unhandledType()
+	return rfl.Invalid(), unhandledTypeOf(reflect.TypeOf(mv))
 }
 
 //

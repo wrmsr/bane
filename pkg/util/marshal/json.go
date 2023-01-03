@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"math/big"
+	"reflect"
 	"strconv"
 
 	iou "github.com/wrmsr/bane/pkg/util/io"
@@ -40,7 +41,7 @@ func JsonEncode(w io.Writer, v Value) error {
 		return ju.EncodeString(w, v.v, false)
 
 	case Bytes:
-		return unhandledType()
+		return unhandledTypeOf(reflect.TypeOf(v))
 
 	case Array:
 		if _, err := w.Write([]byte{'['}); err != nil {
@@ -76,7 +77,7 @@ func JsonEncode(w io.Writer, v Value) error {
 					return err
 				}
 			} else {
-				return unhandledType()
+				return unhandledTypeOf(reflect.TypeOf(v))
 			}
 			if _, err := w.Write([]byte{':'}); err != nil {
 				return err
@@ -91,7 +92,7 @@ func JsonEncode(w io.Writer, v Value) error {
 		return nil
 
 	case Any:
-		return unhandledType()
+		return unhandledTypeOf(reflect.TypeOf(v))
 
 	}
 	panic("unreachable")

@@ -83,7 +83,7 @@ func (p PrimitiveMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value
 		return String{v: rv.String()}, nil
 
 	}
-	return nil, unhandledType()
+	return nil, unhandledTypeOf(rv.Type())
 }
 
 //
@@ -131,7 +131,7 @@ func (p PrimitiveUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect
 		return reflect.ValueOf(mv.v), nil
 
 	}
-	return rfl.Invalid(), unhandledType()
+	return rfl.Invalid(), unhandledTypeOf(reflect.TypeOf(mv))
 }
 
 //

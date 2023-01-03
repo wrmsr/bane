@@ -38,3 +38,13 @@ var _ = msh.RegisterTo[Statement](
 var _ = msh.RegisterTo[Expression](
 	msh.SetImplOf[Identifier](),
 )
+
+var _ = msh.RegisterTo[TypeQualifier](
+	msh.SetStringerEnumTypes(
+		DefaultType,
+		ConstType,
+		RestrictType,
+		VolatileType,
+		AtomicType,
+	),
+)

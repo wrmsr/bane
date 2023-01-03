@@ -104,7 +104,7 @@ func (u ObjectUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Va
 		for _, kv := range mv.v {
 			k, ok := kv.K.(String)
 			if !ok {
-				return rfl.Invalid(), unhandledType()
+				return rfl.Invalid(), unhandledTypeOf(reflect.TypeOf(kv.K))
 			}
 			f, ok := u.m[k.v]
 			if !ok {
@@ -121,5 +121,5 @@ func (u ObjectUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Va
 		return ov, nil
 
 	}
-	return rfl.Invalid(), unhandledType()
+	return rfl.Invalid(), unhandledTypeOf(reflect.TypeOf(mv))
 }

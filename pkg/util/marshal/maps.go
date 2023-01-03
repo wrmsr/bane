@@ -102,7 +102,7 @@ func (u MapUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value
 		return rv, nil
 
 	}
-	return rfl.Invalid(), unhandledType()
+	return rfl.Invalid(), unhandledTypeOf(reflect.TypeOf(mv))
 }
 
 //

@@ -32,6 +32,7 @@ RUN ( \
         htop \
         iputils-ping \
         iputils-tracepath \
+        irssi \
         jq \
         less \
         llvm \
@@ -41,6 +42,7 @@ RUN ( \
         man-db \
         mercurial \
         moreutils \
+        mosh \
         nano \
         ncdu \
         net-tools \
