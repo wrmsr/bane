@@ -4,9 +4,22 @@ GO=go
 
 MOD:=$(shell grep -o '^module .*' go.mod | awk '{print $$2}')
 
-SRC=\
+SRCS=\
 	exp \
 	pkg \
+
+PKGS:=$(shell echo ${SRCS} | xargs -n1 -I% ${GO} list ./%/...)
+
+
+### echos
+
+.PHONY: srcs
+srcs:
+	@echo ${SRCS}
+
+.PHONY: pkgs
+pkgs:
+	@echo ${PKGS}
 
 
 ### versions
@@ -44,7 +57,7 @@ clean:
 		.venv* \
 		bin \
 
-	ds=$$(find ${SRC} -name parser -type d) && \
+	ds=$$(find ${SRCS} -name parser -type d) && \
 	for d in $$ds ; do rm -rf "$$d" ; done
 
 
@@ -80,12 +93,12 @@ ANTLR_VERSION=4.10.1
 
 .PHONY: gen-antlr
 gen-antlr:
-	${GO} run "${MOD}/pkg/util/antlr/dev/gen" ${ANTLR_VERSION} ${SRC}
+	${GO} run "${MOD}/pkg/util/antlr/dev/gen" ${ANTLR_VERSION} ${SRCS}
 
 .PHONY: gen-go
 gen-go:
 	${GO} generate ./...
-	${GO} run "${MOD}/pkg/util/dev/cmd/checkdev" -q ${SRC}
+	${GO} run "${MOD}/pkg/util/dev/cmd/checkdev" -q ${SRCS}
 
 
 ### check
@@ -95,13 +108,13 @@ check: check-dev check-fmt check-vet
 
 .PHONY: check-dev
 check-dev:
-	${GO} run "${MOD}/pkg/util/dev/cmd/checkdev" ${SRC}
+	${GO} run "${MOD}/pkg/util/dev/cmd/checkdev" ${SRCS}
 
 .PHONY: check-fmt
 check-fmt:
 	r=0 ; \
-	if [ ! -z "$$(${GO} run cmd/gofmt -s -l ${SRC})" ] ; then r=1 ; fi ; \
-	${GO} run cmd/gofmt -s -w ${SRC} ; \
+	if [ ! -z "$$(${GO} run cmd/gofmt -s -l ${SRCS})" ] ; then r=1 ; fi ; \
+	${GO} run cmd/gofmt -s -w ${SRCS} ; \
 	if [ $$r -ne 0 ] ; then exit 1 ; fi
 
 .PHONY: check-vet
@@ -165,7 +178,7 @@ _ci:
 
 .PHONY: imports
 imports:
-	@${GO} run "${MOD}/pkg/util/dev/cmd/imports" ${SRC}
+	@${GO} run "${MOD}/pkg/util/dev/cmd/imports" ${SRCS}
 
 
 ### python
