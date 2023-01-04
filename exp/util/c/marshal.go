@@ -12,6 +12,7 @@ var _ = msh.RegisterTo[Declaration](
 
 var _ = msh.RegisterTo[DeclarationSpecifier](
 	msh.InheritImplsOf[TypeSpecifier](),
+	msh.SetImplOf[TypeQualifier](),
 )
 
 var _ = msh.RegisterTo[TypeSpecifier](
@@ -47,4 +48,9 @@ var _ = msh.RegisterTo[TypeQualifier](
 		VolatileType,
 		AtomicType,
 	),
+)
+
+var _ = msh.RegisterTo[BlockItem](
+	msh.InheritImplsOf[Declaration](),
+	msh.InheritImplsOf[Statement](),
 )

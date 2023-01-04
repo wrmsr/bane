@@ -1,3 +1,4 @@
+- handler tags, tracing / debug
 - struct opts - simultaneously both marshal/unmarshal
 - containers
 - identities / objgraphs
