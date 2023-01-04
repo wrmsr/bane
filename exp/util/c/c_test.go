@@ -232,6 +232,10 @@ func TestC(t *testing.T) {
 		m := check.Must1(msh.Marshal(&nn))
 		fmt.Println(check.Must1(ju.MarshalPretty(m)))
 
+		var nn2 Node
+		check.Must(msh.Unmarshal(m, &nn2))
+		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&nn2)))))
+
 		fmt.Println()
 	}
 }
