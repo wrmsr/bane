@@ -257,7 +257,7 @@ func (v *parseVisitor) VisitPostfixExpression2(ctx *parser.PostfixExpression2Con
 }
 
 func (v *parseVisitor) VisitArgumentExpressionList(ctx *parser.ArgumentExpressionListContext) any {
-	panic("unimplemented")
+	return v.unimplemented(ctx)
 }
 
 func (v *parseVisitor) VisitUnaryExpression(ctx *parser.UnaryExpressionContext) any {

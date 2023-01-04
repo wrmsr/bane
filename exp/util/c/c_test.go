@@ -180,10 +180,10 @@ func TestC(t *testing.T) {
 		{`int foo(int x) {
 			return x;
 		}`, cu},
-		//{`int main(int argc, const char * const *argv) {
-		//	printf("hi\n");
-		//	return 0;
-		//}`, cu},
+		{`int main(int argc, const char * const *argv) {
+			printf("hi\n");
+			return 0;
+		}`, cu},
 		{`int main(int argc, const char * const *argv) {
 			int c = argc + 2 + 3;
 			printf("hi %d\n", c);
