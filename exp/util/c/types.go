@@ -7,7 +7,9 @@ type TypeSpecifier interface {
 	isTypeSpecifier()
 }
 
-type typeSpecifier struct{}
+type typeSpecifier struct {
+	node
+}
 
 func (t typeSpecifier) isTypeSpecifier() {}
 

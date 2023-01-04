@@ -4,6 +4,14 @@ import (
 	msh "github.com/wrmsr/bane/pkg/util/marshal"
 )
 
+var _ = msh.RegisterTo[Node](
+	msh.InheritImplsOf[Declaration](),
+	msh.InheritImplsOf[Expression](),
+	msh.InheritImplsOf[Statement](),
+	msh.InheritImplsOf[TypeSpecifier](),
+	msh.SetImplOf[TranslationUnit](),
+)
+
 var _ = msh.RegisterTo[Declaration](
 	msh.SetImplOf[DeclaratorsDeclaration](),
 	msh.SetImplOf[FunctionDeclaration](),

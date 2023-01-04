@@ -226,7 +226,10 @@ func TestC(t *testing.T) {
 		n := tree.Accept(v)
 		fmt.Printf("%#v\n", n)
 
-		m := check.Must1(msh.Marshal(n))
+		var nn Node
+		nn = n.(Node)
+
+		m := check.Must1(msh.Marshal(&nn))
 		fmt.Println(check.Must1(ju.MarshalPretty(m)))
 
 		fmt.Println()
