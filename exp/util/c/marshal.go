@@ -24,20 +24,43 @@ var _ = msh.RegisterTo[TypeSpecifier](
 
 var _ = msh.RegisterTo[Declarator](
 	msh.SetImplOf[IdentifierDeclarator](),
+	msh.SetImplOf[InitDeclarator](),
 	msh.SetImplOf[ParameterListDeclarator](),
 	msh.SetImplOf[PointerDeclarator](),
 )
 
-var _ = msh.RegisterTo[BlockItem](
-	msh.InheritImplsOf[Statement](),
-)
-
 var _ = msh.RegisterTo[Statement](
+	msh.SetImplOf[ExpressionStatement](),
 	msh.SetImplOf[ReturnStatement](),
 )
 
 var _ = msh.RegisterTo[Expression](
+	msh.SetImplOf[Binary](),
+	msh.SetImplOf[Call](),
+	msh.SetImplOf[Constant](),
 	msh.SetImplOf[Identifier](),
+	msh.SetImplOf[StringLiteral](),
+)
+
+var _ = msh.RegisterTo[BinaryOp](
+	msh.SetStringerEnumTypes(
+		AddOp,
+		SubOp,
+		MulOp,
+		DivOp,
+		ModOp,
+
+		LtOp,
+		LteOp,
+		EqOp,
+		NeOp,
+		GtOp,
+		GteOp,
+
+		BitAndOp,
+		BitOrOp,
+		BitXorOp,
+	),
 )
 
 var _ = msh.RegisterTo[TypeQualifier](
