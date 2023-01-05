@@ -8,6 +8,7 @@ import (
 	"golang.org/x/mod/modfile"
 	"golang.org/x/tools/go/packages"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/go/gen"
 	iou "github.com/wrmsr/bane/pkg/util/io"
@@ -40,6 +41,8 @@ func NewFileGen(
 		ti: newTypeImporter(ps, mod.Module.Mod.Path, []string{
 			"reflect",
 			"sync",
+
+			def.X_defPackageName(),
 		}),
 
 		rsv: newResolver(pkg),
@@ -69,7 +72,7 @@ func (fg *FileGen) Gen() string {
 		Body: &gg.Block{Body: slices.DeepFlatten[gg.Stmt](
 			gg.ShortVarOf(
 				"spec",
-				gg.CallOf(gg.SelectOf("def", "X_getPackageSpec"))),
+				gg.CallOf(gg.SelectOf(check.Ok1(fg.ti.importPkg(def.X_defPackageName())), "X_getPackageSpec"))),
 			gg.AssignOf("_", "spec"),
 			fg.initStmts,
 		)}}
@@ -77,7 +80,7 @@ func (fg *FileGen) Gen() string {
 	fg.decls = slices.DeepFlatten[gg.Decl](
 		gg.StmtDeclOf(gg.Var{
 			Name: gg.IdentOf("_def_init_once"),
-			Type: gg.TypeOf("sync.Once")}),
+			Type: gg.TypeOf(check.Ok1(fg.ti.importPkg("sync")) + ".Once")}), // FIXME: select / dotted types lol
 
 		gg.Func{
 			Name: gg.NewIdent("_def_init"),

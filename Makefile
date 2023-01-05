@@ -8,7 +8,7 @@ SRCS=\
 	exp \
 	pkg \
 
-PKGS:=$(shell echo ${SRCS} | xargs -n1 -I% ${GO} list ./%/...)
+PKGS:=$(shell echo ${SRCS} | xargs -n1 -I% ${GO} run ${MOD}/pkg/util/dev/cmd/list -find -ignorefiles ./%/...)
 
 
 ### echos
@@ -126,11 +126,11 @@ check-vet:
 
 .PHONY: test
 test:
-	go test ./...
+	${GO} test ./...
 
 .PHONY: test-verbose
 test-verbose:
-	go test -v ./...
+	${GO} test -v ./...
 
 
 ### docker

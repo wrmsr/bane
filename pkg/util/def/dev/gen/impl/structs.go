@@ -7,6 +7,7 @@ import (
 	"go/ast"
 	"strings"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/def"
 	gg "github.com/wrmsr/bane/pkg/util/go/gen"
 )
@@ -27,7 +28,7 @@ func (fg *FileGen) genStruct(ss *def.StructSpec) {
 			gg.CallOf(
 				gg.SelectOf("spec", "Struct"),
 				gg.CallOf(
-					gg.SelectOf("reflect", "TypeOf"),
+					gg.SelectOf(check.Ok1(fg.ti.importPkg("reflect")), "TypeOf"),
 					zn))),
 
 		gg.AssignOf("_", ssName),

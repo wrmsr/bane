@@ -59,16 +59,17 @@ func CollectTypeNames(ps *def.PackageSpec) maps.Set[rtu.ParsedName] {
 //
 
 type typeImporter struct {
-	ps   *def.PackageSpec
-	mod  string
-	imps map[string]string
+	ps  *def.PackageSpec
+	mod string
+
+	imps     map[string]string
+	usedImps map[string]struct{}
 }
 
 func newTypeImporter(ps *def.PackageSpec, mod string, deps []string) *typeImporter {
 	ts := CollectTypeNames(ps)
 
 	pkgSet := maps.MakeSet[string]()
-	pkgSet.Add(def.X_defPackageName())
 	for _, d := range deps {
 		pkgSet.Add(d)
 	}
@@ -104,15 +105,28 @@ func newTypeImporter(ps *def.PackageSpec, mod string, deps []string) *typeImport
 	slices.Apply(addImp, nonDepPkgs)
 
 	return &typeImporter{
-		ps:   ps,
-		mod:  mod,
-		imps: imps,
+		ps:  ps,
+		mod: mod,
+
+		imps:     imps,
+		usedImps: make(map[string]struct{}),
 	}
+}
+
+func (ti *typeImporter) importPkg(pkg string) (string, bool) {
+	in, ok := ti.imps[pkg]
+	if ok {
+		ti.usedImps[pkg] = struct{}{}
+	}
+	return in, ok
 }
 
 func (ti *typeImporter) imports() []gg.Import {
 	var imps []gg.Import
 	for k, v := range ti.imps {
+		if _, ok := ti.usedImps[k]; !ok {
+			continue
+		}
 		_, n, _ := stru.LastCut(k, "/")
 		if n != v {
 			imps = append(imps, gg.Import{Spec: k, Alias: gg.NewIdent(v)})
@@ -138,7 +152,7 @@ func (ti *typeImporter) importedType(ty any) gg.Type {
 	rec = func(ty tyu.Spec) {
 		pn := ty.Parse()
 		if pn.Pkg != "" && pn.Pkg != ti.ps.Name() {
-			in, ok := ti.imps[pn.Pkg]
+			in, ok := ti.importPkg(pn.Pkg)
 			if !ok {
 				panic(fmt.Errorf("import not found: %s", pn.Pkg))
 			}
