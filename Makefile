@@ -119,7 +119,7 @@ check-fmt:
 
 .PHONY: check-vet
 check-vet:
-	${GO} vet -composites=false ./...
+	${GO} vet -composites=false ${PKGS}
 
 
 ### test
