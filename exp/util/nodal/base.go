@@ -1,3 +1,7 @@
+//
+/*
+cmd/compile/internal/ir/mknode.go
+*/
 package nodal
 
 type Node interface {
