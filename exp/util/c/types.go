@@ -165,7 +165,7 @@ const (
 func (s StorageClassSpecifier) String() string {
 	switch s {
 	case DefaultStorage:
-		return "<default>"
+		return "default"
 	case TypedefStorage:
 		return "typedef"
 	case ExternStorage:
@@ -215,7 +215,7 @@ const (
 func (q TypeQualifier) String() string {
 	switch q {
 	case DefaultType:
-		return "<default>"
+		return "default"
 	case ConstType:
 		return "const"
 	case RestrictType:
