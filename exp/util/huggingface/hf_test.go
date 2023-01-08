@@ -15,10 +15,26 @@ import (
 	"github.com/wrmsr/bane/pkg/util/check"
 )
 
+type BlobLfsInfo struct {
+	Size   int64  `json:"size"`
+	Sha256 string `json:"sha256"`
+
+	X map[string]any `json:"-"`
+}
+
+type RepoFile struct {
+	Name   string       `json:"rfilename"`
+	Size   int64        `json:"size"`
+	BlobId string       `json:"blob_id"`
+	Lfs    *BlobLfsInfo `json:"lfs"`
+
+	X map[string]any `json:"-"`
+}
+
 type DatasetInfo struct {
-	PrivId string `json:"_id"`
-	Id     string `json:"id"`
-	Sha    string `json:"sha"`
+	PrivateId string `json:"_id"`
+	Id        string `json:"id"`
+	Sha       string `json:"sha"`
 
 	LastModified string   `json:"lastModified"`
 	Tags         []string `json:"tags"`
