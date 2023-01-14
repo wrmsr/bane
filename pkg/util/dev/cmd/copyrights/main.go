@@ -24,13 +24,26 @@ func main() {
 				return nil
 			}
 
-			fmt.Println(path)
-
 			src := check.Must1(os.ReadFile(path))
 			fset := token.NewFileSet()
 			f, err := parser.ParseFile(fset, "", src, parser.ParseComments)
 
-			fmt.Println(f)
+			var cls []string
+			if f.Doc != nil {
+				for _, d := range f.Doc.List {
+					if strings.Contains(strings.ToLower(d.Text), "copyright") {
+						cls = append(cls, d.Text)
+					}
+				}
+			}
+
+			if len(cls) > 0 {
+				fmt.Println(path)
+				for _, cl := range cls {
+					fmt.Println(strings.TrimSpace(cl))
+				}
+				fmt.Println()
+			}
 
 			return nil
 		}))
