@@ -26,6 +26,12 @@ func (s Set[T]) AddAll(vs []T) {
 	}
 }
 
+func (s Set[T]) Update(o Set[T]) {
+	for v := range o {
+		s[v] = struct{}{}
+	}
+}
+
 func (s Set[T]) Remove(v T) {
 	delete(s, v)
 }
@@ -39,6 +45,18 @@ func (s Set[T]) RemoveAll(vs []T) {
 func (s Set[T]) Contains(v T) bool {
 	_, ok := s[v]
 	return ok
+}
+
+func (s Set[T]) Equals(o Set[T]) bool {
+	if len(s) != len(o) {
+		return false
+	}
+	for v := range o {
+		if !s.Contains(v) {
+			return false
+		}
+	}
+	return true
 }
 
 func (s Set[T]) Slice() []T {

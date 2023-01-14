@@ -50,6 +50,13 @@ func Reversed[T any](s []T) []T {
 	return r
 }
 
+func Pop[T any](s *[]T) T {
+	l := len(*s) - 1
+	r := (*s)[l]
+	*s = (*s)[:l]
+	return r
+}
+
 func Sort[T constraints.Ordered](s []T) []T {
 	sort.Slice(s, func(i, j int) bool {
 		return s[i] < s[j]

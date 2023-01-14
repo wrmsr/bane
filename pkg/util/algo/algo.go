@@ -6,6 +6,7 @@ import (
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	"github.com/wrmsr/bane/pkg/util/maps"
+	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -65,39 +66,49 @@ func Histogram[T comparable](it bt.Iterable[T]) ctr.Map[T, int] {
 	return m
 }
 
-/*
-func Unify(sets it.Iterable[ctr.Set[T]]) ctr.List[ctr.Set[T]] {
-    rem: ta.List[ta.Set[T]] = [set(s) for s in sets]
-    ret: ta.List[ta.Set[T]] = []
+func Unify[T comparable](sets []maps.Set[T]) []maps.Set[T] {
+	rem := make([]maps.Set[T], len(sets))
+	for i, s := range sets {
+		rem[i] = maps.Clone(s)
+	}
+	var ret []maps.Set[T]
 
-    for rem {
-        cur = rem.pop()
-        while True {
-            moved = False
-            i = len(rem) - 1
-            while i >= 0 {
-                if any(e in cur for e in rem[i]) {
-                    cur |= rem[i]
-                    del rem[i]
-                    moved = True
+	for len(rem) > 0 {
+		cur := slices.Pop(&rem)
+		for {
+			moved := false
+			i := len(rem) - 1
+			for !moved && i >= 0 {
+				for e := range rem[i] {
+					if cur.Contains(e) {
+						cur.Update(rem[i])
+						rem = slices.DeleteAt(rem, i)
+						moved = true
+						break
+					}
 				}
-                i -= 1
+				i--
 			}
-            if not moved {
-                break
+			if !moved {
+				break
 			}
 		}
-        ret.append(cur)
+		ret = append(ret, cur)
 	}
 
-    if ret {
-        ret_set = {e for s in ret for e in s}
-        ret_len = sum(map(len, ret))
-        if ret_len != len(ret_set) {
-            raise ValueError(ret)
+	if len(ret) > 0 {
+		retSet := maps.MakeSet[T]()
+		retLen := 0
+		for _, s := range ret {
+			for e := range s {
+				retSet.Add(e)
+			}
+			retLen += len(s)
+		}
+		if retLen != len(retSet) {
+			panic(ret)
 		}
 	}
 
-    return ret
+	return ret
 }
-*/
