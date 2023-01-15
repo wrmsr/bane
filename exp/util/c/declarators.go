@@ -1,6 +1,10 @@
 package c
 
+import bt "github.com/wrmsr/bane/pkg/util/types"
+
 //
+
+type OptDeclarator = bt.Optional[Declarator]
 
 type Declarator interface {
 	Node
@@ -48,7 +52,7 @@ type Pointer struct {
 type PointerDeclarator struct {
 	declarator
 	P Pointer
-	D Declarator
+	D OptDeclarator
 }
 
 //

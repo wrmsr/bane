@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 
 	"github.com/wrmsr/bane/exp/util/c/parser"
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -77,6 +78,11 @@ func (v *parseVisitor) VisitTranslationUnit(ctx *parser.TranslationUnitContext) 
 	ds := make([]Declaration, len(eds))
 	for i, ed := range eds {
 		e := v.Visit(ed)
+		if e == nil {
+			s := ed.GetText()
+			fmt.Println(s)
+			panic(e)
+		}
 		ds[i] = e.(Declaration)
 	}
 	return TranslationUnit{Ds: ds}
@@ -506,7 +512,7 @@ func (v *parseVisitor) VisitDeclarator(ctx *parser.DeclaratorContext) any {
 	d := v.Visit(ctx.DirectDeclarator()).(Declarator)
 	if p := ctx.Pointer(); p != nil {
 		pn := v.Visit(p).(Pointer)
-		d = PointerDeclarator{P: pn, D: d}
+		d = PointerDeclarator{P: pn, D: bt.Just(d)}
 	}
 	return d
 }
@@ -583,13 +589,17 @@ func (v *parseVisitor) VisitParameterDeclaration(ctx *parser.ParameterDeclaratio
 	if dsc := ctx.DeclarationSpecifiers(); dsc != nil {
 		return ParameterDeclaration{
 			S: v.Visit(dsc).(DeclarationSpecifiers),
-			D: v.Visit(ctx.Declarator()).(Declarator),
+			D: bt.Just(v.Visit(ctx.Declarator()).(Declarator)),
 		}
 	}
 	if ds2c := ctx.DeclarationSpecifiers2(); ds2c != nil {
+		var d OptDeclarator
+		if ad := ctx.AbstractDeclarator(); ad != nil {
+			d = bt.Just(v.Visit(ad).(Declarator))
+		}
 		return ParameterDeclaration{
 			S: v.Visit(ds2c).(DeclarationSpecifiers),
-			D: v.Visit(ctx.AbstractDeclarator()).(Declarator),
+			D: d,
 		}
 	}
 	panic(ctx)
@@ -604,7 +614,12 @@ func (v *parseVisitor) VisitTypeName(ctx *parser.TypeNameContext) any {
 }
 
 func (v *parseVisitor) VisitAbstractDeclarator(ctx *parser.AbstractDeclaratorContext) any {
-	return v.VisitChildren(ctx)
+	if dad := ctx.DirectAbstractDeclarator(); dad != nil {
+		panic(dad)
+	} else {
+		pn := v.Visit(ctx.Pointer()).(Pointer)
+		return PointerDeclarator{P: pn}
+	}
 }
 
 func (v *parseVisitor) VisitParameterTypeListDirectAbstractDeclarator(ctx *parser.ParameterTypeListDirectAbstractDeclaratorContext) any {

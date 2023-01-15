@@ -42,7 +42,7 @@ type DeclaratorsDeclaration struct {
 type ParameterDeclaration struct {
 	declaration
 	S DeclarationSpecifiers
-	D Declarator
+	D OptDeclarator
 }
 
 type ParameterList struct {
