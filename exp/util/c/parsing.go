@@ -37,7 +37,7 @@ func (v *parseVisitor) error(e error) any {
 }
 
 func (v *parseVisitor) unimplemented(ctx antlr.ParserRuleContext) any {
-	return v.error(fmt.Errorf("unimplemented: %s", ctx))
+	return v.error(fmt.Errorf("intentionally unimplemented: %s", ctx))
 }
 
 //
@@ -113,7 +113,8 @@ func (v *parseVisitor) VisitDeclaration(ctx *parser.DeclarationContext) any {
 			ids := idl.(*parser.InitDeclaratorListContext).AllInitDeclarator()
 			s = make([]Declarator, len(ids))
 			for i, id := range ids {
-				s[i] = v.Visit(id).(InitDeclarator)
+				dcl := v.Visit(id)
+				s[i] = dcl.(Declarator)
 			}
 		}
 		return DeclaratorsDeclaration{
@@ -140,7 +141,7 @@ func (v *parseVisitor) VisitDeclarationSpecifiers2(ctx *parser.DeclarationSpecif
 func (v *parseVisitor) VisitDeclarationSpecifier(ctx *parser.DeclarationSpecifierContext) any {
 	var s any
 	if c := ctx.StorageClassSpecifier(); c != nil {
-		panic(c)
+		s = v.Visit(c)
 	}
 	if c := ctx.TypeSpecifier(); c != nil {
 		s = v.Visit(c)
@@ -355,7 +356,7 @@ func (v *parseVisitor) VisitConstantExpression(ctx *parser.ConstantExpressionCon
 }
 
 func (v *parseVisitor) VisitStorageClassSpecifier(ctx *parser.StorageClassSpecifierContext) any {
-	panic("unimplemented")
+	return ParseStorageClassSpecifier(ctx.GetText())
 }
 
 func (v *parseVisitor) VisitTypeSpecifier(ctx *parser.TypeSpecifierContext) any {
@@ -378,15 +379,26 @@ func (v *parseVisitor) VisitTypeSpecifier(ctx *parser.TypeSpecifierContext) any 
 }
 
 func (v *parseVisitor) VisitStructOrUnionSpecifier(ctx *parser.StructOrUnionSpecifierContext) any {
-	ds := v.Visit(ctx.StructDeclarationList()).([]StructDeclaration)
-	return StructOrUnionSpecifier{
-		I:  ctx.Identifier().GetText(),
-		Ds: ds,
+	var ret StructOrUnionSpecifier
+	switch sol := ctx.StructOrUnion().GetText(); sol {
+	case "struct":
+		ret.U = false // nop
+	case "union":
+		ret.U = true
+	default:
+		panic(sol)
 	}
+	if id := ctx.Identifier(); id != nil {
+		ret.I = id.GetText()
+	}
+	if sdl := ctx.StructDeclarationList(); sdl != nil {
+		ret.Ds = v.Visit(ctx.StructDeclarationList()).([]StructDeclaration)
+	}
+	return ret
 }
 
 func (v *parseVisitor) VisitStructOrUnion(ctx *parser.StructOrUnionContext) any {
-	panic("unimplemented")
+	return v.unimplemented(ctx)
 }
 
 func (v *parseVisitor) VisitStructDeclarationList(ctx *parser.StructDeclarationListContext) any {

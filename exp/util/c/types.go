@@ -251,6 +251,7 @@ type SpecifierQualifier struct {
 
 type StructOrUnionSpecifier struct {
 	typeSpecifier
+	U  bool
 	I  string
 	Ds []StructDeclaration
 }
