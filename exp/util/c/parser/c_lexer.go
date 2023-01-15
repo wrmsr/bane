@@ -7,7 +7,7 @@ import (
 	"sync"
 	"unicode"
 
-	antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
+	"github.com/antlr/antlr4/runtime/Go/antlr"
 )
 
 // Suppress unused import error

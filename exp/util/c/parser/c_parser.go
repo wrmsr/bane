@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"sync"
 
-	antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
+	"github.com/antlr/antlr4/runtime/Go/antlr"
 )
 
 // Suppress unused import errors
@@ -14014,14 +14014,48 @@ func NewDirectAbstractDeclaratorContext(parser antlr.Parser, parent antlr.Parser
 
 func (s *DirectAbstractDeclaratorContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *DirectAbstractDeclaratorContext) LeftParen() antlr.TerminalNode {
+func (s *DirectAbstractDeclaratorContext) CopyFrom(ctx *DirectAbstractDeclaratorContext) {
+	s.BaseParserRuleContext.CopyFrom(ctx.BaseParserRuleContext)
+}
+
+func (s *DirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *DirectAbstractDeclaratorContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+type ParameterTypeListDirectAbstractDeclaratorContext struct {
+	*DirectAbstractDeclaratorContext
+}
+
+func NewParameterTypeListDirectAbstractDeclaratorContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *ParameterTypeListDirectAbstractDeclaratorContext {
+	var p = new(ParameterTypeListDirectAbstractDeclaratorContext)
+
+	p.DirectAbstractDeclaratorContext = NewEmptyDirectAbstractDeclaratorContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*DirectAbstractDeclaratorContext))
+
+	return p
+}
+
+func (s *ParameterTypeListDirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *ParameterTypeListDirectAbstractDeclaratorContext) LeftParen() antlr.TerminalNode {
 	return s.GetToken(CParserLeftParen, 0)
 }
 
-func (s *DirectAbstractDeclaratorContext) AbstractDeclarator() IAbstractDeclaratorContext {
+func (s *ParameterTypeListDirectAbstractDeclaratorContext) RightParen() antlr.TerminalNode {
+	return s.GetToken(CParserRightParen, 0)
+}
+
+func (s *ParameterTypeListDirectAbstractDeclaratorContext) ParameterTypeList() IParameterTypeListContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IAbstractDeclaratorContext); ok {
+		if _, ok := ctx.(IParameterTypeListContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -14031,14 +14065,10 @@ func (s *DirectAbstractDeclaratorContext) AbstractDeclarator() IAbstractDeclarat
 		return nil
 	}
 
-	return t.(IAbstractDeclaratorContext)
+	return t.(IParameterTypeListContext)
 }
 
-func (s *DirectAbstractDeclaratorContext) RightParen() antlr.TerminalNode {
-	return s.GetToken(CParserRightParen, 0)
-}
-
-func (s *DirectAbstractDeclaratorContext) AllGccDeclaratorExtension() []IGccDeclaratorExtensionContext {
+func (s *ParameterTypeListDirectAbstractDeclaratorContext) AllGccDeclaratorExtension() []IGccDeclaratorExtensionContext {
 	children := s.GetChildren()
 	len := 0
 	for _, ctx := range children {
@@ -14059,7 +14089,7 @@ func (s *DirectAbstractDeclaratorContext) AllGccDeclaratorExtension() []IGccDecl
 	return tst
 }
 
-func (s *DirectAbstractDeclaratorContext) GccDeclaratorExtension(i int) IGccDeclaratorExtensionContext {
+func (s *ParameterTypeListDirectAbstractDeclaratorContext) GccDeclaratorExtension(i int) IGccDeclaratorExtensionContext {
 	var t antlr.RuleContext
 	j := 0
 	for _, ctx := range s.GetChildren() {
@@ -14079,71 +14109,204 @@ func (s *DirectAbstractDeclaratorContext) GccDeclaratorExtension(i int) IGccDecl
 	return t.(IGccDeclaratorExtensionContext)
 }
 
-func (s *DirectAbstractDeclaratorContext) LeftBracket() antlr.TerminalNode {
+func (s *ParameterTypeListDirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.EnterParameterTypeListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *ParameterTypeListDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.ExitParameterTypeListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *ParameterTypeListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CVisitor:
+		return t.VisitParameterTypeListDirectAbstractDeclarator(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
+type ParenDirectAbstractDeclaratorContext struct {
+	*DirectAbstractDeclaratorContext
+}
+
+func NewParenDirectAbstractDeclaratorContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *ParenDirectAbstractDeclaratorContext {
+	var p = new(ParenDirectAbstractDeclaratorContext)
+
+	p.DirectAbstractDeclaratorContext = NewEmptyDirectAbstractDeclaratorContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*DirectAbstractDeclaratorContext))
+
+	return p
+}
+
+func (s *ParenDirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *ParenDirectAbstractDeclaratorContext) LeftParen() antlr.TerminalNode {
+	return s.GetToken(CParserLeftParen, 0)
+}
+
+func (s *ParenDirectAbstractDeclaratorContext) AbstractDeclarator() IAbstractDeclaratorContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IAbstractDeclaratorContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IAbstractDeclaratorContext)
+}
+
+func (s *ParenDirectAbstractDeclaratorContext) RightParen() antlr.TerminalNode {
+	return s.GetToken(CParserRightParen, 0)
+}
+
+func (s *ParenDirectAbstractDeclaratorContext) AllGccDeclaratorExtension() []IGccDeclaratorExtensionContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IGccDeclaratorExtensionContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IGccDeclaratorExtensionContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IGccDeclaratorExtensionContext); ok {
+			tst[i] = t.(IGccDeclaratorExtensionContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *ParenDirectAbstractDeclaratorContext) GccDeclaratorExtension(i int) IGccDeclaratorExtensionContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IGccDeclaratorExtensionContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IGccDeclaratorExtensionContext)
+}
+
+func (s *ParenDirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.EnterParenDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *ParenDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.ExitParenDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *ParenDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CVisitor:
+		return t.VisitParenDirectAbstractDeclarator(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
+type BracketStarDirectAbstractDeclaratorContext struct {
+	*DirectAbstractDeclaratorContext
+}
+
+func NewBracketStarDirectAbstractDeclaratorContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *BracketStarDirectAbstractDeclaratorContext {
+	var p = new(BracketStarDirectAbstractDeclaratorContext)
+
+	p.DirectAbstractDeclaratorContext = NewEmptyDirectAbstractDeclaratorContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*DirectAbstractDeclaratorContext))
+
+	return p
+}
+
+func (s *BracketStarDirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *BracketStarDirectAbstractDeclaratorContext) LeftBracket() antlr.TerminalNode {
 	return s.GetToken(CParserLeftBracket, 0)
 }
 
-func (s *DirectAbstractDeclaratorContext) RightBracket() antlr.TerminalNode {
-	return s.GetToken(CParserRightBracket, 0)
-}
-
-func (s *DirectAbstractDeclaratorContext) TypeQualifierList() ITypeQualifierListContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ITypeQualifierListContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(ITypeQualifierListContext)
-}
-
-func (s *DirectAbstractDeclaratorContext) AssignmentExpression() IAssignmentExpressionContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IAssignmentExpressionContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IAssignmentExpressionContext)
-}
-
-func (s *DirectAbstractDeclaratorContext) Static() antlr.TerminalNode {
-	return s.GetToken(CParserStatic, 0)
-}
-
-func (s *DirectAbstractDeclaratorContext) Star() antlr.TerminalNode {
+func (s *BracketStarDirectAbstractDeclaratorContext) Star() antlr.TerminalNode {
 	return s.GetToken(CParserStar, 0)
 }
 
-func (s *DirectAbstractDeclaratorContext) ParameterTypeList() IParameterTypeListContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IParameterTypeListContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IParameterTypeListContext)
+func (s *BracketStarDirectAbstractDeclaratorContext) RightBracket() antlr.TerminalNode {
+	return s.GetToken(CParserRightBracket, 0)
 }
 
-func (s *DirectAbstractDeclaratorContext) DirectAbstractDeclarator() IDirectAbstractDeclaratorContext {
+func (s *BracketStarDirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.EnterBracketStarDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *BracketStarDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.ExitBracketStarDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *BracketStarDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CVisitor:
+		return t.VisitBracketStarDirectAbstractDeclarator(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
+type RecTypeQualifierListStaticDirectAbstractDeclaratorContext struct {
+	*DirectAbstractDeclaratorContext
+}
+
+func NewRecTypeQualifierListStaticDirectAbstractDeclaratorContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *RecTypeQualifierListStaticDirectAbstractDeclaratorContext {
+	var p = new(RecTypeQualifierListStaticDirectAbstractDeclaratorContext)
+
+	p.DirectAbstractDeclaratorContext = NewEmptyDirectAbstractDeclaratorContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*DirectAbstractDeclaratorContext))
+
+	return p
+}
+
+func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) DirectAbstractDeclarator() IDirectAbstractDeclaratorContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IDirectAbstractDeclaratorContext); ok {
@@ -14159,30 +14322,699 @@ func (s *DirectAbstractDeclaratorContext) DirectAbstractDeclarator() IDirectAbst
 	return t.(IDirectAbstractDeclaratorContext)
 }
 
-func (s *DirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) LeftBracket() antlr.TerminalNode {
+	return s.GetToken(CParserLeftBracket, 0)
+}
+
+func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) TypeQualifierList() ITypeQualifierListContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(ITypeQualifierListContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(ITypeQualifierListContext)
+}
+
+func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) Static() antlr.TerminalNode {
+	return s.GetToken(CParserStatic, 0)
+}
+
+func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) AssignmentExpression() IAssignmentExpressionContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IAssignmentExpressionContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IAssignmentExpressionContext)
+}
+
+func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) RightBracket() antlr.TerminalNode {
+	return s.GetToken(CParserRightBracket, 0)
+}
+
+func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.EnterRecTypeQualifierListStaticDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.ExitRecTypeQualifierListStaticDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CVisitor:
+		return t.VisitRecTypeQualifierListStaticDirectAbstractDeclarator(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
+type RecBracketStarDirectAbstractDeclaratorContext struct {
+	*DirectAbstractDeclaratorContext
+}
+
+func NewRecBracketStarDirectAbstractDeclaratorContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *RecBracketStarDirectAbstractDeclaratorContext {
+	var p = new(RecBracketStarDirectAbstractDeclaratorContext)
+
+	p.DirectAbstractDeclaratorContext = NewEmptyDirectAbstractDeclaratorContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*DirectAbstractDeclaratorContext))
+
+	return p
+}
+
+func (s *RecBracketStarDirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *DirectAbstractDeclaratorContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
+func (s *RecBracketStarDirectAbstractDeclaratorContext) DirectAbstractDeclarator() IDirectAbstractDeclaratorContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IDirectAbstractDeclaratorContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IDirectAbstractDeclaratorContext)
 }
 
-func (s *DirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *RecBracketStarDirectAbstractDeclaratorContext) LeftBracket() antlr.TerminalNode {
+	return s.GetToken(CParserLeftBracket, 0)
+}
+
+func (s *RecBracketStarDirectAbstractDeclaratorContext) Star() antlr.TerminalNode {
+	return s.GetToken(CParserStar, 0)
+}
+
+func (s *RecBracketStarDirectAbstractDeclaratorContext) RightBracket() antlr.TerminalNode {
+	return s.GetToken(CParserRightBracket, 0)
+}
+
+func (s *RecBracketStarDirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CListener); ok {
-		listenerT.EnterDirectAbstractDeclarator(s)
+		listenerT.EnterRecBracketStarDirectAbstractDeclarator(s)
 	}
 }
 
-func (s *DirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *RecBracketStarDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CListener); ok {
-		listenerT.ExitDirectAbstractDeclarator(s)
+		listenerT.ExitRecBracketStarDirectAbstractDeclarator(s)
 	}
 }
 
-func (s *DirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RecBracketStarDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 	switch t := visitor.(type) {
 	case CVisitor:
-		return t.VisitDirectAbstractDeclarator(s)
+		return t.VisitRecBracketStarDirectAbstractDeclarator(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
+type TypeQualifierListDirectAbstractDeclaratorContext struct {
+	*DirectAbstractDeclaratorContext
+}
+
+func NewTypeQualifierListDirectAbstractDeclaratorContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *TypeQualifierListDirectAbstractDeclaratorContext {
+	var p = new(TypeQualifierListDirectAbstractDeclaratorContext)
+
+	p.DirectAbstractDeclaratorContext = NewEmptyDirectAbstractDeclaratorContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*DirectAbstractDeclaratorContext))
+
+	return p
+}
+
+func (s *TypeQualifierListDirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *TypeQualifierListDirectAbstractDeclaratorContext) LeftBracket() antlr.TerminalNode {
+	return s.GetToken(CParserLeftBracket, 0)
+}
+
+func (s *TypeQualifierListDirectAbstractDeclaratorContext) RightBracket() antlr.TerminalNode {
+	return s.GetToken(CParserRightBracket, 0)
+}
+
+func (s *TypeQualifierListDirectAbstractDeclaratorContext) TypeQualifierList() ITypeQualifierListContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(ITypeQualifierListContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(ITypeQualifierListContext)
+}
+
+func (s *TypeQualifierListDirectAbstractDeclaratorContext) AssignmentExpression() IAssignmentExpressionContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IAssignmentExpressionContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IAssignmentExpressionContext)
+}
+
+func (s *TypeQualifierListDirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.EnterTypeQualifierListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *TypeQualifierListDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.ExitTypeQualifierListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *TypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CVisitor:
+		return t.VisitTypeQualifierListDirectAbstractDeclarator(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
+type TypeQualifierListStaticDirectAbstractDeclaratorContext struct {
+	*DirectAbstractDeclaratorContext
+}
+
+func NewTypeQualifierListStaticDirectAbstractDeclaratorContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *TypeQualifierListStaticDirectAbstractDeclaratorContext {
+	var p = new(TypeQualifierListStaticDirectAbstractDeclaratorContext)
+
+	p.DirectAbstractDeclaratorContext = NewEmptyDirectAbstractDeclaratorContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*DirectAbstractDeclaratorContext))
+
+	return p
+}
+
+func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) LeftBracket() antlr.TerminalNode {
+	return s.GetToken(CParserLeftBracket, 0)
+}
+
+func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) TypeQualifierList() ITypeQualifierListContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(ITypeQualifierListContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(ITypeQualifierListContext)
+}
+
+func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) Static() antlr.TerminalNode {
+	return s.GetToken(CParserStatic, 0)
+}
+
+func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) AssignmentExpression() IAssignmentExpressionContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IAssignmentExpressionContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IAssignmentExpressionContext)
+}
+
+func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) RightBracket() antlr.TerminalNode {
+	return s.GetToken(CParserRightBracket, 0)
+}
+
+func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.EnterTypeQualifierListStaticDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.ExitTypeQualifierListStaticDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CVisitor:
+		return t.VisitTypeQualifierListStaticDirectAbstractDeclarator(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
+type RecStaticTypeQualifierListDirectAbstractDeclaratorContext struct {
+	*DirectAbstractDeclaratorContext
+}
+
+func NewRecStaticTypeQualifierListDirectAbstractDeclaratorContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *RecStaticTypeQualifierListDirectAbstractDeclaratorContext {
+	var p = new(RecStaticTypeQualifierListDirectAbstractDeclaratorContext)
+
+	p.DirectAbstractDeclaratorContext = NewEmptyDirectAbstractDeclaratorContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*DirectAbstractDeclaratorContext))
+
+	return p
+}
+
+func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) DirectAbstractDeclarator() IDirectAbstractDeclaratorContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IDirectAbstractDeclaratorContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IDirectAbstractDeclaratorContext)
+}
+
+func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) LeftBracket() antlr.TerminalNode {
+	return s.GetToken(CParserLeftBracket, 0)
+}
+
+func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) Static() antlr.TerminalNode {
+	return s.GetToken(CParserStatic, 0)
+}
+
+func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) AssignmentExpression() IAssignmentExpressionContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IAssignmentExpressionContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IAssignmentExpressionContext)
+}
+
+func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) RightBracket() antlr.TerminalNode {
+	return s.GetToken(CParserRightBracket, 0)
+}
+
+func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) TypeQualifierList() ITypeQualifierListContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(ITypeQualifierListContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(ITypeQualifierListContext)
+}
+
+func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.EnterRecStaticTypeQualifierListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.ExitRecStaticTypeQualifierListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CVisitor:
+		return t.VisitRecStaticTypeQualifierListDirectAbstractDeclarator(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
+type RecParameterTypeListDirectAbstractDeclaratorContext struct {
+	*DirectAbstractDeclaratorContext
+}
+
+func NewRecParameterTypeListDirectAbstractDeclaratorContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *RecParameterTypeListDirectAbstractDeclaratorContext {
+	var p = new(RecParameterTypeListDirectAbstractDeclaratorContext)
+
+	p.DirectAbstractDeclaratorContext = NewEmptyDirectAbstractDeclaratorContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*DirectAbstractDeclaratorContext))
+
+	return p
+}
+
+func (s *RecParameterTypeListDirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *RecParameterTypeListDirectAbstractDeclaratorContext) DirectAbstractDeclarator() IDirectAbstractDeclaratorContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IDirectAbstractDeclaratorContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IDirectAbstractDeclaratorContext)
+}
+
+func (s *RecParameterTypeListDirectAbstractDeclaratorContext) LeftParen() antlr.TerminalNode {
+	return s.GetToken(CParserLeftParen, 0)
+}
+
+func (s *RecParameterTypeListDirectAbstractDeclaratorContext) RightParen() antlr.TerminalNode {
+	return s.GetToken(CParserRightParen, 0)
+}
+
+func (s *RecParameterTypeListDirectAbstractDeclaratorContext) ParameterTypeList() IParameterTypeListContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IParameterTypeListContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IParameterTypeListContext)
+}
+
+func (s *RecParameterTypeListDirectAbstractDeclaratorContext) AllGccDeclaratorExtension() []IGccDeclaratorExtensionContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IGccDeclaratorExtensionContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IGccDeclaratorExtensionContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IGccDeclaratorExtensionContext); ok {
+			tst[i] = t.(IGccDeclaratorExtensionContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *RecParameterTypeListDirectAbstractDeclaratorContext) GccDeclaratorExtension(i int) IGccDeclaratorExtensionContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IGccDeclaratorExtensionContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IGccDeclaratorExtensionContext)
+}
+
+func (s *RecParameterTypeListDirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.EnterRecParameterTypeListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *RecParameterTypeListDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.ExitRecParameterTypeListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *RecParameterTypeListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CVisitor:
+		return t.VisitRecParameterTypeListDirectAbstractDeclarator(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
+type RecTypeQualifierListDirectAbstractDeclaratorContext struct {
+	*DirectAbstractDeclaratorContext
+}
+
+func NewRecTypeQualifierListDirectAbstractDeclaratorContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *RecTypeQualifierListDirectAbstractDeclaratorContext {
+	var p = new(RecTypeQualifierListDirectAbstractDeclaratorContext)
+
+	p.DirectAbstractDeclaratorContext = NewEmptyDirectAbstractDeclaratorContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*DirectAbstractDeclaratorContext))
+
+	return p
+}
+
+func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) DirectAbstractDeclarator() IDirectAbstractDeclaratorContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IDirectAbstractDeclaratorContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IDirectAbstractDeclaratorContext)
+}
+
+func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) LeftBracket() antlr.TerminalNode {
+	return s.GetToken(CParserLeftBracket, 0)
+}
+
+func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) RightBracket() antlr.TerminalNode {
+	return s.GetToken(CParserRightBracket, 0)
+}
+
+func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) TypeQualifierList() ITypeQualifierListContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(ITypeQualifierListContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(ITypeQualifierListContext)
+}
+
+func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) AssignmentExpression() IAssignmentExpressionContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IAssignmentExpressionContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IAssignmentExpressionContext)
+}
+
+func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.EnterRecTypeQualifierListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.ExitRecTypeQualifierListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CVisitor:
+		return t.VisitRecTypeQualifierListDirectAbstractDeclarator(s)
+
+	default:
+		return t.VisitChildren(s)
+	}
+}
+
+type StaticTypeQualifierListDirectAbstractDeclaratorContext struct {
+	*DirectAbstractDeclaratorContext
+}
+
+func NewStaticTypeQualifierListDirectAbstractDeclaratorContext(parser antlr.Parser, ctx antlr.ParserRuleContext) *StaticTypeQualifierListDirectAbstractDeclaratorContext {
+	var p = new(StaticTypeQualifierListDirectAbstractDeclaratorContext)
+
+	p.DirectAbstractDeclaratorContext = NewEmptyDirectAbstractDeclaratorContext()
+	p.parser = parser
+	p.CopyFrom(ctx.(*DirectAbstractDeclaratorContext))
+
+	return p
+}
+
+func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) LeftBracket() antlr.TerminalNode {
+	return s.GetToken(CParserLeftBracket, 0)
+}
+
+func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) Static() antlr.TerminalNode {
+	return s.GetToken(CParserStatic, 0)
+}
+
+func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) AssignmentExpression() IAssignmentExpressionContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IAssignmentExpressionContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IAssignmentExpressionContext)
+}
+
+func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) RightBracket() antlr.TerminalNode {
+	return s.GetToken(CParserRightBracket, 0)
+}
+
+func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) TypeQualifierList() ITypeQualifierListContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(ITypeQualifierListContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(ITypeQualifierListContext)
+}
+
+func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.EnterStaticTypeQualifierListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(CListener); ok {
+		listenerT.ExitStaticTypeQualifierListDirectAbstractDeclarator(s)
+	}
+}
+
+func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+	switch t := visitor.(type) {
+	case CVisitor:
+		return t.VisitStaticTypeQualifierListDirectAbstractDeclarator(s)
 
 	default:
 		return t.VisitChildren(s)
@@ -14229,6 +15061,10 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 	p.GetErrorHandler().Sync(p)
 	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 96, p.GetParserRuleContext()) {
 	case 1:
+		localctx = NewParenDirectAbstractDeclaratorContext(p, localctx)
+		p.SetParserRuleContext(localctx)
+		_prevctx = localctx
+
 		{
 			p.SetState(801)
 			p.Match(CParserLeftParen)
@@ -14259,6 +15095,9 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 		}
 
 	case 2:
+		localctx = NewTypeQualifierListDirectAbstractDeclaratorContext(p, localctx)
+		p.SetParserRuleContext(localctx)
+		_prevctx = localctx
 		{
 			p.SetState(810)
 			p.Match(CParserLeftBracket)
@@ -14291,6 +15130,9 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 		}
 
 	case 3:
+		localctx = NewStaticTypeQualifierListDirectAbstractDeclaratorContext(p, localctx)
+		p.SetParserRuleContext(localctx)
+		_prevctx = localctx
 		{
 			p.SetState(818)
 			p.Match(CParserLeftBracket)
@@ -14320,6 +15162,9 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 		}
 
 	case 4:
+		localctx = NewTypeQualifierListStaticDirectAbstractDeclaratorContext(p, localctx)
+		p.SetParserRuleContext(localctx)
+		_prevctx = localctx
 		{
 			p.SetState(826)
 			p.Match(CParserLeftBracket)
@@ -14342,6 +15187,9 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 		}
 
 	case 5:
+		localctx = NewBracketStarDirectAbstractDeclaratorContext(p, localctx)
+		p.SetParserRuleContext(localctx)
+		_prevctx = localctx
 		{
 			p.SetState(832)
 			p.Match(CParserLeftBracket)
@@ -14356,6 +15204,9 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 		}
 
 	case 6:
+		localctx = NewParameterTypeListDirectAbstractDeclaratorContext(p, localctx)
+		p.SetParserRuleContext(localctx)
+		_prevctx = localctx
 		{
 			p.SetState(835)
 			p.Match(CParserLeftParen)
@@ -14408,7 +15259,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 			p.GetErrorHandler().Sync(p)
 			switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 102, p.GetParserRuleContext()) {
 			case 1:
-				localctx = NewDirectAbstractDeclaratorContext(p, _parentctx, _parentState)
+				localctx = NewRecTypeQualifierListDirectAbstractDeclaratorContext(p, NewDirectAbstractDeclaratorContext(p, _parentctx, _parentState))
 				p.PushNewRecursionContext(localctx, _startState, CParserRULE_directAbstractDeclarator)
 				p.SetState(848)
 
@@ -14447,7 +15298,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 				}
 
 			case 2:
-				localctx = NewDirectAbstractDeclaratorContext(p, _parentctx, _parentState)
+				localctx = NewRecStaticTypeQualifierListDirectAbstractDeclaratorContext(p, NewDirectAbstractDeclaratorContext(p, _parentctx, _parentState))
 				p.PushNewRecursionContext(localctx, _startState, CParserRULE_directAbstractDeclarator)
 				p.SetState(857)
 
@@ -14483,7 +15334,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 				}
 
 			case 3:
-				localctx = NewDirectAbstractDeclaratorContext(p, _parentctx, _parentState)
+				localctx = NewRecTypeQualifierListStaticDirectAbstractDeclaratorContext(p, NewDirectAbstractDeclaratorContext(p, _parentctx, _parentState))
 				p.PushNewRecursionContext(localctx, _startState, CParserRULE_directAbstractDeclarator)
 				p.SetState(866)
 
@@ -14512,7 +15363,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 				}
 
 			case 4:
-				localctx = NewDirectAbstractDeclaratorContext(p, _parentctx, _parentState)
+				localctx = NewRecBracketStarDirectAbstractDeclaratorContext(p, NewDirectAbstractDeclaratorContext(p, _parentctx, _parentState))
 				p.PushNewRecursionContext(localctx, _startState, CParserRULE_directAbstractDeclarator)
 				p.SetState(873)
 
@@ -14533,7 +15384,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 				}
 
 			case 5:
-				localctx = NewDirectAbstractDeclaratorContext(p, _parentctx, _parentState)
+				localctx = NewRecParameterTypeListDirectAbstractDeclaratorContext(p, NewDirectAbstractDeclaratorContext(p, _parentctx, _parentState))
 				p.PushNewRecursionContext(localctx, _startState, CParserRULE_directAbstractDeclarator)
 				p.SetState(877)
 

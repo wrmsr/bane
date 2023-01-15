@@ -2,7 +2,7 @@
 
 package parser // C
 
-import antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
+import "github.com/antlr/antlr4/runtime/Go/antlr"
 
 // A complete Visitor for a parse tree produced by CParser.
 type CVisitor interface {
@@ -245,8 +245,38 @@ type CVisitor interface {
 	// Visit a parse tree produced by CParser#abstractDeclarator.
 	VisitAbstractDeclarator(ctx *AbstractDeclaratorContext) interface{}
 
-	// Visit a parse tree produced by CParser#directAbstractDeclarator.
-	VisitDirectAbstractDeclarator(ctx *DirectAbstractDeclaratorContext) interface{}
+	// Visit a parse tree produced by CParser#parameterTypeListDirectAbstractDeclarator.
+	VisitParameterTypeListDirectAbstractDeclarator(ctx *ParameterTypeListDirectAbstractDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#parenDirectAbstractDeclarator.
+	VisitParenDirectAbstractDeclarator(ctx *ParenDirectAbstractDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#bracketStarDirectAbstractDeclarator.
+	VisitBracketStarDirectAbstractDeclarator(ctx *BracketStarDirectAbstractDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#recTypeQualifierListStaticDirectAbstractDeclarator.
+	VisitRecTypeQualifierListStaticDirectAbstractDeclarator(ctx *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#recBracketStarDirectAbstractDeclarator.
+	VisitRecBracketStarDirectAbstractDeclarator(ctx *RecBracketStarDirectAbstractDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#typeQualifierListDirectAbstractDeclarator.
+	VisitTypeQualifierListDirectAbstractDeclarator(ctx *TypeQualifierListDirectAbstractDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#typeQualifierListStaticDirectAbstractDeclarator.
+	VisitTypeQualifierListStaticDirectAbstractDeclarator(ctx *TypeQualifierListStaticDirectAbstractDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#recStaticTypeQualifierListDirectAbstractDeclarator.
+	VisitRecStaticTypeQualifierListDirectAbstractDeclarator(ctx *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#recParameterTypeListDirectAbstractDeclarator.
+	VisitRecParameterTypeListDirectAbstractDeclarator(ctx *RecParameterTypeListDirectAbstractDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#recTypeQualifierListDirectAbstractDeclarator.
+	VisitRecTypeQualifierListDirectAbstractDeclarator(ctx *RecTypeQualifierListDirectAbstractDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by CParser#staticTypeQualifierListDirectAbstractDeclarator.
+	VisitStaticTypeQualifierListDirectAbstractDeclarator(ctx *StaticTypeQualifierListDirectAbstractDeclaratorContext) interface{}
 
 	// Visit a parse tree produced by CParser#typedefName.
 	VisitTypedefName(ctx *TypedefNameContext) interface{}

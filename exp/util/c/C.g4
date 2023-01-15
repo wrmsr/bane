@@ -404,17 +404,17 @@ abstractDeclarator
     ;
 
 directAbstractDeclarator
-    : '(' abstractDeclarator ')' gccDeclaratorExtension*
-    | '[' typeQualifierList? assignmentExpression? ']'
-    | '[' 'static' typeQualifierList? assignmentExpression ']'
-    | '[' typeQualifierList 'static' assignmentExpression ']'
-    | '[' '*' ']'
-    | '(' parameterTypeList? ')' gccDeclaratorExtension*
-    | directAbstractDeclarator '[' typeQualifierList? assignmentExpression? ']'
-    | directAbstractDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
-    | directAbstractDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
-    | directAbstractDeclarator '[' '*' ']'
-    | directAbstractDeclarator '(' parameterTypeList? ')' gccDeclaratorExtension*
+    : '(' abstractDeclarator ')' gccDeclaratorExtension*                                 #parenDirectAbstractDeclarator
+    | '[' typeQualifierList? assignmentExpression? ']'                                   #typeQualifierListDirectAbstractDeclarator
+    | '[' 'static' typeQualifierList? assignmentExpression ']'                           #staticTypeQualifierListDirectAbstractDeclarator
+    | '[' typeQualifierList 'static' assignmentExpression ']'                            #typeQualifierListStaticDirectAbstractDeclarator
+    | '[' '*' ']'                                                                        #bracketStarDirectAbstractDeclarator
+    | '(' parameterTypeList? ')' gccDeclaratorExtension*                                 #parameterTypeListDirectAbstractDeclarator
+    | directAbstractDeclarator '[' typeQualifierList? assignmentExpression? ']'          #recTypeQualifierListDirectAbstractDeclarator
+    | directAbstractDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'  #recStaticTypeQualifierListDirectAbstractDeclarator
+    | directAbstractDeclarator '[' typeQualifierList 'static' assignmentExpression ']'   #recTypeQualifierListStaticDirectAbstractDeclarator
+    | directAbstractDeclarator '[' '*' ']'                                               #recBracketStarDirectAbstractDeclarator
+    | directAbstractDeclarator '(' parameterTypeList? ')' gccDeclaratorExtension*        #recParameterTypeListDirectAbstractDeclarator
     ;
 
 typedefName

@@ -2,7 +2,7 @@
 
 package parser // C
 
-import antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
+import "github.com/antlr/antlr4/runtime/Go/antlr"
 
 // BaseCListener is a complete listener for a parse tree produced by CParser.
 type BaseCListener struct{}
@@ -501,11 +501,93 @@ func (s *BaseCListener) EnterAbstractDeclarator(ctx *AbstractDeclaratorContext) 
 // ExitAbstractDeclarator is called when production abstractDeclarator is exited.
 func (s *BaseCListener) ExitAbstractDeclarator(ctx *AbstractDeclaratorContext) {}
 
-// EnterDirectAbstractDeclarator is called when production directAbstractDeclarator is entered.
-func (s *BaseCListener) EnterDirectAbstractDeclarator(ctx *DirectAbstractDeclaratorContext) {}
+// EnterParameterTypeListDirectAbstractDeclarator is called when production parameterTypeListDirectAbstractDeclarator is entered.
+func (s *BaseCListener) EnterParameterTypeListDirectAbstractDeclarator(ctx *ParameterTypeListDirectAbstractDeclaratorContext) {
+}
 
-// ExitDirectAbstractDeclarator is called when production directAbstractDeclarator is exited.
-func (s *BaseCListener) ExitDirectAbstractDeclarator(ctx *DirectAbstractDeclaratorContext) {}
+// ExitParameterTypeListDirectAbstractDeclarator is called when production parameterTypeListDirectAbstractDeclarator is exited.
+func (s *BaseCListener) ExitParameterTypeListDirectAbstractDeclarator(ctx *ParameterTypeListDirectAbstractDeclaratorContext) {
+}
+
+// EnterParenDirectAbstractDeclarator is called when production parenDirectAbstractDeclarator is entered.
+func (s *BaseCListener) EnterParenDirectAbstractDeclarator(ctx *ParenDirectAbstractDeclaratorContext) {
+}
+
+// ExitParenDirectAbstractDeclarator is called when production parenDirectAbstractDeclarator is exited.
+func (s *BaseCListener) ExitParenDirectAbstractDeclarator(ctx *ParenDirectAbstractDeclaratorContext) {
+}
+
+// EnterBracketStarDirectAbstractDeclarator is called when production bracketStarDirectAbstractDeclarator is entered.
+func (s *BaseCListener) EnterBracketStarDirectAbstractDeclarator(ctx *BracketStarDirectAbstractDeclaratorContext) {
+}
+
+// ExitBracketStarDirectAbstractDeclarator is called when production bracketStarDirectAbstractDeclarator is exited.
+func (s *BaseCListener) ExitBracketStarDirectAbstractDeclarator(ctx *BracketStarDirectAbstractDeclaratorContext) {
+}
+
+// EnterRecTypeQualifierListStaticDirectAbstractDeclarator is called when production recTypeQualifierListStaticDirectAbstractDeclarator is entered.
+func (s *BaseCListener) EnterRecTypeQualifierListStaticDirectAbstractDeclarator(ctx *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) {
+}
+
+// ExitRecTypeQualifierListStaticDirectAbstractDeclarator is called when production recTypeQualifierListStaticDirectAbstractDeclarator is exited.
+func (s *BaseCListener) ExitRecTypeQualifierListStaticDirectAbstractDeclarator(ctx *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) {
+}
+
+// EnterRecBracketStarDirectAbstractDeclarator is called when production recBracketStarDirectAbstractDeclarator is entered.
+func (s *BaseCListener) EnterRecBracketStarDirectAbstractDeclarator(ctx *RecBracketStarDirectAbstractDeclaratorContext) {
+}
+
+// ExitRecBracketStarDirectAbstractDeclarator is called when production recBracketStarDirectAbstractDeclarator is exited.
+func (s *BaseCListener) ExitRecBracketStarDirectAbstractDeclarator(ctx *RecBracketStarDirectAbstractDeclaratorContext) {
+}
+
+// EnterTypeQualifierListDirectAbstractDeclarator is called when production typeQualifierListDirectAbstractDeclarator is entered.
+func (s *BaseCListener) EnterTypeQualifierListDirectAbstractDeclarator(ctx *TypeQualifierListDirectAbstractDeclaratorContext) {
+}
+
+// ExitTypeQualifierListDirectAbstractDeclarator is called when production typeQualifierListDirectAbstractDeclarator is exited.
+func (s *BaseCListener) ExitTypeQualifierListDirectAbstractDeclarator(ctx *TypeQualifierListDirectAbstractDeclaratorContext) {
+}
+
+// EnterTypeQualifierListStaticDirectAbstractDeclarator is called when production typeQualifierListStaticDirectAbstractDeclarator is entered.
+func (s *BaseCListener) EnterTypeQualifierListStaticDirectAbstractDeclarator(ctx *TypeQualifierListStaticDirectAbstractDeclaratorContext) {
+}
+
+// ExitTypeQualifierListStaticDirectAbstractDeclarator is called when production typeQualifierListStaticDirectAbstractDeclarator is exited.
+func (s *BaseCListener) ExitTypeQualifierListStaticDirectAbstractDeclarator(ctx *TypeQualifierListStaticDirectAbstractDeclaratorContext) {
+}
+
+// EnterRecStaticTypeQualifierListDirectAbstractDeclarator is called when production recStaticTypeQualifierListDirectAbstractDeclarator is entered.
+func (s *BaseCListener) EnterRecStaticTypeQualifierListDirectAbstractDeclarator(ctx *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) {
+}
+
+// ExitRecStaticTypeQualifierListDirectAbstractDeclarator is called when production recStaticTypeQualifierListDirectAbstractDeclarator is exited.
+func (s *BaseCListener) ExitRecStaticTypeQualifierListDirectAbstractDeclarator(ctx *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) {
+}
+
+// EnterRecParameterTypeListDirectAbstractDeclarator is called when production recParameterTypeListDirectAbstractDeclarator is entered.
+func (s *BaseCListener) EnterRecParameterTypeListDirectAbstractDeclarator(ctx *RecParameterTypeListDirectAbstractDeclaratorContext) {
+}
+
+// ExitRecParameterTypeListDirectAbstractDeclarator is called when production recParameterTypeListDirectAbstractDeclarator is exited.
+func (s *BaseCListener) ExitRecParameterTypeListDirectAbstractDeclarator(ctx *RecParameterTypeListDirectAbstractDeclaratorContext) {
+}
+
+// EnterRecTypeQualifierListDirectAbstractDeclarator is called when production recTypeQualifierListDirectAbstractDeclarator is entered.
+func (s *BaseCListener) EnterRecTypeQualifierListDirectAbstractDeclarator(ctx *RecTypeQualifierListDirectAbstractDeclaratorContext) {
+}
+
+// ExitRecTypeQualifierListDirectAbstractDeclarator is called when production recTypeQualifierListDirectAbstractDeclarator is exited.
+func (s *BaseCListener) ExitRecTypeQualifierListDirectAbstractDeclarator(ctx *RecTypeQualifierListDirectAbstractDeclaratorContext) {
+}
+
+// EnterStaticTypeQualifierListDirectAbstractDeclarator is called when production staticTypeQualifierListDirectAbstractDeclarator is entered.
+func (s *BaseCListener) EnterStaticTypeQualifierListDirectAbstractDeclarator(ctx *StaticTypeQualifierListDirectAbstractDeclaratorContext) {
+}
+
+// ExitStaticTypeQualifierListDirectAbstractDeclarator is called when production staticTypeQualifierListDirectAbstractDeclarator is exited.
+func (s *BaseCListener) ExitStaticTypeQualifierListDirectAbstractDeclarator(ctx *StaticTypeQualifierListDirectAbstractDeclaratorContext) {
+}
 
 // EnterTypedefName is called when production typedefName is entered.
 func (s *BaseCListener) EnterTypedefName(ctx *TypedefNameContext) {}

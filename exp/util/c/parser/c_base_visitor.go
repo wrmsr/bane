@@ -2,7 +2,7 @@
 
 package parser // C
 
-import antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
+import "github.com/antlr/antlr4/runtime/Go/antlr"
 
 type BaseCVisitor struct {
 	*antlr.BaseParseTreeVisitor
@@ -324,7 +324,47 @@ func (v *BaseCVisitor) VisitAbstractDeclarator(ctx *AbstractDeclaratorContext) i
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseCVisitor) VisitDirectAbstractDeclarator(ctx *DirectAbstractDeclaratorContext) interface{} {
+func (v *BaseCVisitor) VisitParameterTypeListDirectAbstractDeclarator(ctx *ParameterTypeListDirectAbstractDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitParenDirectAbstractDeclarator(ctx *ParenDirectAbstractDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitBracketStarDirectAbstractDeclarator(ctx *BracketStarDirectAbstractDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitRecTypeQualifierListStaticDirectAbstractDeclarator(ctx *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitRecBracketStarDirectAbstractDeclarator(ctx *RecBracketStarDirectAbstractDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitTypeQualifierListDirectAbstractDeclarator(ctx *TypeQualifierListDirectAbstractDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitTypeQualifierListStaticDirectAbstractDeclarator(ctx *TypeQualifierListStaticDirectAbstractDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitRecStaticTypeQualifierListDirectAbstractDeclarator(ctx *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitRecParameterTypeListDirectAbstractDeclarator(ctx *RecParameterTypeListDirectAbstractDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitRecTypeQualifierListDirectAbstractDeclarator(ctx *RecTypeQualifierListDirectAbstractDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCVisitor) VisitStaticTypeQualifierListDirectAbstractDeclarator(ctx *StaticTypeQualifierListDirectAbstractDeclaratorContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

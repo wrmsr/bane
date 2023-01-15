@@ -2,7 +2,7 @@
 
 package parser // C
 
-import antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
+import "github.com/antlr/antlr4/runtime/Go/antlr"
 
 // CListener is a complete listener for a parse tree produced by CParser.
 type CListener interface {
@@ -245,8 +245,38 @@ type CListener interface {
 	// EnterAbstractDeclarator is called when entering the abstractDeclarator production.
 	EnterAbstractDeclarator(c *AbstractDeclaratorContext)
 
-	// EnterDirectAbstractDeclarator is called when entering the directAbstractDeclarator production.
-	EnterDirectAbstractDeclarator(c *DirectAbstractDeclaratorContext)
+	// EnterParameterTypeListDirectAbstractDeclarator is called when entering the parameterTypeListDirectAbstractDeclarator production.
+	EnterParameterTypeListDirectAbstractDeclarator(c *ParameterTypeListDirectAbstractDeclaratorContext)
+
+	// EnterParenDirectAbstractDeclarator is called when entering the parenDirectAbstractDeclarator production.
+	EnterParenDirectAbstractDeclarator(c *ParenDirectAbstractDeclaratorContext)
+
+	// EnterBracketStarDirectAbstractDeclarator is called when entering the bracketStarDirectAbstractDeclarator production.
+	EnterBracketStarDirectAbstractDeclarator(c *BracketStarDirectAbstractDeclaratorContext)
+
+	// EnterRecTypeQualifierListStaticDirectAbstractDeclarator is called when entering the recTypeQualifierListStaticDirectAbstractDeclarator production.
+	EnterRecTypeQualifierListStaticDirectAbstractDeclarator(c *RecTypeQualifierListStaticDirectAbstractDeclaratorContext)
+
+	// EnterRecBracketStarDirectAbstractDeclarator is called when entering the recBracketStarDirectAbstractDeclarator production.
+	EnterRecBracketStarDirectAbstractDeclarator(c *RecBracketStarDirectAbstractDeclaratorContext)
+
+	// EnterTypeQualifierListDirectAbstractDeclarator is called when entering the typeQualifierListDirectAbstractDeclarator production.
+	EnterTypeQualifierListDirectAbstractDeclarator(c *TypeQualifierListDirectAbstractDeclaratorContext)
+
+	// EnterTypeQualifierListStaticDirectAbstractDeclarator is called when entering the typeQualifierListStaticDirectAbstractDeclarator production.
+	EnterTypeQualifierListStaticDirectAbstractDeclarator(c *TypeQualifierListStaticDirectAbstractDeclaratorContext)
+
+	// EnterRecStaticTypeQualifierListDirectAbstractDeclarator is called when entering the recStaticTypeQualifierListDirectAbstractDeclarator production.
+	EnterRecStaticTypeQualifierListDirectAbstractDeclarator(c *RecStaticTypeQualifierListDirectAbstractDeclaratorContext)
+
+	// EnterRecParameterTypeListDirectAbstractDeclarator is called when entering the recParameterTypeListDirectAbstractDeclarator production.
+	EnterRecParameterTypeListDirectAbstractDeclarator(c *RecParameterTypeListDirectAbstractDeclaratorContext)
+
+	// EnterRecTypeQualifierListDirectAbstractDeclarator is called when entering the recTypeQualifierListDirectAbstractDeclarator production.
+	EnterRecTypeQualifierListDirectAbstractDeclarator(c *RecTypeQualifierListDirectAbstractDeclaratorContext)
+
+	// EnterStaticTypeQualifierListDirectAbstractDeclarator is called when entering the staticTypeQualifierListDirectAbstractDeclarator production.
+	EnterStaticTypeQualifierListDirectAbstractDeclarator(c *StaticTypeQualifierListDirectAbstractDeclaratorContext)
 
 	// EnterTypedefName is called when entering the typedefName production.
 	EnterTypedefName(c *TypedefNameContext)
@@ -542,8 +572,38 @@ type CListener interface {
 	// ExitAbstractDeclarator is called when exiting the abstractDeclarator production.
 	ExitAbstractDeclarator(c *AbstractDeclaratorContext)
 
-	// ExitDirectAbstractDeclarator is called when exiting the directAbstractDeclarator production.
-	ExitDirectAbstractDeclarator(c *DirectAbstractDeclaratorContext)
+	// ExitParameterTypeListDirectAbstractDeclarator is called when exiting the parameterTypeListDirectAbstractDeclarator production.
+	ExitParameterTypeListDirectAbstractDeclarator(c *ParameterTypeListDirectAbstractDeclaratorContext)
+
+	// ExitParenDirectAbstractDeclarator is called when exiting the parenDirectAbstractDeclarator production.
+	ExitParenDirectAbstractDeclarator(c *ParenDirectAbstractDeclaratorContext)
+
+	// ExitBracketStarDirectAbstractDeclarator is called when exiting the bracketStarDirectAbstractDeclarator production.
+	ExitBracketStarDirectAbstractDeclarator(c *BracketStarDirectAbstractDeclaratorContext)
+
+	// ExitRecTypeQualifierListStaticDirectAbstractDeclarator is called when exiting the recTypeQualifierListStaticDirectAbstractDeclarator production.
+	ExitRecTypeQualifierListStaticDirectAbstractDeclarator(c *RecTypeQualifierListStaticDirectAbstractDeclaratorContext)
+
+	// ExitRecBracketStarDirectAbstractDeclarator is called when exiting the recBracketStarDirectAbstractDeclarator production.
+	ExitRecBracketStarDirectAbstractDeclarator(c *RecBracketStarDirectAbstractDeclaratorContext)
+
+	// ExitTypeQualifierListDirectAbstractDeclarator is called when exiting the typeQualifierListDirectAbstractDeclarator production.
+	ExitTypeQualifierListDirectAbstractDeclarator(c *TypeQualifierListDirectAbstractDeclaratorContext)
+
+	// ExitTypeQualifierListStaticDirectAbstractDeclarator is called when exiting the typeQualifierListStaticDirectAbstractDeclarator production.
+	ExitTypeQualifierListStaticDirectAbstractDeclarator(c *TypeQualifierListStaticDirectAbstractDeclaratorContext)
+
+	// ExitRecStaticTypeQualifierListDirectAbstractDeclarator is called when exiting the recStaticTypeQualifierListDirectAbstractDeclarator production.
+	ExitRecStaticTypeQualifierListDirectAbstractDeclarator(c *RecStaticTypeQualifierListDirectAbstractDeclaratorContext)
+
+	// ExitRecParameterTypeListDirectAbstractDeclarator is called when exiting the recParameterTypeListDirectAbstractDeclarator production.
+	ExitRecParameterTypeListDirectAbstractDeclarator(c *RecParameterTypeListDirectAbstractDeclaratorContext)
+
+	// ExitRecTypeQualifierListDirectAbstractDeclarator is called when exiting the recTypeQualifierListDirectAbstractDeclarator production.
+	ExitRecTypeQualifierListDirectAbstractDeclarator(c *RecTypeQualifierListDirectAbstractDeclaratorContext)
+
+	// ExitStaticTypeQualifierListDirectAbstractDeclarator is called when exiting the staticTypeQualifierListDirectAbstractDeclarator production.
+	ExitStaticTypeQualifierListDirectAbstractDeclarator(c *StaticTypeQualifierListDirectAbstractDeclaratorContext)
 
 	// ExitTypedefName is called when exiting the typedefName production.
 	ExitTypedefName(c *TypedefNameContext)
