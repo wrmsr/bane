@@ -511,10 +511,6 @@ func (v *parseVisitor) VisitDeclarator(ctx *parser.DeclaratorContext) any {
 	return d
 }
 
-func (v *parseVisitor) VisitDirectDeclarator(ctx *parser.DirectDeclaratorContext) any {
-	panic("unimplemented")
-}
-
 func (v *parseVisitor) VisitVcSpecificModifer(ctx *parser.VcSpecificModiferContext) any {
 	panic("unimplemented")
 }
