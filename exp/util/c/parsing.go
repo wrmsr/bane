@@ -125,8 +125,7 @@ func (v *parseVisitor) VisitDeclaration(ctx *parser.DeclarationContext) any {
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitDeclarationSpecifiers(ctx *parser.DeclarationSpecifiersContext) any {
-	ds := ctx.AllDeclarationSpecifier()
+func (v *parseVisitor) visitDeclarationSpecifiersChildren(ds []parser.IDeclarationSpecifierContext) any {
 	s := make([]DeclarationSpecifier, len(ds))
 	for i, d := range ds {
 		s[i] = v.Visit(d).(DeclarationSpecifier)
@@ -134,8 +133,12 @@ func (v *parseVisitor) VisitDeclarationSpecifiers(ctx *parser.DeclarationSpecifi
 	return DeclarationSpecifiers{S: s}
 }
 
+func (v *parseVisitor) VisitDeclarationSpecifiers(ctx *parser.DeclarationSpecifiersContext) any {
+	return v.visitDeclarationSpecifiersChildren(ctx.AllDeclarationSpecifier())
+}
+
 func (v *parseVisitor) VisitDeclarationSpecifiers2(ctx *parser.DeclarationSpecifiers2Context) any {
-	panic("unimplemented")
+	return v.visitDeclarationSpecifiersChildren(ctx.AllDeclarationSpecifier())
 }
 
 func (v *parseVisitor) VisitDeclarationSpecifier(ctx *parser.DeclarationSpecifierContext) any {
@@ -581,9 +584,19 @@ func (v *parseVisitor) VisitParameterList(ctx *parser.ParameterListContext) any 
 }
 
 func (v *parseVisitor) VisitParameterDeclaration(ctx *parser.ParameterDeclarationContext) any {
-	ds := v.Visit(ctx.DeclarationSpecifiers()).(DeclarationSpecifiers)
-	d := v.Visit(ctx.Declarator()).(Declarator)
-	return ParameterDeclaration{S: ds, D: d}
+	if dsc := ctx.DeclarationSpecifiers(); dsc != nil {
+		return ParameterDeclaration{
+			S: v.Visit(dsc).(DeclarationSpecifiers),
+			D: v.Visit(ctx.Declarator()).(Declarator),
+		}
+	}
+	if ds2c := ctx.DeclarationSpecifiers2(); ds2c != nil {
+		return ParameterDeclaration{
+			S: v.Visit(ds2c).(DeclarationSpecifiers),
+			D: v.Visit(ctx.AbstractDeclarator()).(Declarator),
+		}
+	}
+	panic(ctx)
 }
 
 func (v *parseVisitor) VisitIdentifierList(ctx *parser.IdentifierListContext) any {
