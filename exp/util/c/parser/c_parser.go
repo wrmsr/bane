@@ -86,7 +86,7 @@ func cParserInit() {
 		"structDeclaration", "specifierQualifierList", "structDeclaratorList",
 		"structDeclarator", "enumSpecifier", "enumeratorList", "enumerator",
 		"enumerationConstant", "atomicTypeSpecifier", "typeQualifier", "functionSpecifier",
-		"alignmentSpecifier", "declarator", "directDeclarator", "vcSpecificModifer",
+		"alignmentSpecifier", "declarator", "directDeclarator", "vcSpecificModifier",
 		"gccDeclaratorExtension", "gccAttributeSpecifier", "gccAttributeList",
 		"gccAttribute", "nestedParenthesesBlock", "pointer", "typeQualifierList",
 		"parameterTypeList", "parameterList", "parameterDeclaration", "identifierList",
@@ -835,7 +835,7 @@ const (
 	CParserRULE_alignmentSpecifier       = 52
 	CParserRULE_declarator               = 53
 	CParserRULE_directDeclarator         = 54
-	CParserRULE_vcSpecificModifer        = 55
+	CParserRULE_vcSpecificModifier       = 55
 	CParserRULE_gccDeclaratorExtension   = 56
 	CParserRULE_gccAttributeSpecifier    = 57
 	CParserRULE_gccAttributeList         = 58
@@ -10749,10 +10749,10 @@ func (s *VcSpecificDirectDeclaratorContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *VcSpecificDirectDeclaratorContext) VcSpecificModifer() IVcSpecificModiferContext {
+func (s *VcSpecificDirectDeclaratorContext) VcSpecificModifier() IVcSpecificModifierContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IVcSpecificModiferContext); ok {
+		if _, ok := ctx.(IVcSpecificModifierContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -10762,7 +10762,7 @@ func (s *VcSpecificDirectDeclaratorContext) VcSpecificModifer() IVcSpecificModif
 		return nil
 	}
 
-	return t.(IVcSpecificModiferContext)
+	return t.(IVcSpecificModifierContext)
 }
 
 func (s *VcSpecificDirectDeclaratorContext) Identifier() antlr.TerminalNode {
@@ -11153,10 +11153,10 @@ func (s *VcSpecific2DirectDeclaratorContext) LeftParen() antlr.TerminalNode {
 	return s.GetToken(CParserLeftParen, 0)
 }
 
-func (s *VcSpecific2DirectDeclaratorContext) VcSpecificModifer() IVcSpecificModiferContext {
+func (s *VcSpecific2DirectDeclaratorContext) VcSpecificModifier() IVcSpecificModifierContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IVcSpecificModiferContext); ok {
+		if _, ok := ctx.(IVcSpecificModifierContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -11166,7 +11166,7 @@ func (s *VcSpecific2DirectDeclaratorContext) VcSpecificModifer() IVcSpecificModi
 		return nil
 	}
 
-	return t.(IVcSpecificModiferContext)
+	return t.(IVcSpecificModifierContext)
 }
 
 func (s *VcSpecific2DirectDeclaratorContext) Declarator() IDeclaratorContext {
@@ -11424,7 +11424,7 @@ func (p *CParser) directDeclarator(_p int) (localctx IDirectDeclaratorContext) {
 		_prevctx = localctx
 		{
 			p.SetState(632)
-			p.VcSpecificModifer()
+			p.VcSpecificModifier()
 		}
 		{
 			p.SetState(633)
@@ -11441,7 +11441,7 @@ func (p *CParser) directDeclarator(_p int) (localctx IDirectDeclaratorContext) {
 		}
 		{
 			p.SetState(636)
-			p.VcSpecificModifer()
+			p.VcSpecificModifier()
 		}
 		{
 			p.SetState(637)
@@ -11663,79 +11663,79 @@ func (p *CParser) directDeclarator(_p int) (localctx IDirectDeclaratorContext) {
 	return localctx
 }
 
-// IVcSpecificModiferContext is an interface to support dynamic dispatch.
-type IVcSpecificModiferContext interface {
+// IVcSpecificModifierContext is an interface to support dynamic dispatch.
+type IVcSpecificModifierContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
-	// IsVcSpecificModiferContext differentiates from other interfaces.
-	IsVcSpecificModiferContext()
+	// IsVcSpecificModifierContext differentiates from other interfaces.
+	IsVcSpecificModifierContext()
 }
 
-type VcSpecificModiferContext struct {
+type VcSpecificModifierContext struct {
 	*antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyVcSpecificModiferContext() *VcSpecificModiferContext {
-	var p = new(VcSpecificModiferContext)
+func NewEmptyVcSpecificModifierContext() *VcSpecificModifierContext {
+	var p = new(VcSpecificModifierContext)
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = CParserRULE_vcSpecificModifer
+	p.RuleIndex = CParserRULE_vcSpecificModifier
 	return p
 }
 
-func (*VcSpecificModiferContext) IsVcSpecificModiferContext() {}
+func (*VcSpecificModifierContext) IsVcSpecificModifierContext() {}
 
-func NewVcSpecificModiferContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *VcSpecificModiferContext {
-	var p = new(VcSpecificModiferContext)
+func NewVcSpecificModifierContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *VcSpecificModifierContext {
+	var p = new(VcSpecificModifierContext)
 
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = CParserRULE_vcSpecificModifer
+	p.RuleIndex = CParserRULE_vcSpecificModifier
 
 	return p
 }
 
-func (s *VcSpecificModiferContext) GetParser() antlr.Parser { return s.parser }
-func (s *VcSpecificModiferContext) GetRuleContext() antlr.RuleContext {
+func (s *VcSpecificModifierContext) GetParser() antlr.Parser { return s.parser }
+func (s *VcSpecificModifierContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *VcSpecificModiferContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *VcSpecificModifierContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *VcSpecificModiferContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *VcSpecificModifierContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CListener); ok {
-		listenerT.EnterVcSpecificModifer(s)
+		listenerT.EnterVcSpecificModifier(s)
 	}
 }
 
-func (s *VcSpecificModiferContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *VcSpecificModifierContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(CListener); ok {
-		listenerT.ExitVcSpecificModifer(s)
+		listenerT.ExitVcSpecificModifier(s)
 	}
 }
 
-func (s *VcSpecificModiferContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *VcSpecificModifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 	switch t := visitor.(type) {
 	case CVisitor:
-		return t.VisitVcSpecificModifer(s)
+		return t.VisitVcSpecificModifier(s)
 
 	default:
 		return t.VisitChildren(s)
 	}
 }
 
-func (p *CParser) VcSpecificModifer() (localctx IVcSpecificModiferContext) {
+func (p *CParser) VcSpecificModifier() (localctx IVcSpecificModifierContext) {
 	this := p
 	_ = this
 
-	localctx = NewVcSpecificModiferContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 110, CParserRULE_vcSpecificModifer)
+	localctx = NewVcSpecificModifierContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 110, CParserRULE_vcSpecificModifier)
 	var _la int
 
 	defer func() {

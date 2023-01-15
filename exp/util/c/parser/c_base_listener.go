@@ -417,11 +417,11 @@ func (s *BaseCListener) EnterIdentifierDirectDeclarator(ctx *IdentifierDirectDec
 // ExitIdentifierDirectDeclarator is called when production identifierDirectDeclarator is exited.
 func (s *BaseCListener) ExitIdentifierDirectDeclarator(ctx *IdentifierDirectDeclaratorContext) {}
 
-// EnterVcSpecificModifer is called when production vcSpecificModifer is entered.
-func (s *BaseCListener) EnterVcSpecificModifer(ctx *VcSpecificModiferContext) {}
+// EnterVcSpecificModifier is called when production vcSpecificModifier is entered.
+func (s *BaseCListener) EnterVcSpecificModifier(ctx *VcSpecificModifierContext) {}
 
-// ExitVcSpecificModifer is called when production vcSpecificModifer is exited.
-func (s *BaseCListener) ExitVcSpecificModifer(ctx *VcSpecificModiferContext) {}
+// ExitVcSpecificModifier is called when production vcSpecificModifier is exited.
+func (s *BaseCListener) ExitVcSpecificModifier(ctx *VcSpecificModifierContext) {}
 
 // EnterGccDeclaratorExtension is called when production gccDeclaratorExtension is entered.
 func (s *BaseCListener) EnterGccDeclaratorExtension(ctx *GccDeclaratorExtensionContext) {}

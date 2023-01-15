@@ -332,11 +332,11 @@ directDeclarator
     | directDeclarator '(' parameterTypeList ')'                                 #paramParenDirectDeclarator
     | directDeclarator '(' identifierList? ')'                                   #identifierParenDirectDeclarator
     | Identifier ':' DigitSequence                                               #bitFieldDirectDeclarator // bit field
-    | vcSpecificModifer Identifier                                               #vcSpecificDirectDeclarator // Visual C Extension
-    | '(' vcSpecificModifer declarator ')'                                       #vcSpecific2DirectDeclarator // Visual C Extension
+    | vcSpecificModifier Identifier                                               #vcSpecificDirectDeclarator // Visual C Extension
+    | '(' vcSpecificModifier declarator ')'                                       #vcSpecific2DirectDeclarator // Visual C Extension
     ;
 
-vcSpecificModifer
+vcSpecificModifier
     : '__cdecl'
     | '__clrcall'
     | '__stdcall'

@@ -306,7 +306,7 @@ functionSpecifier
 alignmentSpecifier
 declarator
 directDeclarator
-vcSpecificModifer
+vcSpecificModifier
 gccDeclaratorExtension
 gccAttributeSpecifier
 gccAttributeList

@@ -511,7 +511,7 @@ func (v *parseVisitor) VisitDeclarator(ctx *parser.DeclaratorContext) any {
 	return d
 }
 
-func (v *parseVisitor) VisitVcSpecificModifer(ctx *parser.VcSpecificModiferContext) any {
+func (v *parseVisitor) VisitVcSpecificModifier(ctx *parser.VcSpecificModifierContext) any {
 	panic("unimplemented")
 }
 
@@ -604,7 +604,7 @@ func (v *parseVisitor) VisitTypeName(ctx *parser.TypeNameContext) any {
 }
 
 func (v *parseVisitor) VisitAbstractDeclarator(ctx *parser.AbstractDeclaratorContext) any {
-	panic("unimplemented")
+	return v.VisitChildren(ctx)
 }
 
 func (v *parseVisitor) VisitParameterTypeListDirectAbstractDeclarator(ctx *parser.ParameterTypeListDirectAbstractDeclaratorContext) any {

@@ -203,8 +203,8 @@ type CVisitor interface {
 	// Visit a parse tree produced by CParser#identifierDirectDeclarator.
 	VisitIdentifierDirectDeclarator(ctx *IdentifierDirectDeclaratorContext) interface{}
 
-	// Visit a parse tree produced by CParser#vcSpecificModifer.
-	VisitVcSpecificModifer(ctx *VcSpecificModiferContext) interface{}
+	// Visit a parse tree produced by CParser#vcSpecificModifier.
+	VisitVcSpecificModifier(ctx *VcSpecificModifierContext) interface{}
 
 	// Visit a parse tree produced by CParser#gccDeclaratorExtension.
 	VisitGccDeclaratorExtension(ctx *GccDeclaratorExtensionContext) interface{}

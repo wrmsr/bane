@@ -268,7 +268,7 @@ func (v *BaseCVisitor) VisitIdentifierDirectDeclarator(ctx *IdentifierDirectDecl
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseCVisitor) VisitVcSpecificModifer(ctx *VcSpecificModiferContext) interface{} {
+func (v *BaseCVisitor) VisitVcSpecificModifier(ctx *VcSpecificModifierContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

@@ -203,8 +203,8 @@ type CListener interface {
 	// EnterIdentifierDirectDeclarator is called when entering the identifierDirectDeclarator production.
 	EnterIdentifierDirectDeclarator(c *IdentifierDirectDeclaratorContext)
 
-	// EnterVcSpecificModifer is called when entering the vcSpecificModifer production.
-	EnterVcSpecificModifer(c *VcSpecificModiferContext)
+	// EnterVcSpecificModifier is called when entering the vcSpecificModifier production.
+	EnterVcSpecificModifier(c *VcSpecificModifierContext)
 
 	// EnterGccDeclaratorExtension is called when entering the gccDeclaratorExtension production.
 	EnterGccDeclaratorExtension(c *GccDeclaratorExtensionContext)
@@ -530,8 +530,8 @@ type CListener interface {
 	// ExitIdentifierDirectDeclarator is called when exiting the identifierDirectDeclarator production.
 	ExitIdentifierDirectDeclarator(c *IdentifierDirectDeclaratorContext)
 
-	// ExitVcSpecificModifer is called when exiting the vcSpecificModifer production.
-	ExitVcSpecificModifer(c *VcSpecificModiferContext)
+	// ExitVcSpecificModifier is called when exiting the vcSpecificModifier production.
+	ExitVcSpecificModifier(c *VcSpecificModifierContext)
 
 	// ExitGccDeclaratorExtension is called when exiting the gccDeclaratorExtension production.
 	ExitGccDeclaratorExtension(c *GccDeclaratorExtensionContext)
