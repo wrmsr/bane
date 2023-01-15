@@ -2,7 +2,7 @@
 
 package parser // C
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
 
 // A complete Visitor for a parse tree produced by CParser.
 type CVisitor interface {

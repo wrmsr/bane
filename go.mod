@@ -25,6 +25,7 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
+	github.com/antlr/antlr4/runtime/Go/antlr v1.4.10 // indirect
 	github.com/apache/thrift v0.16.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.16.6 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.7 // indirect

@@ -611,8 +611,48 @@ func (v *parseVisitor) VisitAbstractDeclarator(ctx *parser.AbstractDeclaratorCon
 	panic("unimplemented")
 }
 
-func (v *parseVisitor) VisitDirectAbstractDeclarator(ctx *parser.DirectAbstractDeclaratorContext) any {
-	panic("unimplemented")
+func (v *parseVisitor) VisitParameterTypeListDirectAbstractDeclarator(ctx *parser.ParameterTypeListDirectAbstractDeclaratorContext) any {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitParenDirectAbstractDeclarator(ctx *parser.ParenDirectAbstractDeclaratorContext) any {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitBracketStarDirectAbstractDeclarator(ctx *parser.BracketStarDirectAbstractDeclaratorContext) any {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitRecTypeQualifierListStaticDirectAbstractDeclarator(ctx *parser.RecTypeQualifierListStaticDirectAbstractDeclaratorContext) any {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitRecBracketStarDirectAbstractDeclarator(ctx *parser.RecBracketStarDirectAbstractDeclaratorContext) any {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitTypeQualifierListDirectAbstractDeclarator(ctx *parser.TypeQualifierListDirectAbstractDeclaratorContext) any {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitTypeQualifierListStaticDirectAbstractDeclarator(ctx *parser.TypeQualifierListStaticDirectAbstractDeclaratorContext) any {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitRecStaticTypeQualifierListDirectAbstractDeclarator(ctx *parser.RecStaticTypeQualifierListDirectAbstractDeclaratorContext) any {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitRecParameterTypeListDirectAbstractDeclarator(ctx *parser.RecParameterTypeListDirectAbstractDeclaratorContext) any {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitRecTypeQualifierListDirectAbstractDeclarator(ctx *parser.RecTypeQualifierListDirectAbstractDeclaratorContext) any {
+	panic("implement me")
+}
+
+func (v *parseVisitor) VisitStaticTypeQualifierListDirectAbstractDeclarator(ctx *parser.StaticTypeQualifierListDirectAbstractDeclaratorContext) any {
+	panic("implement me")
 }
 
 func (v *parseVisitor) VisitTypedefName(ctx *parser.TypedefNameContext) any {
