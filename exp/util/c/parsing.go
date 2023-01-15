@@ -369,7 +369,7 @@ func (v *parseVisitor) VisitTypeSpecifier(ctx *parser.TypeSpecifierContext) any 
 		panic("unimplemented")
 	}
 	if c := ctx.TypedefName(); c != nil {
-		panic("unimplemented")
+		return v.Visit(c)
 	}
 	if c := ctx.ConstantExpression(); c != nil {
 		panic("unimplemented")
@@ -591,7 +591,7 @@ func (v *parseVisitor) VisitDirectAbstractDeclarator(ctx *parser.DirectAbstractD
 }
 
 func (v *parseVisitor) VisitTypedefName(ctx *parser.TypedefNameContext) any {
-	panic("unimplemented")
+	return TypedefTypeSpecifier{I: Identifier{S: ctx.Identifier().GetText()}}
 }
 
 func (v *parseVisitor) VisitInitializer(ctx *parser.InitializerContext) any {
