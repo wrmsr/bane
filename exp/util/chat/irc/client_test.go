@@ -19,6 +19,16 @@ Channel:  #darwin
 */
 package irc
 
+import (
+	"context"
+	"crypto/tls"
+	"fmt"
+	"testing"
+
+	"github.com/wrmsr/bane/pkg/util/dev/debug"
+	"github.com/wrmsr/bane/pkg/util/log"
+)
+
 /*
 class IrcSimpleClient:
 
@@ -115,3 +125,29 @@ def test_irc():
         response_thread.daemon = True
         response_thread.start()
 */
+
+func TestClient(t *testing.T) {
+	if !debug.IsDebuggerAttached(context.Background()) {
+		t.Skip("debugger not attached")
+	}
+
+	addr := "irc.darwin.network:6697"
+
+	cfg := tls.Config{}
+	conn, err := tls.Dial("tcp", addr, &cfg)
+	if err != nil {
+		log.Fatal("TLS connection failed: " + err.Error())
+	}
+	defer log.OrError(conn.Close)
+
+	certChain := conn.ConnectionState().PeerCertificates
+	for i, cert := range certChain {
+		fmt.Println(i)
+		fmt.Println("Issuer:", cert.Issuer)
+		fmt.Println("Subject:", cert.Subject)
+		fmt.Println("Version:", cert.Version)
+		fmt.Println("NotAfter:", cert.NotAfter)
+		fmt.Println("DNS names:", cert.DNSNames)
+		fmt.Println("")
+	}
+}

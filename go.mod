@@ -15,7 +15,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.13
 	github.com/segmentio/asm v1.2.0
 	golang.org/x/arch v0.0.0-20220412001346-fc48f9fe4c15
-	golang.org/x/exp v0.0.0-20230113213754-f9f960f08ad4
+	golang.org/x/exp v0.0.0-20230116083435-1de6713980de
 	golang.org/x/mod v0.7.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/text v0.6.0
@@ -25,7 +25,6 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/antlr/antlr4/runtime/Go/antlr v1.4.10 // indirect
 	github.com/apache/thrift v0.16.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.16.6 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.7 // indirect

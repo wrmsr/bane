@@ -4,4 +4,5 @@
 - csv
 - hocon
 - dhall?
-
+- pickle
+- j* properties files
