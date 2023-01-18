@@ -23,6 +23,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -168,8 +169,45 @@ func TestClient(t *testing.T) {
 		return string(b[:])
 	}
 
-	for {
+	channel := "#test"
+
+	joinChannel := func() {
+		sendCmd("JOIN", channel)
+	}
+
+	joined := false
+	for !joined {
 		resp := getResponse()
 		fmt.Println(resp)
+
+		if strings.Contains(resp, "No Ident response") {
+			sendCmd("NICK", username)
+			sendCmd("USER", fmt.Sprintf("%s * * :%s", username, username))
+		}
+
+		// we"re accepted, now let"s join the channel!
+		if strings.Contains(resp, "376") {
+			joinChannel()
+		}
+
+		// username already in use? try to use username with _
+		if strings.Contains(resp, "433") {
+			username = "_" + username
+			sendCmd("NICK", username)
+			sendCmd("USER", fmt.Sprintf("%s * * :%s", username, username))
+		}
+
+		// if PING send PONG with name of the server
+		if strings.Contains(resp, "PING") {
+			sendCmd("PONG", ":"+strings.Split(resp, ":")[1])
+		}
+
+		// we"ve joined
+		if strings.Contains(resp, "366") {
+			joined = true
+		}
 	}
+
+	fmt.Println("connected!")
+	sendCmd("QUIT", "Good bye!")
 }
