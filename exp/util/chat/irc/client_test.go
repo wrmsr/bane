@@ -20,15 +20,19 @@ Channel:  #darwin
 package irc
 
 import (
+	"bufio"
 	"context"
 	"crypto/tls"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev/debug"
 	"github.com/wrmsr/bane/pkg/util/log"
+	"github.com/wrmsr/bane/pkg/util/sync/pools"
 )
 
 /*
@@ -142,6 +146,8 @@ func TestClient(t *testing.T) {
 	}
 	defer log.OrError(conn.Close)
 
+	//
+
 	certChain := conn.ConnectionState().PeerCertificates
 	for i, cert := range certChain {
 		fmt.Println(i)
@@ -210,4 +216,88 @@ func TestClient(t *testing.T) {
 
 	fmt.Println("connected!")
 	sendCmd("QUIT", "Good bye!")
+
+	//
+
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Print("-> ")
+		text := check.Must1(reader.ReadString('\n'))
+		text = strings.Replace(text, "\n", "", -1)
+
+		if text == "/quit" {
+			break
+		}
+
+		if "hi" == text {
+			fmt.Println("hello, Yourself")
+		}
+
+		/*
+		   cmd = input('< {}> '.format(username)).strip()
+		   if cmd == '/quit':
+		       client.send_cmd('QUIT', 'Good bye!')
+		   client.send_message_to_channel(cmd)
+
+		   # socket conn.receive blocks the program until a response is received
+		   # to prevent blocking program execution, receive should be threaded
+		   response_thread = threading.Thread(target=print_response)
+		   response_thread.daemon = True
+		   response_thread.start()
+		*/
+	}
+}
+
+//
+
+type PooledBufioWriter struct {
+	u io.Writer
+	p pools.Pool[*bufio.Writer]
+	b *bufio.Writer
+}
+
+var _ io.Writer = &PooledBufioWriter{}
+
+func (pw *PooledBufioWriter) Pooled() *bufio.Writer {
+	if pw.p == nil {
+		return nil
+	}
+	return pw.b
+}
+
+func (pw *PooledBufioWriter) Get() *bufio.Writer {
+	if pw.b == nil {
+		if pw.p != nil {
+			pw.b = pw.p.Get()
+			pw.b.Reset(pw.u)
+		} else {
+			pw.b = bufio.NewWriter(pw.u)
+		}
+	}
+	return pw.b
+}
+
+func (pw *PooledBufioWriter) Write(p []byte) (n int, err error) {
+	panic("implement me")
+}
+
+func (pw *PooledBufioWriter) Flush() error {
+	if pw.b == nil {
+		return nil
+	}
+
+	if pw.p != nil {
+		err := pw.b.Flush()
+		pw.b.Reset(io.Discard)
+		pw.p.Put(pw.b)
+		pw.b = nil
+		return err
+
+	} else {
+		if pw.b.Buffered() < 1 {
+			return nil
+		}
+		return pw.b.Flush()
+	}
 }
