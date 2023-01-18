@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev/debug"
 	"github.com/wrmsr/bane/pkg/util/log"
 )
@@ -149,5 +150,26 @@ func TestClient(t *testing.T) {
 		fmt.Println("NotAfter:", cert.NotAfter)
 		fmt.Println("DNS names:", cert.DNSNames)
 		fmt.Println("")
+	}
+
+	sendCmd := func(cmd string, message string) {
+		command := []byte(fmt.Sprintf("%s %s\r\n", cmd, message))
+		check.Must1(conn.Write(command))
+	}
+
+	username := "bane_test_hi_shiv"
+	sendCmd("PASS", "smellyoulater")
+	sendCmd("NICK", username)
+	sendCmd("USER", fmt.Sprintf("%s * * :%s", username, username))
+
+	getResponse := func() string {
+		var b [512]byte
+		check.Must1(conn.Read(b[:]))
+		return string(b[:])
+	}
+
+	for {
+		resp := getResponse()
+		fmt.Println(resp)
 	}
 }
