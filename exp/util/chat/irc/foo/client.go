@@ -26,83 +26,150 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"os"
 	"strings"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	eu "github.com/wrmsr/bane/pkg/util/errors"
 	"github.com/wrmsr/bane/pkg/util/log"
 )
 
-func main() {
-	addr := "irc.darwin.network:6697"
+//
 
-	cfg := tls.Config{}
-	conn, err := tls.Dial("tcp", addr, &cfg)
-	if err != nil {
-		log.Fatal("TLS connection failed: " + err.Error())
+type IrcClientConfig struct {
+	Addr string
+	Pass string
+
+	Nick string
+	Chan string
+}
+
+func DefaultIrcClientConfig() IrcClientConfig {
+	return IrcClientConfig{
+		Addr: "irc.darwin.network:6697",
+		Pass: "smellyoulater",
+
+		Nick: "bane_test_hi_shiv",
+		Chan: "#test",
 	}
-	defer log.OrError(conn.Close)
+}
+
+type IrcClient struct {
+	cfg IrcClientConfig
+
+	conn net.Conn
+
+	br *bufio.Reader
+}
+
+func NewIrcClient(cfg IrcClientConfig) *IrcClient {
+	return &IrcClient{
+		cfg: cfg,
+	}
+}
+
+func (c *IrcClient) Close() (err error) {
+	c.br = nil
+
+	if c.conn != nil {
+		err = eu.Append(err, c.conn.Close())
+		c.conn = nil
+	}
+
+	return
+}
+
+type Cmd struct {
+	C, A string
+}
+
+func (c Cmd) Bytes() []byte {
+	return []byte(fmt.Sprintf("%s %s\r\n", c.C, c.A))
+}
+
+func (c *IrcClient) sendCmd(cmds ...Cmd) error {
+	for _, cmd := range cmds {
+		if _, err := c.conn.Write(cmd.Bytes()); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func setNick(nick string) []Cmd {
+	return []Cmd{
+		{C: "NICK", A: nick},
+		{C: "USER", A: fmt.Sprintf("%s * * :%s", nick, nick)},
+	}
+}
+
+func (c *IrcClient) Connect() (err error) {
+	check.Nil(c.conn)
+
+	tlsCfg := tls.Config{}
+	conn, err := tls.Dial("tcp", c.cfg.Addr, &tlsCfg)
+	if err != nil {
+		return
+	}
+
+	c.conn = conn
+	c.br = bufio.NewReader(conn)
+
+	defer func() {
+		if err != nil {
+			err = eu.Append(err, c.Close())
+		}
+	}()
+
+	if err = c.sendCmd(Cmd{"PASS", c.cfg.Pass}); err != nil {
+		return
+	}
+
+	return
+}
+
+func (c *IrcClient) read() (string, error) {
+	b, err := c.br.ReadBytes('\n')
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}
+
+//
+
+func main() {
+	c := NewIrcClient(DefaultIrcClientConfig())
+
+	check.Must(c.Connect())
+	defer log.OrError(c.Close)
 
 	//
 
-	certChain := conn.ConnectionState().PeerCertificates
-	for i, cert := range certChain {
-		fmt.Println(i)
-		fmt.Println("Issuer:", cert.Issuer)
-		fmt.Println("Subject:", cert.Subject)
-		fmt.Println("Version:", cert.Version)
-		fmt.Println("NotAfter:", cert.NotAfter)
-		fmt.Println("DNS names:", cert.DNSNames)
-		fmt.Println("")
-	}
-
-	sendCmd := func(cmd string, message string) {
-		command := []byte(fmt.Sprintf("%s %s\r\n", cmd, message))
-		check.Must1(conn.Write(command))
-	}
-
-	username := "bane_test_hi_shiv"
-	sendCmd("PASS", "smellyoulater")
-	sendCmd("NICK", username)
-	sendCmd("USER", fmt.Sprintf("%s * * :%s", username, username))
-
-	getResponse := func() string {
-		var b [512]byte
-		check.Must1(conn.Read(b[:]))
-		return string(b[:])
-	}
-
-	channel := "#test"
-
-	joinChannel := func() {
-		sendCmd("JOIN", channel)
-	}
+	check.Must(c.sendCmd(setNick(c.cfg.Nick)...))
 
 	joined := false
 	for !joined {
-		resp := getResponse()
+		resp := check.Must1(c.read())
 		fmt.Println(resp)
 
 		if strings.Contains(resp, "No Ident response") {
-			sendCmd("NICK", username)
-			sendCmd("USER", fmt.Sprintf("%s * * :%s", username, username))
+			check.Must(c.sendCmd(setNick(c.cfg.Nick)...))
 		}
 
 		// we"re accepted, now let"s join the channel!
 		if strings.Contains(resp, "376") {
-			joinChannel()
+			check.Must(c.sendCmd(Cmd{"JOIN", c.cfg.Chan}))
 		}
 
 		// username already in use? try to use username with _
 		if strings.Contains(resp, "433") {
-			username = "_" + username
-			sendCmd("NICK", username)
-			sendCmd("USER", fmt.Sprintf("%s * * :%s", username, username))
+			c.cfg.Nick = "_" + c.cfg.Nick
+			check.Must(c.sendCmd(setNick(c.cfg.Nick)...))
 		}
 
 		// if PING send PONG with name of the server
 		if strings.Contains(resp, "PING") {
-			sendCmd("PONG", ":"+strings.Split(resp, ":")[1])
+			check.Must(c.sendCmd(Cmd{"PONG", ":" + strings.Split(resp, ":")[1]}))
 		}
 
 		// we"ve joined
@@ -113,45 +180,45 @@ func main() {
 
 	fmt.Println("connected!")
 
-	sendMessageToChannel := func(msg string) {
-		cmd := fmt.Sprintf("PRIVMSG %s", channel)
-		msg = ":" + msg
-		sendCmd(cmd, msg)
-	}
-
-	printResponse := func() {
-		resp := getResponse()
-		if resp != "" {
-			fmt.Printf("resp: %s\n", resp)
-			// msg = utils.parse_message(resp)
-			// print(f'msg: {msg}')
-			// msg = resp.strip().split(':')
-			// print('< {}> {}'.format(msg[1].split('!')[0], msg[2].strip()))
-		}
-	}
-
+	//sendMessageToChannel := func(msg string) {
+	//	cmd := fmt.Sprintf("PRIVMSG %s", channel)
+	//	msg = ":" + msg
+	//	sendCmd(cmd, msg)
+	//}
 	//
-
-	reader := bufio.NewReader(os.Stdin)
-
-	for {
-		fmt.Print("-> ")
-		text := check.Must1(reader.ReadString('\n'))
-		text = strings.Replace(text, "\n", "", -1)
-
-		if text == "/quit" {
-			sendCmd("QUIT", "Good bye!")
-			break
-		}
-
-		if "hi" == text {
-			fmt.Println("hello, Yourself")
-		}
-
-		sendMessageToChannel(text)
-
-		go printResponse()
-	}
+	//printResponse := func() {
+	//	resp := getResponse()
+	//	if resp != "" {
+	//		fmt.Printf("resp: %s\n", resp)
+	//		// msg = utils.parse_message(resp)
+	//		// print(f'msg: {msg}')
+	//		// msg = resp.strip().split(':')
+	//		// print('< {}> {}'.format(msg[1].split('!')[0], msg[2].strip()))
+	//	}
+	//}
+	//
+	////
+	//
+	//reader := bufio.NewReader(os.Stdin)
+	//
+	//for {
+	//	fmt.Print("-> ")
+	//	text := check.Must1(reader.ReadString('\n'))
+	//	text = strings.Replace(text, "\n", "", -1)
+	//
+	//	if text == "/quit" {
+	//		sendCmd("QUIT", "Good bye!")
+	//		break
+	//	}
+	//
+	//	if "hi" == text {
+	//		fmt.Println("hello, Yourself")
+	//	}
+	//
+	//	sendMessageToChannel(text)
+	//
+	//	go printResponse()
+	//}
 }
 
 //
