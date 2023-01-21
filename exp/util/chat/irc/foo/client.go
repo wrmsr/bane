@@ -22,9 +22,7 @@ package main
 import (
 	"bufio"
 	"crypto/tls"
-	"errors"
 	"fmt"
-	"io"
 	"net"
 	"strings"
 
@@ -53,21 +51,49 @@ func DefaultIrcClientConfig() IrcClientConfig {
 	}
 }
 
-type IrcClient struct {
+//
+
+type Cmd struct {
+	C, A string
+}
+
+func (c Cmd) Bytes() []byte {
+	return []byte(fmt.Sprintf("%s %s\r\n", c.C, c.A))
+}
+
+//
+
+type Handler = func(buf []byte) error
+
+type IrcClient interface {
+	Close() error
+
+	AddHandler(h Handler)
+	Connect() error
+	Send(cmds ...Cmd) error
+}
+
+//
+
+type IrcClientImpl struct {
 	cfg IrcClientConfig
 
 	conn net.Conn
 
 	br *bufio.Reader
+
+	hs []func(buf []byte) error
 }
 
-func NewIrcClient(cfg IrcClientConfig) *IrcClient {
-	return &IrcClient{
+var _ IrcClient = &IrcClientImpl{}
+
+func NewIrcClient(cfg IrcClientConfig) IrcClient {
+	return &IrcClientImpl{
 		cfg: cfg,
 	}
 }
 
-func (c *IrcClient) Close() (err error) {
+func (c *IrcClientImpl) Close() (err error) {
 	c.br = nil
 
 	if c.conn != nil {
@@ -78,35 +104,15 @@ func (c *IrcClient) Close() (err error) {
 	return
 }
 
-type Cmd struct {
-	C, A string
+func (c *IrcClientImpl) AddHandler(h Handler) {
+	c.hs = append(c.hs, h)
 }
 
-func (c Cmd) Bytes() []byte {
-	return []byte(fmt.Sprintf("%s %s\r\n", c.C, c.A))
-}
-
-func (c *IrcClient) sendCmd(cmds ...Cmd) error {
-	for _, cmd := range cmds {
-		if _, err := c.conn.Write(cmd.Bytes()); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func setNick(nick string) []Cmd {
-	return []Cmd{
-		{C: "NICK", A: nick},
-		{C: "USER", A: fmt.Sprintf("%s * * :%s", nick, nick)},
-	}
-}
-
-func (c *IrcClient) Connect() (err error) {
+func (c *IrcClientImpl) Connect() (err error) {
 	check.Nil(c.conn)
 
-	tlsCfg := tls.Config{}
-	conn, err := tls.Dial("tcp", c.cfg.Addr, &tlsCfg)
+	tlscfg := tls.Config{}
+	conn, err := tls.Dial("tcp", c.cfg.Addr, &tlscfg)
 	if err != nil {
 		return
 	}
@@ -120,19 +126,37 @@ func (c *IrcClient) Connect() (err error) {
 		}
 	}()
 
-	if err = c.sendCmd(Cmd{"PASS", c.cfg.Pass}); err != nil {
+	if err = c.Send(Cmd{"pass", c.cfg.Pass}); err != nil {
 		return
 	}
 
 	return
 }
 
-func (c *IrcClient) read() (string, error) {
+func (c *IrcClientImpl) Send(cmds ...Cmd) error {
+	for _, cmd := range cmds {
+		if _, err := c.conn.Write(cmd.Bytes()); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *IrcClientImpl) read() (string, error) {
 	b, err := c.br.ReadBytes('\n')
 	if err != nil {
 		return "", err
 	}
 	return string(b), nil
+}
+
+//
+
+func SetNick(nick string) []Cmd {
+	return []Cmd{
+		{C: "NICK", A: nick},
+		{C: "USER", A: fmt.Sprintf("%s * * :%s", nick, nick)},
+	}
 }
 
 //
@@ -223,25 +247,25 @@ func main() {
 
 //
 
-type Conn struct {
-	c   net.Conn
-	br  *bufio.Reader
-	rfn func([]byte) error
-}
-
-func (c *Conn) run() error {
-	var b [512]byte
-	for {
-		n, err := c.br.Read(b[:])
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				return nil
-			}
-			return err
-		}
-
-		if err = c.rfn(b[:n]); err != nil {
-			return err
-		}
-	}
-}
+//type Conn struct {
+//	c   net.Conn
+//	br  *bufio.Reader
+//	rfn func([]byte) error
+//}
+//
+//func (c *Conn) run() error {
+//	var b [512]byte
+//	for {
+//		n, err := c.br.Read(b[:])
+//		if err != nil {
+//			if errors.Is(err, io.EOF) {
+//				return nil
+//			}
+//			return err
+//		}
+//
+//		if err = c.rfn(b[:n]); err != nil {
+//			return err
+//		}
+//	}
+//}
