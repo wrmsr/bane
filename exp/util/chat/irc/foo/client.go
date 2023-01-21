@@ -1,4 +1,7 @@
 /*
+https://github.com/golang/go/issues/15735
+https://stackoverflow.com/a/19992525
+
 TODO:
   - integration chat iface
   - https://github.com/Rapptz/discord.py
@@ -25,6 +28,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"sync"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	eu "github.com/wrmsr/bane/pkg/util/errors"
@@ -35,6 +39,9 @@ import (
 
 type IrcClientConfig struct {
 	Addr string
+
+	// FIXME: app-layer
+
 	Pass string
 
 	Nick string
@@ -44,6 +51,9 @@ type IrcClientConfig struct {
 func DefaultIrcClientConfig() IrcClientConfig {
 	return IrcClientConfig{
 		Addr: "irc.darwin.network:6697",
+
+		// FIXME:
+
 		Pass: "smellyoulater",
 
 		Nick: "bane_test_hi_shiv",
@@ -70,7 +80,8 @@ type IrcClient interface {
 
 	AddHandler(h Handler)
 	Connect() error
-	Send(cmds ...Cmd) error
+	Send(buf []byte) error
+	Error() error
 }
 
 //
@@ -83,6 +94,18 @@ type IrcClientImpl struct {
 	br *bufio.Reader
 
 	hs []func(buf []byte) error
+
+	mtx sync.Mutex
+
+	closeCh chan struct{}
+
+	readCh    chan []byte
+	readErrCh chan error
+
+	writeCh chan []byte
+
+	running bool
+	err     error
 }
 
 var _ IrcClient = &IrcClientImpl{}
@@ -90,10 +113,20 @@ var _ IrcClient = &IrcClientImpl{}
 func NewIrcClient(cfg IrcClientConfig) IrcClient {
 	return &IrcClientImpl{
 		cfg: cfg,
+
+		closeCh: make(chan struct{}),
+
+		readCh:    make(chan []byte),
+		readErrCh: make(chan error),
+
+		writeCh: make(chan []byte),
 	}
 }
 
 func (c *IrcClientImpl) Close() (err error) {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+
 	c.br = nil
 
 	if c.conn != nil {
@@ -105,41 +138,92 @@ func (c *IrcClientImpl) Close() (err error) {
 }
 
 func (c *IrcClientImpl) AddHandler(h Handler) {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+
 	c.hs = append(c.hs, h)
 }
 
 func (c *IrcClientImpl) Connect() (err error) {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+
 	check.Nil(c.conn)
 
-	tlscfg := tls.Config{}
-	conn, err := tls.Dial("tcp", c.cfg.Addr, &tlscfg)
+	tlsCfg := tls.Config{}
+	conn, err := tls.Dial("tcp", c.cfg.Addr, &tlsCfg)
 	if err != nil {
 		return
 	}
 
 	c.conn = conn
 	c.br = bufio.NewReader(conn)
+	c.running = true
 
-	defer func() {
-		if err != nil {
-			err = eu.Append(err, c.Close())
-		}
-	}()
+	go c.handleLoop()
+	go c.readLoop()
+	go c.writeLoop()
 
-	if err = c.Send(Cmd{"pass", c.cfg.Pass}); err != nil {
-		return
-	}
+	//defer func() {
+	//	if err != nil {
+	//		err = eu.Append(err, c.Close())
+	//	}
+	//}()
 
 	return
 }
 
-func (c *IrcClientImpl) Send(cmds ...Cmd) error {
-	for _, cmd := range cmds {
-		if _, err := c.conn.Write(cmd.Bytes()); err != nil {
-			return err
+func (c *IrcClientImpl) Error() error {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+
+	return c.err
+}
+
+func (c *IrcClientImpl) setError(err error) {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+
+}
+
+func (c *IrcClientImpl) handleLoop() {
+	for {
+		select {
+		case <-c.closeCh:
+			break
+		case buf := <-c.readCh:
+			for _, h := range c.hs {
+				if err := h(buf); err != nil {
+
+				}
+			}
+		case err := <-c.readErrCh:
+
 		}
 	}
-	return nil
+}
+
+func (c *IrcClientImpl) readLoop() {
+	for {
+		select {
+		case <-c.closeCh:
+			break
+		}
+	}
+}
+
+func (c *IrcClientImpl) writeLoop() {
+	for {
+		select {
+		case <-c.closeCh:
+			break
+		}
+	}
+}
+
+func (c *IrcClientImpl) Send(buf []byte) error {
+	_, err := c.conn.Write(buf) // FIXME: lol
+	return err
 }
 
 func (c *IrcClientImpl) read() (string, error) {
