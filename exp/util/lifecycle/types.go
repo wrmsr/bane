@@ -13,6 +13,15 @@ type Lifecycle struct {
 
 //
 
+type Controller interface {
+	Construct() error
+	Start() error
+	Stop() error
+	Destroy() error
+}
+
+//
+
 type Whence int8
 
 const (

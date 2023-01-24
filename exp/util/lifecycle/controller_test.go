@@ -27,7 +27,7 @@ func TestController(t *testing.T) {
 		},
 	}
 
-	c := &Controller{
+	c := &controller{
 		lc: lc,
 	}
 

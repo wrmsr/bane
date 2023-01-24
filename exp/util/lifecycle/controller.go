@@ -4,7 +4,7 @@ import (
 	"sync"
 )
 
-type Controller struct {
+type controller struct {
 	lc *Lifecycle
 
 	mtx sync.Mutex
@@ -12,14 +12,14 @@ type Controller struct {
 	cbs []Callback
 }
 
-func (c *Controller) State() State {
+func (c *controller) State() State {
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 
 	return c.st
 }
 
-func (c *Controller) AddCallback(cb Callback) {
+func (c *controller) AddCallback(cb Callback) {
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 
@@ -95,7 +95,7 @@ var (
 	}
 )
 
-func (c *Controller) advance(t *transition) error {
+func (c *controller) advance(t *transition) error {
 	c.mtx.Lock()
 	defer c.mtx.Unlock()
 
@@ -125,7 +125,9 @@ func (c *Controller) advance(t *transition) error {
 	return nil
 }
 
-func (c *Controller) Construct() error { return c.advance(&construct) }
-func (c *Controller) Start() error     { return c.advance(&start) }
-func (c *Controller) Stop() error      { return c.advance(&stop) }
-func (c *Controller) Destroy() error   { return c.advance(&destroy) }
+var _ Controller = &controller{}
+
+func (c *controller) Construct() error { return c.advance(&construct) }
+func (c *controller) Start() error     { return c.advance(&start) }
+func (c *controller) Stop() error      { return c.advance(&stop) }
+func (c *controller) Destroy() error   { return c.advance(&destroy) }

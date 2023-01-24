@@ -1,21 +1,20 @@
 package lifecycles
 
 import (
-	"sync"
-
 	"github.com/wrmsr/bane/pkg/util/maps"
 )
 
 type managerEntry struct {
-	Controller
+	controller
 
 	dependencies maps.Set[*managerEntry]
 	dependents   maps.Set[*managerEntry]
 }
 
 type Manager struct {
-	mtx sync.Mutex
-	m   map[*Lifecycle]*managerEntry
+	controller
+
+	m map[*Lifecycle]*managerEntry
 }
 
 func NewManager() *Manager {
