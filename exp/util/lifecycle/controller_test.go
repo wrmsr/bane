@@ -3,6 +3,8 @@ package lifecycles
 import (
 	"fmt"
 	"testing"
+
+	"github.com/wrmsr/bane/pkg/util/check"
 )
 
 func TestController(t *testing.T) {
@@ -29,5 +31,5 @@ func TestController(t *testing.T) {
 		lc: lc,
 	}
 
-	c.advance(&construct)
+	check.Must(c.advance(&construct))
 }
