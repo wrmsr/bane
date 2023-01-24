@@ -1,117 +1,127 @@
-package lifecycle
+package lifecycles
 
-/*
-class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
+import (
+	"fmt"
+	"sync"
+)
 
-    def __init__(
-            self,
-            lifecycle: LifecycleT,
-            *,
-            lock: lang.DefaultLockable = None,
-    ) -> None:
-        super().__init__()
+type Controller struct {
+	lc *Lifecycle
 
-        self._lifecycle = check.isinstance(lifecycle, Lifecycle)
-        self._lock = lang.default_lock(lock, True)
+	mtx sync.Mutex
+	st  State
+	cbs []Callback
+}
 
-        self._state = LifecycleStates.NEW
-        self._listeners: ta.List[LifecycleListener[LifecycleT]] = []
+func (c *Controller) State() State {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
 
-    defs.repr('lifecycle', 'state')
+	return c.st
+}
 
-    @property
-    def lifecycle(self) -> LifecycleT:
-        return self._lifecycle
+func (c *Controller) AddCallback(cb Callback) {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
 
-    @property
-    def state(self) -> LifecycleState:
-        return self._state
+	c.cbs = append(c.cbs, cb)
+}
 
-    def add_listener(self, listener: LifecycleListener[LifecycleT]) -> 'LifecycleController':
-        self._listeners.append(check.isinstance(listener, LifecycleListener))
-        return self
+type transition struct {
+	old StateMask
 
-    def _advance(
-            self,
-            old: ta.Set[LifecycleState],
-            new_intermediate: LifecycleState,
-            new_failed: LifecycleState,
-            new_succeeded: LifecycleState,
-            lifecycle_fn: ta.Callable[[], None],
-            pre_listener_fn: ta.Callable[[LifecycleListener[LifecycleT]], ta.Callable[[LifecycleT], None]] = None,
-            post_listener_fn: ta.Callable[[LifecycleListener[LifecycleT]], ta.Callable[[LifecycleT], None]] = None,
-    ) -> None:
-        check.unique(list(old) + [new_intermediate, new_succeeded, new_failed])
-        check.arg(all(new_intermediate.phase > o.phase for o in old))
-        check.arg(new_failed.phase > new_intermediate.phase)
-        check.arg(new_succeeded.phase > new_failed.phase)
-        with self._lock():
-            if pre_listener_fn is not None:
-                for listener in self._listeners:
-                    pre_listener_fn(listener)(self._lifecycle)
-            check.state(self._state in old)
-            self._state = new_intermediate
-            try:
-                lifecycle_fn()
-            except Exception:
-                self._state = new_failed
-                raise
-            self._state = new_succeeded
-            if post_listener_fn is not None:
-                for listener in self._listeners:
-                    post_listener_fn(listener)(self._lifecycle)
+	intermediate State
+	failed       State
+	new          State
 
-    def lifecycle_construct(self) -> None:
-        self._advance(
-            {LifecycleStates.NEW},
-            LifecycleStates.CONSTRUCTING,
-            LifecycleStates.FAILED_CONSTRUCTING,
-            LifecycleStates.CONSTRUCTED,
-            self._lifecycle.lifecycle_construct,
-        )
+	fn func(*Lifecycle) LifecycleFn
+}
 
-    def lifecycle_start(self) -> None:
-        self._advance(
-            {LifecycleStates.CONSTRUCTED},
-            LifecycleStates.STARTING,
-            LifecycleStates.FAILED_STARTING,
-            LifecycleStates.STARTED,
-            self._lifecycle.lifecycle_start,
-            lambda l: l.on_starting,
-            lambda l: l.on_started,
-        )
+var (
+	construct = transition{
+		old: New.Mask(),
 
-    def lifecycle_stop(self) -> None:
-        self._advance(
-            {LifecycleStates.STARTED},
-            LifecycleStates.STOPPING,
-            LifecycleStates.FAILED_STOPPING,
-            LifecycleStates.STOPPED,
-            self._lifecycle.lifecycle_stop,
-            lambda l: l.on_stopping,
-            lambda l: l.on_stopped,
-        )
+		intermediate: Constructing,
+		failed:       FailedConstructing,
+		new:          Constructed,
 
-    def lifecycle_destroy(self) -> None:
-        self._advance(
-            {
-                LifecycleStates.NEW,
+		fn: func(lc *Lifecycle) LifecycleFn {
+			return lc.Construct
+		},
+	}
 
-                LifecycleStates.CONSTRUCTING,
-                LifecycleStates.FAILED_CONSTRUCTING,
-                LifecycleStates.CONSTRUCTED,
+	start = transition{
+		old: Constructed.Mask(),
 
-                LifecycleStates.STARTING,
-                LifecycleStates.FAILED_STARTING,
-                LifecycleStates.STARTED,
+		intermediate: Starting,
+		failed:       FailedStarting,
+		new:          Started,
 
-                LifecycleStates.STOPPING,
-                LifecycleStates.FAILED_STOPPING,
-                LifecycleStates.STOPPED,
-            },
-            LifecycleStates.DESTROYING,
-            LifecycleStates.FAILED_DESTROYING,
-            LifecycleStates.DESTROYED,
-            self._lifecycle.lifecycle_destroy,
-        )
-*/
+		fn: func(lc *Lifecycle) LifecycleFn {
+			return lc.Start
+		},
+	}
+
+	stop = transition{
+		old: Started.Mask(),
+
+		intermediate: Stopping,
+		failed:       FailedStopping,
+		new:          Stopped,
+
+		fn: func(lc *Lifecycle) LifecycleFn {
+			return lc.Stop
+		},
+	}
+
+	destroy = transition{
+		old: New.Mask() |
+			Constructing.Mask() |
+			FailedConstructing.Mask() |
+			Constructed.Mask() |
+			Starting.Mask() |
+			FailedStarting.Mask() |
+			Started.Mask() |
+			Stopping.Mask() |
+			FailedStopping.Mask() |
+			Stopped.Mask(),
+
+		intermediate: Destroying,
+		failed:       FailedDestroying,
+		new:          Destroyed,
+
+		fn: func(lc *Lifecycle) LifecycleFn {
+			return lc.Destroy
+		},
+	}
+)
+
+func (c *Controller) advance(t *transition) error {
+	c.mtx.Lock()
+	defer c.mtx.Unlock()
+
+	if !t.old.Contains(c.st) {
+		return fmt.Errorf("illegal state transition: %s -> %s", c.st, t.new)
+	}
+
+	for _, cb := range c.cbs {
+		cb(c.lc, Before, t.new)
+	}
+
+	c.st = t.intermediate
+
+	if fn := t.fn(c.lc); fn != nil {
+		if err := fn(); err != nil {
+			c.st = t.failed
+			return err
+		}
+	}
+
+	c.st = t.new
+
+	for _, cb := range c.cbs {
+		cb(c.lc, After, t.new)
+	}
+
+	return nil
+}
