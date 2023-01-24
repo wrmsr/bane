@@ -125,3 +125,8 @@ func (c *Controller) advance(t *transition) error {
 
 	return nil
 }
+
+func (c *Controller) Construct() error { return c.advance(&construct) }
+func (c *Controller) Start() error     { return c.advance(&start) }
+func (c *Controller) Stop() error      { return c.advance(&stop) }
+func (c *Controller) Destroy() error   { return c.advance(&destroy) }

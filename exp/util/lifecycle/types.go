@@ -5,10 +5,10 @@ package lifecycles
 type LifecycleFn = func() error
 
 type Lifecycle struct {
-	Construct LifecycleFn
-	Start     LifecycleFn
-	Stop      LifecycleFn
-	Destroy   LifecycleFn
+	Construct,
+	Start,
+	Stop,
+	Destroy LifecycleFn
 }
 
 //
