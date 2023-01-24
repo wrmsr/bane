@@ -9,27 +9,13 @@ import (
 
 func TestController(t *testing.T) {
 	lc := &Lifecycle{
-		Construct: func() error {
-			fmt.Println("constructing")
-			return nil
-		},
-		Start: func() error {
-			fmt.Println("starting")
-			return nil
-		},
-		Stop: func() error {
-			fmt.Println("stopping")
-			return nil
-		},
-		Destroy: func() error {
-			fmt.Println("destroying")
+		Fn: func(st State) error {
+			fmt.Println(st)
 			return nil
 		},
 	}
 
-	c := &controller{
-		lc: lc,
-	}
+	c := &controller{}
 
-	check.Must(c.advance(&construct))
+	check.Must(c.advance(lc, &construct))
 }

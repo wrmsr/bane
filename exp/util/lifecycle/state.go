@@ -109,12 +109,25 @@ func (s State) IsStable() bool {
 	switch s {
 	case
 		New,
+
+		FailedConstructing,
+		Constructed,
+
+		FailedStarting,
 		Started,
+
+		FailedStopping,
 		Stopped,
+
+		FailedDestroying,
 		Destroyed:
 		return true
 	}
 	return false
+}
+
+func (s State) IsTransitional() bool {
+	return !s.IsStable()
 }
 
 func (s State) IsFailed() bool {

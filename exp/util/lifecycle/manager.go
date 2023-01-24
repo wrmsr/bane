@@ -1,5 +1,7 @@
 package lifecycles
 
+import "sync"
+
 type managerEntry struct {
 	controller
 
@@ -10,15 +12,15 @@ type managerEntry struct {
 type Manager struct {
 	controller
 
-	m map[*Lifecycle]*managerEntry
+	mtx sync.Mutex
+	lc  Lifecycle
+	m   map[*Lifecycle]*managerEntry
 }
 
 func NewManager() *Manager {
 	m := &Manager{
 		m: make(map[*Lifecycle]*managerEntry),
 	}
-	// FIXME: ...
-	m.lc = m
 	return m
 }
 
@@ -36,9 +38,7 @@ func (m *Manager) addInternal(lc *Lifecycle, deps []*Lifecycle) (*managerEntry, 
 	var e *managerEntry
 	if e = m.m[lc]; m == nil {
 		e = &managerEntry{
-			controller: controller{
-				lc: lc,
-			},
+			controller: controller{},
 		}
 		m.m[lc] = e
 	}
@@ -62,23 +62,27 @@ func (m *Manager) addInternal(lc *Lifecycle, deps []*Lifecycle) (*managerEntry, 
 }
 
 func (m *Manager) Add(lc *Lifecycle, deps []*Lifecycle) error {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
+
 	if !dependableStates.Contains(m.st) {
 		return StateError{Current: m.st, Expected: dependableStates}
 	}
-
-	m.mtx.Lock()
-	defer m.mtx.Unlock()
 
 	e, err := m.addInternal(lc, deps)
 	if err != nil {
 		return err
 	}
 
-	if m.st >= Constructing {
-		rec := func(e *managerEntry) error {
-			if e.st 
-		}
-	}
+	// FIXME:
+	//if m.st >= Constructing {
+	//	rec := func(e *managerEntry) error {
+	//		if e.st
+	//	}
+	//}
+
+	_ = e
+	return nil
 }
 
 /*
