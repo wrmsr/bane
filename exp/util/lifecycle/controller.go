@@ -1,7 +1,6 @@
 package lifecycles
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -30,9 +29,9 @@ func (c *Controller) AddCallback(cb Callback) {
 type transition struct {
 	old StateMask
 
-	intermediate State
-	failed       State
-	new          State
+	intermediate,
+	failed,
+	new State
 
 	fn func(*Lifecycle) LifecycleFn
 }
@@ -101,7 +100,7 @@ func (c *Controller) advance(t *transition) error {
 	defer c.mtx.Unlock()
 
 	if !t.old.Contains(c.st) {
-		return fmt.Errorf("illegal state transition: %s -> %s", c.st, t.new)
+		return StateError{Current: c.st, Expected: t.old}
 	}
 
 	for _, cb := range c.cbs {
