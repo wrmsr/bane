@@ -1,6 +1,9 @@
 package lifecycles
 
-import "strings"
+import (
+	"math/bits"
+	"strings"
+)
 
 //
 
@@ -151,4 +154,8 @@ func (m StateMask) String() string {
 		}
 	}
 	return sb.String()
+}
+
+func (m StateMask) Len() int {
+	return bits.OnesCount16(uint16(m))
 }

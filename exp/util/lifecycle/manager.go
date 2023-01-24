@@ -1,14 +1,10 @@
 package lifecycles
 
-import (
-	"github.com/wrmsr/bane/pkg/util/maps"
-)
-
 type managerEntry struct {
 	controller
 
-	dependencies maps.Set[*managerEntry]
-	dependents   maps.Set[*managerEntry]
+	dependencies map[*managerEntry]struct{}
+	dependents   map[*managerEntry]struct{}
 }
 
 type Manager struct {
@@ -18,147 +14,144 @@ type Manager struct {
 }
 
 func NewManager() *Manager {
-	return &Manager{
+	m := &Manager{
 		m: make(map[*Lifecycle]*managerEntry),
+	}
+	// FIXME: ...
+	m.lc = m
+	return m
+}
+
+var dependableStates = New.Mask() |
+	Constructing.Mask() |
+	Constructed.Mask() |
+	Starting.Mask() |
+	Started.Mask()
+
+func (m *Manager) addInternal(lc *Lifecycle, deps []*Lifecycle) (*managerEntry, error) {
+	if !dependableStates.Contains(m.st) {
+		return nil, StateError{Current: m.st, Expected: dependableStates}
+	}
+
+	var e *managerEntry
+	if e = m.m[lc]; m == nil {
+		e = &managerEntry{
+			controller: controller{
+				lc: lc,
+			},
+		}
+		m.m[lc] = e
+	}
+
+	if len(deps) > 0 {
+		e.dependencies = make(map[*managerEntry]struct{})
+		for _, dep := range deps {
+			de, err := m.addInternal(dep, nil)
+			if err != nil {
+				return nil, err
+			}
+			e.dependencies[de] = struct{}{}
+			if de.dependents == nil {
+				de.dependents = make(map[*managerEntry]struct{})
+			}
+			de.dependents[e] = struct{}{}
+		}
+	}
+
+	return e, nil
+}
+
+func (m *Manager) Add(lc *Lifecycle, deps []*Lifecycle) error {
+	if !dependableStates.Contains(m.st) {
+		return StateError{Current: m.st, Expected: dependableStates}
+	}
+
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
+
+	e, err := m.addInternal(lc, deps)
+	if err != nil {
+		return err
+	}
+
+	if m.st >= Constructing {
+		rec := func(e *managerEntry) error {
+			if e.st 
+		}
 	}
 }
 
 /*
-class LifecycleManager(AbstractLifecycle):
+           if self.state.phase >= LifecycleStates.CONSTRUCTING.phase:
+               def rec(e):
+                   if e.controller.state.phase < LifecycleStates.CONSTRUCTED.phase:
+                       for dep in e.dependencies:
+                           rec(dep)
+                       e.controller.lifecycle_construct()
+               rec(entry)
+           if self.state.phase >= LifecycleStates.STARTING.phase:
+               def rec(e):
+                   if e.controller.state.phase < LifecycleStates.STARTED.phase:
+                       for dep in e.dependencies:
+                           rec(dep)
+                       e.controller.lifecycle_start()
+               rec(entry)
 
-    class Entry(dc.Pure):
-        controller: LifecycleController
-        dependencies: ta.Set['LifecycleManager.Entry'] = dc.field(default_factory=ocol.IdentitySet)
-        dependents: ta.Set['LifecycleManager.Entry'] = dc.field(default_factory=ocol.IdentitySet)
+           return entry
 
-    def __init__(
-            self,
-            *,
-            lock: lang.DefaultLockable = None,
-    ) -> None:
-        super().__init__()
+   def construct(self) -> None:
+       self.lifecycle_construct()
 
-        self._lock = lang.default_lock(lock, True)
+   def _do_lifecycle_construct(self) -> None:
+       def rec(entry: LifecycleManager.Entry) -> None:
+           for dep in entry.dependencies:
+               rec(dep)
+           if entry.controller.state.is_failed:
+               raise LifecycleStateException(entry.controller)
+           if entry.controller.state.phase < LifecycleStates.CONSTRUCTED.phase:
+               entry.controller.lifecycle_construct()
+       for entry in self._entries_by_lifecycle.values():
+           rec(entry)
 
-        self._entries_by_lifecycle: ta.MutableMapping[Lifecycle, LifecycleManager.Entry] = ocol.IdentityKeyDict()
+   def start(self) -> None:
+       self.lifecycle_start()
 
-    @property
-    def controller(self: LifecycleManagerT) -> 'LifecycleController[LifecycleManagerT]':
-        return self.lifecycle_controller
+   def _do_lifecycle_start(self) -> None:
+       def rec(entry: LifecycleManager.Entry) -> None:
+           for dep in entry.dependencies:
+               rec(dep)
+           if entry.controller.state.is_failed:
+               raise LifecycleStateException(entry.controller)
+           if entry.controller.state.phase < LifecycleStates.CONSTRUCTED.phase:
+               entry.controller.lifecycle_construct()
+           if entry.controller.state.phase < LifecycleStates.STARTED.phase:
+               entry.controller.lifecycle_start()
+       for entry in self._entries_by_lifecycle.values():
+           rec(entry)
 
-    @property
-    def state(self) -> LifecycleState:
-        return self.lifecycle_controller.state
+   def stop(self) -> None:
+       self.lifecycle_stop()
 
-    @staticmethod
-    def _get_controller(lifecycle: Lifecycle) -> LifecycleController:
-        if isinstance(lifecycle, LifecycleController):
-            return lifecycle
-        elif isinstance(lifecycle, AbstractLifecycle):
-            return lifecycle.lifecycle_controller
-        elif isinstance(lifecycle, Lifecycle):
-            return LifecycleController(lifecycle)
-        else:
-            raise TypeError(lifecycle)
+   def _do_lifecycle_stop(self) -> None:
+       def rec(entry: LifecycleManager.Entry) -> None:
+           for dep in entry.dependents:
+               rec(dep)
+           if entry.controller.state.is_failed:
+               raise LifecycleStateException(entry.controller)
+           if entry.controller.state is LifecycleStates.STARTED:
+               entry.controller.lifecycle_stop()
+       for entry in self._entries_by_lifecycle.values():
+           rec(entry)
 
-    def _add_internal(self, lifecycle: Lifecycle, dependencies: ta.Iterable[Lifecycle]) -> Entry:
-        check.state(self.state.phase < LifecycleStates.STOPPING.phase and not self.state.is_failed)
+   def destroy(self) -> None:
+       self.lifecycle_destroy()
 
-        check.isinstance(lifecycle, Lifecycle)
-        try:
-            entry = self._entries_by_lifecycle[lifecycle]
-        except KeyError:
-            controller = self._get_controller(lifecycle)
-            entry = self._entries_by_lifecycle[lifecycle] = LifecycleManager.Entry(controller)
-
-        for dep in dependencies:
-            check.isinstance(dep, Lifecycle)
-            dep_entry = self._add_internal(dep, [])
-            entry.dependencies.add(dep_entry)
-            dep_entry.dependents.add(entry)
-
-        return entry
-
-    def add(
-            self,
-            lifecycle: Lifecycle,
-            dependencies: ta.Iterable[Lifecycle] = (),
-    ) -> Entry:
-        check.state(self.state.phase < LifecycleStates.STOPPING.phase and not self.state.is_failed)
-
-        with self._lock():
-            entry = self._add_internal(lifecycle, dependencies)
-
-            if self.state.phase >= LifecycleStates.CONSTRUCTING.phase:
-                def rec(e):
-                    if e.controller.state.phase < LifecycleStates.CONSTRUCTED.phase:
-                        for dep in e.dependencies:
-                            rec(dep)
-                        e.controller.lifecycle_construct()
-                rec(entry)
-            if self.state.phase >= LifecycleStates.STARTING.phase:
-                def rec(e):
-                    if e.controller.state.phase < LifecycleStates.STARTED.phase:
-                        for dep in e.dependencies:
-                            rec(dep)
-                        e.controller.lifecycle_start()
-                rec(entry)
-
-            return entry
-
-    def construct(self) -> None:
-        self.lifecycle_construct()
-
-    def _do_lifecycle_construct(self) -> None:
-        def rec(entry: LifecycleManager.Entry) -> None:
-            for dep in entry.dependencies:
-                rec(dep)
-            if entry.controller.state.is_failed:
-                raise LifecycleStateException(entry.controller)
-            if entry.controller.state.phase < LifecycleStates.CONSTRUCTED.phase:
-                entry.controller.lifecycle_construct()
-        for entry in self._entries_by_lifecycle.values():
-            rec(entry)
-
-    def start(self) -> None:
-        self.lifecycle_start()
-
-    def _do_lifecycle_start(self) -> None:
-        def rec(entry: LifecycleManager.Entry) -> None:
-            for dep in entry.dependencies:
-                rec(dep)
-            if entry.controller.state.is_failed:
-                raise LifecycleStateException(entry.controller)
-            if entry.controller.state.phase < LifecycleStates.CONSTRUCTED.phase:
-                entry.controller.lifecycle_construct()
-            if entry.controller.state.phase < LifecycleStates.STARTED.phase:
-                entry.controller.lifecycle_start()
-        for entry in self._entries_by_lifecycle.values():
-            rec(entry)
-
-    def stop(self) -> None:
-        self.lifecycle_stop()
-
-    def _do_lifecycle_stop(self) -> None:
-        def rec(entry: LifecycleManager.Entry) -> None:
-            for dep in entry.dependents:
-                rec(dep)
-            if entry.controller.state.is_failed:
-                raise LifecycleStateException(entry.controller)
-            if entry.controller.state is LifecycleStates.STARTED:
-                entry.controller.lifecycle_stop()
-        for entry in self._entries_by_lifecycle.values():
-            rec(entry)
-
-    def destroy(self) -> None:
-        self.lifecycle_destroy()
-
-    def _do_lifecycle_destroy(self) -> None:
-        def rec(entry: LifecycleManager.Entry) -> None:
-            for dep in entry.dependents:
-                rec(dep)
-            if entry.controller.state.phase < LifecycleStates.DESTROYED.phase:
-                entry.controller.lifecycle_destroy()
-        for entry in self._entries_by_lifecycle.values():
-            rec(entry)
+   def _do_lifecycle_destroy(self) -> None:
+       def rec(entry: LifecycleManager.Entry) -> None:
+           for dep in entry.dependents:
+               rec(dep)
+           if entry.controller.state.phase < LifecycleStates.DESTROYED.phase:
+               entry.controller.lifecycle_destroy()
+       for entry in self._entries_by_lifecycle.values():
+           rec(entry)
 */
