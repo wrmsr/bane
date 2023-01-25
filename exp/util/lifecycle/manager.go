@@ -11,8 +11,8 @@ type managerEntry struct {
 	lc *Lifecycle
 	controller
 
-	dependencies map[*managerEntry]struct{}
-	dependents   map[*managerEntry]struct{}
+	dependencies,
+	dependents map[*managerEntry]struct{}
 }
 
 type Manager struct {
