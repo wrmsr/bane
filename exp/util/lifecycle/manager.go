@@ -2,6 +2,7 @@
 /*
 TODO:
  - DEFERRED DEPS
+ - split Lifecycle into Lifecycle = any -> (lc Lifecylce, fn func(State) error) ?
 */
 package lifecycles
 
