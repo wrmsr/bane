@@ -1,8 +1,14 @@
+//
+/*
+TODO:
+ - DEFERRED DEPS
+*/
 package lifecycles
 
 import "sync"
 
 type managerEntry struct {
+	lc *Lifecycle
 	controller
 
 	dependencies map[*managerEntry]struct{}
@@ -10,10 +16,10 @@ type managerEntry struct {
 }
 
 type Manager struct {
+	lc Lifecycle
 	controller
 
 	mtx sync.Mutex
-	lc  Lifecycle
 	m   map[*Lifecycle]*managerEntry
 }
 
@@ -38,7 +44,7 @@ func (m *Manager) addInternal(lc *Lifecycle, deps []*Lifecycle) (*managerEntry, 
 	var e *managerEntry
 	if e = m.m[lc]; m == nil {
 		e = &managerEntry{
-			controller: controller{},
+			lc: lc,
 		}
 		m.m[lc] = e
 	}
@@ -61,6 +67,22 @@ func (m *Manager) addInternal(lc *Lifecycle, deps []*Lifecycle) (*managerEntry, 
 	return e, nil
 }
 
+func (m *Manager) advance(e *managerEntry, t *transition) error {
+	if e.st >= t.new {
+		return nil
+	}
+
+	if e.dependencies != nil {
+		for dep := range e.dependencies {
+			if err := m.advance(dep, t); err != nil {
+				return err
+			}
+		}
+	}
+
+	return e.advance(e.lc, t)
+}
+
 func (m *Manager) Add(lc *Lifecycle, deps []*Lifecycle) error {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
@@ -74,38 +96,21 @@ func (m *Manager) Add(lc *Lifecycle, deps []*Lifecycle) error {
 		return err
 	}
 
-	// FIXME:
-	//if m.st >= Constructing {
-	//	rec := func(e *managerEntry) error {
-	//		if e.st
-	//	}
-	//}
+	if m.st >= Constructing {
+		if err := m.advance(e, &construct); err != nil {
+			return err
+		}
+	}
+	if m.st >= Starting {
+		if err := m.advance(e, &start); err != nil {
+			return err
+		}
+	}
 
-	_ = e
 	return nil
 }
 
 /*
-           if self.state.phase >= LifecycleStates.CONSTRUCTING.phase:
-               def rec(e):
-                   if e.controller.state.phase < LifecycleStates.CONSTRUCTED.phase:
-                       for dep in e.dependencies:
-                           rec(dep)
-                       e.controller.lifecycle_construct()
-               rec(entry)
-           if self.state.phase >= LifecycleStates.STARTING.phase:
-               def rec(e):
-                   if e.controller.state.phase < LifecycleStates.STARTED.phase:
-                       for dep in e.dependencies:
-                           rec(dep)
-                       e.controller.lifecycle_start()
-               rec(entry)
-
-           return entry
-
-   def construct(self) -> None:
-       self.lifecycle_construct()
-
    def _do_lifecycle_construct(self) -> None:
        def rec(entry: LifecycleManager.Entry) -> None:
            for dep in entry.dependencies:
