@@ -12,9 +12,9 @@ import (
 
 type managerEntry struct {
 	obj any
-	fn  func(State) error
+	fn  Handler
 	st  State
-	cbs []func(any, State)
+	cbs []Callback
 
 	dependencies,
 	dependents map[*managerEntry]struct{}
@@ -22,7 +22,7 @@ type managerEntry struct {
 
 type Manager struct {
 	st  State
-	cbs []func(*Manager, State)
+	cbs []Callback
 	m   map[any]*managerEntry
 }
 
@@ -32,6 +32,19 @@ func NewManager() *Manager {
 	}
 	return m
 }
+
+var _ Lifecycle = &Manager{}
+
+func (m *Manager) State() State { return m.st }
+
+func (m *Manager) AddCallback(cb Callback) {
+	m.cbs = append(m.cbs, cb)
+}
+
+func (m *Manager) Construct() error { return m.advance(&construct) }
+func (m *Manager) Start() error     { return m.advance(&start) }
+func (m *Manager) Stop() error      { return m.advance(&stop) }
+func (m *Manager) Destroy() error   { return m.advance(&destroy) }
 
 var dependableStates = New.Mask() |
 	Constructing.Mask() |
@@ -51,7 +64,7 @@ func (m *Manager) addDependencies(e *managerEntry, deps []any) error {
 	for _, dep := range deps {
 		de := m.m[dep]
 		if de == nil {
-			return fmt.Errorf("lifecylce dependency not found: %v -> %v", e.obj, dep)
+			return DependencyNotFoundError{e.obj, dep}
 		}
 
 		e.dependencies[de] = struct{}{}
@@ -64,14 +77,23 @@ func (m *Manager) addDependencies(e *managerEntry, deps []any) error {
 	return nil
 }
 
+func (m *Manager) AddDependencies(obj any, deps []any) error {
+	e := m.m[obj]
+	if e == nil {
+		return fmt.Errorf("object not registered: %v", obj)
+	}
+
+	return m.addDependencies(e, deps)
+}
+
 func (m *Manager) addInternal(obj any, fn func(State) error, deps []any) (*managerEntry, error) {
 	if !dependableStates.Contains(m.st) {
-		return nil, StateError{Current: m.st, Expected: dependableStates}
+		return nil, StateError{m.st, dependableStates}
 	}
 
 	e := m.m[obj]
 	if e != nil {
-		return nil, fmt.Errorf("lifecycle already registered: %v", obj)
+		return nil, fmt.Errorf("object already registered: %v", obj)
 	}
 
 	e = &managerEntry{
@@ -117,7 +139,7 @@ func (m *Manager) advanceEntry(e *managerEntry, t *transition) error {
 
 func (m *Manager) advance(t *transition) error {
 	if !t.old.Contains(m.st) {
-		return StateError{Current: m.st, Expected: t.old}
+		return StateError{m.st, t.old}
 	}
 
 	m.st = t.intermediate
@@ -144,9 +166,9 @@ func (m *Manager) advance(t *transition) error {
 	return err
 }
 
-func (m *Manager) Add(obj any, fn func(State) error, deps []any) error {
+func (m *Manager) AddObject(obj any, fn func(State) error, deps []any) error {
 	if !dependableStates.Contains(m.st) {
-		return StateError{Current: m.st, Expected: dependableStates}
+		return StateError{m.st, dependableStates}
 	}
 
 	e, err := m.addInternal(obj, fn, deps)
@@ -165,5 +187,15 @@ func (m *Manager) Add(obj any, fn func(State) error, deps []any) error {
 		}
 	}
 
+	return nil
+}
+
+func (m *Manager) AddObjectCallback(obj any, cb Callback) error {
+	e := m.m[obj]
+	if e == nil {
+		return fmt.Errorf("object not registered: %v", obj)
+	}
+
+	e.cbs = append(e.cbs, cb)
 	return nil
 }

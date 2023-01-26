@@ -10,18 +10,14 @@ import (
 func TestManager(t *testing.T) {
 	m := NewManager()
 
-	afn := func(st State) error {
+	check.Must(m.AddObject("a", func(st State) error {
 		fmt.Printf("a: %v\n", st)
 		return nil
-	}
-
-	bfn := func(st State) error {
+	}, nil))
+	check.Must(m.AddObject("b", func(st State) error {
 		fmt.Printf("b: %v\n", st)
 		return nil
-	}
-
-	check.Must(m.Add("a", afn, nil))
-	check.Must(m.Add("b", bfn, []any{"a"}))
+	}, []any{"a"}))
 
 	check.Must(m.advance(&construct))
 	check.Must(m.advance(&start))

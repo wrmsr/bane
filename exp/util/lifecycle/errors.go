@@ -2,6 +2,8 @@ package lifecycles
 
 import "fmt"
 
+//
+
 type StateError struct {
 	Current  State
 	Expected StateMask
@@ -9,4 +11,15 @@ type StateError struct {
 
 func (e StateError) Error() string {
 	return fmt.Sprintf("state error: current %v, expected %v", e.Current, e.Expected)
+}
+
+//
+
+type DependencyNotFoundError struct {
+	Dependent,
+	Dependency any
+}
+
+func (e DependencyNotFoundError) Error() string {
+	return fmt.Sprintf("dependency not found: %v -> %v", e.Dependent, e.Dependency)
 }
