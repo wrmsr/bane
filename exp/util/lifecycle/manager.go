@@ -1,6 +1,7 @@
 //
 /*
 TODO:
+ - threadsafety lol
  - DEFERRED DEPS
 */
 package lifecycles
