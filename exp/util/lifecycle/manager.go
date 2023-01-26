@@ -114,23 +114,7 @@ func (m *Manager) advanceEntry(e *managerEntry, t *transition) error {
 		}
 	}
 
-	e.st = t.intermediate
-	for _, cb := range e.cbs {
-		cb(e.st)
-	}
-
-	err := e.fn(t.new)
-
-	if err != nil {
-		e.st = t.failed
-	} else {
-		e.st = t.new
-	}
-	for _, cb := range e.cbs {
-		cb(e.st)
-	}
-
-	return err
+	return e.advance(t)
 }
 
 func (m *Manager) advance(t *transition) error {
