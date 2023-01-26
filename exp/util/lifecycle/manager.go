@@ -8,21 +8,21 @@ package lifecycles
 
 import (
 	"fmt"
-	"sync"
 )
 
 type managerEntry struct {
 	obj any
 	fn  func(State) error
 	st  State
+	cbs []func(any, State)
 
 	dependencies,
 	dependents map[*managerEntry]struct{}
 }
 
 type Manager struct {
-	mtx sync.Mutex
 	st  State
+	cbs []func(*Manager, State)
 	m   map[any]*managerEntry
 }
 
@@ -97,13 +97,22 @@ func (m *Manager) advanceEntry(e *managerEntry, t *transition) error {
 	}
 
 	e.st = t.intermediate
-	if err := e.fn(t.new); err != nil {
-		e.st = t.failed
-		return err
+	for _, cb := range e.cbs {
+		cb(e.obj, e.st)
 	}
-	e.st = t.new
 
-	return nil
+	err := e.fn(t.new)
+
+	if err != nil {
+		e.st = t.failed
+	} else {
+		e.st = t.new
+	}
+	for _, cb := range e.cbs {
+		cb(e.obj, e.st)
+	}
+
+	return err
 }
 
 func (m *Manager) advance(t *transition) error {
@@ -112,21 +121,30 @@ func (m *Manager) advance(t *transition) error {
 	}
 
 	m.st = t.intermediate
+	for _, cb := range m.cbs {
+		cb(m, m.st)
+	}
+
+	var err error
 	for _, e := range m.m {
-		if err := m.advanceEntry(e, t); err != nil {
-			m.st = t.failed
-			return err
+		if err = m.advanceEntry(e, t); err != nil {
+			break
 		}
 	}
-	m.st = t.new
 
-	return nil
+	if err != nil {
+		m.st = t.failed
+	} else {
+		m.st = t.new
+	}
+	for _, cb := range m.cbs {
+		cb(m, m.st)
+	}
+
+	return err
 }
 
 func (m *Manager) Add(obj any, fn func(State) error, deps []any) error {
-	m.mtx.Lock()
-	defer m.mtx.Unlock()
-
 	if !dependableStates.Contains(m.st) {
 		return StateError{Current: m.st, Expected: dependableStates}
 	}
