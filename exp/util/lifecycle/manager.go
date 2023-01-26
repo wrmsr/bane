@@ -2,19 +2,12 @@
 /*
 TODO:
  - DEFERRED DEPS
- - split Lifecycle into Lifecycle = any -> (lc Lifecylce, fn func(State) error) ?
 */
 package lifecycles
 
-import (
-	"fmt"
-)
-
 type managerEntry struct {
 	obj any
-	fn  Handler
-	st  State
-	cbs []Callback
+	Controller
 
 	dependencies,
 	dependents map[*managerEntry]struct{}
@@ -80,7 +73,7 @@ func (m *Manager) addDependencies(e *managerEntry, deps []any) error {
 func (m *Manager) AddDependencies(obj any, deps []any) error {
 	e := m.m[obj]
 	if e == nil {
-		return fmt.Errorf("object not registered: %v", obj)
+		return ObjectNotRegisteredError{obj}
 	}
 
 	return m.addDependencies(e, deps)
@@ -93,12 +86,14 @@ func (m *Manager) addInternal(obj any, fn func(State) error, deps []any) (*manag
 
 	e := m.m[obj]
 	if e != nil {
-		return nil, fmt.Errorf("object already registered: %v", obj)
+		return nil, ObjectAlreadyRegisteredError{obj}
 	}
 
 	e = &managerEntry{
 		obj: obj,
-		fn:  fn,
+		Controller: Controller{
+			fn: fn,
+		},
 	}
 	m.m[obj] = e
 
@@ -193,7 +188,7 @@ func (m *Manager) AddObject(obj any, fn func(State) error, deps []any) error {
 func (m *Manager) AddObjectCallback(obj any, cb Callback) error {
 	e := m.m[obj]
 	if e == nil {
-		return fmt.Errorf("object not registered: %v", obj)
+		return ObjectNotRegisteredError{obj}
 	}
 
 	e.cbs = append(e.cbs, cb)
