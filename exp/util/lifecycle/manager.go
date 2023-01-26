@@ -120,7 +120,7 @@ func (m *Manager) advanceEntry(e *managerEntry, t *transition) error {
 
 	e.st = t.intermediate
 	for _, cb := range e.cbs {
-		cb(e.obj, e.st)
+		cb(e.st)
 	}
 
 	err := e.fn(t.new)
@@ -131,7 +131,7 @@ func (m *Manager) advanceEntry(e *managerEntry, t *transition) error {
 		e.st = t.new
 	}
 	for _, cb := range e.cbs {
-		cb(e.obj, e.st)
+		cb(e.st)
 	}
 
 	return err
@@ -144,7 +144,7 @@ func (m *Manager) advance(t *transition) error {
 
 	m.st = t.intermediate
 	for _, cb := range m.cbs {
-		cb(m, m.st)
+		cb(m.st)
 	}
 
 	var err error
@@ -160,7 +160,7 @@ func (m *Manager) advance(t *transition) error {
 		m.st = t.new
 	}
 	for _, cb := range m.cbs {
-		cb(m, m.st)
+		cb(m.st)
 	}
 
 	return err

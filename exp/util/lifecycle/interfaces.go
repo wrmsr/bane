@@ -1,11 +1,11 @@
 package lifecycles
 
-type Handler = func(st State) error
-type Callback = func(obj any, st State)
+type Handler = func(State) error
+type Callback = func(State)
 
 type Lifecycle interface {
 	State() State
-	AddCallback(cb Callback)
+	AddCallback(Callback)
 
 	Construct() error
 	Start() error

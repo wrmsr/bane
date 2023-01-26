@@ -19,8 +19,8 @@ func TestManager(t *testing.T) {
 		return nil
 	}, []any{"a"}))
 
-	check.Must(m.advance(&construct))
-	check.Must(m.advance(&start))
-	check.Must(m.advance(&stop))
-	check.Must(m.advance(&destroy))
+	check.Must(m.Construct())
+	check.Must(m.Start())
+	check.Must(m.Stop())
+	check.Must(m.Destroy())
 }
