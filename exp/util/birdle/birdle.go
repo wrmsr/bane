@@ -78,7 +78,7 @@ func CheckWord(s string) error {
 	return nil
 }
 
-func (g *Game) Guess(word string) (bool, error) {
+func (g *Game) Guess(guess string) (bool, error) {
 	if g.state != Running {
 		return false, fmt.Errorf("invalid game state: %v", g.state)
 	}
@@ -86,15 +86,18 @@ func (g *Game) Guess(word string) (bool, error) {
 		panic(fmt.Errorf("no guesses left"))
 	}
 
-	word = NormalizeWord(word)
-	if err := CheckWord(word); err != nil {
+	guess = NormalizeWord(guess)
+	if err := CheckWord(guess); err != nil {
 		return false, err
 	}
+	if len(guess) != len(g.word) {
+		return false, fmt.Errorf("invalid guess length: guess %v != word %v", len(guess), len(g.word))
+	}
 
-	g.guesses = append(g.guesses, word)
+	g.guesses = append(g.guesses, guess)
 	g.guessesLeft--
 
-	if word != g.word {
+	if guess != g.word {
 		if g.guessesLeft < 1 {
 			g.state = Lost
 		}
