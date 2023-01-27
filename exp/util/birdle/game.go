@@ -37,8 +37,8 @@ type Mark int8
 
 const (
 	Normal Mark = iota
-	Misplaced
 	Correct
+	Misplaced
 )
 
 //
