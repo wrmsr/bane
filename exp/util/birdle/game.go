@@ -38,7 +38,7 @@ type Game struct {
 	dict *Dictionary
 
 	state   State
-	guesses []Guess
+	guesses []markedWord
 
 	wordChars   []rune
 	wordCharSet map[rune]struct{}
@@ -68,7 +68,7 @@ func NewGame(word string, guessesAllowed int, dict *Dictionary) (*Game, error) {
 		word: word,
 		dict: dict,
 
-		guesses: make([]Guess, 0, guessesAllowed),
+		guesses: make([]markedWord, 0, guessesAllowed),
 
 		wordChars:   wcs,
 		wordCharSet: wcss,
@@ -80,10 +80,10 @@ func NewGame(word string, guessesAllowed int, dict *Dictionary) (*Game, error) {
 func (g *Game) Word() string { return g.word }
 func (g *Game) State() State { return g.state }
 
-func (g *Game) GetGuess(i int) Guess { return g.guesses[i] }
-func (g *Game) GuessesMade() int     { return len(g.guesses) }
-func (g *Game) GuessesAllowed() int  { return cap(g.guesses) }
-func (g *Game) GuessesLeft() int     { return cap(g.guesses) - len(g.guesses) }
+func (g *Game) GetGuess(i int) MarkedWord { return g.guesses[i] }
+func (g *Game) GuessesMade() int          { return len(g.guesses) }
+func (g *Game) GuessesAllowed() int       { return cap(g.guesses) }
+func (g *Game) GuessesLeft() int          { return cap(g.guesses) - len(g.guesses) }
 
 func (g *Game) HasGuessedChar(c rune) bool {
 	_, ok := g.guessedCharSet[c]
@@ -103,47 +103,45 @@ func (g *Game) CheckGuess(word string) error {
 	return nil
 }
 
-func (g *Game) makeGuess(word string) Guess {
-	ge := Guess{
+func (g *Game) markGuess(word string) markedWord {
+	mw := markedWord{
 		word:  word,
 		marks: make([]Mark, len(word)),
 	}
 	for i, gc := range word {
 		if gc == g.wordChars[i] {
-			ge.marks[i] = Correct
+			mw.marks[i] = Correct
 		} else if _, ok := g.wordCharSet[gc]; ok {
-			ge.marks[i] = Misplaced
+			mw.marks[i] = Misplaced
 		}
 	}
-	return ge
+	return mw
 }
 
-func (g *Game) Guess(word string) (Guess, error) {
+func (g *Game) Guess(word string) error {
 	if g.state != Running {
-		return Guess{}, fmt.Errorf("invalid game state: %v", g.state)
+		return fmt.Errorf("invalid game state: %v", g.state)
 	}
 	if g.GuessesLeft() < 1 {
 		panic(fmt.Errorf("no guesses left"))
 	}
 
 	if err := g.CheckGuess(word); err != nil {
-		return Guess{}, err
+		return err
 	}
 
-	ge := g.makeGuess(word)
-
-	g.guesses = append(g.guesses, ge)
+	g.guesses = append(g.guesses, g.markGuess(word))
 	for _, c := range word {
 		g.guessedCharSet[c] = struct{}{}
 	}
 
 	if word == g.word {
 		g.state = Won
-		return ge, nil
+		return nil
 	}
 
 	if g.GuessesLeft() < 1 {
 		g.state = Lost
 	}
-	return ge, nil
+	return nil
 }

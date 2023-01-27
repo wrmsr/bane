@@ -115,3 +115,28 @@ func (d *Dictionary) Contains(w string) bool {
 func (d *Dictionary) Random() string {
 	return d.s[rand.Intn(len(d.s))]
 }
+
+//
+
+type Mark int8
+
+const (
+	Normal Mark = iota
+	Correct
+	Misplaced
+)
+
+//
+
+type MarkedWord interface {
+	Word() string
+	Mark(int) Mark
+}
+
+type markedWord struct {
+	word  string
+	marks []Mark
+}
+
+func (mw markedWord) Word() string    { return mw.word }
+func (mw markedWord) Mark(i int) Mark { return mw.marks[i] }
