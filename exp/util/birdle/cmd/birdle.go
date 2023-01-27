@@ -17,12 +17,13 @@ func main() {
 		word := check.Must1(r.ReadString('\n'))
 
 		word = birdle.NormalizeWord(word)
-		if _, err := g.Guess(word); err != nil {
+		guess, err := g.Guess(word)
+		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 
-		fmt.Println(word)
+		fmt.Println(guess.Word())
 
 		if g.State() != birdle.Running {
 			break

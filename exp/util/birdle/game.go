@@ -43,16 +43,21 @@ const (
 
 //
 
-type guess struct {
+type Guess struct {
 	word  string
 	marks []Mark
 }
+
+func (g Guess) Word() string    { return g.word }
+func (g Guess) Mark(i int) Mark { return g.marks[i] }
+
+//
 
 type Game struct {
 	word string
 
 	state   State
-	guesses []guess
+	guesses []Guess
 
 	wordChars   []rune
 	wordCharSet map[rune]struct{}
@@ -78,7 +83,7 @@ func NewGame(word string, guessesAllowed int) (*Game, error) {
 	return &Game{
 		word: word,
 
-		guesses: make([]guess, 0, guessesAllowed),
+		guesses: make([]Guess, 0, guessesAllowed),
 
 		wordChars:   wcs,
 		wordCharSet: wcss,
@@ -103,8 +108,8 @@ func (g *Game) CheckGuess(word string) error {
 	return nil
 }
 
-func (g *Game) makeGuess(word string) guess {
-	ge := guess{
+func (g *Game) makeGuess(word string) Guess {
+	ge := Guess{
 		word:  word,
 		marks: make([]Mark, len(word)),
 	}
@@ -118,16 +123,16 @@ func (g *Game) makeGuess(word string) guess {
 	return ge
 }
 
-func (g *Game) Guess(word string) (bool, error) {
+func (g *Game) Guess(word string) (Guess, error) {
 	if g.state != Running {
-		return false, fmt.Errorf("invalid game state: %v", g.state)
+		return Guess{}, fmt.Errorf("invalid game state: %v", g.state)
 	}
 	if g.GuessesLeft() < 1 {
 		panic(fmt.Errorf("no guesses left"))
 	}
 
 	if err := g.CheckGuess(word); err != nil {
-		return false, err
+		return Guess{}, err
 	}
 
 	ge := g.makeGuess(word)
@@ -139,11 +144,11 @@ func (g *Game) Guess(word string) (bool, error) {
 
 	if word == g.word {
 		g.state = Won
-		return true, nil
+		return ge, nil
 	}
 
 	if g.GuessesLeft() < 1 {
 		g.state = Lost
 	}
-	return false, nil
+	return ge, nil
 }
