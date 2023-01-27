@@ -3,6 +3,7 @@ package birdle
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -41,9 +42,15 @@ func CheckWord(s string) error {
 
 //
 
+func WordLenFilter(i int) func(string) bool {
+	return func(s string) bool {
+		return len(s) == i
+	}
+}
+
 const DefaultWordsFilePath = "/usr/share/dict/words"
 
-func ReadWordsFile(path string) (s []string, err error) {
+func ReadWordsFile(path string, filter func(string) bool) (s []string, err error) {
 	var f *os.File
 	f, err = os.Open(path)
 	if err != nil {
@@ -53,9 +60,12 @@ func ReadWordsFile(path string) (s []string, err error) {
 
 	rd := bufio.NewReader(f)
 	for {
-		var buf []byte
-		buf, _, err = rd.ReadLine()
-		if err != nil {
+		buf, _, rerr := rd.ReadLine()
+		if rerr != nil {
+			if rerr == io.EOF {
+				break
+			}
+			err = rerr
 			return
 		}
 
@@ -65,8 +75,14 @@ func ReadWordsFile(path string) (s []string, err error) {
 			continue
 		}
 
+		if filter != nil && !filter(word) {
+			continue
+		}
+
 		s = append(s, word)
 	}
+
+	return
 }
 
 //

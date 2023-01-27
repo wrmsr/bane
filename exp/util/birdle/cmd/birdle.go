@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	d := birdle.NewDictionary(check.Must1(birdle.ReadWordsFile(birdle.DefaultWordsFilePath)))
-	g := check.Must1(birdle.NewGame("FARTS", 5, d))
+	d := birdle.NewDictionary(check.Must1(birdle.ReadWordsFile(birdle.DefaultWordsFilePath, birdle.WordLenFilter(5))))
+	g := check.Must1(birdle.NewGame("CHIME", 5, d))
 	r := birdle.TermRenderer{}
 
 	rd := bufio.NewReader(os.Stdin)
