@@ -87,6 +87,8 @@ func NewGame(word string, guessesAllowed int) (*Game, error) {
 	}, nil
 }
 
+func (g *Game) State() State { return g.state }
+
 func (g *Game) GuessesMade() int    { return len(g.guesses) }
 func (g *Game) GuessesAllowed() int { return cap(g.guesses) }
 func (g *Game) GuessesLeft() int    { return cap(g.guesses) - len(g.guesses) }
@@ -124,7 +126,6 @@ func (g *Game) Guess(word string) (bool, error) {
 		panic(fmt.Errorf("no guesses left"))
 	}
 
-	word = NormalizeWord(word)
 	if err := g.CheckGuess(word); err != nil {
 		return false, err
 	}
