@@ -19,6 +19,6 @@ func TestBinderRegistry(t *testing.T) {
 		})
 
 	inj := NewInjector(reg.Bind())
-	tu.AssertEqual(t, inj.Provide((*int)(nil)).(int), 420)
-	tu.AssertEqual(t, inj.Provide((*string)(nil)).(string), "420!")
+	tu.AssertEqual(t, ProvideAs[int](inj), 420)
+	tu.AssertEqual(t, ProvideAs[string](inj), "420!")
 }
