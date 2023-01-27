@@ -5,17 +5,18 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/wrmsr/bane/exp/util/birdle"
 	"github.com/wrmsr/bane/pkg/util/check"
 )
 
 func main() {
-	g := check.Must1(NewGame("FARTS", 5))
+	g := check.Must1(birdle.NewGame("FARTS", 5))
 
 	r := bufio.NewReader(os.Stdin)
 	for {
 		word := check.Must1(r.ReadString('\n'))
 
-		word = NormalizeWord(word)
+		word = birdle.NormalizeWord(word)
 		if _, err := g.Guess(word); err != nil {
 			fmt.Println(err)
 			continue
@@ -23,15 +24,15 @@ func main() {
 
 		fmt.Println(word)
 
-		if g.State() != Running {
+		if g.State() != birdle.Running {
 			break
 		}
 	}
 
 	switch st := g.State(); st {
-	case Lost:
+	case birdle.Lost:
 		fmt.Println("You lost!")
-	case Won:
+	case birdle.Won:
 		fmt.Println("You won!")
 	default:
 		panic(st)

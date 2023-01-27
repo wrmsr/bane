@@ -3,7 +3,7 @@
 TODO:
  - bitmask chars
 */
-package main
+package birdle
 
 import (
 	"fmt"
