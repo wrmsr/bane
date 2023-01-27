@@ -19,13 +19,13 @@ func main() {
 		word := check.Must1(rd.ReadString('\n'))
 
 		word = birdle.NormalizeWord(word)
-		guess, err := g.Guess(word)
+		_, err := g.Guess(word)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 
-		fmt.Println(r.RenderGuess(guess))
+		fmt.Println(r.RenderGame(g))
 
 		if g.State() != birdle.Running {
 			break

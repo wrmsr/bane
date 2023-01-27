@@ -77,11 +77,18 @@ func NewGame(word string, guessesAllowed int, dict *Dictionary) (*Game, error) {
 	}, nil
 }
 
+func (g *Game) Word() string { return g.word }
 func (g *Game) State() State { return g.state }
 
-func (g *Game) GuessesMade() int    { return len(g.guesses) }
-func (g *Game) GuessesAllowed() int { return cap(g.guesses) }
-func (g *Game) GuessesLeft() int    { return cap(g.guesses) - len(g.guesses) }
+func (g *Game) GetGuess(i int) Guess { return g.guesses[i] }
+func (g *Game) GuessesMade() int     { return len(g.guesses) }
+func (g *Game) GuessesAllowed() int  { return cap(g.guesses) }
+func (g *Game) GuessesLeft() int     { return cap(g.guesses) - len(g.guesses) }
+
+func (g *Game) HasGuessedChar(c rune) bool {
+	_, ok := g.guessedCharSet[c]
+	return ok
+}
 
 func (g *Game) CheckGuess(word string) error {
 	if err := CheckWord(word); err != nil {
