@@ -8,7 +8,8 @@ import (
 )
 
 func TestBirdle(t *testing.T) {
-	g := check.Must1(NewGame("FARTS", 3))
+	d := NewDictionary(check.Must1(ReadWordsFile(DefaultWordsFilePath)))
+	g := check.Must1(NewGame("FARTS", 3, d))
 	r := TermRenderer{}
 
 	check.Must1(g.Guess("CHIME"))

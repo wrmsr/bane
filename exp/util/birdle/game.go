@@ -35,6 +35,7 @@ func (s State) String() string {
 
 type Game struct {
 	word string
+	dict *Dictionary
 
 	state   State
 	guesses []Guess
@@ -45,12 +46,15 @@ type Game struct {
 	guessedCharSet map[rune]struct{}
 }
 
-func NewGame(word string, guessesAllowed int) (*Game, error) {
+func NewGame(word string, guessesAllowed int, dict *Dictionary) (*Game, error) {
 	if err := CheckWord(word); err != nil {
 		return nil, err
 	}
+	if !dict.Contains(word) {
+		return nil, fmt.Errorf("word not in dictionary")
+	}
 	if guessesAllowed < 1 {
-		return nil, fmt.Errorf("invalid number of guesses: %v", guessesAllowed)
+		return nil, fmt.Errorf("invalid number of guesses")
 	}
 
 	wcs := make([]rune, len(word))
@@ -62,6 +66,7 @@ func NewGame(word string, guessesAllowed int) (*Game, error) {
 
 	return &Game{
 		word: word,
+		dict: dict,
 
 		guesses: make([]Guess, 0, guessesAllowed),
 
@@ -84,6 +89,9 @@ func (g *Game) CheckGuess(word string) error {
 	}
 	if len(word) != len(g.word) {
 		return fmt.Errorf("invalid guess length: guess %v != word %v", len(word), len(g.word))
+	}
+	if !g.dict.Contains(word) {
+		return fmt.Errorf("word not in dictionary")
 	}
 	return nil
 }
