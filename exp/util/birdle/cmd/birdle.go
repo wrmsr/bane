@@ -11,7 +11,7 @@ import (
 
 func main() {
 	d := birdle.NewDictionary(check.Must1(birdle.ReadWordsFile(birdle.DefaultWordsFilePath, birdle.WordLenFilter(5))))
-	g := check.Must1(birdle.NewGame("CHIME", 5, d))
+	g := check.Must1(birdle.NewGame(d.Random(), 5, d))
 	r := birdle.TermRenderer{}
 
 	rd := bufio.NewReader(os.Stdin)

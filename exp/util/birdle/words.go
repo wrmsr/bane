@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"strings"
 
@@ -109,4 +110,8 @@ func (d *Dictionary) Get(i int) string { return d.s[i] }
 func (d *Dictionary) Contains(w string) bool {
 	_, ok := d.m[w]
 	return ok
+}
+
+func (d *Dictionary) Random() string {
+	return d.s[rand.Intn(len(d.s))]
 }
