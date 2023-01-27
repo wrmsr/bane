@@ -11,10 +11,11 @@ import (
 
 func main() {
 	g := check.Must1(birdle.NewGame("FARTS", 5))
+	r := birdle.TermRenderer{}
 
-	r := bufio.NewReader(os.Stdin)
+	rd := bufio.NewReader(os.Stdin)
 	for {
-		word := check.Must1(r.ReadString('\n'))
+		word := check.Must1(rd.ReadString('\n'))
 
 		word = birdle.NormalizeWord(word)
 		guess, err := g.Guess(word)
@@ -23,7 +24,7 @@ func main() {
 			continue
 		}
 
-		fmt.Println(guess.Word())
+		fmt.Println(r.RenderGuess(guess))
 
 		if g.State() != birdle.Running {
 			break
