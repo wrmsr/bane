@@ -89,22 +89,17 @@ func NewGame(word string, numGuesses int) (*Game, error) {
 	}, nil
 }
 
-func (g *Game) Guess(word string) (bool, error) {
-	if g.state != Running {
-		return false, fmt.Errorf("invalid game state: %v", g.state)
-	}
-	if g.guessesLeft < 1 {
-		panic(fmt.Errorf("no guesses left"))
-	}
-
-	word = NormalizeWord(word)
+func (g *Game) CheckGuess(word string) error {
 	if err := CheckWord(word); err != nil {
-		return false, err
+		return err
 	}
 	if len(word) != len(g.word) {
-		return false, fmt.Errorf("invalid guess length: guess %v != word %v", len(word), len(g.word))
+		return fmt.Errorf("invalid guess length: guess %v != word %v", len(word), len(g.word))
 	}
+	return nil
+}
 
+func (g *Game) makeGuess(word string) guess {
 	ge := guess{
 		word:  word,
 		marks: make([]Mark, len(word)),
@@ -116,9 +111,29 @@ func (g *Game) Guess(word string) (bool, error) {
 			ge.marks[i] = Misplaced
 		}
 	}
+	return ge
+}
+
+func (g *Game) Guess(word string) (bool, error) {
+	if g.state != Running {
+		return false, fmt.Errorf("invalid game state: %v", g.state)
+	}
+	if g.guessesLeft < 1 {
+		panic(fmt.Errorf("no guesses left"))
+	}
+
+	word = NormalizeWord(word)
+	if err := g.CheckGuess(word); err != nil {
+		return false, err
+	}
+
+	ge := g.makeGuess(word)
 
 	g.guesses = append(g.guesses, ge)
 	g.guessesLeft--
+	for _, c := range word {
+		g.guessedCharSet[c] = struct{}{}
+	}
 
 	if word != g.word {
 		if g.guessesLeft < 1 {
