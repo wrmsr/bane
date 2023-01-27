@@ -49,8 +49,7 @@ type guess struct {
 }
 
 type Game struct {
-	word        string
-	guessesLeft int
+	word string
 
 	state   State
 	guesses []guess
@@ -61,12 +60,12 @@ type Game struct {
 	guessedCharSet map[rune]struct{}
 }
 
-func NewGame(word string, numGuesses int) (*Game, error) {
+func NewGame(word string, guessesAllowed int) (*Game, error) {
 	if err := CheckWord(word); err != nil {
 		return nil, err
 	}
-	if numGuesses < 1 {
-		return nil, fmt.Errorf("invalid number of guesses: %v", numGuesses)
+	if guessesAllowed < 1 {
+		return nil, fmt.Errorf("invalid number of guesses: %v", guessesAllowed)
 	}
 
 	wcs := make([]rune, len(word))
@@ -77,10 +76,9 @@ func NewGame(word string, numGuesses int) (*Game, error) {
 	}
 
 	return &Game{
-		word:        word,
-		guessesLeft: numGuesses,
+		word: word,
 
-		guesses: make([]guess, 0, len(word)),
+		guesses: make([]guess, 0, guessesAllowed),
 
 		wordChars:   wcs,
 		wordCharSet: wcss,
@@ -88,6 +86,10 @@ func NewGame(word string, numGuesses int) (*Game, error) {
 		guessedCharSet: make(map[rune]struct{}),
 	}, nil
 }
+
+func (g *Game) GuessesMade() int    { return len(g.guesses) }
+func (g *Game) GuessesAllowed() int { return cap(g.guesses) }
+func (g *Game) GuessesLeft() int    { return cap(g.guesses) - len(g.guesses) }
 
 func (g *Game) CheckGuess(word string) error {
 	if err := CheckWord(word); err != nil {
@@ -118,7 +120,7 @@ func (g *Game) Guess(word string) (bool, error) {
 	if g.state != Running {
 		return false, fmt.Errorf("invalid game state: %v", g.state)
 	}
-	if g.guessesLeft < 1 {
+	if g.GuessesLeft() < 1 {
 		panic(fmt.Errorf("no guesses left"))
 	}
 
@@ -130,18 +132,17 @@ func (g *Game) Guess(word string) (bool, error) {
 	ge := g.makeGuess(word)
 
 	g.guesses = append(g.guesses, ge)
-	g.guessesLeft--
 	for _, c := range word {
 		g.guessedCharSet[c] = struct{}{}
 	}
 
-	if word != g.word {
-		if g.guessesLeft < 1 {
-			g.state = Lost
-		}
-		return false, nil
+	if word == g.word {
+		g.state = Won
+		return true, nil
 	}
 
-	g.state = Won
-	return true, nil
+	if g.GuessesLeft() < 1 {
+		g.state = Lost
+	}
+	return false, nil
 }
