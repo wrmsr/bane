@@ -9,6 +9,8 @@ import (
 )
 
 func TestWiki(t *testing.T) {
-	wp := check.Must1(FetchWikiLinks(context.Background(), DefaultWikiBirdsPage))
-	fmt.Println(wp)
+	ws := check.Must1(FetchWikiLinks(context.Background(), DefaultWikiBirdsPage))
+	for _, s := range ws {
+		fmt.Println(s)
+	}
 }
