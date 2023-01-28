@@ -43,15 +43,40 @@ func CheckWord(s string) error {
 
 //
 
-func WordLenFilter(i int) func(string) bool {
+type WordFilter func(string) bool
+
+func WordLenFilter(i int) WordFilter {
 	return func(s string) bool {
 		return len(s) == i
 	}
 }
 
+func PrepareWord(word string, filter WordFilter) string {
+	word = NormalizeWord(word)
+	if werr := CheckWord(word); werr != nil {
+		return ""
+	}
+	if filter != nil && !filter(word) {
+		return ""
+	}
+	return word
+}
+
+func PrepareWords(s []string, filter WordFilter) []string {
+	var r []string
+	for _, word := range s {
+		if word = PrepareWord(word, filter); word != "" {
+			r = append(r, word)
+		}
+	}
+	return r
+}
+
+//
+
 const DefaultWordsFilePath = "/usr/share/dict/words"
 
-func ReadWordsFile(path string, filter func(string) bool) (s []string, err error) {
+func ReadWordsFile(path string, filter WordFilter) (s []string, err error) {
 	var f *os.File
 	f, err = os.Open(path)
 	if err != nil {
@@ -70,17 +95,9 @@ func ReadWordsFile(path string, filter func(string) bool) (s []string, err error
 			return
 		}
 
-		word := string(buf)
-		word = NormalizeWord(word)
-		if werr := CheckWord(word); werr != nil {
-			continue
+		if word := PrepareWord(string(buf), filter); word != "" {
+			s = append(s, word)
 		}
-
-		if filter != nil && !filter(word) {
-			continue
-		}
-
-		s = append(s, word)
 	}
 
 	return

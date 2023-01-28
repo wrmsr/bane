@@ -1,6 +1,7 @@
 //
 /*
 TODO:
+ - !! free chars - special chars are pre-filled
  - bitmask chars
 */
 package birdle
