@@ -3,7 +3,7 @@ package os
 import (
 	"os"
 
-	"github.com/wrmsr/bane/pkg/util/check"
+	eu "github.com/wrmsr/bane/pkg/util/errors"
 	"github.com/wrmsr/bane/pkg/util/maps"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -20,24 +20,30 @@ func GetEnvs(ks []string) map[string]bt.Optional[string] {
 	return m
 }
 
-func SetEnvs(m map[string]bt.Optional[string]) {
+func SetEnvs(m map[string]bt.Optional[string]) (err error) {
 	for k, v := range m {
 		if v.Present() {
-			check.Must(os.Setenv(k, v.Value()))
+			err = eu.Append(err, os.Setenv(k, v.Value()))
 		} else {
-			check.Must(os.Unsetenv(k))
+			err = eu.Append(err, os.Unsetenv(k))
 		}
 	}
+	return
 }
 
-func SwapEnvs(m map[string]bt.Optional[string]) func() {
+func SwapEnvs(m map[string]bt.Optional[string]) (bt.ErrFn, error) {
 	if m == nil || len(m) < 1 {
-		return func() {}
+		return func() error { return nil }, nil
 	}
 
 	o := GetEnvs(maps.Keys(m))
-	SetEnvs(m)
-	return func() {
-		SetEnvs(o)
+
+	err := SetEnvs(m)
+	if err != nil {
+		return nil, err
 	}
+
+	return func() error {
+		return SetEnvs(o)
+	}, nil
 }
