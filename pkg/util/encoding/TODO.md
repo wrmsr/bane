@@ -1,10 +1,13 @@
 - marshal interop
 - yaml rewrite
-- cbor
-- csv
-- hocon
+- cbor - https://cbor.io/spec.html
+- csv - https://github.com/golang/go/tree/master/src/encoding/csv - more options
 - dhall?
-- pickle
+- pickle? - https://github.com/python/cpython/blob/3.11/Lib/pickle.py
 - j* properties files
-- smile?
-- pickle lol
+
+- muh
+  - edn? lol
+  - smile? - https://github.com/FasterXML/smile-format-specification/blob/master/smile-specification.md
+  - bson
+  - msgpack
