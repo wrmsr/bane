@@ -1,3 +1,4 @@
 - type Reflection struct {}; type Mirror interface {Reflect(ty reflect.Type) opt.Optional[Reflection]}
 - type Type[T] struct { ty reflect.Type }, w/ type bound?
 - deep equals / diff - https://github.com/go-test/deep
+- repr / parse

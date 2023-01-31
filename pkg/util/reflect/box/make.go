@@ -5,6 +5,8 @@ import (
 	"reflect"
 )
 
+//
+
 func BoxType(t reflect.Type) Type {
 	switch t.Kind() {
 
@@ -71,6 +73,11 @@ func BoxType(t reflect.Type) Type {
 
 	}
 	panic(fmt.Errorf("unhandled type: %v", t))
+}
+
+func BoxTypeOf[T any]() Type {
+	var z T
+	return BoxType(reflect.TypeOf(z))
 }
 
 //
@@ -141,4 +148,8 @@ func Box(v reflect.Value) Value {
 
 	}
 	panic(fmt.Errorf("unhandled value: %v", v))
+}
+
+func BoxOf[T any](v T) Value {
+	return Box(reflect.ValueOf(v))
 }
