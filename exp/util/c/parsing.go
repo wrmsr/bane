@@ -615,6 +615,10 @@ func (v *parseVisitor) VisitTypeName(ctx *parser.TypeNameContext) any {
 
 func (v *parseVisitor) VisitAbstractDeclarator(ctx *parser.AbstractDeclaratorContext) any {
 	if dad := ctx.DirectAbstractDeclarator(); dad != nil {
+		if gdes := ctx.AllGccDeclaratorExtension(); len(gdes) > 0 {
+			panic(gdes)
+		}
+		_ = v.Visit(dad)
 		panic(dad)
 	} else {
 		pn := v.Visit(ctx.Pointer()).(Pointer)
@@ -655,7 +659,12 @@ func (v *parseVisitor) VisitRecStaticTypeQualifierListDirectAbstractDeclarator(c
 }
 
 func (v *parseVisitor) VisitRecParameterTypeListDirectAbstractDeclarator(ctx *parser.RecParameterTypeListDirectAbstractDeclaratorContext) any {
-	panic("implement me")
+	if gces := ctx.AllGccDeclaratorExtension(); len(gces) > 0 {
+		panic(gces)
+	}
+	d := v.Visit(ctx.DirectAbstractDeclarator()).(Declarator)
+	ps := v.Visit(ctx.ParameterTypeList()).(ParameterList)
+	return ParameterListDeclarator{D: d, Ps: ps}
 }
 
 func (v *parseVisitor) VisitRecTypeQualifierListDirectAbstractDeclarator(ctx *parser.RecTypeQualifierListDirectAbstractDeclaratorContext) any {
