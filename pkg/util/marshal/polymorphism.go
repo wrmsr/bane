@@ -5,7 +5,6 @@ import (
 	"reflect"
 
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
-	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -173,20 +172,23 @@ func getRegistryPolymorphismImpls(r *Registry, ty reflect.Type) []SetImpl {
 	var ris []SetImpl
 	var rec func(reflect.Type)
 	rec = func(ty reflect.Type) {
-		tr := r.Get(ty)
-		if tr == nil {
+		s := r.Get(ty)
+		if len(s) < 1 {
 			return
 		}
 
-		ris = append(ris, slices.Cast[RegistryItem, SetImpl](tr.Get(_setImplTy))...)
+		for _, e := range s {
+			if ri, ok := e.(SetImpl); ok {
+				ris = append(ris, ri)
+			}
+		}
 
-		if his := tr.Get(_inheritImplsTy); len(his) > 0 {
-			for _, h_ := range his {
-				h := h_.(InheritImpls)
-				if h.Iface.Kind() != reflect.Interface {
-					panic(fmt.Errorf("inherits must be interfaces: %s <- %s", h.Iface, ty))
+		for _, e := range s {
+			if hi, ok := e.(InheritImpls); ok {
+				if hi.Iface.Kind() != reflect.Interface {
+					panic(fmt.Errorf("inherits must be interfaces: %s <- %s", hi.Iface, ty))
 				}
-				rec(h.Iface)
+				rec(hi.Iface)
 			}
 		}
 	}

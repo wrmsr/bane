@@ -14,27 +14,20 @@ type RegistryItem interface {
 
 //
 
-type TypeRegistry struct {
+type typeRegistry struct {
 	ty reflect.Type
+	s  []RegistryItem
 	m  map[reflect.Type][]RegistryItem
 }
 
-func (tr *TypeRegistry) Type() reflect.Type { return tr.ty }
-
-func (tr *TypeRegistry) Get(ity reflect.Type) []RegistryItem {
-	return tr.m[ity]
-}
-
-//
-
 type Registry struct {
-	m  map[reflect.Type]*TypeRegistry
+	m  map[reflect.Type]*typeRegistry
 	ps []*Registry
 }
 
 func NewRegistry(parents []*Registry) *Registry {
 	return &Registry{
-		m: make(map[reflect.Type]*TypeRegistry),
+		m: make(map[reflect.Type]*typeRegistry),
 
 		ps: parents,
 	}
@@ -43,7 +36,7 @@ func NewRegistry(parents []*Registry) *Registry {
 func (r *Registry) Register(ty reflect.Type, items ...RegistryItem) *Registry {
 	ti := r.m[ty]
 	if ti == nil {
-		ti = &TypeRegistry{
+		ti = &typeRegistry{
 			ty: ty,
 			m:  make(map[reflect.Type][]RegistryItem),
 		}
@@ -52,14 +45,19 @@ func (r *Registry) Register(ty reflect.Type, items ...RegistryItem) *Registry {
 
 	for _, i := range items {
 		ity := reflect.TypeOf(i)
+		ti.s = append(ti.s, i)
 		ti.m[ity] = append(ti.m[ity], i)
 	}
 
 	return r
 }
 
-func (r *Registry) Get(ty reflect.Type) *TypeRegistry {
-	return r.m[ty]
+func (r *Registry) Get(ty reflect.Type) []RegistryItem {
+	e := r.m[ty]
+	if e == nil {
+		return nil
+	}
+	return e.s
 }
 
 func (r *Registry) GetOf(ty, ity reflect.Type) []RegistryItem {
