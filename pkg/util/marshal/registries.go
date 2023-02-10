@@ -43,6 +43,7 @@ func (r *Registry) Register(ty reflect.Type, items ...RegistryItem) *Registry {
 		r.m[ty] = ti
 	}
 
+	// FIXME: copy-on-write
 	for _, i := range items {
 		ity := reflect.TypeOf(i)
 		ti.s = append(ti.s, i)
