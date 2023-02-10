@@ -1,9 +1,9 @@
 package marshal
 
 import (
-	"fmt"
 	"reflect"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -40,14 +40,8 @@ var optionalMarshalerFactory = NewFuncFactory(func(ctx MarshalContext, ty reflec
 		return nil, nil
 	}
 
-	irv := reflect.New(ty).Interface()
-	aov := irv.(bt.AnyOptional)
-	av := aov.Interface()
-	fmt.Println(av)
-	ety := aov.Type()
-	if ety == nil {
-		panic("?")
-	}
+	ety := reflect.New(ty).Interface().(bt.AnyOptional).Type()
+	check.NotNil(ety)
 	elem, err := ctx.Make(ctx, ety)
 	if err != nil {
 		return nil, err
@@ -99,7 +93,8 @@ var optionalUnmarshalerFactory = NewFuncFactory(func(ctx UnmarshalContext, ty re
 		return nil, nil
 	}
 
-	ety := reflect.TypeOf(reflect.New(ty).Interface().(bt.AnyOptional).ZeroInterface())
+	ety := reflect.New(ty).Interface().(bt.AnyOptional).Type()
+	check.NotNil(ety)
 	elem, err := ctx.Make(ctx, ety)
 	if err != nil {
 		return nil, err
