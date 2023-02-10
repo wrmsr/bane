@@ -12,6 +12,8 @@ import (
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
+//
+
 func TestOptionals(t *testing.T) {
 	m := NewOptionalMarshaler(rfl.TypeOf[bt.Optional[int]](), PrimitiveMarshaler{})
 	u := NewOptionalUnmarshaler(rfl.TypeOf[bt.Optional[int]](), NewConvertUnmarshaler(rfl.TypeOf[int](), PrimitiveUnmarshaler{}))
@@ -55,6 +57,8 @@ func TestOptionalsFactory(t *testing.T) {
 	}
 }
 
+//
+
 type withOptInt struct {
 	I bt.Optional[int]
 }
@@ -74,9 +78,28 @@ type withOptInt1 struct {
 func TestTypeAliasOptional(t *testing.T) {
 	for _, v := range []any{
 		withOptInt{},
+		withOptInt0{},
+		withOptInt1{},
 	} {
 		m := check.Must1(Marshal(v))
 		j := string(check.Must1(json.Marshal(m)))
 		fmt.Println(j)
 	}
+}
+
+//
+
+type someOptIface interface {
+	isSomeOptIface()
+}
+
+type withOptIface struct {
+	O bt.Optional[someOptIface]
+}
+
+func TestOptionalInterface(t *testing.T) {
+	v := withOptIface{}
+	m := check.Must1(Marshal(v))
+	j := string(check.Must1(json.Marshal(m)))
+	fmt.Println(j)
 }

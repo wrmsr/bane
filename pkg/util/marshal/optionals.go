@@ -39,7 +39,10 @@ var optionalMarshalerFactory = NewFuncFactory(func(ctx MarshalContext, ty reflec
 		return nil, nil
 	}
 
-	ety := reflect.TypeOf(reflect.New(ty).Interface().(bt.AnyOptional).ZeroInterface())
+	irv := reflect.New(ty).Interface()
+	aov := irv.(bt.AnyOptional)
+	zv := aov.ZeroInterface()
+	ety := reflect.TypeOf(zv)
 	if ety == nil {
 		panic("?")
 	}
