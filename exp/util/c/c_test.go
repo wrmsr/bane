@@ -5,6 +5,9 @@ import (
 	"testing"
 
 	antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"
+	"github.com/wrmsr/bane/pkg/util/check"
+	ju "github.com/wrmsr/bane/pkg/util/json"
+	msh "github.com/wrmsr/bane/pkg/util/marshal"
 
 	"github.com/wrmsr/bane/exp/util/c/parser"
 	antlru "github.com/wrmsr/bane/pkg/util/antlr"
@@ -172,8 +175,8 @@ func TestC(t *testing.T) {
 		s   string
 		pfn func(p *parser.CParser) antlr.ParseTree
 	}{
-		//{`1`, ex},
-		//{`int`, ts},
+		{`1`, ex},
+		{`int`, ts},
 		//{`int foo(int x) {
 		//	return x;
 		//}`, cu},
@@ -400,12 +403,11 @@ void sqlite3BtreeClearCache(Btree*);
 		nn = n.(Node)
 		fmt.Println(nn)
 
-		//m := check.Must1(msh.Marshal(&nn))
-		//fmt.Println(check.Must1(ju.MarshalPretty(m)))
-		//
-		//var nn2 Node
-		//check.Must(msh.Unmarshal(m, &nn2))
-		//fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&nn2)))))
+		m := check.Must1(msh.Marshal(&nn))
+		fmt.Println(check.Must1(ju.MarshalPretty(m)))
+		var nn2 Node
+		check.Must(msh.Unmarshal(m, &nn2))
+		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&nn2)))))
 
 		fmt.Println()
 	}

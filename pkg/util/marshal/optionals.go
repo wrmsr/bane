@@ -21,7 +21,8 @@ func NewOptionalMarshaler(ty reflect.Type, elem Marshaler) OptionalMarshaler {
 var _ Marshaler = OptionalMarshaler{}
 
 func (m OptionalMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
-	o := rv.Interface().(bt.AnyOptional)
+	iv := rv.Interface()
+	o := iv.(bt.AnyOptional)
 	if !o.Present() {
 		return _nullValue, nil
 	}
@@ -39,6 +40,9 @@ var optionalMarshalerFactory = NewFuncFactory(func(ctx MarshalContext, ty reflec
 	}
 
 	ety := reflect.TypeOf(reflect.New(ty).Interface().(bt.AnyOptional).ZeroInterface())
+	if ety == nil {
+		panic("?")
+	}
 	elem, err := ctx.Make(ctx, ety)
 	if err != nil {
 		return nil, err

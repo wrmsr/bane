@@ -1,6 +1,8 @@
 package marshal
 
 import (
+	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -50,5 +52,31 @@ func TestOptionalsFactory(t *testing.T) {
 		mv := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(v)))
 		v2 := check.Must1(u.Unmarshal(UnmarshalContext{}, mv)).Interface().(bt.Optional[int])
 		tu.AssertDeepEqual(t, v, v2)
+	}
+}
+
+type withOptInt struct {
+	I bt.Optional[int]
+}
+
+type optInt0 = bt.Optional[int]
+
+type withOptInt0 struct {
+	I optInt0
+}
+
+type optInt1 bt.Optional[int]
+
+type withOptInt1 struct {
+	I optInt1
+}
+
+func TestTypeAliasOptional(t *testing.T) {
+	for _, v := range []any{
+		withOptInt{},
+	} {
+		m := check.Must1(Marshal(v))
+		j := string(check.Must1(json.Marshal(m)))
+		fmt.Println(j)
 	}
 }
