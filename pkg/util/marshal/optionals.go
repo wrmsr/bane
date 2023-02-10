@@ -1,6 +1,7 @@
 package marshal
 
 import (
+	"fmt"
 	"reflect"
 
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
@@ -41,8 +42,9 @@ var optionalMarshalerFactory = NewFuncFactory(func(ctx MarshalContext, ty reflec
 
 	irv := reflect.New(ty).Interface()
 	aov := irv.(bt.AnyOptional)
-	zv := aov.ZeroInterface()
-	ety := reflect.TypeOf(zv)
+	av := aov.Interface()
+	fmt.Println(av)
+	ety := aov.Type()
 	if ety == nil {
 		panic("?")
 	}

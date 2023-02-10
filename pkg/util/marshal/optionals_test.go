@@ -93,13 +93,29 @@ type someOptIface interface {
 	isSomeOptIface()
 }
 
+type someOptIfaceA struct{}
+type someOptIfaceB struct{}
+
+func (s someOptIfaceA) isSomeOptIface() {}
+func (s someOptIfaceB) isSomeOptIface() {}
+
+var _ = RegisterTo[someOptIface](
+	SetImplOf[someOptIfaceA]("a"),
+	SetImplOf[someOptIfaceB]("b"),
+)
+
 type withOptIface struct {
 	O bt.Optional[someOptIface]
 }
 
 func TestOptionalInterface(t *testing.T) {
-	v := withOptIface{}
-	m := check.Must1(Marshal(v))
-	j := string(check.Must1(json.Marshal(m)))
-	fmt.Println(j)
+	for _, v := range []any{
+		withOptIface{},
+		withOptIface{O: bt.Just[someOptIface](someOptIfaceA{})},
+		withOptIface{O: bt.Just[someOptIface](someOptIfaceB{})},
+	} {
+		m := check.Must1(Marshal(v))
+		j := string(check.Must1(json.Marshal(m)))
+		fmt.Println(j)
+	}
 }

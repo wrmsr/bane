@@ -1,5 +1,7 @@
 package types
 
+import "reflect"
+
 //
 
 type NoValueError struct{}
@@ -93,6 +95,7 @@ type AnyOptional interface {
 	Present() bool
 	Interface() any
 	ZeroInterface() any
+	Type() reflect.Type
 	Replace(any) AnyOptional
 
 	isOptional()
@@ -109,6 +112,11 @@ func (o Optional[T]) Interface() any {
 func (o Optional[T]) ZeroInterface() any {
 	var z T
 	return z
+}
+
+func (o Optional[T]) Type() reflect.Type {
+	var z *T
+	return reflect.TypeOf(z).Elem()
 }
 
 func (o Optional[T]) Replace(v any) AnyOptional {
