@@ -1,7 +1,9 @@
 package marshal
 
 import (
+	"fmt"
 	"reflect"
+	"sync"
 
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
 )
@@ -21,8 +23,9 @@ type typeRegistry struct {
 }
 
 type Registry struct {
-	m  map[reflect.Type]*typeRegistry
-	ps []*Registry
+	mtx sync.Mutex
+	m   map[reflect.Type]*typeRegistry
+	ps  []*Registry
 }
 
 func NewRegistry(parents []*Registry) *Registry {
@@ -34,6 +37,9 @@ func NewRegistry(parents []*Registry) *Registry {
 }
 
 func (r *Registry) Register(ty reflect.Type, items ...RegistryItem) *Registry {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+
 	ti := r.m[ty]
 	if ti == nil {
 		ti = &typeRegistry{
@@ -43,18 +49,35 @@ func (r *Registry) Register(ty reflect.Type, items ...RegistryItem) *Registry {
 		r.m[ty] = ti
 	}
 
-	// FIXME: copy-on-write
-	for _, i := range items {
-		ity := reflect.TypeOf(i)
-		ti.s = append(ti.s, i)
-		ti.m[ity] = append(ti.m[ity], i)
+	so := len(ti.s)
+	s := make([]RegistryItem, so+len(items))
+	copy(s, ti.s)
+	copy(s[so:], items)
+	ti.s = s
+
+	cm := make(map[reflect.Type]int)
+	for _, e := range items {
+		ity := reflect.TypeOf(e)
+		cm[ity] = cm[ity] + 1
+	}
+	for ity, c := range cm {
+		s0 := ti.m[ity]
+		s1 := make([]RegistryItem, len(s0), len(s0)+c)
+		copy(s1, s0)
+		ti.m[ity] = s1
+	}
+	for _, e := range items {
+		ity := reflect.TypeOf(e)
+		ti.m[ity] = append(ti.m[ity], e)
 	}
 
 	return r
 }
 
 func (r *Registry) Get(ty reflect.Type) []RegistryItem {
+	r.mtx.Lock()
 	e := r.m[ty]
+	r.mtx.Unlock()
 	if e == nil {
 		return nil
 	}
@@ -62,7 +85,9 @@ func (r *Registry) Get(ty reflect.Type) []RegistryItem {
 }
 
 func (r *Registry) GetOf(ty, ity reflect.Type) []RegistryItem {
+	r.mtx.Lock()
 	e := r.m[ty]
+	r.mtx.Unlock()
 	if e == nil {
 		return nil
 	}
