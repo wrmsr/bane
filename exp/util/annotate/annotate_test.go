@@ -8,17 +8,49 @@ import (
 
 //
 
-type Annotator struct {}
+type Annotator interface {
+	Field(n string, anns ...any) Annotator
+	Method(n string, anns ...any) Annotator
+}
 
+type annotator struct {
+	ty reflect.Type
 
-//
+	s []any
 
-func Annotate(obj any, anns ...any) any {
-	fmt.Println(obj)
-	rv := reflect.ValueOf(obj)
-	fmt.Println(rv)
-	fmt.Println(rv.Type())
-	return nil
+	fm map[string][]any
+	mm map[string][]any
+}
+
+var _ Annotator = &annotator{}
+
+func Annotate[T any](anns ...any) Annotator {
+	var z T
+	ty := reflect.TypeOf(z)
+	if ty.Kind() != reflect.Struct {
+		panic(fmt.Errorf("must be struct: %v", ty))
+	}
+	return &annotator{
+		ty: ty,
+
+		s: anns,
+	}
+}
+
+func (a *annotator) Field(n string, anns ...any) Annotator {
+	if a.fm == nil {
+		a.fm = make(map[string][]any)
+	}
+	a.fm[n] = append(a.fm[n], anns...)
+	return a
+}
+
+func (a *annotator) Method(n string, anns ...any) Annotator {
+	if a.mm == nil {
+		a.mm = make(map[string][]any)
+	}
+	a.mm[n] = append(a.mm[n], anns...)
+	return a
 }
 
 //
@@ -34,9 +66,9 @@ type SomeStruct struct {
 
 func (s SomeStruct) SomeMethod() {}
 
-var _ = Annotate(SomeStruct{}, SomeAnn{})
-var _ = Annotate(SomeStruct{}.S, SomeAnn{})
-var _ = Annotate(SomeStruct{}.SomeMethod, SomeAnn{})
+var _ = Annotate[SomeStruct](SomeAnn{}).
+	Field("S", SomeAnn{}).
+	Method("SomeMethod", SomeAnn{})
 
 //
 

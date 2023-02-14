@@ -1,4 +1,6 @@
-- https://github.com/golang/go/issues/27597
+- https://github.com/golang/go/issues/23637
+  - https://github.com/golang/go/issues/27597
+  - https://github.com/golang/go/issues/20165
 
 - diff from text?
   - refs - refs to funcs, etc - will not compile if broken
