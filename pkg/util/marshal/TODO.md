@@ -5,7 +5,7 @@
 - 'auto-hierarchy' - default polymorphism tags
 - 'auto-factory' - arg names / types correspond to fields
     - correlate with getters
-- single mut lock, copy on write, update all at once
+- timed or nth accessed CoW cached type map
 - register warming types
 - case folding impl on ctxs
 - type-switched polymorphic - if only impls are a userstring and userint

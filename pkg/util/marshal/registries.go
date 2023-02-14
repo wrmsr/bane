@@ -1,7 +1,6 @@
 package marshal
 
 import (
-	"fmt"
 	"reflect"
 	"sync"
 
@@ -74,24 +73,24 @@ func (r *Registry) Register(ty reflect.Type, items ...RegistryItem) *Registry {
 	return r
 }
 
-func (r *Registry) Get(ty reflect.Type) []RegistryItem {
+func (r *Registry) Get(ty reflect.Type) (ret []RegistryItem) {
 	r.mtx.Lock()
 	e := r.m[ty]
-	r.mtx.Unlock()
-	if e == nil {
-		return nil
+	if e != nil {
+		ret = e.s
 	}
-	return e.s
+	r.mtx.Unlock()
+	return
 }
 
-func (r *Registry) GetOf(ty, ity reflect.Type) []RegistryItem {
+func (r *Registry) GetOf(ty, ity reflect.Type) (ret []RegistryItem) {
 	r.mtx.Lock()
 	e := r.m[ty]
-	r.mtx.Unlock()
-	if e == nil {
-		return nil
+	if e != nil {
+		ret = e.m[ity]
 	}
-	return e.m[ity]
+	r.mtx.Unlock()
+	return
 }
 
 ///
