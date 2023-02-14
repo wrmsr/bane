@@ -1,12 +1,23 @@
 package annotate
 
 import (
+	"fmt"
+	"reflect"
 	"testing"
 )
 
 //
 
+type Annotator struct {}
+
+
+//
+
 func Annotate(obj any, anns ...any) any {
+	fmt.Println(obj)
+	rv := reflect.ValueOf(obj)
+	fmt.Println(rv)
+	fmt.Println(rv.Type())
 	return nil
 }
 

@@ -1,3 +1,5 @@
+- https://github.com/golang/go/issues/27597
+
 - diff from text?
   - refs - refs to funcs, etc - will not compile if broken
 - iface:
@@ -9,9 +11,9 @@
 - j
   - Repeatable
   - ElementType
-    - TYPE
-    - FIELD
-    - METHOD
+    - TYPE +
+    - FIELD +
+    - METHOD +
     - PARAMETER
     - CONSTRUCTOR
     - LOCAL_VARIABLE
