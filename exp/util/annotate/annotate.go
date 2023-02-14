@@ -57,8 +57,8 @@ func Annotate[T any](anns ...any) Annotator {
 		}
 		_typeAnnotationsMap.m[ty] = ta
 	}
-
 	_typeAnnotationsMap.mtx.Unlock()
+
 	ta.mtx.Lock()
 	ta.s = append(ta.s, anns...)
 	ta.mtx.Unlock()
