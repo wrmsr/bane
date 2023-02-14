@@ -17,7 +17,7 @@ type SomeStruct struct {
 
 func (s SomeStruct) SomeMethod() {}
 
-var _ = Annotate[SomeStruct](SomeAnn{}).
+var _ = On[SomeStruct](SomeAnn{}).
 	Field("S", SomeAnn{}).
 	Method("SomeMethod", SomeAnn{})
 

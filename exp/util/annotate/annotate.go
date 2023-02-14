@@ -42,7 +42,7 @@ type annotator struct {
 
 var _ Annotator = &annotator{}
 
-func Annotate[T any](anns ...any) Annotator {
+func On[T any](anns ...any) Annotator {
 	var z T
 	ty := reflect.TypeOf(z)
 	if ty.Kind() != reflect.Struct {
