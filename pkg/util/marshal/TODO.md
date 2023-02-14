@@ -10,6 +10,7 @@
 - case folding impl on ctxs
 - type-switched polymorphic - if only impls are a userstring and userint
 - enum default omission
+- inject interop
 
 - ! streaming
 - (json) schematizing
