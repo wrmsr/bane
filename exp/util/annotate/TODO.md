@@ -1,0 +1,30 @@
+- diff from text?
+  - refs - refs to funcs, etc - will not compile if broken
+- iface:
+  - for def:
+    - package ->
+    - struct ->
+    - field
+
+- j
+  - Repeatable
+  - ElementType
+    - TYPE
+    - FIELD
+    - METHOD
+    - PARAMETER
+    - CONSTRUCTOR
+    - LOCAL_VARIABLE
+    - ANNOTATION_TYPE
+    - PACKAGE
+    - TYPE_PARAMETER
+    - TYPE_USE
+    - MODULE
+    - RECORD_COMPONENT
+  - Field types
+    - A primitive type
+    - String
+    - Class or an invocation of Class
+    - An enum class type
+    - An annotation interface type
+    - An array type whose component type is one of the preceding types

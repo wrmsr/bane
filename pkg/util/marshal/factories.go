@@ -58,16 +58,16 @@ type TypeCacheFactory[R, C any] struct {
 	m   map[reflect.Type]bt.Optional[R]
 }
 
-func NewTypeCacheFactory[R, C any](f Factory[R, C, reflect.Type]) TypeCacheFactory[R, C] {
-	return TypeCacheFactory[R, C]{
+func NewTypeCacheFactory[R, C any](f Factory[R, C, reflect.Type]) *TypeCacheFactory[R, C] {
+	return &TypeCacheFactory[R, C]{
 		f: f,
 		m: make(map[reflect.Type]bt.Optional[R]),
 	}
 }
 
-var _ Factory[int, uint, reflect.Type] = TypeCacheFactory[int, uint]{}
+var _ Factory[int, uint, reflect.Type] = &TypeCacheFactory[int, uint]{}
 
-func (f TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
+func (f *TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 	f.mtx.Lock()
 	if r, ok := f.m[a]; ok {
 		f.mtx.Unlock()
