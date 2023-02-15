@@ -85,17 +85,17 @@ type Basic struct {
 
 //
 
-type Type struct {
-	value
-	N string
-}
-
-//
-
 type Struct struct {
 	value
 	N string
 	M map[string]Value
+}
+
+//
+
+type Type struct {
+	value
+	N string
 }
 
 //
@@ -141,6 +141,21 @@ func mkValue(node ast.Node) Value {
 			N: n,
 			M: m,
 		}
+	case *ast.CallExpr:
+		if ie, ok := node.Fun.(*ast.IndexExpr); ok {
+			fn := ie.X.(*ast.Ident).Name
+			switch fn {
+			case "Type":
+				if len(node.Args) > 0 {
+					panic(node)
+				}
+				tn := ie.Index.(*ast.Ident).Name
+				return Type{
+					N: tn,
+				}
+			}
+			panic(ie)
+		}
 	}
 	panic(node)
 }
@@ -151,6 +166,7 @@ func TestStuff(t *testing.T) {
 		"\"foo\"",
 		"Foo{}",
 		"Foo{X: 420}",
+		"Type[Foo]()",
 	} {
 		a := check.Must1(parser.ParseExpr(s))
 
