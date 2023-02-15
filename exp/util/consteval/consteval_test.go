@@ -3,7 +3,6 @@
 https://github.com/golang/tools/tree/master/go/ssa/interp
 
 TODO:
- - array
  - map
  - break apart basic - parse all but float
  - ** call **
@@ -22,6 +21,10 @@ import (
 	ju "github.com/wrmsr/bane/pkg/util/json"
 	msh "github.com/wrmsr/bane/pkg/util/marshal"
 )
+
+//
+
+type TypeName string
 
 //
 
@@ -87,7 +90,7 @@ type Basic struct {
 
 type Struct struct {
 	value
-	N string
+	T TypeName
 	M map[string]Value
 }
 
@@ -95,15 +98,29 @@ type Struct struct {
 
 type Type struct {
 	value
-	N string
+	T TypeName
 }
 
 //
 
 type Array struct {
 	value
-	T string
+	T TypeName
 	S []Value
+}
+
+//
+
+type MapEntry struct {
+	K,
+	V Value
+}
+
+type Map struct {
+	value
+	KT,
+	VT TypeName
+	S []MapEntry
 }
 
 //
@@ -112,6 +129,8 @@ var _ = msh.RegisterTo[Value](
 	msh.SetImplOf[Basic](),
 	msh.SetImplOf[Type](),
 	msh.SetImplOf[Struct](),
+	msh.SetImplOf[Array](),
+	msh.SetImplOf[Map](),
 )
 
 var _ = msh.RegisterTo[BasicKind](
@@ -150,13 +169,23 @@ func mkValue(node ast.Node) Value {
 				}
 			}
 			return Struct{
-				N: tn.Name,
+				T: TypeName(tn.Name),
 				M: m,
 			}
 
 		case *ast.ArrayType:
-			panic(node)
-
+			t := tn.Elt.(*ast.Ident).Name
+			var s []Value
+			if len(node.Elts) > 0 {
+				s = make([]Value, len(node.Elts))
+				for i, e := range node.Elts {
+					s[i] = mkValue(e)
+				}
+			}
+			return Array{
+				T: TypeName(t),
+				S: s,
+			}
 		}
 
 	case *ast.CallExpr:
@@ -170,7 +199,7 @@ func mkValue(node ast.Node) Value {
 				}
 				tn := ie.Index.(*ast.Ident).Name
 				return Type{
-					N: tn,
+					T: TypeName(tn),
 				}
 
 			}
@@ -189,6 +218,7 @@ func TestStuff(t *testing.T) {
 		"Foo{X: 420}",
 		"Type[Foo]()",
 		"[]any{1,\"foo\"}",
+		"map[any]any{1:\"foo\", \"bar\": 420.0}",
 	} {
 		a := check.Must1(parser.ParseExpr(s))
 
