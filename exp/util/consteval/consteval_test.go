@@ -106,6 +106,16 @@ var _ = msh.RegisterTo[Value](
 	msh.SetImplOf[Struct](),
 )
 
+var _ = msh.RegisterTo[BasicKind](
+	msh.SetStringerEnumTypes(
+		IntBasic,
+		FloatBasic,
+		ImagBasic,
+		CharBasic,
+		StringBasic,
+	),
+)
+
 //
 
 func mkValue(node ast.Node) Value {
@@ -121,7 +131,10 @@ func mkValue(node ast.Node) Value {
 		if len(node.Elts) > 0 {
 			m = make(map[string]Value, len(node.Elts))
 			for _, e := range node.Elts {
-				panic(e)
+				kv := e.(*ast.KeyValueExpr)
+				k := kv.Key.(*ast.Ident).Name
+				v := mkValue(kv.Value)
+				m[k] = v
 			}
 		}
 		return Struct{
