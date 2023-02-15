@@ -1,6 +1,12 @@
 //
 /*
 https://github.com/golang/tools/tree/master/go/ssa/interp
+
+TODO:
+ - array
+ - map
+ - break apart basic - parse all but float
+ - ** call **
 */
 package consteval
 
@@ -109,6 +115,19 @@ func mkValue(node ast.Node) Value {
 			K: basicKindFromAst(node.Kind),
 			S: node.Value,
 		}
+	case *ast.CompositeLit:
+		n := node.Type.(*ast.Ident).Name
+		var m map[string]Value
+		if len(node.Elts) > 0 {
+			m = make(map[string]Value, len(node.Elts))
+			for _, e := range node.Elts {
+				panic(e)
+			}
+		}
+		return Struct{
+			N: n,
+			M: m,
+		}
 	}
 	panic(node)
 }
@@ -118,6 +137,7 @@ func TestStuff(t *testing.T) {
 		"5",
 		"\"foo\"",
 		"Foo{}",
+		"Foo{X: 420}",
 	} {
 		a := check.Must1(parser.ParseExpr(s))
 
