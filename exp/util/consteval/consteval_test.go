@@ -13,6 +13,8 @@ import (
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	ju "github.com/wrmsr/bane/pkg/util/json"
+	msh "github.com/wrmsr/bane/pkg/util/marshal"
 )
 
 //
@@ -92,6 +94,14 @@ type Struct struct {
 
 //
 
+var _ = msh.RegisterTo[Value](
+	msh.SetImplOf[Basic](),
+	msh.SetImplOf[Type](),
+	msh.SetImplOf[Struct](),
+)
+
+//
+
 func mkValue(node ast.Node) Value {
 	switch node := node.(type) {
 	case *ast.BasicLit:
@@ -104,20 +114,28 @@ func mkValue(node ast.Node) Value {
 }
 
 func TestStuff(t *testing.T) {
-	a := check.Must1(parser.ParseExpr("\"foo\""))
+	for _, s := range []string{
+		"5",
+		"\"foo\"",
+		"Foo{}",
+	} {
+		a := check.Must1(parser.ParseExpr(s))
 
-	_ = ast.Fprint(os.Stdout, nil, a, nil)
+		_ = ast.Fprint(os.Stdout, nil, a, nil)
 
-	v := mkValue(a)
-	fmt.Println(v)
+		v := mkValue(a)
+		fmt.Println(v)
 
-	//ast.Inspect(a, func(node ast.Node) bool {
-	//	switch node := node.(type) {
-	//	case *ast.BasicLit:
-	//
-	//	default:
-	//		panic(node)
-	//	}
-	//	return true
-	//})
+		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))
+
+		//ast.Inspect(a, func(node ast.Node) bool {
+		//	switch node := node.(type) {
+		//	case *ast.BasicLit:
+		//
+		//	default:
+		//		panic(node)
+		//	}
+		//	return true
+		//})
+	}
 }

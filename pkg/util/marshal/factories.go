@@ -68,15 +68,15 @@ func NewTypeCacheFactory[R, C any](f Factory[R, C, reflect.Type]) *TypeCacheFact
 var _ Factory[int, uint, reflect.Type] = &TypeCacheFactory[int, uint]{}
 
 func (f *TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
-	f.mtx.Lock()
+	//FIXME: RLock :|||
+	//f.mtx.Lock()
+	//defer f.mtx.Unlock()
 	if r, ok := f.m[a]; ok {
-		f.mtx.Unlock()
 		return r.OrZero(), nil
 	}
 	r, err := f.f.Make(ctx, a)
 	if err != nil {
 		var z R
-		f.mtx.Unlock()
 		return z, err
 	}
 	if !reflect.ValueOf(r).IsValid() {
@@ -84,7 +84,6 @@ func (f *TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 	} else {
 		f.m[a] = bt.Just(r)
 	}
-	f.mtx.Unlock()
 	return r, nil
 }
 
