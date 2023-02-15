@@ -100,6 +100,14 @@ type Type struct {
 
 //
 
+type Array struct {
+	value
+	T string
+	S []Value
+}
+
+//
+
 var _ = msh.RegisterTo[Value](
 	msh.SetImplOf[Basic](),
 	msh.SetImplOf[Type](),
@@ -120,31 +128,42 @@ var _ = msh.RegisterTo[BasicKind](
 
 func mkValue(node ast.Node) Value {
 	switch node := node.(type) {
+
 	case *ast.BasicLit:
 		return Basic{
 			K: basicKindFromAst(node.Kind),
 			S: node.Value,
 		}
+
 	case *ast.CompositeLit:
-		n := node.Type.(*ast.Ident).Name
-		var m map[string]Value
-		if len(node.Elts) > 0 {
-			m = make(map[string]Value, len(node.Elts))
-			for _, e := range node.Elts {
-				kv := e.(*ast.KeyValueExpr)
-				k := kv.Key.(*ast.Ident).Name
-				v := mkValue(kv.Value)
-				m[k] = v
+		switch tn := node.Type.(type) {
+
+		case *ast.Ident:
+			var m map[string]Value
+			if len(node.Elts) > 0 {
+				m = make(map[string]Value, len(node.Elts))
+				for _, e := range node.Elts {
+					kv := e.(*ast.KeyValueExpr)
+					k := kv.Key.(*ast.Ident).Name
+					v := mkValue(kv.Value)
+					m[k] = v
+				}
 			}
+			return Struct{
+				N: tn.Name,
+				M: m,
+			}
+
+		case *ast.ArrayType:
+			panic(node)
+
 		}
-		return Struct{
-			N: n,
-			M: m,
-		}
+
 	case *ast.CallExpr:
 		if ie, ok := node.Fun.(*ast.IndexExpr); ok {
 			fn := ie.X.(*ast.Ident).Name
 			switch fn {
+
 			case "Type":
 				if len(node.Args) > 0 {
 					panic(node)
@@ -153,9 +172,11 @@ func mkValue(node ast.Node) Value {
 				return Type{
 					N: tn,
 				}
+
 			}
 			panic(ie)
 		}
+
 	}
 	panic(node)
 }
@@ -167,6 +188,7 @@ func TestStuff(t *testing.T) {
 		"Foo{}",
 		"Foo{X: 420}",
 		"Type[Foo]()",
+		"[]any{1,\"foo\"}",
 	} {
 		a := check.Must1(parser.ParseExpr(s))
 
