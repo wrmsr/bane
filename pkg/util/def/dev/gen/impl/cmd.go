@@ -13,7 +13,7 @@ func Run(cwd string) string {
 	pps := ParsePackages(cwd)
 	pkg := check.Single(pps.Pkgs)
 
-	pkgDefs := make([]def.PackageDef, 0)
+	var pkgDefs []def.PackageDef
 	for _, fil := range pkg.Syntax {
 		//_ = ast.Fprint(os.Stdout, pkg.Fset, fil, nil)
 		//_ = printer.Fprint(os.Stdout, pkg.Fset, fil)

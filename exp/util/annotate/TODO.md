@@ -10,6 +10,12 @@
     - struct ->
     - field
 
+- field types:
+  - primitive
+  - type: SomeStruct{}
+    - validate all vals are default?
+  - func: someFunc, SomeStruct.someMethod
+
 - j
   - Repeatable
   - ElementType
