@@ -146,7 +146,23 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 		}
 
 	case *ast.Ident:
-		panic(n)
+		iv := e.m[n.Name]
+		if iv == nil {
+			return nil, IdentError{N: n.Name}
+		}
+
+		if v2, ok := iv.(Value); ok {
+			return v2, nil
+		}
+
+		rv, err := e.Reduce(iv)
+		if err != nil {
+			e.m[n.Name] = err
+			return nil, err
+		}
+		v2 := rv.(Value)
+		e.m[n.Name] = v2
+		return v2, nil
 
 	}
 	return Dynamic{}, nil

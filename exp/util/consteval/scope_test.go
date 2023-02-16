@@ -88,8 +88,8 @@ package foo
 const foo = 10
 const bar = foo
 var a = []any{foo, bar}
-var m = map[any]any{"F": foo, "B": bar}
-var baz = Brax{F: foo, B: bar}
+var m = map[any]any{"F": foo, "B": bar, "A": a}
+var baz = Brax{F: foo, B: bar, A: a, M: m}
 `
 
 	const mode = parser.AllErrors
@@ -107,6 +107,6 @@ var baz = Brax{F: foo, B: bar}
 		}
 	}
 
-	v := check.Must1(s.Reduce(&ast.Ident{Name: "foo"}))
+	v := check.Must1(s.Reduce(&ast.Ident{Name: "baz"}))
 	fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))
 }
