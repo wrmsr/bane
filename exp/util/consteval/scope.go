@@ -27,6 +27,10 @@ func (e *Scope) Reduce(o any) (Value, error) {
 		o = Ident{N: s}
 	}
 
+	if v, ok := o.(Value); ok {
+		return v, nil
+	}
+
 	if err, ok := o.(error); ok {
 		return nil, err
 	}
@@ -51,6 +55,8 @@ func (e *Scope) Reduce(o any) (Value, error) {
 			}
 			e.m[v.N] = v2
 			return v2, nil
+
+		case Array:
 
 		default:
 			return v, nil

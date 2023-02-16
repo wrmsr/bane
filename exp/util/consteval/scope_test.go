@@ -5,7 +5,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"os"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -40,13 +39,15 @@ package foo
 
 const foo = 10
 const bar = foo
+var a = []any{foo, bar}
+var m = map[any]any{"F": foo, "B": bar}
 var baz = Brax{F: foo, B: bar}
 `
 
 	const mode = parser.AllErrors
 	var fset token.FileSet
 	fil := check.Must1(parser.ParseFile(&fset, "", src, mode))
-	_ = ast.Fprint(os.Stdout, nil, fil, nil)
+	//_ = ast.Fprint(os.Stdout, nil, fil, nil)
 
 	s := &Scope{
 		m: make(map[string]any),
@@ -60,6 +61,6 @@ var baz = Brax{F: foo, B: bar}
 		}
 	}
 
-	v := check.Must1(s.Reduce("baz"))
+	v := check.Must1(s.Reduce("a"))
 	fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))
 }
