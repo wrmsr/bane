@@ -10,11 +10,13 @@ import (
 )
 
 func TestEval(t *testing.T) {
-	e := &Evaluator{
-		scope: make(map[string]Value),
+	s := &Scope{
+		m: map[string]any{
+			"foo": Basic{K: IntBasic, S: "420"},
+			"bar": Ident{N: "foo"},
+		},
 	}
 
-	iv := Basic{K: IntBasic, S: "420"}
-	ov := e.Eval(iv)
+	ov := check.Must1(s.Reduce("foo"))
 	fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&ov)))))
 }
