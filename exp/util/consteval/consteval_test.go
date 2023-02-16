@@ -4,6 +4,7 @@ https://github.com/golang/tools/tree/master/go/ssa/interp
 
 TODO:
  - ** call **
+ - func Const[T any](v T) { return v } ?
 */
 package consteval
 
@@ -130,6 +131,12 @@ type Ident struct {
 
 //
 
+type Dynamic struct {
+	value
+}
+
+//
+
 var _ = msh.RegisterTo[Value](
 	msh.SetImplOf[Basic](),
 	msh.SetImplOf[Type](),
@@ -137,6 +144,7 @@ var _ = msh.RegisterTo[Value](
 	msh.SetImplOf[Array](),
 	msh.SetImplOf[Map](),
 	msh.SetImplOf[Ident](),
+	msh.SetImplOf[Dynamic](),
 )
 
 var _ = msh.RegisterTo[BasicKind](
@@ -231,7 +239,7 @@ func ValueFromAst(node ast.Node) Value {
 				}
 
 			}
-			panic(ie)
+			break
 		}
 
 	case *ast.Ident:
@@ -240,7 +248,7 @@ func ValueFromAst(node ast.Node) Value {
 		}
 
 	}
-	panic(node)
+	return Dynamic{}
 }
 
 func TestStuff(t *testing.T) {
@@ -279,9 +287,13 @@ func TestBigStuff(t *testing.T) {
 package foo
 
 const foo = 10
+
+func bar() int {
+	return 420
+}
 `
 
-	const mode = parser.AllErrors | parser.ParseComments
+	const mode = parser.AllErrors
 	var fset token.FileSet
 	a := check.Must1(parser.ParseFile(&fset, "", src, mode))
 	_ = ast.Fprint(os.Stdout, nil, a, nil)
