@@ -143,7 +143,7 @@ var _ = msh.RegisterTo[BasicKind](
 
 //
 
-func mkValue(node ast.Node) Value {
+func ValueFromAst(node ast.Node) Value {
 	switch node := node.(type) {
 
 	case *ast.BasicLit:
@@ -162,7 +162,7 @@ func mkValue(node ast.Node) Value {
 				for _, e := range node.Elts {
 					kv := e.(*ast.KeyValueExpr)
 					k := kv.Key.(*ast.Ident).Name
-					v := mkValue(kv.Value)
+					v := ValueFromAst(kv.Value)
 					m[k] = v
 				}
 			}
@@ -177,7 +177,7 @@ func mkValue(node ast.Node) Value {
 			if len(node.Elts) > 0 {
 				s = make([]Value, len(node.Elts))
 				for i, e := range node.Elts {
-					s[i] = mkValue(e)
+					s[i] = ValueFromAst(e)
 				}
 			}
 			return Array{
@@ -193,8 +193,8 @@ func mkValue(node ast.Node) Value {
 				s = make([]MapEntry, len(node.Elts))
 				for i, e := range node.Elts {
 					kve := e.(*ast.KeyValueExpr)
-					k := mkValue(kve.Key)
-					v := mkValue(kve.Value)
+					k := ValueFromAst(kve.Key)
+					v := ValueFromAst(kve.Value)
 					s[i] = MapEntry{
 						K: k,
 						V: v,
@@ -244,7 +244,7 @@ func TestStuff(t *testing.T) {
 
 		//_ = ast.Fprint(os.Stdout, nil, a, nil)
 
-		v := mkValue(a)
+		v := ValueFromAst(a)
 
 		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))
 
