@@ -40,6 +40,7 @@ package foo
 
 const foo = 10
 const bar = foo
+var baz = Brax{F: foo, B: bar}
 `
 
 	const mode = parser.AllErrors
@@ -59,6 +60,6 @@ const bar = foo
 		}
 	}
 
-	v := check.Must1(s.Reduce("bar"))
+	v := check.Must1(s.Reduce("baz"))
 	fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))
 }
