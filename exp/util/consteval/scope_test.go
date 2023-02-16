@@ -72,15 +72,6 @@ func TestEval(t *testing.T) {
 	fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&ov)))))
 }
 
-func findValueSpecExpr(vs *ast.ValueSpec, n string) ast.Expr {
-	for i, vn := range vs.Names {
-		if vn.Name == n {
-			return vs.Values[i]
-		}
-	}
-	return nil
-}
-
 func TestScopeFile(t *testing.T) {
 	src := `
 package foo
@@ -97,15 +88,7 @@ var baz = Brax{F: foo, B: bar, A: a, M: m}
 	fil := check.Must1(parser.ParseFile(&fset, "", src, mode))
 	//_ = ast.Fprint(os.Stdout, nil, fil, nil)
 
-	s := &Scope{
-		m: make(map[string]any),
-	}
-	for n, obj := range fil.Scope.Objects {
-		switch obj.Kind {
-		case ast.Con, ast.Var:
-			s.m[n] = findValueSpecExpr(obj.Decl.(*ast.ValueSpec), obj.Name)
-		}
-	}
+	s := ScopeFromAst(fil.Scope)
 
 	v := check.Must1(s.Reduce(&ast.Ident{Name: "baz"}))
 	fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))

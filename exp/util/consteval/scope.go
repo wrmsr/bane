@@ -33,6 +33,28 @@ type Scope struct {
 	//p *Scope
 }
 
+func findValueSpecExpr(vs *ast.ValueSpec, n string) ast.Expr {
+	for i, vn := range vs.Names {
+		if vn.Name == n {
+			return vs.Values[i]
+		}
+	}
+	return nil
+}
+
+func ScopeFromAst(a *ast.Scope) *Scope {
+	s := &Scope{
+		m: make(map[string]any),
+	}
+	for n, obj := range a.Objects {
+		switch obj.Kind {
+		case ast.Con, ast.Var:
+			s.m[n] = findValueSpecExpr(obj.Decl.(*ast.ValueSpec), obj.Name)
+		}
+	}
+	return s
+}
+
 func (e *Scope) Reduce(o any) (Value, error) {
 	if v, ok := o.(Value); ok {
 		return v, nil
