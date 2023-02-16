@@ -3,7 +3,6 @@
 https://github.com/golang/tools/tree/master/go/ssa/interp
 
 TODO:
- - map
  - break apart basic - parse all but float
  - ** call **
 */
