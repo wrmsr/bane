@@ -3,7 +3,6 @@
 https://github.com/golang/tools/tree/master/go/ssa/interp
 
 TODO:
- - break apart basic - parse all but float
  - ** call **
 */
 package consteval
