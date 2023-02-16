@@ -105,14 +105,6 @@ type Map struct {
 
 //
 
-type Ident struct {
-	value
-	N string
-}
-
-//
-
 type Dynamic struct {
 	value
 }
-

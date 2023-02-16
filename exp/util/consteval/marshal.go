@@ -8,7 +8,6 @@ var _ = msh.RegisterTo[Value](
 	msh.SetImplOf[Struct](),
 	msh.SetImplOf[Array](),
 	msh.SetImplOf[Map](),
-	msh.SetImplOf[Ident](),
 	msh.SetImplOf[Dynamic](),
 )
 
