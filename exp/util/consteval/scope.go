@@ -16,31 +16,17 @@ func (e IdentError) Error() string {
 
 type Scope struct {
 	m map[string]any // Value | ast.Node | error
-	p *Scope
+	//p *Scope
 }
-
-/*
-func (e *Scope) Eval(v Value) (Value, error) {
-	switch v := v.(type) {
-
-	case Basic:
-		return v, nil
-
-	case Ident:
-		if v2, ok := e.m[v.N]; ok {
-			return v2.(Value), nil
-		}
-		return nil, IdentError{N: v.N}
-
-	}
-	panic(v)
-}
-*/
 
 func (e *Scope) Reduce(n string) (Value, error) {
 	s, ok := e.m[n]
 	if !ok {
 		return nil, IdentError{N: n}
+	}
+
+	if err, ok := s.(error); ok {
+		return nil, err
 	}
 
 	if i, ok := s.(Ident); ok {
