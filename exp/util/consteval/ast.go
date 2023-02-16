@@ -5,6 +5,7 @@ https://github.com/golang/tools/tree/master/go/ssa/interp
 TODO:
  - ** call **
  - func Const[T any](v T) { return v } ?
+  - if consteval then _no_ as running funcs lol
 */
 package consteval
 
