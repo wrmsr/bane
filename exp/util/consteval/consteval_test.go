@@ -122,12 +122,20 @@ type Map struct {
 
 //
 
+type Ident struct {
+	value
+	N string
+}
+
+//
+
 var _ = msh.RegisterTo[Value](
 	msh.SetImplOf[Basic](),
 	msh.SetImplOf[Type](),
 	msh.SetImplOf[Struct](),
 	msh.SetImplOf[Array](),
 	msh.SetImplOf[Map](),
+	msh.SetImplOf[Ident](),
 )
 
 var _ = msh.RegisterTo[BasicKind](
@@ -225,6 +233,11 @@ func ValueFromAst(node ast.Node) Value {
 			panic(ie)
 		}
 
+	case *ast.Ident:
+		return Ident{
+			N: node.Name,
+		}
+
 	}
 	panic(node)
 }
@@ -238,6 +251,7 @@ func TestStuff(t *testing.T) {
 		"Type[Foo]()",
 		"[]any{1,\"foo\"}",
 		"map[any]any{1:\"foo\", \"bar\": 420.0}",
+		"foo",
 	} {
 		a := check.Must1(parser.ParseExpr(s))
 
