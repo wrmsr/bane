@@ -14,7 +14,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"os"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -186,6 +185,28 @@ func mkValue(node ast.Node) Value {
 				T: TypeName(t),
 				S: s,
 			}
+
+		case *ast.MapType:
+			kt := tn.Key.(*ast.Ident).Name
+			vt := tn.Value.(*ast.Ident).Name
+			var s []MapEntry
+			if len(node.Elts) > 0 {
+				s = make([]MapEntry, len(node.Elts))
+				for i, e := range node.Elts {
+					kve := e.(*ast.KeyValueExpr)
+					k := mkValue(kve.Key)
+					v := mkValue(kve.Value)
+					s[i] = MapEntry{
+						K: k,
+						V: v,
+					}
+				}
+			}
+			return Map{
+				KT: TypeName(kt),
+				VT: TypeName(vt),
+				S:  s,
+			}
 		}
 
 	case *ast.CallExpr:
@@ -222,10 +243,9 @@ func TestStuff(t *testing.T) {
 	} {
 		a := check.Must1(parser.ParseExpr(s))
 
-		_ = ast.Fprint(os.Stdout, nil, a, nil)
+		//_ = ast.Fprint(os.Stdout, nil, a, nil)
 
 		v := mkValue(a)
-		fmt.Println(v)
 
 		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))
 
