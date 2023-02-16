@@ -1,6 +1,9 @@
 package consteval
 
-import "fmt"
+import (
+	"fmt"
+	"go/ast"
+)
 
 //
 
@@ -19,29 +22,40 @@ type Scope struct {
 	//p *Scope
 }
 
-func (e *Scope) Reduce(n string) (Value, error) {
-	s, ok := e.m[n]
-	if !ok {
-		return nil, IdentError{N: n}
+func (e *Scope) Reduce(o any) (Value, error) {
+	if s, ok := o.(string); ok {
+		o = Ident{N: s}
 	}
 
-	if err, ok := s.(error); ok {
+	if err, ok := o.(error); ok {
 		return nil, err
 	}
 
-	if i, ok := s.(Ident); ok {
-		v, err := e.Reduce(i.N)
-		if err != nil {
-			e.m[n] = err
-			return nil, err
+	if a, ok := o.(ast.Node); ok {
+		v := ValueFromAst(a)
+		return e.Reduce(v)
+	}
+
+	if v, ok := o.(Value); ok {
+		switch v := v.(type) {
+
+		case Ident:
+			mv := e.m[v.N]
+			if mv == nil {
+				return nil, IdentError{N: v.N}
+			}
+			v2, err := e.Reduce(mv)
+			if err != nil {
+				e.m[v.N] = err
+				return nil, err
+			}
+			e.m[v.N] = v2
+			return v2, nil
+
+		default:
+			return v, nil
 		}
-		e.m[n] = v
-		return v, nil
 	}
 
-	if v, ok := s.(Value); ok {
-		return v, nil
-	}
-
-	panic(s)
+	panic(o)
 }
