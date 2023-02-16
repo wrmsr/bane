@@ -51,10 +51,14 @@ const bar = foo
 		m: make(map[string]any),
 	}
 	for n, obj := range fil.Scope.Objects {
-		av := findValueSpecExpr(obj.Decl.(*ast.ValueSpec), obj.Name)
-		v := ValueFromAst(av)
-		s.m[n] = v
+		switch obj.Kind {
+		case ast.Con, ast.Var:
+			av := findValueSpecExpr(obj.Decl.(*ast.ValueSpec), obj.Name)
+			v := ValueFromAst(av)
+			s.m[n] = v
+		}
 	}
 
-	fmt.Println(s.Reduce("bar"))
+	v := check.Must1(s.Reduce("bar"))
+	fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))
 }
