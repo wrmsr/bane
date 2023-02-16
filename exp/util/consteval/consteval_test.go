@@ -12,6 +12,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"os"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -271,4 +272,17 @@ func TestStuff(t *testing.T) {
 		//	return true
 		//})
 	}
+}
+
+func TestBigStuff(t *testing.T) {
+	src := `
+package foo
+
+const foo = 10
+`
+
+	const mode = parser.AllErrors | parser.ParseComments
+	var fset token.FileSet
+	a := check.Must1(parser.ParseFile(&fset, "", src, mode))
+	_ = ast.Fprint(os.Stdout, nil, a, nil)
 }
