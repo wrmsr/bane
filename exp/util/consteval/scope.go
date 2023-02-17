@@ -4,10 +4,19 @@ https://github.com/golang/tools/tree/master/go/ssa/interp
 https://github.com/llvm/llvm-project/tree/main/clang/lib/AST/Interp
 
 TODO:
+ - more lazy - mirror ast.Scope re inheritance
+ - togglable memoization - consteval func scopes
  - func
  - addr - *including* var refs, like &foo[2]
  - func Const[T any](v T) { return v } ?
   - if consteval then _no_ as running funcs lol
+ - intrinsics?
+  - math
+  - strings
+  - reflect - fields, etc
+  - io? encoding?
+ - views interop - frozen slices
+  - inlineable? lol fuckin go
 */
 package consteval
 
