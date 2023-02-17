@@ -71,6 +71,8 @@ func ScopeFromAst(a *ast.Scope) *Scope {
 		switch obj.Kind {
 		case ast.Con, ast.Var:
 			s.m[n] = findValueSpecExpr(obj.Decl.(*ast.ValueSpec), obj.Name)
+		case ast.Fun:
+			s.m[n] = obj.Decl.(*ast.FuncDecl)
 		}
 	}
 	return s
@@ -186,6 +188,10 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 
 			}
 			break
+		}
+
+		if ii, ok := n.Fun.(*ast.Ident); ok {
+			panic(ii)
 		}
 
 	case *ast.Ident:

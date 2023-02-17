@@ -82,6 +82,11 @@ var a = []any{foo, bar}
 var m = map[any]any{"F": foo, "B": bar, "A": a}
 var baz = Brax{F: foo, B: bar, A: a, M: m}
 const bar2 = 2 * bar
+
+func junk() int {
+	return 4 + 5
+}
+var junkv = junk()
 `
 
 	const mode = parser.AllErrors
@@ -94,6 +99,7 @@ const bar2 = 2 * bar
 	for _, n := range []string{
 		"baz",
 		"bar2",
+		"junkv",
 	} {
 		v := check.Must1(s.Reduce(&ast.Ident{Name: n}))
 		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))
