@@ -1,6 +1,9 @@
 package consteval
 
-import "go/token"
+import (
+	"go/ast"
+	"go/token"
+)
 
 //
 
@@ -107,4 +110,5 @@ type Map struct {
 
 type Dynamic struct {
 	value
+	a ast.Node
 }

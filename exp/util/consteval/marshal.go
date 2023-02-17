@@ -20,3 +20,7 @@ var _ = msh.RegisterTo[BasicKind](
 		StringBasic,
 	),
 )
+
+var _ = msh.RegisterTo[Dynamic](
+	msh.SetField{Name: "a", Omit: true},
+)
