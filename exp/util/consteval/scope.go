@@ -21,31 +21,9 @@ TODO:
 package consteval
 
 import (
-	"fmt"
 	"go/ast"
 	"go/constant"
-	"strings"
 )
-
-//
-
-type IdentError struct {
-	N string
-}
-
-func (e IdentError) Error() string {
-	return fmt.Sprintf("unresolved identifier: %s", e.N)
-}
-
-//
-
-type TypeError struct {
-	S []string
-}
-
-func (e TypeError) Error() string {
-	return fmt.Sprintf("type error: %s", strings.Join(e.S, ", "))
-}
 
 //
 
@@ -74,7 +52,7 @@ func ScopeFromAst(a *ast.Scope) *Scope {
 func (e *Scope) lookupAst(n string) (ast.Node, error) {
 	obj := e.a.Lookup(n)
 	if obj == nil {
-		return nil, IdentError{N: n}
+		return nil, NameError{N: n}
 	}
 
 	switch obj.Kind {
@@ -206,7 +184,7 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 			if err != nil {
 				return nil, err
 			}
-			panic(fd)
+			return e.evalFunc(fd.(*ast.FuncDecl))
 		}
 
 	case *ast.Ident:
@@ -273,4 +251,8 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 
 	}
 	return Dynamic{}, nil
+}
+
+func (e *Scope) evalFunc(fd *ast.FuncDecl) (Value, error) {
+	panic(fd)
 }
