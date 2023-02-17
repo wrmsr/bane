@@ -200,6 +200,20 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 
 	//
 
+	case *ast.UnaryExpr:
+		x, err := e.Reduce(n.X)
+		if err != nil {
+			return nil, err
+		}
+		xb := x.(Basic)
+		xc := constant.MakeFromLiteral(xb.S, xb.K.Ast(), 0)
+		zc := constant.UnaryOp(n.Op, xc, 0) // FIXME: prec?
+		zv := Basic{
+			K: xb.K,
+			S: zc.ExactString(),
+		}
+		return zv, nil
+
 	case *ast.BinaryExpr:
 		x, err := e.Reduce(n.X)
 		if err != nil {
