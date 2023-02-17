@@ -47,6 +47,22 @@ func (k BasicKind) String() string {
 	panic(k)
 }
 
+func (k BasicKind) Ast() token.Token {
+	switch k {
+	case IntBasic:
+		return token.INT
+	case FloatBasic:
+		return token.FLOAT
+	case ImagBasic:
+		return token.IMAG
+	case CharBasic:
+		return token.CHAR
+	case StringBasic:
+		return token.STRING
+	}
+	panic(k)
+}
+
 func basicKindFromAst(tok token.Token) BasicKind {
 	switch tok {
 	case token.INT:

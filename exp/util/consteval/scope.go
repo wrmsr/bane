@@ -14,6 +14,9 @@ package consteval
 import (
 	"fmt"
 	"go/ast"
+	"go/constant"
+	"go/token"
+	"strings"
 )
 
 //
@@ -24,6 +27,16 @@ type IdentError struct {
 
 func (e IdentError) Error() string {
 	return fmt.Sprintf("unresolved identifier: %s", e.N)
+}
+
+//
+
+type TypeError struct {
+	S []string
+}
+
+func (e TypeError) Error() string {
+	return fmt.Sprintf("type error: %s", strings.Join(e.S, ", "))
 }
 
 //
@@ -186,6 +199,28 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 		e.m[n.Name] = v2
 		return v2, nil
 
+	//
+
+	case *ast.BinaryExpr:
+		x, err := e.Reduce(n.X)
+		if err != nil {
+			return nil, err
+		}
+		y, err := e.Reduce(n.Y)
+		if err != nil {
+			return nil, err
+		}
+		xb := x.(Basic)
+		yb := y.(Basic)
+		if xb.K != yb.K {
+			return nil, TypeError{S: []string{xb.K.String(), yb.K.String()}}
+		}
+		switch n.Op {
+		case token.MUL:
+			xc := constant.MakeFromLiteral(xb.S, xb.K.Ast(), 0)
+			yc := constant.MakeFromLiteral(yb.S, yb.K.Ast(), 0)
+			panic(n)
+		}
 	}
 	return Dynamic{}, nil
 }
