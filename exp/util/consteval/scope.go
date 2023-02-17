@@ -202,7 +202,11 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 		}
 
 		if ii, ok := n.Fun.(*ast.Ident); ok {
-			panic(ii)
+			fd, err := e.lookupAst(ii.Name)
+			if err != nil {
+				return nil, err
+			}
+			panic(fd)
 		}
 
 	case *ast.Ident:
