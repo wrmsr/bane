@@ -50,7 +50,8 @@ func (e TypeError) Error() string {
 //
 
 type Scope struct {
-	m map[string]any // Value | ast.Node | error
+	a *ast.Scope
+	m map[string]any // Value | error
 	//p *Scope
 }
 
@@ -64,18 +65,28 @@ func findValueSpecExpr(vs *ast.ValueSpec, n string) ast.Expr {
 }
 
 func ScopeFromAst(a *ast.Scope) *Scope {
-	s := &Scope{
+	return &Scope{
+		a: a,
 		m: make(map[string]any),
 	}
-	for n, obj := range a.Objects {
-		switch obj.Kind {
-		case ast.Con, ast.Var:
-			s.m[n] = findValueSpecExpr(obj.Decl.(*ast.ValueSpec), obj.Name)
-		case ast.Fun:
-			s.m[n] = obj.Decl.(*ast.FuncDecl)
-		}
+}
+
+func (e *Scope) lookupAst(n string) (ast.Node, error) {
+	obj := e.a.Lookup(n)
+	if obj == nil {
+		return nil, IdentError{N: n}
 	}
-	return s
+
+	switch obj.Kind {
+
+	case ast.Con, ast.Var:
+		return findValueSpecExpr(obj.Decl.(*ast.ValueSpec), obj.Name), nil
+
+	case ast.Fun:
+		return obj.Decl.(*ast.FuncDecl), nil
+
+	}
+	panic(obj)
 }
 
 func (e *Scope) Reduce(o any) (Value, error) {
@@ -197,7 +208,11 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 	case *ast.Ident:
 		iv := e.m[n.Name]
 		if iv == nil {
-			return nil, IdentError{N: n.Name}
+			l, err := e.lookupAst(n.Name)
+			if err != nil {
+				return nil, err
+			}
+			iv = l
 		}
 
 		if v2, ok := iv.(Value); ok {
