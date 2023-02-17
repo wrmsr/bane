@@ -15,7 +15,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/constant"
-	"go/token"
 	"strings"
 )
 
@@ -215,12 +214,15 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 		if xb.K != yb.K {
 			return nil, TypeError{S: []string{xb.K.String(), yb.K.String()}}
 		}
-		switch n.Op {
-		case token.MUL:
-			xc := constant.MakeFromLiteral(xb.S, xb.K.Ast(), 0)
-			yc := constant.MakeFromLiteral(yb.S, yb.K.Ast(), 0)
-			panic(n)
+		xc := constant.MakeFromLiteral(xb.S, xb.K.Ast(), 0)
+		yc := constant.MakeFromLiteral(yb.S, yb.K.Ast(), 0)
+		zc := constant.BinaryOp(xc, n.Op, yc)
+		zv := Basic{
+			K: xb.K,
+			S: zc.ExactString(),
 		}
+		return zv, nil
+
 	}
 	return Dynamic{}, nil
 }
