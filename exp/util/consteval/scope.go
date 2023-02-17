@@ -254,5 +254,19 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 }
 
 func (e *Scope) evalFunc(fd *ast.FuncDecl) (Value, error) {
+	for _, s := range fd.Body.List {
+		switch s := s.(type) {
+		default:
+			panic(s)
+		}
+	}
 	panic(fd)
+}
+
+func (e *Scope) evalExpr(a ast.Expr) (Value, error) {
+	switch a := a.(type) {
+
+	default:
+		panic(a)
+	}
 }
