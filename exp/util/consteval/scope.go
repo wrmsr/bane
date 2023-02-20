@@ -23,6 +23,8 @@ package consteval
 import (
 	"go/ast"
 	"go/constant"
+
+	"github.com/wrmsr/bane/pkg/util/check"
 )
 
 //
@@ -49,8 +51,8 @@ func ScopeFromAst(a *ast.Scope) *Scope {
 	}
 }
 
-func (e *Scope) lookupAst(n string) (ast.Node, error) {
-	obj := e.a.Lookup(n)
+func (sc *Scope) lookupAst(n string) (ast.Node, error) {
+	obj := sc.a.Lookup(n)
 	if obj == nil {
 		return nil, NameError{N: n}
 	}
@@ -67,7 +69,7 @@ func (e *Scope) lookupAst(n string) (ast.Node, error) {
 	panic(obj)
 }
 
-func (e *Scope) Reduce(o any) (Value, error) {
+func (sc *Scope) Reduce(o any) (Value, error) {
 	if v, ok := o.(Value); ok {
 		return v, nil
 	}
@@ -77,13 +79,13 @@ func (e *Scope) Reduce(o any) (Value, error) {
 	}
 
 	if n, ok := o.(ast.Node); ok {
-		return e.reduceAst(n)
+		return sc.reduceAst(n)
 	}
 
 	panic(o)
 }
 
-func (e *Scope) reduceAst(n ast.Node) (Value, error) {
+func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 	switch n := n.(type) {
 
 	case *ast.BasicLit:
@@ -102,7 +104,7 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 				for _, ne := range n.Elts {
 					kv := ne.(*ast.KeyValueExpr)
 					k := kv.Key.(*ast.Ident).Name
-					v, err := e.reduceAst(kv.Value)
+					v, err := sc.reduceAst(kv.Value)
 					if err != nil {
 						return nil, err
 					}
@@ -120,7 +122,7 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 			if len(n.Elts) > 0 {
 				s = make([]Value, len(n.Elts))
 				for i, ne := range n.Elts {
-					sv, err := e.reduceAst(ne)
+					sv, err := sc.reduceAst(ne)
 					if err != nil {
 						return nil, err
 					}
@@ -140,11 +142,11 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 				s = make([]MapEntry, len(n.Elts))
 				for i, ne := range n.Elts {
 					kve := ne.(*ast.KeyValueExpr)
-					k, err := e.reduceAst(kve.Key)
+					k, err := sc.reduceAst(kve.Key)
 					if err != nil {
 						return nil, err
 					}
-					v, err := e.reduceAst(kve.Value)
+					v, err := sc.reduceAst(kve.Value)
 					if err != nil {
 						return nil, err
 					}
@@ -180,17 +182,18 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 		}
 
 		if ii, ok := n.Fun.(*ast.Ident); ok {
-			fd, err := e.lookupAst(ii.Name)
+			fd, err := sc.lookupAst(ii.Name)
 			if err != nil {
 				return nil, err
 			}
-			return e.evalFunc(fd.(*ast.FuncDecl))
+			fe := newFuncEval(fd.(*ast.FuncDecl), sc)
+			return fe.eval()
 		}
 
 	case *ast.Ident:
-		iv := e.m[n.Name]
+		iv := sc.m[n.Name]
 		if iv == nil {
-			l, err := e.lookupAst(n.Name)
+			l, err := sc.lookupAst(n.Name)
 			if err != nil {
 				return nil, err
 			}
@@ -201,19 +204,19 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 			return v2, nil
 		}
 
-		rv, err := e.Reduce(iv)
+		rv, err := sc.Reduce(iv)
 		if err != nil {
-			e.m[n.Name] = err
+			sc.m[n.Name] = err
 			return nil, err
 		}
 		v2 := rv.(Value)
-		e.m[n.Name] = v2
+		sc.m[n.Name] = v2
 		return v2, nil
 
 	//
 
 	case *ast.UnaryExpr:
-		x, err := e.Reduce(n.X)
+		x, err := sc.Reduce(n.X)
 		if err != nil {
 			return nil, err
 		}
@@ -227,11 +230,11 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 		return zv, nil
 
 	case *ast.BinaryExpr:
-		x, err := e.Reduce(n.X)
+		x, err := sc.Reduce(n.X)
 		if err != nil {
 			return nil, err
 		}
-		y, err := e.Reduce(n.Y)
+		y, err := sc.Reduce(n.Y)
 		if err != nil {
 			return nil, err
 		}
@@ -253,20 +256,49 @@ func (e *Scope) reduceAst(n ast.Node) (Value, error) {
 	return Dynamic{}, nil
 }
 
-func (e *Scope) evalFunc(fd *ast.FuncDecl) (Value, error) {
-	for _, s := range fd.Body.List {
-		switch s := s.(type) {
-		default:
-			panic(s)
-		}
-	}
-	panic(fd)
+//
+
+type funcEval struct {
+	fd *ast.FuncDecl
+	sc *Scope
+
+	lo map[string]any
 }
 
-func (e *Scope) evalExpr(a ast.Expr) (Value, error) {
-	switch a := a.(type) {
+func newFuncEval(fd *ast.FuncDecl, sc *Scope) *funcEval {
+	return &funcEval{
+		fd: fd,
+		sc: sc,
+
+		lo: make(map[string]any),
+	}
+}
+
+func (fe *funcEval) eval() (Value, error) {
+	for _, st := range fe.fd.Body.List {
+		switch st := st.(type) {
+
+		case *ast.ReturnStmt:
+			vn := check.Single(st.Results)
+			return fe.evalExpr(vn)
+
+		default:
+			panic(st)
+		}
+	}
+	panic(fe)
+}
+
+func (fe *funcEval) evalExpr(ex ast.Expr) (Value, error) {
+	switch ex := ex.(type) {
+
+	case *ast.BasicLit:
+		return Basic{
+			K: basicKindFromAst(ex.Kind),
+			S: ex.Value,
+		}, nil
 
 	default:
-		panic(a)
+		panic(ex)
 	}
 }
