@@ -78,6 +78,7 @@ package foo
 
 const foo = 10
 const bar = foo
+var n any = nil
 var a = []any{foo, bar}
 var m = map[any]any{"F": foo, "B": bar, "A": a}
 var baz = Brax{F: foo, B: bar, A: a, M: m}
@@ -98,6 +99,7 @@ var junkv = junk()
 
 	for _, n := range []string{
 		"baz",
+		//"n", // FIXME: lol
 		"bar2",
 		"junkv",
 	} {

@@ -21,6 +21,12 @@ func (v value) isValue() {}
 
 //
 
+type Nil struct {
+	value
+}
+
+//
+
 type BasicKind int8
 
 const (

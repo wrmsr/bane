@@ -3,6 +3,7 @@ package consteval
 import msh "github.com/wrmsr/bane/pkg/util/marshal"
 
 var _ = msh.RegisterTo[Value](
+	msh.SetImplOf[Nil](),
 	msh.SetImplOf[Basic](),
 	msh.SetImplOf[Type](),
 	msh.SetImplOf[Struct](),

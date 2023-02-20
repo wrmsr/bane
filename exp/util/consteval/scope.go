@@ -29,6 +29,12 @@ import (
 
 //
 
+type Lookup interface {
+	Lookup(n string) any // Value | ast.Node | error
+}
+
+//
+
 type Scope struct {
 	a *ast.Scope
 	m map[string]any // Value | error
@@ -216,7 +222,7 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 	//
 
 	case *ast.UnaryExpr:
-		x, err := sc.Reduce(n.X)
+		x, err := sc.reduceAst(n.X)
 		if err != nil {
 			return nil, err
 		}
@@ -230,11 +236,11 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 		return zv, nil
 
 	case *ast.BinaryExpr:
-		x, err := sc.Reduce(n.X)
+		x, err := sc.reduceAst(n.X)
 		if err != nil {
 			return nil, err
 		}
-		y, err := sc.Reduce(n.Y)
+		y, err := sc.reduceAst(n.Y)
 		if err != nil {
 			return nil, err
 		}
