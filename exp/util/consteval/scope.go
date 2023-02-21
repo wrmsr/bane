@@ -91,7 +91,22 @@ func (sc *Scope) Reduce(o any) (Value, error) {
 	panic(o)
 }
 
-func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
+type astExprEval struct {
+	lu  Lookup
+	rec func(ast.Node) (Value, error)
+}
+
+type evalContext struct {
+	lookup func(name string) any              // Value | error | ast.Node
+	assign func(name string, value any) error // Value | error
+	eval   func(node ast.Node) (Value, error)
+}
+
+func memoEvalExpr(ctx *evalContext, n ast.Node) (Value, error) {
+	// TODO: need evalNext / evalRoot ...
+}
+
+func evalExpr(ctx *evalContext, n ast.Node) (Value, error) {
 	switch n := n.(type) {
 
 	case *ast.BasicLit:
@@ -110,7 +125,7 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 				for _, ne := range n.Elts {
 					kv := ne.(*ast.KeyValueExpr)
 					k := kv.Key.(*ast.Ident).Name
-					v, err := sc.reduceAst(kv.Value)
+					v, err := ctx.eval(kv.Value)
 					if err != nil {
 						return nil, err
 					}
@@ -128,7 +143,7 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 			if len(n.Elts) > 0 {
 				s = make([]Value, len(n.Elts))
 				for i, ne := range n.Elts {
-					sv, err := sc.reduceAst(ne)
+					sv, err := ctx.eval(ne)
 					if err != nil {
 						return nil, err
 					}
@@ -148,11 +163,11 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 				s = make([]MapEntry, len(n.Elts))
 				for i, ne := range n.Elts {
 					kve := ne.(*ast.KeyValueExpr)
-					k, err := sc.reduceAst(kve.Key)
+					k, err := ctx.eval(kve.Key)
 					if err != nil {
 						return nil, err
 					}
-					v, err := sc.reduceAst(kve.Value)
+					v, err := ctx.eval(kve.Value)
 					if err != nil {
 						return nil, err
 					}
@@ -210,7 +225,7 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 			return v2, nil
 		}
 
-		rv, err := sc.Reduce(iv)
+		rv, err := ctx.eval(iv)
 		if err != nil {
 			sc.m[n.Name] = err
 			return nil, err
@@ -222,7 +237,7 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 	//
 
 	case *ast.UnaryExpr:
-		x, err := sc.reduceAst(n.X)
+		x, err := ctx.eval(n.X)
 		if err != nil {
 			return nil, err
 		}
@@ -236,11 +251,11 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 		return zv, nil
 
 	case *ast.BinaryExpr:
-		x, err := sc.reduceAst(n.X)
+		x, err := ctx.eval(n.X)
 		if err != nil {
 			return nil, err
 		}
-		y, err := sc.reduceAst(n.Y)
+		y, err := ctx.eval(n.Y)
 		if err != nil {
 			return nil, err
 		}
