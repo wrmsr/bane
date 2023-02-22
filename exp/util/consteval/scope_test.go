@@ -68,7 +68,7 @@ func TestEval(t *testing.T) {
 		},
 	}
 
-	ov := check.Must1(s.Reduce("foo"))
+	ov := s.Eval("foo").(Value)
 	fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&ov)))))
 }
 
@@ -85,7 +85,9 @@ var baz = Brax{F: foo, B: bar, A: a, M: m}
 const bar2 = 2 * bar
 
 func junk() int {
-	return 4 + foo
+	x := foo
+	x = x + 1
+	return 4 + x
 }
 var junkv = junk()
 `
@@ -103,7 +105,7 @@ var junkv = junk()
 		"bar2",
 		"junkv",
 	} {
-		v := check.Must1(s.Reduce(&ast.Ident{Name: n}))
+		v := s.Eval(&ast.Ident{Name: n}).(Value)
 		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))
 	}
 }

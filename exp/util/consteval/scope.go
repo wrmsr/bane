@@ -86,13 +86,13 @@ func (sc *Scope) lookup(n string) any {
 	return NameError{N: n}
 }
 
-func (sc *Scope) Reduce(o any) (Value, error) {
+func (sc *Scope) Eval(o any) any {
 	if v, ok := o.(Value); ok {
-		return v, nil
+		return v
 	}
 
 	if err, ok := o.(error); ok {
-		return nil, err
+		return err
 	}
 
 	if n, ok := o.(ast.Expr); ok {
@@ -102,14 +102,14 @@ func (sc *Scope) Reduce(o any) (Value, error) {
 	panic(o)
 }
 
-func (sc *Scope) evalExpr(n ast.Expr) (Value, error) {
+func (sc *Scope) evalExpr(n ast.Expr) any {
 	switch n := n.(type) {
 
 	case *ast.BasicLit:
 		return Basic{
 			K: basicKindFromAst(n.Kind),
 			S: n.Value,
-		}, nil
+		}
 
 	case *ast.CompositeLit:
 		switch tn := n.Type.(type) {
@@ -121,17 +121,17 @@ func (sc *Scope) evalExpr(n ast.Expr) (Value, error) {
 				for _, ne := range n.Elts {
 					kv := ne.(*ast.KeyValueExpr)
 					k := kv.Key.(*ast.Ident).Name
-					v, err := sc.evalExpr(kv.Value)
-					if err != nil {
-						return nil, err
+					v := sc.evalExpr(kv.Value)
+					if _, ok := v.(error); ok {
+						return v
 					}
-					m[k] = v
+					m[k] = v.(Value)
 				}
 			}
 			return Struct{
 				T: TypeName(tn.Name),
 				M: m,
-			}, nil
+			}
 
 		case *ast.ArrayType:
 			t := tn.Elt.(*ast.Ident).Name
@@ -139,17 +139,17 @@ func (sc *Scope) evalExpr(n ast.Expr) (Value, error) {
 			if len(n.Elts) > 0 {
 				s = make([]Value, len(n.Elts))
 				for i, ne := range n.Elts {
-					sv, err := sc.evalExpr(ne)
-					if err != nil {
-						return nil, err
+					sv := sc.evalExpr(ne)
+					if _, ok := sv.(error); ok {
+						return sv
 					}
-					s[i] = sv
+					s[i] = sv.(Value)
 				}
 			}
 			return Array{
 				T: TypeName(t),
 				S: s,
-			}, nil
+			}
 
 		case *ast.MapType:
 			kt := tn.Key.(*ast.Ident).Name
@@ -159,17 +159,17 @@ func (sc *Scope) evalExpr(n ast.Expr) (Value, error) {
 				s = make([]MapEntry, len(n.Elts))
 				for i, ne := range n.Elts {
 					kve := ne.(*ast.KeyValueExpr)
-					k, err := sc.evalExpr(kve.Key)
-					if err != nil {
-						return nil, err
+					k := sc.evalExpr(kve.Key)
+					if _, ok := k.(error); ok {
+						return k
 					}
-					v, err := sc.evalExpr(kve.Value)
-					if err != nil {
-						return nil, err
+					v := sc.evalExpr(kve.Value)
+					if _, ok := v.(error); ok {
+						return v
 					}
 					s[i] = MapEntry{
-						K: k,
-						V: v,
+						K: k.(Value),
+						V: v.(Value),
 					}
 				}
 			}
@@ -177,7 +177,7 @@ func (sc *Scope) evalExpr(n ast.Expr) (Value, error) {
 				KT: TypeName(kt),
 				VT: TypeName(vt),
 				S:  s,
-			}, nil
+			}
 		}
 
 	case *ast.CallExpr:
@@ -192,7 +192,7 @@ func (sc *Scope) evalExpr(n ast.Expr) (Value, error) {
 				tn := ie.Index.(*ast.Ident).Name
 				return Type{
 					T: TypeName(tn),
-				}, nil
+				}
 
 			}
 			break
@@ -200,11 +200,12 @@ func (sc *Scope) evalExpr(n ast.Expr) (Value, error) {
 
 		if ii, ok := n.Fun.(*ast.Ident); ok {
 			fd := sc.lookup(ii.Name)
-			if fe, ok := fd.(error); ok {
-				return nil, fe
+			if _, ok := fd.(error); ok {
+				return fd
 			}
 			s2 := &Scope{
 				p: sc,
+				m: make(map[string]any),
 			}
 			return s2.execStmts(fd.(*ast.FuncDecl).Body.List)
 		}
@@ -212,79 +213,79 @@ func (sc *Scope) evalExpr(n ast.Expr) (Value, error) {
 	case *ast.Ident:
 		iv := sc.lookup(n.Name)
 
-		if le, ok := iv.(error); ok {
-			return nil, le
+		if _, ok := iv.(error); ok {
+			return iv
 		}
-
-		if v2, ok := iv.(Value); ok {
-			return v2, nil
+		if _, ok := iv.(Value); ok {
+			return iv
 		}
 
 		if ie, ok := iv.(ast.Expr); ok {
-			rv, err := sc.evalExpr(ie)
-			if err != nil {
-				if sc.m != nil {
-					sc.m[n.Name] = err
-				}
-				return nil, err
-			}
-			v2 := rv.(Value)
+			rv := sc.evalExpr(ie)
 			if sc.m != nil {
-				sc.m[n.Name] = v2
+				sc.m[n.Name] = rv
 			}
-			return v2, nil
+			return rv
 		}
 
 	//
 
 	case *ast.UnaryExpr:
-		x, err := sc.evalExpr(n.X)
-		if err != nil {
-			return nil, err
+		x := sc.evalExpr(n.X)
+		if _, ok := x.(error); ok {
+			return x
 		}
 		xb := x.(Basic)
 		xc := constant.MakeFromLiteral(xb.S, xb.K.Ast(), 0)
 		zc := constant.UnaryOp(n.Op, xc, 0) // FIXME: prec?
-		zv := Basic{
+		return Basic{
 			K: xb.K,
 			S: zc.ExactString(),
 		}
-		return zv, nil
 
 	case *ast.BinaryExpr:
-		x, err := sc.evalExpr(n.X)
-		if err != nil {
-			return nil, err
+		x := sc.evalExpr(n.X)
+		if _, ok := x.(error); ok {
+			return x
 		}
-		y, err := sc.evalExpr(n.Y)
-		if err != nil {
-			return nil, err
+		y := sc.evalExpr(n.Y)
+		if _, ok := y.(error); ok {
+			return y
 		}
 		xb := x.(Basic)
 		yb := y.(Basic)
 		if xb.K != yb.K {
-			return nil, TypeError{S: []string{xb.K.String(), yb.K.String()}}
+			return TypeError{S: []string{xb.K.String(), yb.K.String()}}
 		}
 		xc := constant.MakeFromLiteral(xb.S, xb.K.Ast(), 0)
 		yc := constant.MakeFromLiteral(yb.S, yb.K.Ast(), 0)
 		zc := constant.BinaryOp(xc, n.Op, yc)
-		zv := Basic{
+		return Basic{
 			K: xb.K,
 			S: zc.ExactString(),
 		}
-		return zv, nil
 
 	}
-	return Dynamic{}, nil
+	return Dynamic{}
 }
 
-func (sc *Scope) execStmts(sts []ast.Stmt) (Value, error) {
+func (sc *Scope) execStmts(sts []ast.Stmt) any {
+	check.NotNil(sc.m)
 	for _, st := range sts {
 		switch st := st.(type) {
 
 		case *ast.ReturnStmt:
 			vn := check.Single(st.Results)
 			return sc.evalExpr(vn)
+
+		case *ast.AssignStmt:
+			tn := check.Single(st.Lhs).(*ast.Ident).Name
+			vn := check.Single(st.Rhs)
+			vv := sc.evalExpr(vn)
+			if _, ok := vv.(error); ok {
+				return vv
+			}
+			sc.m[tn] = vv
 
 		default:
 			panic(st)
