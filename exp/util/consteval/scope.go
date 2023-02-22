@@ -86,6 +86,27 @@ func (sc *Scope) lookup(n string) any {
 	return NameError{N: n}
 }
 
+func (sc *Scope) assign(n string, v any) bool {
+	if sc.m != nil {
+		if _, ok := sc.m[n]; ok {
+			sc.m[n] = v
+			return true
+		}
+	}
+
+	if sc.p != nil {
+		if sc.p.assign(n, v) {
+			return true
+		}
+	}
+
+	if sc.m != nil {
+		sc.m[n] = v
+	}
+
+	return false
+}
+
 func (sc *Scope) Eval(o any) any {
 	if v, ok := o.(Value); ok {
 		return v
@@ -100,6 +121,13 @@ func (sc *Scope) Eval(o any) any {
 	}
 
 	panic(o)
+}
+
+func (sc *Scope) makeChild() *Scope {
+	return &Scope{
+		p: sc,
+		m: make(map[string]any),
+	}
 }
 
 func (sc *Scope) evalExpr(n ast.Expr) any {
@@ -203,11 +231,7 @@ func (sc *Scope) evalExpr(n ast.Expr) any {
 			if _, ok := fd.(error); ok {
 				return fd
 			}
-			s2 := &Scope{
-				p: sc,
-				m: make(map[string]any),
-			}
-			return s2.execStmts(fd.(*ast.FuncDecl).Body.List)
+			return sc.makeChild().execStmts(fd.(*ast.FuncDecl).Body.List)
 		}
 
 	case *ast.Ident:
@@ -286,6 +310,12 @@ func (sc *Scope) execStmts(sts []ast.Stmt) any {
 				return vv
 			}
 			sc.m[tn] = vv
+
+		case *ast.ForStmt:
+			check.Nil(st.Init)
+			check.Nil(st.Cond)
+			check.Nil(st.Post)
+			return sc.makeChild().execStmts(st.Body.List) // FIXME: lol...
 
 		default:
 			panic(st)

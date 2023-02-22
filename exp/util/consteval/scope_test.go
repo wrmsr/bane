@@ -1,3 +1,8 @@
+//
+/*
+TODO:
+ - type-specific default values..
+*/
 package consteval
 
 import (
@@ -97,7 +102,7 @@ func ljunk() int {
 		i = i + 1
 		if i > 3 {
 			return i
-		
+		}
 	}
 	return 0
 }
@@ -116,6 +121,7 @@ var ljunkv = ljunk()
 		//"n", // FIXME: lol
 		"bar2",
 		"junkv",
+		"ljunkv",
 	} {
 		v := s.Eval(&ast.Ident{Name: n}).(Value)
 		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))
