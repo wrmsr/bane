@@ -30,7 +30,8 @@ type Nil struct {
 type BasicKind int8
 
 const (
-	IntBasic BasicKind = iota
+	BoolBasic BasicKind = iota
+	IntBasic
 	FloatBasic
 	ImagBasic
 	CharBasic
@@ -39,6 +40,8 @@ const (
 
 func (k BasicKind) String() string {
 	switch k {
+	case BoolBasic:
+		return "BOOL"
 	case IntBasic:
 		return "INT"
 	case FloatBasic:

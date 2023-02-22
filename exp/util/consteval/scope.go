@@ -23,6 +23,7 @@ package consteval
 import (
 	"go/ast"
 	"go/constant"
+	"go/token"
 
 	"github.com/wrmsr/bane/pkg/util/check"
 )
@@ -281,10 +282,24 @@ func (sc *Scope) evalExpr(n ast.Expr) any {
 		}
 		xc := constant.MakeFromLiteral(xb.S, xb.K.Ast(), 0)
 		yc := constant.MakeFromLiteral(yb.S, yb.K.Ast(), 0)
-		zc := constant.BinaryOp(xc, n.Op, yc)
-		return Basic{
-			K: xb.K,
-			S: zc.ExactString(),
+		var zc constant.Value
+		switch n.Op {
+		case token.EQL,
+			token.NEQ,
+			token.LSS,
+			token.LEQ,
+			token.GTR,
+			token.GEQ:
+			b := constant.Compare(xc, n.Op, yc)
+			return Basic{
+				K: Ba
+			}
+		default:
+			zc := constant.BinaryOp(xc, n.Op, yc)
+			return Basic{
+				K: xb.K,
+				S: zc.ExactString(),
+			}
 		}
 
 	}
