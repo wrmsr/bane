@@ -246,9 +246,7 @@ func (sc *Scope) evalExpr(n ast.Expr) any {
 
 		if ie, ok := iv.(ast.Expr); ok {
 			rv := sc.evalExpr(ie)
-			if sc.m != nil {
-				sc.m[n.Name] = rv
-			}
+			sc.assign(n.Name, rv)
 			return rv
 		}
 
@@ -309,7 +307,7 @@ func (sc *Scope) execStmts(sts []ast.Stmt) any {
 			if _, ok := vv.(error); ok {
 				return vv
 			}
-			sc.m[tn] = vv
+			sc.assign(tn, vv)
 
 		case *ast.ForStmt:
 			check.Nil(st.Init)
