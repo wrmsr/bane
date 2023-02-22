@@ -90,6 +90,18 @@ func junk() int {
 	return 4 + x
 }
 var junkv = junk()
+
+func ljunk() int {
+	i := 0
+	for {
+		i = i + 1
+		if i > 3 {
+			return i
+		
+	}
+	return 0
+}
+var ljunkv = ljunk()
 `
 
 	const mode = parser.AllErrors
