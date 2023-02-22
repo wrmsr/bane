@@ -97,6 +97,7 @@ func junk() int {
 var junkv = junk()
 
 func ljunk() int {
+	// var i int // FIXME:
 	i := 0
 	for {
 		i = i + 1

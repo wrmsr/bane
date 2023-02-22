@@ -315,6 +315,15 @@ func (sc *Scope) execStmts(sts []ast.Stmt) any {
 			check.Nil(st.Post)
 			return sc.makeChild().execStmts(st.Body.List) // FIXME: lol...
 
+		case *ast.IfStmt:
+			check.Nil(st.Init)
+			cv := sc.evalExpr(st.Cond)
+			if _, ok := cv.(error); ok {
+				return cv
+			}
+			check.Nil(st.Else)
+			panic(st)
+
 		default:
 			panic(st)
 		}
