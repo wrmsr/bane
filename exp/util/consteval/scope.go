@@ -96,17 +96,17 @@ type astExprEval struct {
 	rec func(ast.Node) (Value, error)
 }
 
-type evalContext struct {
-	lookup func(name string) any              // Value | error | ast.Node
-	assign func(name string, value any) error // Value | error
-	eval   func(node ast.Node) (Value, error)
-}
+//type evalContext struct {
+//	lookup func(name string) any              // Value | error | ast.Node
+//	assign func(name string, value any) error // Value | error
+//	eval   func(node ast.Node) (Value, error)
+//}
+//
+//func memoEvalExpr(ctx *evalContext, n ast.Node) (Value, error) {
+//	// TODO: need evalNext / evalRoot ...
+//}
 
-func memoEvalExpr(ctx *evalContext, n ast.Node) (Value, error) {
-	// TODO: need evalNext / evalRoot ...
-}
-
-func evalExpr(ctx *evalContext, n ast.Node) (Value, error) {
+func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 	switch n := n.(type) {
 
 	case *ast.BasicLit:
@@ -125,7 +125,7 @@ func evalExpr(ctx *evalContext, n ast.Node) (Value, error) {
 				for _, ne := range n.Elts {
 					kv := ne.(*ast.KeyValueExpr)
 					k := kv.Key.(*ast.Ident).Name
-					v, err := ctx.eval(kv.Value)
+					v, err := sc.reduceAst(kv.Value)
 					if err != nil {
 						return nil, err
 					}
@@ -143,7 +143,7 @@ func evalExpr(ctx *evalContext, n ast.Node) (Value, error) {
 			if len(n.Elts) > 0 {
 				s = make([]Value, len(n.Elts))
 				for i, ne := range n.Elts {
-					sv, err := ctx.eval(ne)
+					sv, err := sc.reduceAst(ne)
 					if err != nil {
 						return nil, err
 					}
@@ -163,11 +163,11 @@ func evalExpr(ctx *evalContext, n ast.Node) (Value, error) {
 				s = make([]MapEntry, len(n.Elts))
 				for i, ne := range n.Elts {
 					kve := ne.(*ast.KeyValueExpr)
-					k, err := ctx.eval(kve.Key)
+					k, err := sc.reduceAst(kve.Key)
 					if err != nil {
 						return nil, err
 					}
-					v, err := ctx.eval(kve.Value)
+					v, err := sc.reduceAst(kve.Value)
 					if err != nil {
 						return nil, err
 					}
@@ -225,7 +225,7 @@ func evalExpr(ctx *evalContext, n ast.Node) (Value, error) {
 			return v2, nil
 		}
 
-		rv, err := ctx.eval(iv)
+		rv, err := sc.Reduce(iv)
 		if err != nil {
 			sc.m[n.Name] = err
 			return nil, err
@@ -237,7 +237,7 @@ func evalExpr(ctx *evalContext, n ast.Node) (Value, error) {
 	//
 
 	case *ast.UnaryExpr:
-		x, err := ctx.eval(n.X)
+		x, err := sc.reduceAst(n.X)
 		if err != nil {
 			return nil, err
 		}
@@ -251,11 +251,11 @@ func evalExpr(ctx *evalContext, n ast.Node) (Value, error) {
 		return zv, nil
 
 	case *ast.BinaryExpr:
-		x, err := ctx.eval(n.X)
+		x, err := sc.reduceAst(n.X)
 		if err != nil {
 			return nil, err
 		}
-		y, err := ctx.eval(n.Y)
+		y, err := sc.reduceAst(n.Y)
 		if err != nil {
 			return nil, err
 		}
@@ -313,13 +313,10 @@ func (fe *funcEval) eval() (Value, error) {
 func (fe *funcEval) evalExpr(ex ast.Expr) (Value, error) {
 	switch ex := ex.(type) {
 
-	case *ast.BasicLit:
-		return Basic{
-			K: basicKindFromAst(ex.Kind),
-			S: ex.Value,
-		}, nil
+	case *ast.Ident:
+		panic(ex)
 
 	default:
-		panic(ex)
+		return fe.sc.reduceAst(ex)
 	}
 }
