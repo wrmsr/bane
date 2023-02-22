@@ -36,9 +36,9 @@ type Lookup interface {
 //
 
 type Scope struct {
+	p *Scope
 	a *ast.Scope
 	m map[string]any // Value | error
-	//p *Scope
 }
 
 func findValueSpecExpr(vs *ast.ValueSpec, n string) ast.Expr {
@@ -57,22 +57,33 @@ func ScopeFromAst(a *ast.Scope) *Scope {
 	}
 }
 
-func (sc *Scope) lookupAst(n string) (ast.Node, error) {
-	obj := sc.a.Lookup(n)
-	if obj == nil {
-		return nil, NameError{N: n}
+func (sc *Scope) lookup(n string) any {
+	if sc.m != nil {
+		if v := sc.m[n]; v != nil {
+			return v
+		}
 	}
 
-	switch obj.Kind {
+	if sc.a != nil {
+		if obj := sc.a.Lookup(n); obj != nil {
+			switch obj.Kind {
 
-	case ast.Con, ast.Var:
-		return findValueSpecExpr(obj.Decl.(*ast.ValueSpec), obj.Name), nil
+			case ast.Con, ast.Var:
+				return findValueSpecExpr(obj.Decl.(*ast.ValueSpec), obj.Name)
 
-	case ast.Fun:
-		return obj.Decl.(*ast.FuncDecl), nil
+			case ast.Fun:
+				return obj.Decl.(*ast.FuncDecl)
 
+			}
+			panic(obj)
+		}
 	}
-	panic(obj)
+
+	if sc.p != nil {
+		return sc.p.lookup(n)
+	}
+
+	return NameError{N: n}
 }
 
 func (sc *Scope) Reduce(o any) (Value, error) {
@@ -84,29 +95,14 @@ func (sc *Scope) Reduce(o any) (Value, error) {
 		return nil, err
 	}
 
-	if n, ok := o.(ast.Node); ok {
-		return sc.reduceAst(n)
+	if n, ok := o.(ast.Expr); ok {
+		return sc.evalExpr(n)
 	}
 
 	panic(o)
 }
 
-type astExprEval struct {
-	lu  Lookup
-	rec func(ast.Node) (Value, error)
-}
-
-//type evalContext struct {
-//	lookup func(name string) any              // Value | error | ast.Node
-//	assign func(name string, value any) error // Value | error
-//	eval   func(node ast.Node) (Value, error)
-//}
-//
-//func memoEvalExpr(ctx *evalContext, n ast.Node) (Value, error) {
-//	// TODO: need evalNext / evalRoot ...
-//}
-
-func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
+func (sc *Scope) evalExpr(n ast.Expr) (Value, error) {
 	switch n := n.(type) {
 
 	case *ast.BasicLit:
@@ -125,7 +121,7 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 				for _, ne := range n.Elts {
 					kv := ne.(*ast.KeyValueExpr)
 					k := kv.Key.(*ast.Ident).Name
-					v, err := sc.reduceAst(kv.Value)
+					v, err := sc.evalExpr(kv.Value)
 					if err != nil {
 						return nil, err
 					}
@@ -143,7 +139,7 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 			if len(n.Elts) > 0 {
 				s = make([]Value, len(n.Elts))
 				for i, ne := range n.Elts {
-					sv, err := sc.reduceAst(ne)
+					sv, err := sc.evalExpr(ne)
 					if err != nil {
 						return nil, err
 					}
@@ -163,11 +159,11 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 				s = make([]MapEntry, len(n.Elts))
 				for i, ne := range n.Elts {
 					kve := ne.(*ast.KeyValueExpr)
-					k, err := sc.reduceAst(kve.Key)
+					k, err := sc.evalExpr(kve.Key)
 					if err != nil {
 						return nil, err
 					}
-					v, err := sc.reduceAst(kve.Value)
+					v, err := sc.evalExpr(kve.Value)
 					if err != nil {
 						return nil, err
 					}
@@ -203,20 +199,22 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 		}
 
 		if ii, ok := n.Fun.(*ast.Ident); ok {
-			fd, err := sc.lookupAst(ii.Name)
-			if err != nil {
-				return nil, err
+			fd := sc.lookup(ii.Name)
+			if fe, ok := fd.(error); ok {
+				return nil, fe
 			}
-			fe := newFuncEval(fd.(*ast.FuncDecl), sc)
-			return fe.eval()
+			s2 := &Scope{
+				p: sc,
+			}
+			return s2.execStmts(fd.(*ast.FuncDecl).Body.List)
 		}
 
 	case *ast.Ident:
 		iv := sc.m[n.Name]
 		if iv == nil {
-			l, err := sc.lookupAst(n.Name)
-			if err != nil {
-				return nil, err
+			l := sc.lookup(n.Name)
+			if le, ok := l.(error); ok {
+				return nil, le
 			}
 			iv = l
 		}
@@ -225,19 +223,21 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 			return v2, nil
 		}
 
-		rv, err := sc.Reduce(iv)
-		if err != nil {
-			sc.m[n.Name] = err
-			return nil, err
+		if ie, ok := iv.(ast.Expr); ok {
+			rv, err := sc.evalExpr(ie)
+			if err != nil {
+				sc.m[n.Name] = err
+				return nil, err
+			}
+			v2 := rv.(Value)
+			sc.m[n.Name] = v2
+			return v2, nil
 		}
-		v2 := rv.(Value)
-		sc.m[n.Name] = v2
-		return v2, nil
 
 	//
 
 	case *ast.UnaryExpr:
-		x, err := sc.reduceAst(n.X)
+		x, err := sc.evalExpr(n.X)
 		if err != nil {
 			return nil, err
 		}
@@ -251,11 +251,11 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 		return zv, nil
 
 	case *ast.BinaryExpr:
-		x, err := sc.reduceAst(n.X)
+		x, err := sc.evalExpr(n.X)
 		if err != nil {
 			return nil, err
 		}
-		y, err := sc.reduceAst(n.Y)
+		y, err := sc.evalExpr(n.Y)
 		if err != nil {
 			return nil, err
 		}
@@ -277,46 +277,17 @@ func (sc *Scope) reduceAst(n ast.Node) (Value, error) {
 	return Dynamic{}, nil
 }
 
-//
-
-type funcEval struct {
-	fd *ast.FuncDecl
-	sc *Scope
-
-	lo map[string]any
-}
-
-func newFuncEval(fd *ast.FuncDecl, sc *Scope) *funcEval {
-	return &funcEval{
-		fd: fd,
-		sc: sc,
-
-		lo: make(map[string]any),
-	}
-}
-
-func (fe *funcEval) eval() (Value, error) {
-	for _, st := range fe.fd.Body.List {
+func (sc *Scope) execStmts(sts []ast.Stmt) (Value, error) {
+	for _, st := range sts {
 		switch st := st.(type) {
 
 		case *ast.ReturnStmt:
 			vn := check.Single(st.Results)
-			return fe.evalExpr(vn)
+			return sc.evalExpr(vn)
 
 		default:
 			panic(st)
 		}
 	}
-	panic(fe)
-}
-
-func (fe *funcEval) evalExpr(ex ast.Expr) (Value, error) {
-	switch ex := ex.(type) {
-
-	case *ast.Ident:
-		panic(ex)
-
-	default:
-		return fe.sc.reduceAst(ex)
-	}
+	panic(sc)
 }
