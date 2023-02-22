@@ -210,13 +210,10 @@ func (sc *Scope) evalExpr(n ast.Expr) (Value, error) {
 		}
 
 	case *ast.Ident:
-		iv := sc.m[n.Name]
-		if iv == nil {
-			l := sc.lookup(n.Name)
-			if le, ok := l.(error); ok {
-				return nil, le
-			}
-			iv = l
+		iv := sc.lookup(n.Name)
+
+		if le, ok := iv.(error); ok {
+			return nil, le
 		}
 
 		if v2, ok := iv.(Value); ok {
@@ -226,11 +223,15 @@ func (sc *Scope) evalExpr(n ast.Expr) (Value, error) {
 		if ie, ok := iv.(ast.Expr); ok {
 			rv, err := sc.evalExpr(ie)
 			if err != nil {
-				sc.m[n.Name] = err
+				if sc.m != nil {
+					sc.m[n.Name] = err
+				}
 				return nil, err
 			}
 			v2 := rv.(Value)
-			sc.m[n.Name] = v2
+			if sc.m != nil {
+				sc.m[n.Name] = v2
+			}
 			return v2, nil
 		}
 

@@ -85,7 +85,7 @@ var baz = Brax{F: foo, B: bar, A: a, M: m}
 const bar2 = 2 * bar
 
 func junk() int {
-	return 4 + 5
+	return 4 + foo
 }
 var junkv = junk()
 `
