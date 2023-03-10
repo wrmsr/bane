@@ -131,6 +131,24 @@ func (sc *Scope) makeChild() *Scope {
 	}
 }
 
+// FIXME: lol
+func boolString(b bool) string {
+	if b {
+		return "true"
+	}
+	return "false"
+}
+
+func stringBool(s string) bool {
+	switch s {
+	case "true":
+		return true
+	case "false":
+		return false
+	}
+	panic(s)
+}
+
 func (sc *Scope) evalExpr(n ast.Expr) any {
 	switch n := n.(type) {
 
@@ -282,7 +300,6 @@ func (sc *Scope) evalExpr(n ast.Expr) any {
 		}
 		xc := constant.MakeFromLiteral(xb.S, xb.K.Ast(), 0)
 		yc := constant.MakeFromLiteral(yb.S, yb.K.Ast(), 0)
-		//var zc constant.Value
 		switch n.Op {
 		case token.EQL,
 			token.NEQ,
@@ -290,9 +307,10 @@ func (sc *Scope) evalExpr(n ast.Expr) any {
 			token.LEQ,
 			token.GTR,
 			token.GEQ:
-			//b := constant.Compare(xc, n.Op, yc)
+			b := constant.Compare(xc, n.Op, yc)
 			return Basic{
-				//K: Ba
+				K: BoolBasic,
+				S: boolString(b),
 			}
 		default:
 			zc := constant.BinaryOp(xc, n.Op, yc)
@@ -328,7 +346,11 @@ func (sc *Scope) execStmts(sts []ast.Stmt) any {
 			check.Nil(st.Init)
 			check.Nil(st.Cond)
 			check.Nil(st.Post)
-			return sc.makeChild().execStmts(st.Body.List) // FIXME: lol...
+			for {
+				if rv := sc.makeChild().execStmts(st.Body.List); rv != nil {
+					return rv
+				}
+			}
 
 		case *ast.IfStmt:
 			check.Nil(st.Init)
@@ -336,12 +358,20 @@ func (sc *Scope) execStmts(sts []ast.Stmt) any {
 			if _, ok := cv.(error); ok {
 				return cv
 			}
-			check.Nil(st.Else)
-			panic(st)
+			cbv := cv.(Basic)
+			check.Equal(cbv.K, BoolBasic)
+			cb := stringBool(cbv.S)
+			if cb {
+				if rv := sc.makeChild().execStmts(st.Body.List); rv != nil {
+					return rv
+				}
+			} else if st.Else != nil {
+				panic(st)
+			}
 
 		default:
 			panic(st)
 		}
 	}
-	panic(sc)
+	return nil
 }
