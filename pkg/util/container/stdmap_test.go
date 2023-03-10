@@ -2,6 +2,7 @@ package container
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -46,4 +47,21 @@ func TestMapReflect2(t *testing.T) {
 	kty := check.Ok1(kvty.MethodByName("GetK")).Type.Out(0)
 	vty := check.Ok1(kvty.MethodByName("GetV")).Type.Out(0)
 	fmt.Println(kty, vty)
+}
+
+func TestStdMapReflectType(t *testing.T) {
+	m := NewMutStdMap[reflect.Type, string](nil)
+	m.Put(reflect.TypeOf(0), "int")
+	m.Put(reflect.TypeOf(int32(0)), "int32")
+	m.Put(reflect.TypeOf(int64(0)), "int64")
+
+	tu.AssertEqual(t, m.Contains(reflect.TypeOf(1)), true)
+	tu.AssertEqual(t, m.Get(reflect.TypeOf(1)), "int")
+	tu.AssertEqual(t, m.Contains(reflect.TypeOf(int16(1))), false)
+
+	m.Put(reflect.TypeOf(int16(0)), "int16")
+	tu.AssertEqual(t, m.Contains(reflect.TypeOf(int16(1))), true)
+
+	m.Delete(reflect.TypeOf(int64(1)))
+	tu.AssertEqual(t, m.Contains(reflect.TypeOf(int64(1))), false)
 }

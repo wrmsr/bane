@@ -1,6 +1,6 @@
 module github.com/wrmsr/bane
 
-go 1.18
+go 1.20
 
 require (
 	github.com/apache/arrow/go/v10 v10.0.1
