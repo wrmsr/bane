@@ -24,7 +24,7 @@ func (m *Manager) MarshalRfl(rv reflect.Value, o ...MarshalOpt) (Value, error) {
 	ty := rv.Type()
 	mc := MarshalContext{
 		Make: m.mf.Make,
-		Opts: ctr.NewStdTypeMap(its.OfSlice(o)),
+		Opts: ctr.NewStdMap(its.MakeTypeKvs(its.OfSlice(o))),
 		Reg:  m.reg,
 	}
 	mi, err := m.mf.Make(mc, ty)

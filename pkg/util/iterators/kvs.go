@@ -1,6 +1,10 @@
 package iterators
 
-import bt "github.com/wrmsr/bane/pkg/util/types"
+import (
+	"reflect"
+
+	bt "github.com/wrmsr/bane/pkg/util/types"
+)
 
 func Keys[K, V any](it bt.Iterable[bt.Kv[K, V]]) bt.Iterable[K] {
 	return Map(it, func(kv bt.Kv[K, V]) K { return kv.K })
@@ -42,4 +46,8 @@ func MakeKvs[K, V any](it bt.Iterable[V], fn func(v V) K) bt.Iterable[bt.Kv[K, V
 
 func StubKvs[K any](it bt.Iterable[K]) bt.Iterable[bt.Kv[K, struct{}]] {
 	return Map[K, bt.Kv[K, struct{}]](it, func(k K) bt.Kv[K, struct{}] { return bt.KvOf(k, struct{}{}) })
+}
+
+func MakeTypeKvs[V any](it bt.Iterable[V]) bt.Iterable[bt.Kv[reflect.Type, V]] {
+	return MakeKvs(it, func(v V) reflect.Type { return reflect.TypeOf(v) })
 }

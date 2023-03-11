@@ -27,7 +27,7 @@ type MarshalContext struct {
 	BaseContext
 
 	Make func(ctx MarshalContext, ty reflect.Type) (Marshaler, error)
-	Opts ctr.TypeMap[MarshalOpt]
+	Opts ctr.Map[reflect.Type, MarshalOpt]
 	Reg  *Registry
 }
 
