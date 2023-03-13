@@ -78,6 +78,16 @@ var intrinsics = []*Intrinsic{
 		fmt.Println(AsDisplay(args[0]))
 		return nil
 	}},
+
+	{"gf", func(args []Value) Value {
+		if len(args) != 2 {
+			panic("no")
+		}
+		v := args[0].(Reflect).v
+		n := args[1].(String)
+		r := v.FieldByName(string(n))
+		return Reflect{v: r}
+	}},
 }
 
 func addIntrinsics(sc *Scope) *Scope {
