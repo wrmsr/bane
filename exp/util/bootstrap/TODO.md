@@ -3,8 +3,7 @@
 - repl server
 - profile
 - dump
-- limits
-- chdir
+  - pprof
 - chroot
 - setuid, setgid
 - fd redir

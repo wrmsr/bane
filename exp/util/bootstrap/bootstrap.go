@@ -6,7 +6,9 @@ import (
 )
 
 type Config struct {
-	Env EnvConfig
+	Env    EnvConfig
+	Paths  PathsConfig
+	Limits LimitsConfig
 }
 
 func Bootstrap(cfg Config) (fn bt.ErrFn, err error) {
@@ -18,6 +20,12 @@ func Bootstrap(cfg Config) (fn bt.ErrFn, err error) {
 	}()
 
 	if err = EnvBootstrap(cfg.Env, ds); err != nil {
+		return
+	}
+	if err = PathsBootstrap(cfg.Paths, ds); err != nil {
+		return
+	}
+	if err = LimitsBootstrap(cfg.Limits, ds); err != nil {
 		return
 	}
 
