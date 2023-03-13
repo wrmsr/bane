@@ -1,3 +1,5 @@
+//go:build !nodev
+
 package main
 
 import "github.com/wrmsr/bane/exp/util/annotate"

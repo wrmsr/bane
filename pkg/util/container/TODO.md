@@ -1,5 +1,6 @@
 - ** re-add ref sharing for immuts
 - ** fix json unwanted mutability
+- * TypeMap / TypeSet wrappers
 
 - pool linkedlist
 - pool treap

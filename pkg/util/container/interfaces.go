@@ -1,8 +1,6 @@
 package container
 
 import (
-	"reflect"
-
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -147,27 +145,6 @@ type MutBiMap[K, V comparable] interface {
 	BiMap[K, V]
 
 	MutInvert() MutBiMap[V, K]
-}
-
-//
-
-type TypeMap[T any] interface {
-	Len() int
-	Contains(ty reflect.Type) bool
-	Get(ty reflect.Type) T
-	TryGet(ty reflect.Type) (T, bool)
-
-	bt.Iterable[T]
-	bt.Traversable[T]
-}
-
-type MutTypeMap[T any] interface {
-	TypeMap[T]
-	Mut
-
-	Put(v T)
-	Delete(ty reflect.Type)
-	Default(v T) bool
 }
 
 //

@@ -109,7 +109,7 @@ type UnmarshalContext struct {
 	BaseContext
 
 	Make func(ctx UnmarshalContext, ty reflect.Type) (Unmarshaler, error)
-	Opts ctr.TypeMap[UnmarshalOpt]
+	Opts ctr.Map[reflect.Type, UnmarshalOpt]
 	Reg  *Registry
 }
 

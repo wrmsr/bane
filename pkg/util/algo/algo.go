@@ -1,7 +1,3 @@
-// hi
-/*
-hi there
-*/
 package algo
 
 import (
