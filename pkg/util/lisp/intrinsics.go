@@ -88,6 +88,14 @@ var intrinsics = []*Intrinsic{
 		r := v.FieldByName(string(n))
 		return Reflect{v: r}
 	}},
+
+	{"cm", func(args []Value) Value {
+		v := args[0].(Reflect).v
+		n := args[1].(String)
+		m := v.MethodByName(string(n))
+		m.Call(nil)
+		return nil
+	}},
 }
 
 func addIntrinsics(sc *Scope) *Scope {
