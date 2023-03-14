@@ -3,7 +3,6 @@ package marshal
 import (
 	"fmt"
 	"reflect"
-	"sync"
 
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -52,20 +51,21 @@ func (f TypeMapFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 
 //
 
-type TypeCacheFactory[R, C any] struct {
-	f   Factory[R, C, reflect.Type]
-	mtx sync.Mutex
-	m   map[reflect.Type]bt.Optional[R]
+type TypeCacheFactory[R any, C BaseContext] struct {
+	f Factory[R, C, reflect.Type]
+	//mtx sync.Mutex
+	m map[reflect.Type]bt.Optional[R]
+	//o atomic.Value[BaseContext]
 }
 
-func NewTypeCacheFactory[R, C any](f Factory[R, C, reflect.Type]) *TypeCacheFactory[R, C] {
+func NewTypeCacheFactory[R any, C BaseContext](f Factory[R, C, reflect.Type]) *TypeCacheFactory[R, C] {
 	return &TypeCacheFactory[R, C]{
 		f: f,
 		m: make(map[reflect.Type]bt.Optional[R]),
 	}
 }
 
-var _ Factory[int, uint, reflect.Type] = &TypeCacheFactory[int, uint]{}
+var _ Factory[int, BaseContext, reflect.Type] = &TypeCacheFactory[int, BaseContext]{}
 
 func (f *TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 	//FIXME: RLock :|||

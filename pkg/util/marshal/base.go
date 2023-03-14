@@ -8,7 +8,8 @@ import (
 
 ///
 
-type BaseContext struct {
+type BaseContext interface {
+	isBaseContext()
 }
 
 ///
@@ -24,12 +25,12 @@ func (o BaseMarshalOpt) isMarshalOpt() {}
 //
 
 type MarshalContext struct {
-	BaseContext
-
 	Make func(ctx MarshalContext, ty reflect.Type) (Marshaler, error)
 	Opts ctr.Map[reflect.Type, MarshalOpt]
 	Reg  *Registry
 }
+
+func (c MarshalContext) isBaseContext() {}
 
 type Marshaler interface {
 	Marshal(ctx MarshalContext, rv reflect.Value) (Value, error)
@@ -112,6 +113,8 @@ type UnmarshalContext struct {
 	Opts ctr.Map[reflect.Type, UnmarshalOpt]
 	Reg  *Registry
 }
+
+func (c UnmarshalContext) isBaseContext() {}
 
 type Unmarshaler interface {
 	Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error)
