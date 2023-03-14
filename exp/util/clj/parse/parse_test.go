@@ -23,6 +23,10 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/wrmsr/bane/pkg/util/check"
+	ju "github.com/wrmsr/bane/pkg/util/json"
+	msh "github.com/wrmsr/bane/pkg/util/marshal"
 )
 
 var testCases = []struct {
@@ -81,11 +85,13 @@ func TestAll(t *testing.T) {
 			t.Errorf("got %d roots for %q; want 1", len(tree.Roots), tc.s)
 			continue
 		}
-		got := tree.Roots[0].String()
+		root := tree.Roots[0]
+		got := root.String()
 		if got != tc.want {
 			t.Errorf("for %q: got %s; want %s", tc.s, got, tc.want)
 			continue
 		}
+		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&root)))))
 	}
 }
 

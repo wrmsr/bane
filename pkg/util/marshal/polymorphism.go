@@ -76,7 +76,11 @@ func NewPolymorphism(ty reflect.Type, es []SetImpl, naming Naming) *Polymorphism
 		}
 		im[e.Impl] = e
 		if e.Tag == "" {
-			e.Tag = naming.Name(e.Impl.Name())
+			bt := e.Impl
+			for bt.Kind() == reflect.Pointer {
+				bt = bt.Elem()
+			}
+			e.Tag = naming.Name(bt.Name())
 		}
 		if _, ok := tm[e.Tag]; ok {
 			panic(fmt.Errorf("duplicate tag: %s", e.Tag))
