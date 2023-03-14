@@ -39,3 +39,40 @@ package box
 //func (v Uint32) String() string  { return fmt.Sprintf("Uint32{%v}", v.v.Uint()) }
 //func (v Uint64) String() string  { return fmt.Sprintf("Uint64{%v}", v.v.Uint()) }
 //func (v Uintptr) String() string { return fmt.Sprintf("Uintptr{%v}", v.v.Uint()) }
+
+/*
+Bool
+
+Int
+Int8
+Int16
+Int32
+Int64
+
+Uint
+Uint8
+Uint16
+Uint32
+Uint64
+Uintptr
+
+Float32
+Float64
+
+Complex64
+Complex128
+
+String
+
+Array
+Slice
+
+Map
+
+Chan
+Func
+Interface
+Pointer
+Struct
+UnsafePointer
+*/

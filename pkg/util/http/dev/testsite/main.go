@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	inj "github.com/wrmsr/bane/pkg/util/inject"
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
 
@@ -26,9 +27,36 @@ func headers(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func main() {
-	http.HandleFunc("/hello", hello)
-	http.HandleFunc("/headers", headers)
+//func main() {
+//	http.HandleFunc("/hello", hello)
+//	http.HandleFunc("/headers", headers)
+//
+//	check.Must(http.ListenAndServe(":8090", nil))
+//}
 
-	check.Must(http.ListenAndServe(":8090", nil))
+//
+
+type serverFunc = func(mux *http.ServeMux)
+
+func main() {
+	mux := http.NewServeMux()
+
+	injector := inj.NewInjector(inj.Bind(
+		inj.BindArrayOf[serverFunc]{},
+
+		inj.As(inj.ArrayOf[serverFunc]{}, inj.Const{func(mux *http.ServeMux) {
+			mux.HandleFunc("/hello", hello)
+		}}),
+
+		inj.As(inj.ArrayOf[serverFunc]{}, inj.Const{func(mux *http.ServeMux) {
+			mux.HandleFunc("/headers", headers)
+		}}),
+	))
+
+	arr := injector.Provide(inj.ArrayOf[serverFunc]{}).([]serverFunc)
+	for _, fn := range arr {
+		fn(mux)
+	}
+
+	check.Must(http.ListenAndServe(":8090", mux))
 }

@@ -2,3 +2,4 @@
 - type Type[T] struct { ty reflect.Type }, w/ type bound?
 - deep equals / diff - https://github.com/go-test/deep
 - repr / parse
+- transform / map
