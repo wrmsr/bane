@@ -1,9 +1,15 @@
 package platform
 
-import "encoding/binary"
+import (
+	"encoding/binary"
 
-var nativeEndian binary.ByteOrder
+	"golang.org/x/sys/cpu"
+)
 
 func NativeEndian() binary.ByteOrder {
-	return nativeEndian
+	if cpu.IsBigEndian {
+		return binary.BigEndian
+	} else {
+		return binary.LittleEndian
+	}
 }
