@@ -26,10 +26,6 @@ type Node interface {
 	Position() *Pos
 	String() string // A non-recursive string representation
 	Children() []Node
-	SetChildren([]Node)
-	Parent() Node // nil if Node is a root node
-
-	setParent(Node)
 }
 
 func (p *Pos) Position() *Pos { return p }
@@ -38,8 +34,7 @@ func (p *Pos) Position() *Pos { return p }
 
 type BoolNode struct {
 	*Pos
-	parent Node
-	Val    bool
+	Val bool
 }
 
 func (n *BoolNode) String() string {
@@ -49,104 +44,65 @@ func (n *BoolNode) String() string {
 	return "false"
 }
 
-func (n *BoolNode) Parent() Node       { return n.parent }
-func (n *BoolNode) setParent(p Node)   { n.parent = p }
-func (n *BoolNode) Children() []Node   { return nil }
-func (n *BoolNode) SetChildren([]Node) { panic("SetChildren called on BoolNode") }
+func (n *BoolNode) Children() []Node { return nil }
 
 //
 
 type CharacterNode struct {
 	*Pos
-	parent Node
-	Val    rune
-	Text   string
+	Val  rune
+	Text string
 }
 
-func (n *CharacterNode) String() string     { return fmt.Sprintf("char(%q)", n.Val) }
-func (n *CharacterNode) Parent() Node       { return n.parent }
-func (n *CharacterNode) setParent(p Node)   { n.parent = p }
-func (n *CharacterNode) Children() []Node   { return nil }
-func (n *CharacterNode) SetChildren([]Node) { panic("SetChildren called on CharacterNode") }
+func (n *CharacterNode) String() string   { return fmt.Sprintf("char(%q)", n.Val) }
+func (n *CharacterNode) Children() []Node { return nil }
 
 //
 
 type CommentNode struct {
 	*Pos
-	parent Node
-	Text   string
+	Text string
 }
 
-func (n *CommentNode) String() string     { return fmt.Sprintf("comment(%q)", n.Text) }
-func (n *CommentNode) Parent() Node       { return n.parent }
-func (n *CommentNode) setParent(p Node)   { n.parent = p }
-func (n *CommentNode) Children() []Node   { return nil }
-func (n *CommentNode) SetChildren([]Node) { panic("SetChildren called on CommentNode") }
+func (n *CommentNode) String() string   { return fmt.Sprintf("comment(%q)", n.Text) }
+func (n *CommentNode) Children() []Node { return nil }
 
 //
 
 type DerefNode struct {
 	*Pos
-	parent Node
-	Node   Node
+	Node Node
 }
 
 func (n *DerefNode) String() string   { return "deref" }
-func (n *DerefNode) Parent() Node     { return n.parent }
-func (n *DerefNode) setParent(p Node) { n.parent = p }
 func (n *DerefNode) Children() []Node { return []Node{n.Node} }
-func (n *DerefNode) SetChildren(nodes []Node) {
-	if len(nodes) != 1 {
-		panicf("SetChildren called on DerefNode with %d nodes", len(nodes))
-	}
-	n.Node.setParent(nil)
-	n.Node = nodes[0]
-	n.Node.setParent(n)
-}
 
 //
 
 type KeywordNode struct {
 	*Pos
-	parent Node
-	Val    string
+	Val string
 }
 
-func (n *KeywordNode) String() string     { return fmt.Sprintf("keyword(%s)", n.Val) }
-func (n *KeywordNode) Parent() Node       { return n.parent }
-func (n *KeywordNode) setParent(p Node)   { n.parent = p }
-func (n *KeywordNode) Children() []Node   { return nil }
-func (n *KeywordNode) SetChildren([]Node) { panic("SetChildren called on KeywordNode") }
+func (n *KeywordNode) String() string   { return fmt.Sprintf("keyword(%s)", n.Val) }
+func (n *KeywordNode) Children() []Node { return nil }
 
 //
 
 type ListNode struct {
 	*Pos
-	parent Node
-	Nodes  []Node
+	Nodes []Node
 }
 
 func (n *ListNode) String() string {
 	return fmt.Sprintf("list(length=%d)", countSemantic(n.Nodes))
 }
-func (n *ListNode) Parent() Node     { return n.parent }
-func (n *ListNode) setParent(p Node) { n.parent = p }
 func (n *ListNode) Children() []Node { return n.Nodes }
-func (n *ListNode) SetChildren(nodes []Node) {
-	for _, c := range n.Nodes {
-		c.setParent(nil)
-	}
-	n.Nodes = nodes
-	for _, c := range n.Nodes {
-		c.setParent(n)
-	}
-}
 
 //
 
 type MapNode struct {
 	*Pos
-	parent    Node
 	Namespace string // empty unless the map has a namespace: #:ns{:x 1}
 	Nodes     []Node
 }
@@ -159,395 +115,215 @@ func (n *MapNode) String() string {
 	semanticNodes := countSemantic(n.Nodes)
 	return fmt.Sprintf("map(%slength=%d)", ns, semanticNodes/2)
 }
-func (n *MapNode) Parent() Node     { return n.parent }
-func (n *MapNode) setParent(p Node) { n.parent = p }
 func (n *MapNode) Children() []Node { return n.Nodes }
-func (n *MapNode) SetChildren(nodes []Node) {
-	for _, c := range n.Nodes {
-		c.setParent(nil)
-	}
-	n.Nodes = nodes
-	for _, c := range n.Nodes {
-		c.setParent(n)
-	}
-}
 
 //
 
 type MetadataNode struct {
 	*Pos
-	parent Node
-	Node   Node
+	Node Node
 }
 
 func (n *MetadataNode) String() string   { return "metadata" }
-func (n *MetadataNode) Parent() Node     { return n.parent }
-func (n *MetadataNode) setParent(p Node) { n.parent = p }
 func (n *MetadataNode) Children() []Node { return []Node{n.Node} }
-func (n *MetadataNode) SetChildren(nodes []Node) {
-	if len(nodes) != 1 {
-		panicf("SetChildren called on MetadataNode with %d nodes", len(nodes))
-	}
-	n.Node.setParent(nil)
-	n.Node = nodes[0]
-	n.Node.setParent(n)
-}
 
 //
 
 type NewlineNode struct {
 	*Pos
-	parent Node
 }
 
-func (n *NewlineNode) String() string     { return "newline" }
-func (n *NewlineNode) Parent() Node       { return n.parent }
-func (n *NewlineNode) setParent(p Node)   { n.parent = p }
-func (n *NewlineNode) Children() []Node   { return nil }
-func (n *NewlineNode) SetChildren([]Node) { panic("SetChildren called on NewlineNode") }
+func (n *NewlineNode) String() string   { return "newline" }
+func (n *NewlineNode) Children() []Node { return nil }
 
 //
 
 type NilNode struct {
 	*Pos
-	parent Node
 }
 
-func (n *NilNode) String() string     { return "nil" }
-func (n *NilNode) Parent() Node       { return n.parent }
-func (n *NilNode) setParent(p Node)   { n.parent = p }
-func (n *NilNode) Children() []Node   { return nil }
-func (n *NilNode) SetChildren([]Node) { panic("SetChildren called on NilNode") }
+func (n *NilNode) String() string   { return "nil" }
+func (n *NilNode) Children() []Node { return nil }
 
 //
 
 type NumberNode struct {
 	*Pos
-	parent Node
-	Val    string
+	Val string
 }
 
-func (n *NumberNode) String() string     { return fmt.Sprintf("num(%s)", n.Val) }
-func (n *NumberNode) Parent() Node       { return n.parent }
-func (n *NumberNode) setParent(p Node)   { n.parent = p }
-func (n *NumberNode) Children() []Node   { return nil }
-func (n *NumberNode) SetChildren([]Node) { panic("SetChildren called on NumberNode") }
+func (n *NumberNode) String() string   { return fmt.Sprintf("num(%s)", n.Val) }
+func (n *NumberNode) Children() []Node { return nil }
 
 //
 
 type SymbolNode struct {
 	*Pos
-	parent Node
-	Val    string
+	Val string
 }
 
-func (n *SymbolNode) String() string     { return "sym(" + n.Val + ")" }
-func (n *SymbolNode) Parent() Node       { return n.parent }
-func (n *SymbolNode) setParent(p Node)   { n.parent = p }
-func (n *SymbolNode) Children() []Node   { return nil }
-func (n *SymbolNode) SetChildren([]Node) { panic("SetChildren called on SymbolNode") }
+func (n *SymbolNode) String() string   { return "sym(" + n.Val + ")" }
+func (n *SymbolNode) Children() []Node { return nil }
 
 //
 
 type QuoteNode struct {
 	*Pos
-	parent Node
-	Node   Node
+	Node Node
 }
 
 func (n *QuoteNode) String() string   { return "quote" }
-func (n *QuoteNode) Parent() Node     { return n.parent }
-func (n *QuoteNode) setParent(p Node) { n.parent = p }
 func (n *QuoteNode) Children() []Node { return []Node{n.Node} }
-func (n *QuoteNode) SetChildren(nodes []Node) {
-	if len(nodes) != 1 {
-		panicf("SetChildren called on QuoteNode with %d nodes", len(nodes))
-	}
-	n.Node.setParent(nil)
-	n.Node = nodes[0]
-	n.Node.setParent(n)
-}
 
 //
 
 type StringNode struct {
 	*Pos
-	parent Node
-	Val    string
+	Val string
 }
 
-func (n *StringNode) String() string     { return fmt.Sprintf("string(%q)", n.Val) }
-func (n *StringNode) Parent() Node       { return n.parent }
-func (n *StringNode) setParent(p Node)   { n.parent = p }
-func (n *StringNode) Children() []Node   { return nil }
-func (n *StringNode) SetChildren([]Node) { panic("SetChildren called on StringNode") }
+func (n *StringNode) String() string   { return fmt.Sprintf("string(%q)", n.Val) }
+func (n *StringNode) Children() []Node { return nil }
 
 //
 
 type SyntaxQuoteNode struct {
 	*Pos
-	parent Node
-	Node   Node
+	Node Node
 }
 
 func (n *SyntaxQuoteNode) String() string   { return "syntax quote" }
-func (n *SyntaxQuoteNode) Parent() Node     { return n.parent }
-func (n *SyntaxQuoteNode) setParent(p Node) { n.parent = p }
 func (n *SyntaxQuoteNode) Children() []Node { return []Node{n.Node} }
-func (n *SyntaxQuoteNode) SetChildren(nodes []Node) {
-	if len(nodes) != 1 {
-		panicf("SetChildren called on SyntaxQuoteNode with %d nodes", len(nodes))
-	}
-	n.Node.setParent(nil)
-	n.Node = nodes[0]
-	n.Node.setParent(n)
-}
 
 //
 
 type UnquoteNode struct {
 	*Pos
-	parent Node
-	Node   Node
+	Node Node
 }
 
 func (n *UnquoteNode) String() string   { return "unquote" }
-func (n *UnquoteNode) Parent() Node     { return n.parent }
-func (n *UnquoteNode) setParent(p Node) { n.parent = p }
 func (n *UnquoteNode) Children() []Node { return []Node{n.Node} }
-func (n *UnquoteNode) SetChildren(nodes []Node) {
-	if len(nodes) != 1 {
-		panicf("SetChildren called on UnquoteNode with %d nodes", len(nodes))
-	}
-	n.Node.setParent(nil)
-	n.Node = nodes[0]
-	n.Node.setParent(n)
-}
 
 //
 
 type UnquoteSpliceNode struct {
 	*Pos
-	parent Node
-	Node   Node
+	Node Node
 }
 
 func (n *UnquoteSpliceNode) String() string   { return "unquote splice" }
-func (n *UnquoteSpliceNode) Parent() Node     { return n.parent }
-func (n *UnquoteSpliceNode) setParent(p Node) { n.parent = p }
 func (n *UnquoteSpliceNode) Children() []Node { return []Node{n.Node} }
-func (n *UnquoteSpliceNode) SetChildren(nodes []Node) {
-	if len(nodes) != 1 {
-		panicf("SetChildren called on UnquoteSpliceNode with %d nodes", len(nodes))
-	}
-	n.Node.setParent(nil)
-	n.Node = nodes[0]
-	n.Node.setParent(n)
-}
 
 //
 
 type VectorNode struct {
 	*Pos
-	parent Node
-	Nodes  []Node
+	Nodes []Node
 }
 
 func (n *VectorNode) String() string {
 	return fmt.Sprintf("vector(length=%d)", countSemantic(n.Nodes))
 }
-func (n *VectorNode) Parent() Node     { return n.parent }
-func (n *VectorNode) setParent(p Node) { n.parent = p }
 func (n *VectorNode) Children() []Node { return n.Nodes }
-func (n *VectorNode) SetChildren(nodes []Node) {
-	for _, c := range n.Nodes {
-		c.setParent(nil)
-	}
-	n.Nodes = nodes
-	for _, c := range n.Nodes {
-		c.setParent(n)
-	}
-}
 
 //
 
 type FnLiteralNode struct {
 	*Pos
-	parent Node
-	Nodes  []Node
+	Nodes []Node
 }
 
 func (n *FnLiteralNode) String() string {
 	return fmt.Sprintf("lambda(length=%d)", countSemantic(n.Nodes))
 }
-func (n *FnLiteralNode) Parent() Node     { return n.parent }
-func (n *FnLiteralNode) setParent(p Node) { n.parent = p }
 func (n *FnLiteralNode) Children() []Node { return n.Nodes }
-func (n *FnLiteralNode) SetChildren(nodes []Node) {
-	for _, c := range n.Nodes {
-		c.setParent(nil)
-	}
-	n.Nodes = nodes
-	for _, c := range n.Nodes {
-		c.setParent(n)
-	}
-}
 
 //
 
 type ReaderCondNode struct {
 	*Pos
-	parent Node
-	Nodes  []Node
+	Nodes []Node
 }
 
 func (n *ReaderCondNode) String() string {
 	return fmt.Sprintf("reader-cond(length=%d)", len(n.Nodes))
 }
-func (n *ReaderCondNode) Parent() Node     { return n.parent }
-func (n *ReaderCondNode) setParent(p Node) { n.parent = p }
 func (n *ReaderCondNode) Children() []Node { return n.Nodes }
-func (n *ReaderCondNode) SetChildren(nodes []Node) {
-	for _, c := range n.Nodes {
-		c.setParent(nil)
-	}
-	n.Nodes = nodes
-	for _, c := range n.Nodes {
-		c.setParent(n)
-	}
-}
 
 //
 
 type ReaderCondSpliceNode struct {
 	*Pos
-	parent Node
-	Nodes  []Node
+	Nodes []Node
 }
 
 func (n *ReaderCondSpliceNode) String() string {
 	return fmt.Sprintf("reader-cond-splice(length=%d)", len(n.Nodes))
 }
-func (n *ReaderCondSpliceNode) Parent() Node     { return n.parent }
-func (n *ReaderCondSpliceNode) setParent(p Node) { n.parent = p }
 func (n *ReaderCondSpliceNode) Children() []Node { return n.Nodes }
-func (n *ReaderCondSpliceNode) SetChildren(nodes []Node) {
-	for _, c := range n.Nodes {
-		c.setParent(nil)
-	}
-	n.Nodes = nodes
-	for _, c := range n.Nodes {
-		c.setParent(n)
-	}
-}
 
 //
 
 type ReaderDiscardNode struct {
 	*Pos
-	parent Node
-	Node   Node
+	Node Node
 }
 
 func (n *ReaderDiscardNode) String() string   { return "discard" }
-func (n *ReaderDiscardNode) Parent() Node     { return n.parent }
-func (n *ReaderDiscardNode) setParent(p Node) { n.parent = p }
 func (n *ReaderDiscardNode) Children() []Node { return []Node{n.Node} }
-func (n *ReaderDiscardNode) SetChildren(nodes []Node) {
-	if len(nodes) != 1 {
-		panicf("SetChildren called on ReaderDiscardNode with %d nodes", len(nodes))
-	}
-	n.Node.setParent(nil)
-	n.Node = nodes[0]
-	n.Node.setParent(n)
-}
 
 //
 
 type ReaderEvalNode struct {
 	*Pos
-	parent Node
-	Node   Node
+	Node Node
 }
 
 func (n *ReaderEvalNode) String() string   { return "eval" }
-func (n *ReaderEvalNode) Parent() Node     { return n.parent }
-func (n *ReaderEvalNode) setParent(p Node) { n.parent = p }
 func (n *ReaderEvalNode) Children() []Node { return []Node{n.Node} }
-func (n *ReaderEvalNode) SetChildren(nodes []Node) {
-	if len(nodes) != 1 {
-		panicf("SetChildren called on ReaderEvalNode with %d nodes", len(nodes))
-	}
-	n.Node.setParent(nil)
-	n.Node = nodes[0]
-	n.Node.setParent(n)
-}
 
 //
 
 type RegexNode struct {
 	*Pos
-	parent Node
-	Val    string
+	Val string
 }
 
-func (n *RegexNode) String() string     { return fmt.Sprintf("regex(%q)", n.Val) }
-func (n *RegexNode) Parent() Node       { return n.parent }
-func (n *RegexNode) setParent(p Node)   { n.parent = p }
-func (n *RegexNode) Children() []Node   { return nil }
-func (n *RegexNode) SetChildren([]Node) { panic("SetChildren called on RegexNode") }
+func (n *RegexNode) String() string   { return fmt.Sprintf("regex(%q)", n.Val) }
+func (n *RegexNode) Children() []Node { return nil }
 
 //
 
 type SetNode struct {
 	*Pos
-	parent Node
-	Nodes  []Node
+	Nodes []Node
 }
 
 func (n *SetNode) String() string {
 	return fmt.Sprintf("set(length=%d)", countSemantic(n.Nodes))
 }
-func (n *SetNode) Parent() Node     { return n.parent }
-func (n *SetNode) setParent(p Node) { n.parent = p }
 func (n *SetNode) Children() []Node { return n.Nodes }
-func (n *SetNode) SetChildren(nodes []Node) {
-	for _, c := range n.Nodes {
-		c.setParent(nil)
-	}
-	n.Nodes = nodes
-	for _, c := range n.Nodes {
-		c.setParent(n)
-	}
-}
 
 //
 
 type VarQuoteNode struct {
 	*Pos
-	parent Node
-	Val    string
+	Val string
 }
 
-func (n *VarQuoteNode) String() string     { return fmt.Sprintf("varquote(%s)", n.Val) }
-func (n *VarQuoteNode) Parent() Node       { return n.parent }
-func (n *VarQuoteNode) setParent(p Node)   { n.parent = p }
-func (n *VarQuoteNode) Children() []Node   { return nil }
-func (n *VarQuoteNode) SetChildren([]Node) { panic("SetChildren called on VarQuoteNode") }
+func (n *VarQuoteNode) String() string   { return fmt.Sprintf("varquote(%s)", n.Val) }
+func (n *VarQuoteNode) Children() []Node { return nil }
 
 //
 
 type TagNode struct {
 	*Pos
-	parent Node
-	Val    string
+	Val string
 }
 
-func (n *TagNode) String() string     { return fmt.Sprintf("tag(%s)", n.Val) }
-func (n *TagNode) Parent() Node       { return n.parent }
-func (n *TagNode) setParent(p Node)   { n.parent = p }
-func (n *TagNode) Children() []Node   { return nil }
-func (n *TagNode) SetChildren([]Node) { panic("SetChildren called on TagNode") }
+func (n *TagNode) String() string   { return fmt.Sprintf("tag(%s)", n.Val) }
+func (n *TagNode) Children() []Node { return nil }
 
 //
 

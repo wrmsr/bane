@@ -63,7 +63,6 @@ func (t *Tree) parse() (err error) {
 	var linkParents func(Node)
 	linkParents = func(n Node) {
 		for _, c := range n.Children() {
-			c.setParent(n)
 			linkParents(c)
 		}
 	}
