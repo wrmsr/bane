@@ -26,6 +26,11 @@ type Node interface {
 	Position() *Pos
 	String() string // A non-recursive string representation
 	Children() []Node
+
+	//copy() Node
+
+	//doChildren(func(Node) bool) bool
+	//editChildren(func(Node) Node)
 }
 
 func (p *Pos) Position() *Pos { return p }
