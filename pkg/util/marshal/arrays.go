@@ -20,7 +20,7 @@ func NewIndexMarshaler(elem Marshaler) IndexMarshaler {
 
 var _ Marshaler = IndexMarshaler{}
 
-func (m IndexMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m IndexMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	if rv.Kind() == reflect.Slice && rv.IsNil() {
 		return _nullValue, nil
 	}
@@ -39,7 +39,7 @@ func (m IndexMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, er
 
 //
 
-var indexMarshalerFactory = NewFuncFactory(func(ctx MarshalContext, ty reflect.Type) (Marshaler, error) {
+var indexMarshalerFactory = NewFuncFactory(func(ctx *MarshalContext, ty reflect.Type) (Marshaler, error) {
 	if ty.Kind() != reflect.Slice && ty.Kind() != reflect.Array {
 		return nil, nil
 	}
@@ -71,7 +71,7 @@ func NewSliceUnmarshaler(ty reflect.Type, elem Unmarshaler) SliceUnmarshaler {
 
 var _ Unmarshaler = SliceUnmarshaler{}
 
-func indexUnmarshal(mv Array, rv reflect.Value, u Unmarshaler, ctx UnmarshalContext) error {
+func indexUnmarshal(mv Array, rv reflect.Value, u Unmarshaler, ctx *UnmarshalContext) error {
 	for i, em := range mv.v {
 		er, err := u.Unmarshal(ctx, em)
 		if err != nil {
@@ -82,7 +82,7 @@ func indexUnmarshal(mv Array, rv reflect.Value, u Unmarshaler, ctx UnmarshalCont
 	return nil
 }
 
-func (u SliceUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (u SliceUnmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	switch mv := mv.(type) {
 
 	case Null:
@@ -116,7 +116,7 @@ func NewArrayUnmarshaler(ty reflect.Type, elem Unmarshaler) ArrayUnmarshaler {
 
 var _ Unmarshaler = ArrayUnmarshaler{}
 
-func (u ArrayUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (u ArrayUnmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	switch mv := mv.(type) {
 
 	case Array:
@@ -136,7 +136,7 @@ func (u ArrayUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Val
 
 //
 
-var indexUnmarshalerFactory = NewFuncFactory(func(ctx UnmarshalContext, ty reflect.Type) (Unmarshaler, error) {
+var indexUnmarshalerFactory = NewFuncFactory(func(ctx *UnmarshalContext, ty reflect.Type) (Unmarshaler, error) {
 	if ty.Kind() != reflect.Slice && ty.Kind() != reflect.Array {
 		return nil, nil
 	}

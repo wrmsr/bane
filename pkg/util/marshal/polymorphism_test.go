@@ -61,13 +61,13 @@ func TestPolymorphism(t *testing.T) {
 		NewConvertPrimitiveUnmarshalerFactory(),
 	)))
 
-	m := check.Must1(mf.Make(MarshalContext{Make: mf.Make}, rfl.TypeOf[PolyI]()))
-	u := check.Must1(uf.Make(UnmarshalContext{Make: uf.Make}, rfl.TypeOf[PolyI]()))
+	m := check.Must1(mf.Make(&MarshalContext{Make: mf.Make}, rfl.TypeOf[PolyI]()))
+	u := check.Must1(uf.Make(&UnmarshalContext{Make: uf.Make}, rfl.TypeOf[PolyI]()))
 
-	v := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(i)))
+	v := check.Must1(m.Marshal(&MarshalContext{}, reflect.ValueOf(i)))
 	fmt.Println(v)
 
-	o2 := check.Must1(u.Unmarshal(UnmarshalContext{}, v))
+	o2 := check.Must1(u.Unmarshal(&UnmarshalContext{}, v))
 	fmt.Println(o2)
 
 	//tu.AssertDeepEqual(t, i, o2)
@@ -111,15 +111,15 @@ func TestRegistryPolymorphism(t *testing.T) {
 		NewConvertPrimitiveUnmarshalerFactory(),
 	)))
 
-	mc := MarshalContext{Make: mf.Make, Reg: r}
-	uc := UnmarshalContext{Make: uf.Make, Reg: r}
+	mc := &MarshalContext{Make: mf.Make, Reg: r}
+	uc := &UnmarshalContext{Make: uf.Make, Reg: r}
 
 	m := check.Must1(mf.Make(mc, rfl.TypeOf[PolyI]()))
 	u := check.Must1(uf.Make(uc, rfl.TypeOf[PolyI]()))
 
-	v := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(o)))
+	v := check.Must1(m.Marshal(&MarshalContext{}, reflect.ValueOf(o)))
 	fmt.Println(v)
 
-	o2 := check.Must1(u.Unmarshal(UnmarshalContext{}, v))
+	o2 := check.Must1(u.Unmarshal(&UnmarshalContext{}, v))
 	fmt.Println(o2)
 }

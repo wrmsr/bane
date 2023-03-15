@@ -20,7 +20,7 @@ func TestReflectKvIterable(t *testing.T) {
 		PrimitiveMarshaler{},
 		PrimitiveMarshaler{},
 	).Marshal(
-		MarshalContext{},
+		&MarshalContext{},
 		reflect.ValueOf(m),
 	))
 
@@ -37,7 +37,7 @@ func TestAnyKvIterable(t *testing.T) {
 		PrimitiveMarshaler{},
 		PrimitiveMarshaler{},
 	).Marshal(
-		MarshalContext{},
+		&MarshalContext{},
 		reflect.ValueOf(m),
 	))
 
@@ -50,7 +50,7 @@ func benchmarkKvIterable(b *testing.B, impl Marshaler) {
 		mb.Put(int64(i), strconv.Itoa(i))
 	}
 	m := mb.Build()
-	mc := MarshalContext{}
+	mc := &MarshalContext{}
 	mrv := reflect.ValueOf(m)
 
 	for n := 0; n < b.N; n++ {

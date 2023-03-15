@@ -21,7 +21,7 @@ func NewEnumMarshaler[T comparable](m map[T]string) EnumMarshaler[T] {
 
 var _ Marshaler = EnumMarshaler[int]{}
 
-func (m EnumMarshaler[T]) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m EnumMarshaler[T]) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	iv := rv.Interface()
 	it, ok := iv.(T)
 	if !ok {
@@ -46,7 +46,7 @@ func NewEnumUnmarshaler(m map[string]any) EnumUnmarshaler {
 
 var _ Unmarshaler = EnumUnmarshaler{}
 
-func (u EnumUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (u EnumUnmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	switch mv := mv.(type) {
 
 	case String:

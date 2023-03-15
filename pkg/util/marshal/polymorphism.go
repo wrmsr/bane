@@ -130,7 +130,7 @@ func NewPolymorphismMarshaler(p *Polymorphism, m map[reflect.Type]Marshaler) Pol
 
 var _ Marshaler = PolymorphismMarshaler{}
 
-func (m PolymorphismMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m PolymorphismMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	if rv.Kind() == reflect.Interface {
 		rv = rv.Elem()
 	}
@@ -151,7 +151,7 @@ func (m PolymorphismMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Va
 //
 
 func NewPolymorphismMarshalerFactory(p *Polymorphism) MarshalerFactory {
-	return NewFuncFactory(func(ctx MarshalContext, a reflect.Type) (Marshaler, error) {
+	return NewFuncFactory(func(ctx *MarshalContext, a reflect.Type) (Marshaler, error) {
 		if a != p.ty {
 			return nil, nil
 		}
@@ -214,7 +214,7 @@ func buildRegistryPolymorphism(r *Registry, ty reflect.Type) *Polymorphism {
 }
 
 func NewRegistryPolymorphismMarshalerFactory() MarshalerFactory {
-	return NewFuncFactory(func(ctx MarshalContext, a reflect.Type) (Marshaler, error) {
+	return NewFuncFactory(func(ctx *MarshalContext, a reflect.Type) (Marshaler, error) {
 		if ctx.Reg == nil {
 			return nil, nil
 		}
@@ -238,7 +238,7 @@ func NewPolymorphismUnmarshaler(m map[string]Unmarshaler) PolymorphismUnmarshale
 
 var _ Unmarshaler = PolymorphismUnmarshaler{}
 
-func (u PolymorphismUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (u PolymorphismUnmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	switch mv := mv.(type) {
 
 	case Object:
@@ -263,7 +263,7 @@ func (u PolymorphismUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (refl
 //
 
 func NewPolymorphismUnmarshalerFactory(p *Polymorphism) UnmarshalerFactory {
-	return NewFuncFactory(func(ctx UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
+	return NewFuncFactory(func(ctx *UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
 		if a != p.ty {
 			return nil, nil
 		}
@@ -283,7 +283,7 @@ func NewPolymorphismUnmarshalerFactory(p *Polymorphism) UnmarshalerFactory {
 }
 
 func NewRegistryPolymorphismUnmarshalerFactory() UnmarshalerFactory {
-	return NewFuncFactory(func(ctx UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
+	return NewFuncFactory(func(ctx *UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
 		if ctx.Reg == nil {
 			return nil, nil
 		}

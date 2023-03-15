@@ -9,9 +9,9 @@ import (
 
 //
 
-type MarshalPredicate = func(ctx MarshalContext, rv reflect.Value) bool
+type MarshalPredicate = func(ctx *MarshalContext, rv reflect.Value) bool
 
-func TrueMarshalPredicate(ctx MarshalContext, rv reflect.Value) bool {
+func TrueMarshalPredicate(ctx *MarshalContext, rv reflect.Value) bool {
 	return true
 }
 
@@ -29,7 +29,7 @@ func NewSwitchMarshaler(s ...bt.Pair[MarshalPredicate, Marshaler]) SwitchMarshal
 
 var _ Marshaler = SwitchMarshaler{}
 
-func (m SwitchMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m SwitchMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	for _, e := range m.s {
 		if e.L(ctx, rv) {
 			return e.R.Marshal(ctx, rv)
@@ -40,9 +40,9 @@ func (m SwitchMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, e
 
 //
 
-type UnmarshalPredicate = func(ctx UnmarshalContext, mv Value) bool
+type UnmarshalPredicate = func(ctx *UnmarshalContext, mv Value) bool
 
-func TrueUnmarshalPredicate(ctx UnmarshalContext, mv Value) bool {
+func TrueUnmarshalPredicate(ctx *UnmarshalContext, mv Value) bool {
 	return true
 }
 
@@ -60,7 +60,7 @@ func NewSwitchUnmarshaler(s ...bt.Pair[UnmarshalPredicate, Unmarshaler]) SwitchU
 
 var _ Unmarshaler = SwitchUnmarshaler{}
 
-func (m SwitchUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (m SwitchUnmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	for _, e := range m.s {
 		if e.L(ctx, mv) {
 			return e.R.Unmarshal(ctx, mv)

@@ -30,3 +30,21 @@ func (n DefaultLock) Unlock() {
 		n.Locker.Unlock()
 	}
 }
+
+//
+
+type DumbLock struct {
+	mtx sync.Mutex
+}
+
+func (l *DumbLock) Lock() {
+	l.mtx.Lock()
+}
+
+func (l *DumbLock) TryLock() bool {
+	return l.mtx.TryLock()
+}
+
+func (l *DumbLock) Unlock() {
+	l.mtx.Unlock()
+}

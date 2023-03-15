@@ -19,7 +19,7 @@ func NewConvertMarshaler(ty reflect.Type, child Marshaler) ConvertMarshaler {
 
 var _ Marshaler = ConvertMarshaler{}
 
-func (m ConvertMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m ConvertMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	cv := rv.Convert(m.ty)
 	mv, err := m.child.Marshal(ctx, cv)
 	if err != nil {
@@ -32,7 +32,7 @@ func (m ConvertMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, 
 //
 
 func NewConvertUserPrimitiveMarshalerFactory() MarshalerFactory {
-	return NewFuncMarshalerFactory(func(ctx MarshalContext, a reflect.Type) (Marshaler, error) {
+	return NewFuncMarshalerFactory(func(ctx *MarshalContext, a reflect.Type) (Marshaler, error) {
 		p, ok := primitiveKinds[a.Kind()]
 		if !ok {
 			return nil, nil
@@ -58,7 +58,7 @@ func NewConvertUnmarshaler(ty reflect.Type, child Unmarshaler) ConvertUnmarshale
 
 var _ Unmarshaler = ConvertUnmarshaler{}
 
-func (u ConvertUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (u ConvertUnmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	rv, err := u.child.Unmarshal(ctx, mv)
 	if err != nil {
 		return rfl.Invalid(), err
@@ -88,7 +88,7 @@ func NewConvertPrimitiveUnmarshalerFactory() UnmarshalerFactory {
 //
 
 func NewConvertUserPrimitiveUnmarshalerFactory() UnmarshalerFactory {
-	return NewFuncUnmarshalerFactory(func(ctx UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
+	return NewFuncUnmarshalerFactory(func(ctx *UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
 		p, ok := primitiveKinds[a.Kind()]
 		if !ok {
 			return nil, nil

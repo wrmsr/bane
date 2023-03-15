@@ -25,7 +25,7 @@ func TestStructs(t *testing.T) {
 	)
 
 	c := testC
-	mv := check.Must1(cm.Marshal(MarshalContext{}, reflect.ValueOf(c)))
+	mv := check.Must1(cm.Marshal(&MarshalContext{}, reflect.ValueOf(c)))
 	tu.AssertEqual(t, mv.String(), `{"A": {"X": 100, "Y": "two hundred"}, "Z": 420}`)
 
 	au := NewObjectUnmarshaler(
@@ -40,7 +40,7 @@ func TestStructs(t *testing.T) {
 		NewObjectUnmarshalerField("Z", NewStructFieldSetter(csi.GetFlat("Z")), NewConvertUnmarshaler(rfl.TypeOf[int32](), PrimitiveUnmarshaler{})),
 	)
 
-	c2 := check.Must1(cu.Unmarshal(UnmarshalContext{}, mv)).Interface().(C)
+	c2 := check.Must1(cu.Unmarshal(&UnmarshalContext{}, mv)).Interface().(C)
 	fmt.Println(c2)
 
 	c3 := c

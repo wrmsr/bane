@@ -16,12 +16,12 @@ func TestStdText(t *testing.T) {
 	fmt.Println(s)
 
 	rv := reflect.ValueOf(ip)
-	mc := MarshalContext{}
+	mc := &MarshalContext{}
 	m := check.Must1(NewStdTextMarshalerFactory().Make(mc, rv.Type()))
 	mv := check.Must1(m.Marshal(mc, rv))
 	fmt.Println(mv)
 
-	uc := UnmarshalContext{}
+	uc := &UnmarshalContext{}
 	u := check.Must1(NewStdTextUnmarshalerFactory(rv.Type()).Make(uc, rv.Type()))
 	ip2 := check.Must1(u.Unmarshal(uc, mv)).Interface().(netip.Addr)
 	fmt.Println(ip2)

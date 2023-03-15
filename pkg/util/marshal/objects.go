@@ -10,7 +10,7 @@ import (
 
 //
 
-type ObjectFieldGetter = func(ctx MarshalContext, rv reflect.Value) (bt.Optional[reflect.Value], error)
+type ObjectFieldGetter = func(ctx *MarshalContext, rv reflect.Value) (bt.Optional[reflect.Value], error)
 
 type ObjectMarshalerField struct {
 	Name string
@@ -36,7 +36,7 @@ func NewObjectMarshaler(flds ...ObjectMarshalerField) ObjectMarshaler {
 
 var _ Marshaler = ObjectMarshaler{}
 
-func (m ObjectMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m ObjectMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	kvs := make([]bt.Kv[Value, Value], 0, len(m.flds))
 	for _, fld := range m.flds {
 		frv, err := fld.Get(ctx, rv)
@@ -57,8 +57,8 @@ func (m ObjectMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, e
 
 //
 
-type ObjectFactory = func(ctx UnmarshalContext) reflect.Value
-type ObjectFieldSetter = func(ctx UnmarshalContext, ov, fv reflect.Value) error
+type ObjectFactory = func(ctx *UnmarshalContext) reflect.Value
+type ObjectFieldSetter = func(ctx *UnmarshalContext, ov, fv reflect.Value) error
 
 type ObjectUnmarshalerField struct {
 	Name string
@@ -96,7 +96,7 @@ func NewObjectUnmarshaler(fac ObjectFactory, flds ...ObjectUnmarshalerField) Obj
 
 var _ Unmarshaler = ObjectUnmarshaler{}
 
-func (u ObjectUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (u ObjectUnmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	switch mv := mv.(type) {
 
 	case Object:

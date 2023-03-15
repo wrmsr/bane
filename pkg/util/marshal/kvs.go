@@ -22,7 +22,7 @@ func NewReflectKvIterableMarshaler(k, v Marshaler) ReflectKvIterableMarshaler {
 
 var _ Marshaler = ReflectKvIterableMarshaler{}
 
-func (m ReflectKvIterableMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m ReflectKvIterableMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	if rv.IsNil() {
 		return _nullValue, nil
 	}
@@ -66,7 +66,7 @@ func NewAnyKvIterableMarshaler(k, v Marshaler) AnyKvIterableMarshaler {
 
 var _ Marshaler = AnyKvIterableMarshaler{}
 
-func (m AnyKvIterableMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m AnyKvIterableMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	ai := rv.Interface().(its.AnyIterable)
 
 	var vs []bt.Kv[Value, Value]

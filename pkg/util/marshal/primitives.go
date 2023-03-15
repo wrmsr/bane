@@ -51,7 +51,7 @@ type PrimitiveMarshaler struct{}
 
 var _ Marshaler = PrimitiveMarshaler{}
 
-func (p PrimitiveMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (p PrimitiveMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	switch rv.Kind() {
 
 	case reflect.Bool:
@@ -107,7 +107,7 @@ type PrimitiveUnmarshaler struct{}
 
 var _ Unmarshaler = PrimitiveUnmarshaler{}
 
-func (p PrimitiveUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (p PrimitiveUnmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	switch mv := mv.(type) {
 
 	case Bool:

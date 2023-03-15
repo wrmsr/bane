@@ -117,7 +117,7 @@ var _ MarshalerFactory = RegistryMarshalerFactory{}
 
 var _setTypeTy = rfl.TypeOf[SetType]()
 
-func (f RegistryMarshalerFactory) Make(ctx MarshalContext, a reflect.Type) (Marshaler, error) {
+func (f RegistryMarshalerFactory) Make(ctx *MarshalContext, a reflect.Type) (Marshaler, error) {
 	if ctx.Reg == nil {
 		return nil, nil
 	}
@@ -144,7 +144,7 @@ func NewRegistryUnmarshalerFactory() RegistryUnmarshalerFactory {
 
 var _ UnmarshalerFactory = RegistryUnmarshalerFactory{}
 
-func (f RegistryUnmarshalerFactory) Make(ctx UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
+func (f RegistryUnmarshalerFactory) Make(ctx *UnmarshalContext, a reflect.Type) (Unmarshaler, error) {
 	if ctx.Reg == nil {
 		return nil, nil
 	}

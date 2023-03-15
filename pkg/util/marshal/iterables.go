@@ -20,7 +20,7 @@ func NewReflectIterableMarshaler(m Marshaler) ReflectIterableMarshaler {
 
 var _ Marshaler = ReflectIterableMarshaler{}
 
-func (m ReflectIterableMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m ReflectIterableMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	if rv.IsNil() {
 		return _nullValue, nil
 	}
@@ -55,7 +55,7 @@ func NewAnyIterableMarshaler(m Marshaler) AnyIterableMarshaler {
 
 var _ Marshaler = AnyIterableMarshaler{}
 
-func (m AnyIterableMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m AnyIterableMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	it := rv.Interface().(its.AnyIterable)
 
 	var vs []Value

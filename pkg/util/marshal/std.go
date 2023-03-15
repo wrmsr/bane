@@ -14,7 +14,7 @@ type StdTextMarshaler struct{}
 
 var _ Marshaler = StdTextMarshaler{}
 
-func (m StdTextMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m StdTextMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	if rfl.SafeIsNil(rv) {
 		return _nullValue, nil
 	}
@@ -30,7 +30,7 @@ func (m StdTextMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, 
 
 var stdTextMarshalerTy = rfl.TypeOf[encoding.TextMarshaler]()
 
-var stdTextMarshalerFactory = NewFuncFactory(func(ctx MarshalContext, ty reflect.Type) (Marshaler, error) {
+var stdTextMarshalerFactory = NewFuncFactory(func(ctx *MarshalContext, ty reflect.Type) (Marshaler, error) {
 	if !ty.AssignableTo(stdTextMarshalerTy) {
 		return nil, nil
 	}
@@ -56,7 +56,7 @@ func NewStdTextUnmarshaler(ty reflect.Type) Unmarshaler {
 
 var _ Unmarshaler = StdTextUnmarshaler{}
 
-func (u StdTextUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (u StdTextUnmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	var s string
 	switch mv := mv.(type) {
 

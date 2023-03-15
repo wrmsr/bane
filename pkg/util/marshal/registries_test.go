@@ -19,7 +19,7 @@ func TestRegistry(t *testing.T) {
 	reg := NewRegistry(nil)
 
 	reg.Register(rfl.TypeOf[RegThing](),
-		SetType{Marshaler: NewFuncMarshaler(func(ctx MarshalContext, rv reflect.Value) (Value, error) {
+		SetType{Marshaler: NewFuncMarshaler(func(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 			return MakeString("reg_thing"), nil
 		})})
 
@@ -27,6 +27,6 @@ func TestRegistry(t *testing.T) {
 	tu.AssertEqual(t, o != nil, true)
 
 	rt := RegThing{I: 420, S: "four twenty"}
-	mv := check.Must1(o.(SetType).Marshaler.Marshal(MarshalContext{}, reflect.ValueOf(rt)))
+	mv := check.Must1(o.(SetType).Marshaler.Marshal(&MarshalContext{}, reflect.ValueOf(rt)))
 	fmt.Println(mv)
 }

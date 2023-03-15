@@ -22,8 +22,8 @@ func TestOptionals(t *testing.T) {
 		bt.Just(10),
 		bt.None[int](),
 	} {
-		mv := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(v)))
-		v2 := check.Must1(u.Unmarshal(UnmarshalContext{}, mv)).Interface().(bt.Optional[int])
+		mv := check.Must1(m.Marshal(&MarshalContext{}, reflect.ValueOf(v)))
+		v2 := check.Must1(u.Unmarshal(&UnmarshalContext{}, mv)).Interface().(bt.Optional[int])
 		tu.AssertDeepEqual(t, v, v2)
 	}
 }
@@ -31,7 +31,7 @@ func TestOptionals(t *testing.T) {
 func TestOptionalsFactory(t *testing.T) {
 	m := check.Must1(
 		optionalMarshalerFactory.Make(
-			MarshalContext{
+			&MarshalContext{
 				Make: NewPrimitiveMarshalerFactory().Make,
 			},
 			rfl.TypeOf[bt.Optional[int]](),
@@ -40,7 +40,7 @@ func TestOptionalsFactory(t *testing.T) {
 
 	u := check.Must1(
 		optionalUnmarshalerFactory.Make(
-			UnmarshalContext{
+			&UnmarshalContext{
 				Make: NewConvertPrimitiveUnmarshalerFactory().Make,
 			},
 			rfl.TypeOf[bt.Optional[int]](),
@@ -51,8 +51,8 @@ func TestOptionalsFactory(t *testing.T) {
 		bt.Just(10),
 		bt.None[int](),
 	} {
-		mv := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(v)))
-		v2 := check.Must1(u.Unmarshal(UnmarshalContext{}, mv)).Interface().(bt.Optional[int])
+		mv := check.Must1(m.Marshal(&MarshalContext{}, reflect.ValueOf(v)))
+		v2 := check.Must1(u.Unmarshal(&UnmarshalContext{}, mv)).Interface().(bt.Optional[int])
 		tu.AssertDeepEqual(t, v, v2)
 	}
 }

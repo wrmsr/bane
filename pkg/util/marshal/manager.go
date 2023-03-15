@@ -27,11 +27,11 @@ func (m *Manager) MarshalRfl(rv reflect.Value, o ...MarshalOpt) (Value, error) {
 		Opts: ctr.NewStdMap(its.MakeTypeKvs(its.OfSlice(o))),
 		Reg:  m.reg,
 	}
-	mi, err := m.mf.Make(mc, ty)
+	mi, err := m.mf.Make(&mc, ty)
 	if err != nil {
 		return nil, err
 	}
-	return mi.Marshal(mc, rv)
+	return mi.Marshal(&mc, rv)
 }
 
 func (m *Manager) Marshal(v any, o ...MarshalOpt) (Value, error) {
@@ -44,11 +44,11 @@ func (m *Manager) UnmarshalRfl(mv Value, ty reflect.Type, o ...UnmarshalOpt) (re
 		Opts: ctr.NewStdMap(its.MakeTypeKvs(its.OfSlice(o))),
 		Reg:  m.reg,
 	}
-	ui, err := m.uf.Make(uc, ty)
+	ui, err := m.uf.Make(&uc, ty)
 	if err != nil {
 		return rfl.Invalid(), err
 	}
-	return ui.Unmarshal(uc, mv)
+	return ui.Unmarshal(&uc, mv)
 }
 
 func (m *Manager) Unmarshal(mv Value, v any, o ...UnmarshalOpt) error {

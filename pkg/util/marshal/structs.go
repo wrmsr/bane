@@ -41,7 +41,7 @@ func (ri SetField) isRegistryItem() {}
 ///
 
 func NewStructFieldGetter(fi *stu.FieldInfo) ObjectFieldGetter {
-	return func(ctx MarshalContext, rv reflect.Value) (bt.Optional[reflect.Value], error) {
+	return func(ctx *MarshalContext, rv reflect.Value) (bt.Optional[reflect.Value], error) {
 		fv, ok := fi.GetValue(rv)
 		if !ok {
 			return bt.None[reflect.Value](), nil
@@ -80,7 +80,7 @@ func collectStructSetFields(r *Registry, ty reflect.Type) map[string]SetField {
 	return m
 }
 
-func (mf StructMarshalerFactory) Make(ctx MarshalContext, ty reflect.Type) (Marshaler, error) {
+func (mf StructMarshalerFactory) Make(ctx *MarshalContext, ty reflect.Type) (Marshaler, error) {
 	if ty.Kind() != reflect.Struct {
 		return nil, nil
 	}
@@ -125,13 +125,13 @@ func (mf StructMarshalerFactory) Make(ctx MarshalContext, ty reflect.Type) (Mars
 ///
 
 func NewStructFactory(si *stu.StructInfo) ObjectFactory {
-	return func(ctx UnmarshalContext) reflect.Value {
+	return func(ctx *UnmarshalContext) reflect.Value {
 		return reflect.New(si.Type()).Elem()
 	}
 }
 
 func NewStructFieldSetter(fi *stu.FieldInfo) ObjectFieldSetter {
-	return func(ctx UnmarshalContext, ov, fv reflect.Value) error {
+	return func(ctx *UnmarshalContext, ov, fv reflect.Value) error {
 		if !fi.SetValue(ov.Addr().Interface(), fv.Interface()) {
 			return errors.New("can't set struct value")
 		}
@@ -151,7 +151,7 @@ func NewStructUnmarshalerFactory(sic *stu.StructInfoCache) StructUnmarshalerFact
 
 var _ UnmarshalerFactory = StructUnmarshalerFactory{}
 
-func (mf StructUnmarshalerFactory) Make(ctx UnmarshalContext, ty reflect.Type) (Unmarshaler, error) {
+func (mf StructUnmarshalerFactory) Make(ctx *UnmarshalContext, ty reflect.Type) (Unmarshaler, error) {
 	if ty.Kind() != reflect.Struct {
 		return nil, nil
 	}

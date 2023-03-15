@@ -52,12 +52,12 @@ func TestDefaultFactory(t *testing.T) {
 	}
 	fmt.Println(o)
 
-	m := check.Must1(mf.Make(MarshalContext{Make: mf.Make}, reflect.TypeOf(o)))
-	u := check.Must1(uf.Make(UnmarshalContext{Make: uf.Make}, reflect.TypeOf(o)))
+	m := check.Must1(mf.Make(&MarshalContext{Make: mf.Make}, reflect.TypeOf(o)))
+	u := check.Must1(uf.Make(&UnmarshalContext{Make: uf.Make}, reflect.TypeOf(o)))
 
-	v := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(o)))
+	v := check.Must1(m.Marshal(&MarshalContext{}, reflect.ValueOf(o)))
 	fmt.Println(v)
 
-	o2 := check.Must1(u.Unmarshal(UnmarshalContext{}, v))
+	o2 := check.Must1(u.Unmarshal(&UnmarshalContext{}, v))
 	fmt.Println(o2)
 }

@@ -20,7 +20,7 @@ func NewTimeMarshaler(layout string) TimeMarshaler {
 
 var _ Marshaler = TimeMarshaler{}
 
-func (m TimeMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m TimeMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	if !rv.Type().AssignableTo(rfl.Time()) {
 		return nil, unhandledTypeOf(rv.Type())
 	}
@@ -49,7 +49,7 @@ func NewTimeUnmarshaler(layouts []string) TimeUnmarshaler {
 
 var _ Unmarshaler = TimeUnmarshaler{}
 
-func (u TimeUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (u TimeUnmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	switch mv := mv.(type) {
 
 	case Null:

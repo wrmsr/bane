@@ -16,7 +16,7 @@ func TestSlice(t *testing.T) {
 	mv := check.Must1(
 		NewIndexMarshaler(
 			PrimitiveMarshaler{},
-		).Marshal(MarshalContext{}, reflect.ValueOf(s)))
+		).Marshal(&MarshalContext{}, reflect.ValueOf(s)))
 	fmt.Println(mv)
 
 	s2 := rfl.As[[]int](check.Must1(
@@ -25,7 +25,7 @@ func TestSlice(t *testing.T) {
 			NewConvertUnmarshaler(
 				rfl.TypeOf[int](),
 				PrimitiveUnmarshaler{}),
-		).Unmarshal(UnmarshalContext{}, mv)))
+		).Unmarshal(&UnmarshalContext{}, mv)))
 	fmt.Println(s2)
 
 	tu.AssertDeepEqual(t, s, s2)
@@ -37,7 +37,7 @@ func TestArray(t *testing.T) {
 	mv := check.Must1(
 		NewIndexMarshaler(
 			PrimitiveMarshaler{},
-		).Marshal(MarshalContext{}, reflect.ValueOf(a)))
+		).Marshal(&MarshalContext{}, reflect.ValueOf(a)))
 	fmt.Println(mv)
 
 	a2 := rfl.As[[3]int](check.Must1(
@@ -46,7 +46,7 @@ func TestArray(t *testing.T) {
 			NewConvertUnmarshaler(
 				rfl.TypeOf[int](),
 				PrimitiveUnmarshaler{}),
-		).Unmarshal(UnmarshalContext{}, mv)))
+		).Unmarshal(&UnmarshalContext{}, mv)))
 	fmt.Println(a2)
 
 	tu.AssertDeepEqual(t, a, a2)

@@ -13,7 +13,7 @@ type Base64Marshaler struct{}
 
 var _ Marshaler = Base64Marshaler{}
 
-func (m Base64Marshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m Base64Marshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	if rv.Type() != rfl.Bytes() {
 		return nil, unhandledTypeOf(rv.Type())
 	}
@@ -39,7 +39,7 @@ type Base64Unmarshaler struct{}
 
 var _ Unmarshaler = Base64Unmarshaler{}
 
-func (u Base64Unmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (u Base64Unmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	switch mv := mv.(type) {
 
 	case Null:

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	syncu "github.com/wrmsr/bane/pkg/util/sync"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -52,10 +53,9 @@ func (f TypeMapFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 //
 
 type TypeCacheFactory[R any, C BaseContext] struct {
-	f Factory[R, C, reflect.Type]
-	//mtx sync.Mutex
-	m map[reflect.Type]bt.Optional[R]
-	//o atomic.Value[BaseContext]
+	f   Factory[R, C, reflect.Type]
+	mtx syncu.OMutex
+	m   map[reflect.Type]bt.Optional[R]
 }
 
 func NewTypeCacheFactory[R any, C BaseContext](f Factory[R, C, reflect.Type]) *TypeCacheFactory[R, C] {
@@ -68,9 +68,9 @@ func NewTypeCacheFactory[R any, C BaseContext](f Factory[R, C, reflect.Type]) *T
 var _ Factory[int, BaseContext, reflect.Type] = &TypeCacheFactory[int, BaseContext]{}
 
 func (f *TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
-	//FIXME: RLock :|||
-	//f.mtx.Lock()
-	//defer f.mtx.Unlock()
+	// FIXME: CopyOnWrite typemap, only lock on update (which retries)
+	f.mtx.Lock(ctx)
+	defer f.mtx.Unlock(ctx)
 	if r, ok := f.m[a]; ok {
 		return r.OrZero(), nil
 	}

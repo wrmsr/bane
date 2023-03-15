@@ -1,7 +1,5 @@
 package sync
 
-import "sync"
-
 type OMutexState struct {
 	Owner   any
 	Depth   int
@@ -9,17 +7,26 @@ type OMutexState struct {
 }
 
 type OMutex struct {
-	mtx sync.Mutex
+	mtx DumbLock // sync.Mutex
 
 	st OMutexState
 	c  chan struct{}
 }
 
 func (l *OMutex) State() OMutexState {
-	return l.st
+	l.mtx.Lock()
+	st := l.st
+	l.mtx.Unlock()
+	return st
 }
 
 func (l *OMutex) Lock(o any) int {
+	defer func() {
+		if r := recover(); r != nil {
+			panic(r)
+		}
+	}()
+
 	l.mtx.Lock()
 	if l.c == nil {
 		l.c = make(chan struct{}, 1)
@@ -75,7 +82,11 @@ func (l *OMutex) Unlock(o any) int {
 	if d < 1 {
 		l.st.Owner = nil
 		if l.st.Waiters > 0 {
-			l.c <- struct{}{}
+			select {
+			case l.c <- struct{}{}:
+			default:
+				panic("oops")
+			}
 		}
 	}
 	l.mtx.Unlock()

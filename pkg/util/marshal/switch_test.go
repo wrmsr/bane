@@ -13,13 +13,13 @@ func TestSwitchMarshaler(t *testing.T) {
 		PredicatedMarshaler(TrueMarshalPredicate, PrimitiveMarshaler{}),
 	)
 
-	mv := check.Must1(m.Marshal(MarshalContext{}, reflect.ValueOf(420)))
+	mv := check.Must1(m.Marshal(&MarshalContext{}, reflect.ValueOf(420)))
 	fmt.Println(mv)
 
 	u := NewSwitchUnmarshaler(
 		PredicatedUnmarshaler(TrueUnmarshalPredicate, PrimitiveUnmarshaler{}),
 	)
 
-	rv := check.Must1(u.Unmarshal(UnmarshalContext{}, mv))
+	rv := check.Must1(u.Unmarshal(&UnmarshalContext{}, mv))
 	fmt.Println(rv)
 }

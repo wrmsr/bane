@@ -21,7 +21,7 @@ func NewMapMarshaler(k, v Marshaler) MapMarshaler {
 
 var _ Marshaler = MapMarshaler{}
 
-func (m MapMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, error) {
+func (m MapMarshaler) Marshal(ctx *MarshalContext, rv reflect.Value) (Value, error) {
 	if rv.IsNil() {
 		return _nullValue, nil
 	}
@@ -43,7 +43,7 @@ func (m MapMarshaler) Marshal(ctx MarshalContext, rv reflect.Value) (Value, erro
 
 //
 
-var mapMarshalerFactory = NewFuncFactory(func(ctx MarshalContext, ty reflect.Type) (Marshaler, error) {
+var mapMarshalerFactory = NewFuncFactory(func(ctx *MarshalContext, ty reflect.Type) (Marshaler, error) {
 	if ty.Kind() != reflect.Map {
 		return nil, nil
 	}
@@ -80,7 +80,7 @@ func NewMapUnmarshaler(ty reflect.Type, k, v Unmarshaler) MapUnmarshaler {
 
 var _ Unmarshaler = MapUnmarshaler{}
 
-func (u MapUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value, error) {
+func (u MapUnmarshaler) Unmarshal(ctx *UnmarshalContext, mv Value) (reflect.Value, error) {
 	switch mv := mv.(type) {
 
 	case Null:
@@ -107,7 +107,7 @@ func (u MapUnmarshaler) Unmarshal(ctx UnmarshalContext, mv Value) (reflect.Value
 
 //
 
-var mapUnmarshalerFactory = NewFuncFactory(func(ctx UnmarshalContext, ty reflect.Type) (Unmarshaler, error) {
+var mapUnmarshalerFactory = NewFuncFactory(func(ctx *UnmarshalContext, ty reflect.Type) (Unmarshaler, error) {
 	if ty.Kind() != reflect.Map {
 		return nil, nil
 	}
