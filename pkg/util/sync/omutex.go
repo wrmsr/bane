@@ -1,5 +1,7 @@
 package sync
 
+import "sync"
+
 type OMutexState struct {
 	Owner   any
 	Depth   int
@@ -7,7 +9,7 @@ type OMutexState struct {
 }
 
 type OMutex struct {
-	mtx DumbLock // sync.Mutex
+	mtx sync.Mutex
 
 	st OMutexState
 	c  chan struct{}
