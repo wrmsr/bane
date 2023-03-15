@@ -2,13 +2,21 @@ package sync
 
 import "sync"
 
+type OMutexState struct {
+	Owner   any
+	Depth   int
+	Waiters int
+}
+
 type OMutex struct {
 	mtx sync.Mutex
 
-	o any
-	d int
-	w int
-	c chan struct{}
+	st OMutexState
+	c  chan struct{}
+}
+
+func (l *OMutex) State() OMutexState {
+	return l.st
 }
 
 func (l *OMutex) Lock(o any) int {
@@ -16,31 +24,31 @@ func (l *OMutex) Lock(o any) int {
 	if l.c == nil {
 		l.c = make(chan struct{}, 1)
 	}
-	if l.o == nil {
-		if l.d != 0 {
+	if l.st.Owner == nil {
+		if l.st.Depth != 0 {
 			l.mtx.Unlock()
 			panic("oops")
 		}
-		l.o = o
-	} else if l.o != o && l.o != nil {
-		if l.d < 1 {
+		l.st.Owner = o
+	} else if l.st.Owner != o && l.st.Owner != nil {
+		if l.st.Depth < 1 {
 			l.mtx.Unlock()
 			panic("oops")
 		}
-		l.w++
+		l.st.Waiters++
 		c := l.c
 		l.mtx.Unlock()
 		_ = <-c
 		l.mtx.Lock()
-		l.w--
-		if l.o != nil || l.d != 0 {
+		l.st.Waiters--
+		if l.st.Owner != nil || l.st.Depth != 0 {
 			l.mtx.Unlock()
 			panic("oops")
 		}
-		l.o = o
+		l.st.Owner = o
 	}
-	l.d++
-	d := l.d
+	l.st.Depth++
+	d := l.st.Depth
 	l.mtx.Unlock()
 	return d
 }
@@ -48,8 +56,9 @@ func (l *OMutex) Lock(o any) int {
 func (l *OMutex) TryLock(o any) int {
 	l.mtx.Lock()
 	var d int
-	if l.o == o {
-		d = l.d
+	if l.st.Owner == o {
+		l.st.Depth++
+		d = l.st.Depth
 	}
 	l.mtx.Unlock()
 	return d
@@ -57,15 +66,15 @@ func (l *OMutex) TryLock(o any) int {
 
 func (l *OMutex) Unlock(o any) int {
 	l.mtx.Lock()
-	if l.o != o || l.d < 1 || l.c == nil {
+	if l.st.Owner != o || l.st.Depth < 1 || l.c == nil {
 		l.mtx.Unlock()
 		panic("oops")
 	}
-	l.d--
-	d := l.d
+	l.st.Depth--
+	d := l.st.Depth
 	if d < 1 {
-		l.o = nil
-		if l.w > 0 {
+		l.st.Owner = nil
+		if l.st.Waiters > 0 {
 			l.c <- struct{}{}
 		}
 	}
