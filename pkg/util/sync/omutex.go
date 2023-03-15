@@ -24,9 +24,6 @@ func (l *OMutex) State() OMutexState {
 
 func (l *OMutex) Lock(o any) int {
 	l.mtx.Lock()
-	if l.c == nil {
-		l.c = make(chan struct{}, 1)
-	}
 	if l.st.Owner == nil {
 		if l.st.Depth != 0 {
 			l.mtx.Unlock()
@@ -39,6 +36,9 @@ func (l *OMutex) Lock(o any) int {
 			panic("oops")
 		}
 		l.st.Waiters++
+		if l.c == nil {
+			l.c = make(chan struct{}, 1)
+		}
 		c := l.c
 		l.mtx.Unlock()
 		_ = <-c
@@ -69,7 +69,7 @@ func (l *OMutex) TryLock(o any) int {
 
 func (l *OMutex) Unlock(o any) int {
 	l.mtx.Lock()
-	if l.st.Owner != o || l.st.Depth < 1 || l.c == nil {
+	if l.st.Owner != o || l.st.Depth < 1 {
 		l.mtx.Unlock()
 		panic("oops")
 	}
@@ -79,6 +79,10 @@ func (l *OMutex) Unlock(o any) int {
 	if d < 1 {
 		l.st.Owner = nil
 		if w > 0 {
+			if l.c == nil {
+				l.mtx.Unlock()
+				panic("oops")
+			}
 			select {
 			case l.c <- struct{}{}:
 			default:
