@@ -75,12 +75,14 @@ func (l *OMutex) Unlock(o any) int {
 	}
 	l.st.Depth--
 	d := l.st.Depth
+	w := l.st.Waiters
 	if d < 1 {
 		l.st.Owner = nil
-		if l.st.Waiters > 0 {
+		if w > 0 {
 			select {
 			case l.c <- struct{}{}:
 			default:
+				l.mtx.Unlock()
 				panic("oops")
 			}
 		}
