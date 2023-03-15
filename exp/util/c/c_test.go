@@ -177,31 +177,31 @@ func TestC(t *testing.T) {
 	}{
 		{`1`, ex},
 		{`int`, ts},
-		//{`int foo(int x) {
-		//	return x;
-		//}`, cu},
-		//{`int main(int argc, const char * const *argv) {
-		//	printf("hi\n");
-		//	return 0;
-		//}`, cu},
-		//{`int main(int argc, const char * const *argv) {
-		//	int c = argc + 2 + 3;
-		//	printf("hi %d\n", c);
-		//	return 0;
-		//}`, cu},
-		//{`struct tm {
-		//	int tm_sec;
-		//	int tm_min;
-		//	int tm_hour;
-		//	int tm_mday;
-		//	int tm_mon;
-		//	int tm_year;
-		//	int tm_wday;
-		//	int tm_yday;
-		//	int tm_isdst;
-		//	long tm_gmtoff;
-		//	char *tm_zone;
-		//};`, cu},
+		{`int foo(int x) {
+			return x;
+		}`, cu},
+		{`int main(int argc, const char * const *argv) {
+			printf("hi\n");
+			return 0;
+		}`, cu},
+		{`int main(int argc, const char * const *argv) {
+			int c = argc + 2 + 3;
+			printf("hi %d\n", c);
+			return 0;
+		}`, cu},
+		{`struct tm {
+			int tm_sec;
+			int tm_min;
+			int tm_hour;
+			int tm_mday;
+			int tm_mon;
+			int tm_year;
+			int tm_wday;
+			int tm_yday;
+			int tm_isdst;
+			long tm_gmtoff;
+			char *tm_zone;
+		};`, cu},
 		{`
 typedef struct Btree Btree;
 typedef struct BtCursor BtCursor;
