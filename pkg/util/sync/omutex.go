@@ -21,12 +21,6 @@ func (l *OMutex) State() OMutexState {
 }
 
 func (l *OMutex) Lock(o any) int {
-	defer func() {
-		if r := recover(); r != nil {
-			panic(r)
-		}
-	}()
-
 	l.mtx.Lock()
 	if l.c == nil {
 		l.c = make(chan struct{}, 1)
