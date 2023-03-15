@@ -72,12 +72,6 @@ func NewTypeCacheFactory[R any, C BaseContext](f Factory[R, C, reflect.Type]) *T
 
 var _ Factory[int, BaseContext, reflect.Type] = &TypeCacheFactory[int, BaseContext]{}
 
-type typeCacheFactoryMissError struct{}
-
-func (e typeCacheFactoryMissError) Error() string {
-	return "type cache factory miss"
-}
-
 func (f *TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (ret R, err error) {
 	m := f.m.Load().(map[reflect.Type]bt.Optional[R])
 	if r, ok := m[a]; ok {
