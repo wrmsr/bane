@@ -3,6 +3,7 @@ package marshal
 import (
 	"fmt"
 	"reflect"
+	"sync/atomic"
 
 	syncu "github.com/wrmsr/bane/pkg/util/sync"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -53,38 +54,79 @@ func (f TypeMapFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
 //
 
 type TypeCacheFactory[R any, C BaseContext] struct {
-	f   Factory[R, C, reflect.Type]
+	f Factory[R, C, reflect.Type]
+
+	m atomic.Value // map[reflect.Type]bt.Optional[R]
+
 	mtx syncu.OMutex
-	m   map[reflect.Type]bt.Optional[R]
+	nm  map[reflect.Type]bt.Optional[R]
 }
 
 func NewTypeCacheFactory[R any, C BaseContext](f Factory[R, C, reflect.Type]) *TypeCacheFactory[R, C] {
-	return &TypeCacheFactory[R, C]{
+	ret := &TypeCacheFactory[R, C]{
 		f: f,
-		m: make(map[reflect.Type]bt.Optional[R]),
 	}
+	ret.m.Store(make(map[reflect.Type]bt.Optional[R]))
+	return ret
 }
 
 var _ Factory[int, BaseContext, reflect.Type] = &TypeCacheFactory[int, BaseContext]{}
 
-func (f *TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (R, error) {
-	// FIXME: CopyOnWrite typemap, only lock on update (which retries)
-	f.mtx.Lock(ctx)
-	defer f.mtx.Unlock(ctx)
-	if r, ok := f.m[a]; ok {
+type typeCacheFactoryMissError struct{}
+
+func (e typeCacheFactoryMissError) Error() string {
+	return "type cache factory miss"
+}
+
+func (f *TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (ret R, err error) {
+	m := f.m.Load().(map[reflect.Type]bt.Optional[R])
+	if r, ok := m[a]; ok {
 		return r.OrZero(), nil
 	}
-	r, err := f.f.Make(ctx, a)
+
+	d := f.mtx.Lock(ctx)
+	defer func() {
+		if f.mtx.State().Depth == 1 {
+			if err == nil && f.nm != nil {
+				f.m.Store(f.nm)
+				f.nm = nil
+			}
+		}
+		f.mtx.Unlock(ctx)
+	}()
+
+	m = f.m.Load().(map[reflect.Type]bt.Optional[R])
+	if r, ok := m[a]; ok {
+		return r.OrZero(), nil
+	}
+
+	if d == 1 {
+		if f.nm != nil {
+			panic("oops")
+		}
+		f.nm = make(map[reflect.Type]bt.Optional[R], len(m)+16)
+		for k, v := range m {
+			f.nm[k] = v
+		}
+	} else {
+		if f.nm == nil {
+			panic("oops")
+		}
+	}
+
+	ret, err = f.f.Make(ctx, a)
 	if err != nil {
 		var z R
 		return z, err
 	}
-	if !reflect.ValueOf(r).IsValid() {
-		f.m[a] = bt.None[R]()
+
+	if !reflect.ValueOf(ret).IsValid() {
+		f.nm[a] = bt.None[R]()
 	} else {
-		f.m[a] = bt.Just(r)
+		f.nm[a] = bt.Just(ret)
 	}
-	return r, nil
+
+	return
 }
 
 //
