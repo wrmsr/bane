@@ -2,63 +2,31 @@ package sync
 
 import (
 	"fmt"
-	"sync/atomic"
+	"sync"
 	"testing"
+	"time"
 )
 
-type Olock struct {
-	o  atomic.Value
-	d  int
-	_c Lazy[chan struct{}]
-}
-
-type __unowned struct{}
-
-var _unowned = __unowned{}
-
-func (l *Olock) c() chan struct{} {
-	return l._c.Get(func() chan struct{} {
-		c := make(chan struct{}, 1)
-		c <- struct{}{}
-		return c
-	})
-}
-
-func (l *Olock) Acquire(o any) int {
-	if co := l.o.Load(); co != o {
-		c := l.c()
-		_ = <-c
-		x := l.o.Load()
-		if x != nil && x != _unowned {
-			panic("oops")
+func TestOMutex(t *testing.T) {
+	l := OMutex{}
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		for i := 0; i < 3; i++ {
+			fmt.Println(l.Lock(420))
+			time.Sleep(1 * time.Millisecond)
 		}
-		l.o.Store(o)
-	}
-	l.d++
-	return l.d
-}
-
-func (l *Olock) Release(o any) int {
-	if co := l.o.Load(); co != o {
-		panic("oops")
-	}
-	l.d--
-	if l.d < 0 {
-		panic("oops")
-	}
-	if l.d < 1 {
-		l.o.Store(_unowned)
-		l.c() <- struct{}{}
-	}
-	return l.d
-}
-
-func TestOlock(t *testing.T) {
-	l := Olock{}
-	for i := 0; i < 3; i++ {
-		fmt.Println(l.Acquire(420))
-	}
-	for i := 0; i < 3; i++ {
-		fmt.Println(l.Release(420))
-	}
+		time.Sleep(2 * time.Second)
+		for i := 0; i < 3; i++ {
+			fmt.Println(l.Unlock(420))
+		}
+		wg.Done()
+	}()
+	go func() {
+		time.Sleep(1 * time.Second)
+		fmt.Println(l.Lock(421))
+		fmt.Println(l.Unlock(421))
+		wg.Done()
+	}()
+	wg.Wait()
 }
