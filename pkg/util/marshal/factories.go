@@ -80,7 +80,7 @@ func (f *TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (ret R, err error) 
 
 	d := f.mtx.Lock(ctx)
 	defer func() {
-		if f.mtx.State().Depth == 1 {
+		if d == 1 {
 			if err == nil && f.nm != nil {
 				f.m.Store(f.nm)
 				f.nm = nil
@@ -89,22 +89,28 @@ func (f *TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (ret R, err error) 
 		f.mtx.Unlock(ctx)
 	}()
 
-	m = f.m.Load().(map[reflect.Type]bt.Optional[R])
-	if r, ok := m[a]; ok {
-		return r.OrZero(), nil
-	}
-
 	if d == 1 {
 		if f.nm != nil {
 			panic("oops")
 		}
+
+		m = f.m.Load().(map[reflect.Type]bt.Optional[R])
+		if r, ok := m[a]; ok {
+			return r.OrZero(), nil
+		}
+
 		f.nm = make(map[reflect.Type]bt.Optional[R], len(m)+16)
 		for k, v := range m {
 			f.nm[k] = v
 		}
+
 	} else {
 		if f.nm == nil {
 			panic("oops")
+		}
+
+		if r, ok := f.nm[a]; ok {
+			return r.OrZero(), nil
 		}
 	}
 

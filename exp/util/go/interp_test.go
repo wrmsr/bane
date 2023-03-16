@@ -28,6 +28,8 @@ func TestInterp(t *testing.T) {
 
 	sizes := types.SizesFor("gc", conf.Build.GOARCH)
 
+	input := `foo`
+
 	var imode interp.Mode // default mode
 	// imode |= interp.DisableRecover // enable for debugging
 	// imode |= interp.EnableTracing // enable for debugging

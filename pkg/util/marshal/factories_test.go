@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	ju "github.com/wrmsr/bane/pkg/util/json"
 	stu "github.com/wrmsr/bane/pkg/util/structs"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
@@ -61,5 +62,53 @@ func TestDefaultFactory(t *testing.T) {
 
 		o2 := check.Must1(u.Unmarshal(&UnmarshalContext{}, v))
 		fmt.Println(o2)
+	}
+}
+
+type tfca struct {
+	I int
+}
+
+type tfcb struct {
+	A tfca
+	F float32
+}
+
+type tfcc struct {
+	S string
+}
+
+type tfcd struct {
+	B tfcb
+	C tfcc
+}
+
+func TestFactoryCaching(t *testing.T) {
+	sic := stu.NewStructInfoCache()
+
+	mf := NewTypeCacheMarshalerFactory(NewCompositeMarshalerFactory(
+		FirstComposite,
+		NewPrimitiveMarshalerFactory(),
+		NewPointerMarshalerFactory(),
+		NewIndexMarshalerFactory(),
+		NewMapMarshalerFactory(),
+		NewBase64MarshalerFactory(),
+		NewTimeMarshalerFactory(DefaultTimeMarshalLayout),
+		NewOptionalMarshalerFactory(),
+		NewStructMarshalerFactory(sic),
+	))
+
+	for i := 0; i < 2; i++ {
+		for _, o := range []any{
+			tfcb{},
+			tfcd{},
+		} {
+			m := check.Must1(mf.Make(&MarshalContext{Make: mf.Make}, reflect.TypeOf(o)))
+
+			v := check.Must1(m.Marshal(&MarshalContext{}, reflect.ValueOf(o)))
+			fmt.Println(v)
+
+			fmt.Println(ju.MarshalPretty(v))
+		}
 	}
 }

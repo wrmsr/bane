@@ -27,7 +27,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
-	"strings"
 	"sync"
 
 	"github.com/wrmsr/bane/pkg/util/check"
@@ -198,7 +197,7 @@ func (c *IrcClientImpl) handleLoop() {
 				}
 			}
 		case err := <-c.readErrCh:
-
+			panic(err) // FIXME
 		}
 	}
 }
@@ -253,38 +252,38 @@ func main() {
 
 	//
 
-	check.Must(c.sendCmd(setNick(c.cfg.Nick)...))
-
-	joined := false
-	for !joined {
-		resp := check.Must1(c.read())
-		fmt.Println(resp)
-
-		if strings.Contains(resp, "No Ident response") {
-			check.Must(c.sendCmd(setNick(c.cfg.Nick)...))
-		}
-
-		// we"re accepted, now let"s join the channel!
-		if strings.Contains(resp, "376") {
-			check.Must(c.sendCmd(Cmd{"JOIN", c.cfg.Chan}))
-		}
-
-		// username already in use? try to use username with _
-		if strings.Contains(resp, "433") {
-			c.cfg.Nick = "_" + c.cfg.Nick
-			check.Must(c.sendCmd(setNick(c.cfg.Nick)...))
-		}
-
-		// if PING send PONG with name of the server
-		if strings.Contains(resp, "PING") {
-			check.Must(c.sendCmd(Cmd{"PONG", ":" + strings.Split(resp, ":")[1]}))
-		}
-
-		// we"ve joined
-		if strings.Contains(resp, "366") {
-			joined = true
-		}
-	}
+	//check.Must(c.sendCmd(setNick(c.cfg.Nick)...))
+	//
+	//joined := false
+	//for !joined {
+	//	resp := check.Must1(c.read())
+	//	fmt.Println(resp)
+	//
+	//	if strings.Contains(resp, "No Ident response") {
+	//		check.Must(c.sendCmd(setNick(c.cfg.Nick)...))
+	//	}
+	//
+	//	// we"re accepted, now let"s join the channel!
+	//	if strings.Contains(resp, "376") {
+	//		check.Must(c.sendCmd(Cmd{"JOIN", c.cfg.Chan}))
+	//	}
+	//
+	//	// username already in use? try to use username with _
+	//	if strings.Contains(resp, "433") {
+	//		c.cfg.Nick = "_" + c.cfg.Nick
+	//		check.Must(c.sendCmd(setNick(c.cfg.Nick)...))
+	//	}
+	//
+	//	// if PING send PONG with name of the server
+	//	if strings.Contains(resp, "PING") {
+	//		check.Must(c.sendCmd(Cmd{"PONG", ":" + strings.Split(resp, ":")[1]}))
+	//	}
+	//
+	//	// we"ve joined
+	//	if strings.Contains(resp, "366") {
+	//		joined = true
+	//	}
+	//}
 
 	fmt.Println("connected!")
 

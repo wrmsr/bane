@@ -75,10 +75,9 @@ func (l *OMutex) Unlock(o any) int {
 	}
 	l.st.Depth--
 	d := l.st.Depth
-	w := l.st.Waiters
 	if d < 1 {
 		l.st.Owner = nil
-		if w > 0 {
+		if l.st.Waiters > 0 {
 			if l.c == nil {
 				l.mtx.Unlock()
 				panic("oops")
