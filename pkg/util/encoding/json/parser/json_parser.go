@@ -1,4 +1,4 @@
-// Code generated from Json.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Json.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Json
 
@@ -134,6 +134,9 @@ type IJsonContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Value() IValueContext
+
 	// IsJsonContext differentiates from other interfaces.
 	IsJsonContext()
 }
@@ -249,6 +252,10 @@ type IObjectContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllPair() []IPairContext
+	Pair(i int) IPairContext
 
 	// IsObjectContext differentiates from other interfaces.
 	IsObjectContext()
@@ -435,6 +442,10 @@ type IPairContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	STRING() antlr.TerminalNode
+	Value() IValueContext
+
 	// IsPairContext differentiates from other interfaces.
 	IsPairContext()
 }
@@ -562,6 +573,10 @@ type IArrayContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllValue() []IValueContext
+	Value(i int) IValueContext
 
 	// IsArrayContext differentiates from other interfaces.
 	IsArrayContext()
@@ -747,6 +762,12 @@ type IValueContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	STRING() antlr.TerminalNode
+	NUMBER() antlr.TerminalNode
+	Object() IObjectContext
+	Array() IArrayContext
 
 	// IsValueContext differentiates from other interfaces.
 	IsValueContext()

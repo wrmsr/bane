@@ -130,10 +130,10 @@ atom
     : '(' testListComp? ')'    #parenAtom
     | '[' testListComp? ']'    #bracketAtom
     | '{' dictOrSetMaker? '}'  #dictOrSetAtom
-    | const                    #constAtom
+    | constVal                 #constAtom
     ;
 
-const
+constVal
     : NAME
     | NUMBER
     | STRING+

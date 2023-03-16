@@ -1,4 +1,4 @@
-// Code generated from Expr.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Expr.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Expr
 
@@ -86,8 +86,8 @@ type ExprVisitor interface {
 	// Visit a parse tree produced by ExprParser#constAtom.
 	VisitConstAtom(ctx *ConstAtomContext) interface{}
 
-	// Visit a parse tree produced by ExprParser#const.
-	VisitConst(ctx *ConstContext) interface{}
+	// Visit a parse tree produced by ExprParser#constVal.
+	VisitConstVal(ctx *ConstValContext) interface{}
 
 	// Visit a parse tree produced by ExprParser#testListComp.
 	VisitTestListComp(ctx *TestListCompContext) interface{}

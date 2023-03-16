@@ -1,4 +1,4 @@
-// Code generated from Expr.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Expr.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Expr
 
@@ -51,7 +51,7 @@ func exprParserInit() {
 		"singleExpr", "expr", "orTest", "andTest", "notTest", "comparison",
 		"compOp", "exprMain", "exprCont", "xorExpr", "xorExprCont", "andExpr",
 		"andExprCont", "shiftExpr", "shiftExprCont", "arithExpr", "arithExprCont",
-		"term", "termCont", "factor", "power", "atomExpr", "atom", "const",
+		"term", "termCont", "factor", "power", "atomExpr", "atom", "constVal",
 		"testListComp", "exprOrStarExpr", "starExpr", "trailer", "subscriptList",
 		"subscript", "sliceOp", "dictOrSetMaker", "dictItem",
 	}
@@ -315,7 +315,7 @@ const (
 	ExprParserRULE_power          = 20
 	ExprParserRULE_atomExpr       = 21
 	ExprParserRULE_atom           = 22
-	ExprParserRULE_const          = 23
+	ExprParserRULE_constVal       = 23
 	ExprParserRULE_testListComp   = 24
 	ExprParserRULE_exprOrStarExpr = 25
 	ExprParserRULE_starExpr       = 26
@@ -333,6 +333,10 @@ type ISingleExprContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Expr() IExprContext
+	EOF() antlr.TerminalNode
 
 	// IsSingleExprContext differentiates from other interfaces.
 	IsSingleExprContext()
@@ -458,6 +462,9 @@ type IExprContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	OrTest() IOrTestContext
+
 	// IsExprContext differentiates from other interfaces.
 	IsExprContext()
 }
@@ -573,6 +580,12 @@ type IOrTestContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllAndTest() []IAndTestContext
+	AndTest(i int) IAndTestContext
+	AllOR() []antlr.TerminalNode
+	OR(i int) antlr.TerminalNode
 
 	// IsOrTestContext differentiates from other interfaces.
 	IsOrTestContext()
@@ -742,6 +755,12 @@ type IAndTestContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllNotTest() []INotTestContext
+	NotTest(i int) INotTestContext
+	AllAND() []antlr.TerminalNode
+	AND(i int) antlr.TerminalNode
+
 	// IsAndTestContext differentiates from other interfaces.
 	IsAndTestContext()
 }
@@ -910,6 +929,11 @@ type INotTestContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	NOT() antlr.TerminalNode
+	NotTest() INotTestContext
+	Comparison() IComparisonContext
+
 	// IsNotTestContext differentiates from other interfaces.
 	IsNotTestContext()
 }
@@ -1065,6 +1089,12 @@ type IComparisonContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllExprMain() []IExprMainContext
+	ExprMain(i int) IExprMainContext
+	AllCompOp() []ICompOpContext
+	CompOp(i int) ICompOpContext
 
 	// IsComparisonContext differentiates from other interfaces.
 	IsComparisonContext()
@@ -1242,7 +1272,7 @@ func (p *ExprParser) Comparison() (localctx IComparisonContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<ExprParserT__0)|(1<<ExprParserT__1)|(1<<ExprParserT__2)|(1<<ExprParserT__3)|(1<<ExprParserT__4)|(1<<ExprParserT__5)|(1<<ExprParserT__6))) != 0) || (((_la-37)&-(0x1f+1)) == 0 && ((1<<uint((_la-37)))&((1<<(ExprParserIN-37))|(1<<(ExprParserIS-37))|(1<<(ExprParserNOT-37)))) != 0) {
+	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1511828488446) != 0 {
 		{
 			p.SetState(93)
 			p.CompOp()
@@ -1266,6 +1296,11 @@ type ICompOpContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	IN() antlr.TerminalNode
+	NOT() antlr.TerminalNode
+	IS() antlr.TerminalNode
 
 	// IsCompOpContext differentiates from other interfaces.
 	IsCompOpContext()
@@ -1463,6 +1498,11 @@ type IExprMainContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	XorExpr() IXorExprContext
+	AllExprCont() []IExprContContext
+	ExprCont(i int) IExprContContext
+
 	// IsExprMainContext differentiates from other interfaces.
 	IsExprMainContext()
 }
@@ -1641,6 +1681,9 @@ type IExprContContext interface {
 	// SetOp sets the op token.
 	SetOp(antlr.Token)
 
+	// Getter signatures
+	XorExpr() IXorExprContext
+
 	// IsExprContContext differentiates from other interfaces.
 	IsExprContContext()
 }
@@ -1768,6 +1811,11 @@ type IXorExprContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AndExpr() IAndExprContext
+	AllXorExprCont() []IXorExprContContext
+	XorExprCont(i int) IXorExprContContext
 
 	// IsXorExprContext differentiates from other interfaces.
 	IsXorExprContext()
@@ -1947,6 +1995,9 @@ type IXorExprContContext interface {
 	// SetOp sets the op token.
 	SetOp(antlr.Token)
 
+	// Getter signatures
+	AndExpr() IAndExprContext
+
 	// IsXorExprContContext differentiates from other interfaces.
 	IsXorExprContContext()
 }
@@ -2074,6 +2125,11 @@ type IAndExprContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	ShiftExpr() IShiftExprContext
+	AllAndExprCont() []IAndExprContContext
+	AndExprCont(i int) IAndExprContContext
 
 	// IsAndExprContext differentiates from other interfaces.
 	IsAndExprContext()
@@ -2253,6 +2309,9 @@ type IAndExprContContext interface {
 	// SetOp sets the op token.
 	SetOp(antlr.Token)
 
+	// Getter signatures
+	ShiftExpr() IShiftExprContext
+
 	// IsAndExprContContext differentiates from other interfaces.
 	IsAndExprContContext()
 }
@@ -2380,6 +2439,11 @@ type IShiftExprContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	ArithExpr() IArithExprContext
+	AllShiftExprCont() []IShiftExprContContext
+	ShiftExprCont(i int) IShiftExprContContext
 
 	// IsShiftExprContext differentiates from other interfaces.
 	IsShiftExprContext()
@@ -2559,6 +2623,9 @@ type IShiftExprContContext interface {
 	// SetOp sets the op token.
 	SetOp(antlr.Token)
 
+	// Getter signatures
+	ArithExpr() IArithExprContext
+
 	// IsShiftExprContContext differentiates from other interfaces.
 	IsShiftExprContContext()
 }
@@ -2698,6 +2765,11 @@ type IArithExprContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Term() ITermContext
+	AllArithExprCont() []IArithExprContContext
+	ArithExprCont(i int) IArithExprContContext
 
 	// IsArithExprContext differentiates from other interfaces.
 	IsArithExprContext()
@@ -2877,6 +2949,9 @@ type IArithExprContContext interface {
 	// SetOp sets the op token.
 	SetOp(antlr.Token)
 
+	// Getter signatures
+	Term() ITermContext
+
 	// IsArithExprContContext differentiates from other interfaces.
 	IsArithExprContContext()
 }
@@ -3016,6 +3091,11 @@ type ITermContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Factor() IFactorContext
+	AllTermCont() []ITermContContext
+	TermCont(i int) ITermContContext
 
 	// IsTermContext differentiates from other interfaces.
 	IsTermContext()
@@ -3168,7 +3248,7 @@ func (p *ExprParser) Term() (localctx ITermContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<ExprParserT__14)|(1<<ExprParserT__15)|(1<<ExprParserT__16)|(1<<ExprParserT__17)|(1<<ExprParserT__18))) != 0 {
+	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1015808) != 0 {
 		{
 			p.SetState(167)
 			p.TermCont()
@@ -3194,6 +3274,9 @@ type ITermContContext interface {
 
 	// SetOp sets the op token.
 	SetOp(antlr.Token)
+
+	// Getter signatures
+	Factor() IFactorContext
 
 	// IsTermContContext differentiates from other interfaces.
 	IsTermContContext()
@@ -3311,7 +3394,7 @@ func (p *ExprParser) TermCont() (localctx ITermContContext) {
 
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<ExprParserT__14)|(1<<ExprParserT__15)|(1<<ExprParserT__16)|(1<<ExprParserT__17)|(1<<ExprParserT__18))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1015808) != 0) {
 			var _ri = p.GetErrorHandler().RecoverInline(p)
 
 			localctx.(*TermContContext).op = _ri
@@ -3340,6 +3423,10 @@ type IFactorContext interface {
 
 	// SetOp sets the op token.
 	SetOp(antlr.Token)
+
+	// Getter signatures
+	Factor() IFactorContext
+	Power() IPowerContext
 
 	// IsFactorContext differentiates from other interfaces.
 	IsFactorContext()
@@ -3478,7 +3565,7 @@ func (p *ExprParser) Factor() (localctx IFactorContext) {
 
 			_la = p.GetTokenStream().LA(1)
 
-			if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<ExprParserT__12)|(1<<ExprParserT__13)|(1<<ExprParserT__19))) != 0) {
+			if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1073152) != 0) {
 				var _ri = p.GetErrorHandler().RecoverInline(p)
 
 				localctx.(*FactorContext).op = _ri
@@ -3518,6 +3605,10 @@ type IPowerContext interface {
 
 	// SetOp sets the op token.
 	SetOp(antlr.Token)
+
+	// Getter signatures
+	AtomExpr() IAtomExprContext
+	Factor() IFactorContext
 
 	// IsPowerContext differentiates from other interfaces.
 	IsPowerContext()
@@ -3674,6 +3765,11 @@ type IAtomExprContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Atom() IAtomContext
+	AllTrailer() []ITrailerContext
+	Trailer(i int) ITrailerContext
 
 	// IsAtomExprContext differentiates from other interfaces.
 	IsAtomExprContext()
@@ -3846,7 +3942,6 @@ type IAtomContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsAtomContext differentiates from other interfaces.
 	IsAtomContext()
 }
@@ -4020,10 +4115,10 @@ func (s *ConstAtomContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *ConstAtomContext) Const() IConstContext {
+func (s *ConstAtomContext) ConstVal() IConstValContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IConstContext); ok {
+		if _, ok := ctx.(IConstValContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -4033,7 +4128,7 @@ func (s *ConstAtomContext) Const() IConstContext {
 		return nil
 	}
 
-	return t.(IConstContext)
+	return t.(IConstValContext)
 }
 
 func (s *ConstAtomContext) EnterRule(listener antlr.ParseTreeListener) {
@@ -4153,7 +4248,7 @@ func (p *ExprParser) Atom() (localctx IAtomContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__14-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNAME-13)))) != 0 {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&14925368975360) != 0 {
 			{
 				p.SetState(194)
 				p.TestListComp()
@@ -4176,7 +4271,7 @@ func (p *ExprParser) Atom() (localctx IAtomContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__14-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNAME-13)))) != 0 {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&14925368975360) != 0 {
 			{
 				p.SetState(199)
 				p.TestListComp()
@@ -4199,7 +4294,7 @@ func (p *ExprParser) Atom() (localctx IAtomContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__20-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNAME-13)))) != 0 {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&14925371039744) != 0 {
 			{
 				p.SetState(204)
 				p.DictOrSetMaker()
@@ -4216,7 +4311,7 @@ func (p *ExprParser) Atom() (localctx IAtomContext) {
 		p.EnterOuterAlt(localctx, 4)
 		{
 			p.SetState(208)
-			p.Const()
+			p.ConstVal()
 		}
 
 	default:
@@ -4226,108 +4321,117 @@ func (p *ExprParser) Atom() (localctx IAtomContext) {
 	return localctx
 }
 
-// IConstContext is an interface to support dynamic dispatch.
-type IConstContext interface {
+// IConstValContext is an interface to support dynamic dispatch.
+type IConstValContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
-	// IsConstContext differentiates from other interfaces.
-	IsConstContext()
+	// Getter signatures
+	NAME() antlr.TerminalNode
+	NUMBER() antlr.TerminalNode
+	AllSTRING() []antlr.TerminalNode
+	STRING(i int) antlr.TerminalNode
+	NONE() antlr.TerminalNode
+	TRUE() antlr.TerminalNode
+	FALSE() antlr.TerminalNode
+
+	// IsConstValContext differentiates from other interfaces.
+	IsConstValContext()
 }
 
-type ConstContext struct {
+type ConstValContext struct {
 	*antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyConstContext() *ConstContext {
-	var p = new(ConstContext)
+func NewEmptyConstValContext() *ConstValContext {
+	var p = new(ConstValContext)
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = ExprParserRULE_const
+	p.RuleIndex = ExprParserRULE_constVal
 	return p
 }
 
-func (*ConstContext) IsConstContext() {}
+func (*ConstValContext) IsConstValContext() {}
 
-func NewConstContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ConstContext {
-	var p = new(ConstContext)
+func NewConstValContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ConstValContext {
+	var p = new(ConstValContext)
 
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = ExprParserRULE_const
+	p.RuleIndex = ExprParserRULE_constVal
 
 	return p
 }
 
-func (s *ConstContext) GetParser() antlr.Parser { return s.parser }
+func (s *ConstValContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *ConstContext) NAME() antlr.TerminalNode {
+func (s *ConstValContext) NAME() antlr.TerminalNode {
 	return s.GetToken(ExprParserNAME, 0)
 }
 
-func (s *ConstContext) NUMBER() antlr.TerminalNode {
+func (s *ConstValContext) NUMBER() antlr.TerminalNode {
 	return s.GetToken(ExprParserNUMBER, 0)
 }
 
-func (s *ConstContext) AllSTRING() []antlr.TerminalNode {
+func (s *ConstValContext) AllSTRING() []antlr.TerminalNode {
 	return s.GetTokens(ExprParserSTRING)
 }
 
-func (s *ConstContext) STRING(i int) antlr.TerminalNode {
+func (s *ConstValContext) STRING(i int) antlr.TerminalNode {
 	return s.GetToken(ExprParserSTRING, i)
 }
 
-func (s *ConstContext) NONE() antlr.TerminalNode {
+func (s *ConstValContext) NONE() antlr.TerminalNode {
 	return s.GetToken(ExprParserNONE, 0)
 }
 
-func (s *ConstContext) TRUE() antlr.TerminalNode {
+func (s *ConstValContext) TRUE() antlr.TerminalNode {
 	return s.GetToken(ExprParserTRUE, 0)
 }
 
-func (s *ConstContext) FALSE() antlr.TerminalNode {
+func (s *ConstValContext) FALSE() antlr.TerminalNode {
 	return s.GetToken(ExprParserFALSE, 0)
 }
 
-func (s *ConstContext) GetRuleContext() antlr.RuleContext {
+func (s *ConstValContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *ConstContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *ConstValContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *ConstContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *ConstValContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(ExprListener); ok {
-		listenerT.EnterConst(s)
+		listenerT.EnterConstVal(s)
 	}
 }
 
-func (s *ConstContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *ConstValContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(ExprListener); ok {
-		listenerT.ExitConst(s)
+		listenerT.ExitConstVal(s)
 	}
 }
 
-func (s *ConstContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ConstValContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 	switch t := visitor.(type) {
 	case ExprVisitor:
-		return t.VisitConst(s)
+		return t.VisitConstVal(s)
 
 	default:
 		return t.VisitChildren(s)
 	}
 }
 
-func (p *ExprParser) Const() (localctx IConstContext) {
+func (p *ExprParser) ConstVal() (localctx IConstValContext) {
 	this := p
 	_ = this
 
-	localctx = NewConstContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 46, ExprParserRULE_const)
+	localctx = NewConstValContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 46, ExprParserRULE_constVal)
 	var _la int
 
 	defer func() {
@@ -4422,6 +4526,10 @@ type ITestListCompContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllExprOrStarExpr() []IExprOrStarExprContext
+	ExprOrStarExpr(i int) IExprOrStarExprContext
 
 	// IsTestListCompContext differentiates from other interfaces.
 	IsTestListCompContext()
@@ -4599,6 +4707,10 @@ type IExprOrStarExprContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Expr() IExprContext
+	StarExpr() IStarExprContext
+
 	// IsExprOrStarExprContext differentiates from other interfaces.
 	IsExprOrStarExprContext()
 }
@@ -4747,6 +4859,9 @@ type IStarExprContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Expr() IExprContext
+
 	// IsStarExprContext differentiates from other interfaces.
 	IsStarExprContext()
 }
@@ -4866,6 +4981,10 @@ type ITrailerContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	SubscriptList() ISubscriptListContext
+	NAME() antlr.TerminalNode
 
 	// IsTrailerContext differentiates from other interfaces.
 	IsTrailerContext()
@@ -5014,6 +5133,10 @@ type ISubscriptListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllSubscript() []ISubscriptContext
+	Subscript(i int) ISubscriptContext
 
 	// IsSubscriptListContext differentiates from other interfaces.
 	IsSubscriptListContext()
@@ -5189,7 +5312,6 @@ type ISubscriptContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsSubscriptContext differentiates from other interfaces.
 	IsSubscriptContext()
 }
@@ -5443,7 +5565,7 @@ func (p *ExprParser) Subscript() (localctx ISubscriptContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNAME-13)))) != 0 {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&14925368942592) != 0 {
 			{
 				p.SetState(262)
 
@@ -5461,7 +5583,7 @@ func (p *ExprParser) Subscript() (localctx ISubscriptContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNAME-13)))) != 0 {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&14925368942592) != 0 {
 			{
 				p.SetState(266)
 
@@ -5497,6 +5619,9 @@ type ISliceOpContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Expr() IExprContext
 
 	// IsSliceOpContext differentiates from other interfaces.
 	IsSliceOpContext()
@@ -5608,7 +5733,7 @@ func (p *ExprParser) SliceOp() (localctx ISliceOpContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if ((_la-13)&-(0x1f+1)) == 0 && ((1<<uint((_la-13)))&((1<<(ExprParserT__12-13))|(1<<(ExprParserT__13-13))|(1<<(ExprParserT__19-13))|(1<<(ExprParserT__21-13))|(1<<(ExprParserT__23-13))|(1<<(ExprParserT__25-13))|(1<<(ExprParserT__27-13))|(1<<(ExprParserSTRING-13))|(1<<(ExprParserNUMBER-13))|(1<<(ExprParserFALSE-13))|(1<<(ExprParserNONE-13))|(1<<(ExprParserNOT-13))|(1<<(ExprParserTRUE-13))|(1<<(ExprParserNAME-13)))) != 0 {
+	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&14925368942592) != 0 {
 		{
 			p.SetState(275)
 			p.Expr()
@@ -5625,7 +5750,6 @@ type IDictOrSetMakerContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsDictOrSetMakerContext differentiates from other interfaces.
 	IsDictOrSetMakerContext()
 }
@@ -5949,7 +6073,6 @@ type IDictItemContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsDictItemContext differentiates from other interfaces.
 	IsDictItemContext()
 }

@@ -1,4 +1,4 @@
-// Code generated from Expr.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Expr.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Expr
 
@@ -86,8 +86,8 @@ type ExprListener interface {
 	// EnterConstAtom is called when entering the constAtom production.
 	EnterConstAtom(c *ConstAtomContext)
 
-	// EnterConst is called when entering the const production.
-	EnterConst(c *ConstContext)
+	// EnterConstVal is called when entering the constVal production.
+	EnterConstVal(c *ConstValContext)
 
 	// EnterTestListComp is called when entering the testListComp production.
 	EnterTestListComp(c *TestListCompContext)
@@ -203,8 +203,8 @@ type ExprListener interface {
 	// ExitConstAtom is called when exiting the constAtom production.
 	ExitConstAtom(c *ConstAtomContext)
 
-	// ExitConst is called when exiting the const production.
-	ExitConst(c *ConstContext)
+	// ExitConstVal is called when exiting the constVal production.
+	ExitConstVal(c *ConstValContext)
 
 	// ExitTestListComp is called when exiting the testListComp production.
 	ExitTestListComp(c *TestListCompContext)

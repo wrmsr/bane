@@ -1,23 +1,24 @@
-// Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+// Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
 // Use of this file is governed by the BSD 3-clause license that
 // can be found in the LICENSE.txt file in the project root.
 
 package antlr
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ATNConfigSet interface {
-	hash() int
+	Hash() int
+	Equals(o Collectable[ATNConfig]) bool
 	Add(ATNConfig, *DoubleDict) bool
 	AddAll([]ATNConfig) bool
 
-	GetStates() Set
+	GetStates() *JStore[ATNState, Comparator[ATNState]]
 	GetPredicates() []SemanticContext
 	GetItems() []ATNConfig
 
 	OptimizeConfigs(interpreter *BaseATNSimulator)
-
-	Equals(other interface{}) bool
 
 	Length() int
 	IsEmpty() bool
@@ -57,7 +58,7 @@ type BaseATNConfigSet struct {
 	// effectively doubles the number of objects associated with ATNConfigs. All
 	// keys are hashed by (s, i, _, pi), not including the context. Wiped out when
 	// read-only because a set becomes a DFA state.
-	configLookup Set
+	configLookup *JStore[ATNConfig, Comparator[ATNConfig]]
 
 	// configs is the added elements.
 	configs []ATNConfig
@@ -83,7 +84,7 @@ type BaseATNConfigSet struct {
 
 	// readOnly is whether it is read-only. Do not
 	// allow any code to manipulate the set if true because DFA states will point at
-	// sets and those must not change. It not protect other fields; conflictingAlts
+	// sets and those must not change. It not, protect other fields; conflictingAlts
 	// in particular, which is assigned after readOnly.
 	readOnly bool
 
@@ -104,7 +105,7 @@ func (b *BaseATNConfigSet) Alts() *BitSet {
 func NewBaseATNConfigSet(fullCtx bool) *BaseATNConfigSet {
 	return &BaseATNConfigSet{
 		cachedHash:   -1,
-		configLookup: newArray2DHashSetWithCap(hashATNConfig, equalATNConfigs, 16, 2),
+		configLookup: NewJStore[ATNConfig, Comparator[ATNConfig]](aConfCompInst),
 		fullCtx:      fullCtx,
 	}
 }
@@ -126,9 +127,11 @@ func (b *BaseATNConfigSet) Add(config ATNConfig, mergeCache *DoubleDict) bool {
 		b.dipsIntoOuterContext = true
 	}
 
-	existing := b.configLookup.Add(config).(ATNConfig)
+	existing, present := b.configLookup.Put(config)
 
-	if existing == config {
+	// The config was not already in the set
+	//
+	if !present {
 		b.cachedHash = -1
 		b.configs = append(b.configs, config) // Track order here
 		return true
@@ -154,11 +157,14 @@ func (b *BaseATNConfigSet) Add(config ATNConfig, mergeCache *DoubleDict) bool {
 	return true
 }
 
-func (b *BaseATNConfigSet) GetStates() Set {
-	states := newArray2DHashSet(nil, nil)
+func (b *BaseATNConfigSet) GetStates() *JStore[ATNState, Comparator[ATNState]] {
+
+	// states uses the standard comparator provided by the ATNState instance
+	//
+	states := NewJStore[ATNState, Comparator[ATNState]](aStateEqInst)
 
 	for i := 0; i < len(b.configs); i++ {
-		states.Add(b.configs[i].GetState())
+		states.Put(b.configs[i].GetState())
 	}
 
 	return states
@@ -214,7 +220,34 @@ func (b *BaseATNConfigSet) AddAll(coll []ATNConfig) bool {
 	return false
 }
 
-func (b *BaseATNConfigSet) Equals(other interface{}) bool {
+// Compare is a hack function just to verify that adding DFAstares to the known
+// set works, so long as comparison of ATNConfigSet s works. For that to work, we
+// need to make sure that the set of ATNConfigs in two sets are equivalent. We can't
+// know the order, so we do this inefficient hack. If this proves the point, then
+// we can change the config set to a better structure.
+func (b *BaseATNConfigSet) Compare(bs *BaseATNConfigSet) bool {
+	if len(b.configs) != len(bs.configs) {
+		return false
+	}
+
+	for _, c := range b.configs {
+		found := false
+		for _, c2 := range bs.configs {
+			if c.Equals(c2) {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			return false
+		}
+
+	}
+	return true
+}
+
+func (b *BaseATNConfigSet) Equals(other Collectable[ATNConfig]) bool {
 	if b == other {
 		return true
 	} else if _, ok := other.(*BaseATNConfigSet); !ok {
@@ -224,15 +257,15 @@ func (b *BaseATNConfigSet) Equals(other interface{}) bool {
 	other2 := other.(*BaseATNConfigSet)
 
 	return b.configs != nil &&
-		// TODO: b.configs.equals(other2.configs) && // TODO: Is b necessary?
 		b.fullCtx == other2.fullCtx &&
 		b.uniqueAlt == other2.uniqueAlt &&
 		b.conflictingAlts == other2.conflictingAlts &&
 		b.hasSemanticContext == other2.hasSemanticContext &&
-		b.dipsIntoOuterContext == other2.dipsIntoOuterContext
+		b.dipsIntoOuterContext == other2.dipsIntoOuterContext &&
+		b.Compare(other2)
 }
 
-func (b *BaseATNConfigSet) hash() int {
+func (b *BaseATNConfigSet) Hash() int {
 	if b.readOnly {
 		if b.cachedHash == -1 {
 			b.cachedHash = b.hashCodeConfigs()
@@ -247,7 +280,7 @@ func (b *BaseATNConfigSet) hash() int {
 func (b *BaseATNConfigSet) hashCodeConfigs() int {
 	h := 1
 	for _, config := range b.configs {
-		h = 31*h + config.hash()
+		h = 31*h + config.Hash()
 	}
 	return h
 }
@@ -283,7 +316,7 @@ func (b *BaseATNConfigSet) Clear() {
 
 	b.configs = make([]ATNConfig, 0)
 	b.cachedHash = -1
-	b.configLookup = newArray2DHashSet(nil, equalATNConfigs)
+	b.configLookup = NewJStore[ATNConfig, Comparator[ATNConfig]](atnConfCompInst)
 }
 
 func (b *BaseATNConfigSet) FullContext() bool {
@@ -365,7 +398,8 @@ type OrderedATNConfigSet struct {
 func NewOrderedATNConfigSet() *OrderedATNConfigSet {
 	b := NewBaseATNConfigSet(false)
 
-	b.configLookup = newArray2DHashSet(nil, nil)
+	// This set uses the standard Hash() and Equals() from ATNConfig
+	b.configLookup = NewJStore[ATNConfig, Comparator[ATNConfig]](aConfEqInst)
 
 	return &OrderedATNConfigSet{BaseATNConfigSet: b}
 }
@@ -375,7 +409,7 @@ func hashATNConfig(i interface{}) int {
 	hash := 7
 	hash = 31*hash + o.GetState().GetStateNumber()
 	hash = 31*hash + o.GetAlt()
-	hash = 31*hash + o.GetSemanticContext().hash()
+	hash = 31*hash + o.GetSemanticContext().Hash()
 	return hash
 }
 
@@ -403,5 +437,5 @@ func equalATNConfigs(a, b interface{}) bool {
 		return false
 	}
 
-	return ai.GetSemanticContext().equals(bi.GetSemanticContext())
+	return ai.GetSemanticContext().Equals(bi.GetSemanticContext())
 }

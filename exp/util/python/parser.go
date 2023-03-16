@@ -302,10 +302,10 @@ func (v *parseVisitor) VisitStarsDictItem(ctx *parser.StarsDictItemContext) any 
 }
 
 func (v *parseVisitor) VisitConstAtom(ctx *parser.ConstAtomContext) any {
-	return v.Visit(ctx.Const())
+	return v.Visit(ctx.ConstVal())
 }
 
-func (v *parseVisitor) VisitConst(ctx *parser.ConstContext) any {
+func (v *parseVisitor) VisitConstVal(ctx *parser.ConstValContext) any {
 	if ss := ctx.AllSTRING(); len(ss) > 0 {
 		return String{S: slices.Map(antlr.TerminalNode.GetText, ss)}
 	}

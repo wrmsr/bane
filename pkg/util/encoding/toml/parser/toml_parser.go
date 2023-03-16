@@ -1,4 +1,4 @@
-// Code generated from Toml.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Toml.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Toml
 
@@ -222,6 +222,12 @@ type IDocumentContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllExpression() []IExpressionContext
+	Expression(i int) IExpressionContext
+	AllNL() []antlr.TerminalNode
+	NL(i int) antlr.TerminalNode
+
 	// IsDocumentContext differentiates from other interfaces.
 	IsDocumentContext()
 }
@@ -389,6 +395,11 @@ type IExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	KeyValue() IKeyValueContext
+	Comment() ICommentContext
+	Table() ITableContext
 
 	// IsExpressionContext differentiates from other interfaces.
 	IsExpressionContext()
@@ -569,6 +580,9 @@ type ICommentContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	COMMENT() antlr.TerminalNode
+
 	// IsCommentContext differentiates from other interfaces.
 	IsCommentContext()
 }
@@ -680,6 +694,10 @@ type IKeyValueContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Key() IKeyContext
+	Value() IValueContext
 
 	// IsKeyValueContext differentiates from other interfaces.
 	IsKeyValueContext()
@@ -820,6 +838,10 @@ type IKeyContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	SimpleKey() ISimpleKeyContext
+	DottedKey() IDottedKeyContext
 
 	// IsKeyContext differentiates from other interfaces.
 	IsKeyContext()
@@ -965,6 +987,10 @@ type ISimpleKeyContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	QuotedKey() IQuotedKeyContext
+	UnquotedKey() IUnquotedKeyContext
 
 	// IsSimpleKeyContext differentiates from other interfaces.
 	IsSimpleKeyContext()
@@ -1114,6 +1140,9 @@ type IUnquotedKeyContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	UNQUOTED_KEY() antlr.TerminalNode
+
 	// IsUnquotedKeyContext differentiates from other interfaces.
 	IsUnquotedKeyContext()
 }
@@ -1217,6 +1246,10 @@ type IQuotedKeyContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	BASIC_STRING() antlr.TerminalNode
+	LITERAL_STRING() antlr.TerminalNode
 
 	// IsQuotedKeyContext differentiates from other interfaces.
 	IsQuotedKeyContext()
@@ -1333,6 +1366,10 @@ type IDottedKeyContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllSimpleKey() []ISimpleKeyContext
+	SimpleKey(i int) ISimpleKeyContext
 
 	// IsDottedKeyContext differentiates from other interfaces.
 	IsDottedKeyContext()
@@ -1493,6 +1530,15 @@ type IValueContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	StringValue() IStringValueContext
+	Integer() IIntegerContext
+	FloatingPoint() IFloatingPointContext
+	Boolean() IBooleanContext
+	DateTime() IDateTimeContext
+	Array() IArrayContext
+	InlineTable() IInlineTableContext
 
 	// IsValueContext differentiates from other interfaces.
 	IsValueContext()
@@ -1757,6 +1803,12 @@ type IStringValueContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	BASIC_STRING() antlr.TerminalNode
+	ML_BASIC_STRING() antlr.TerminalNode
+	LITERAL_STRING() antlr.TerminalNode
+	ML_LITERAL_STRING() antlr.TerminalNode
+
 	// IsStringValueContext differentiates from other interfaces.
 	IsStringValueContext()
 }
@@ -1863,7 +1915,7 @@ func (p *TomlParser) StringValue() (localctx IStringValueContext) {
 		p.SetState(100)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<TomlParserBASIC_STRING)|(1<<TomlParserML_BASIC_STRING)|(1<<TomlParserLITERAL_STRING)|(1<<TomlParserML_LITERAL_STRING))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&245760) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -1880,6 +1932,12 @@ type IIntegerContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	DEC_INT() antlr.TerminalNode
+	HEX_INT() antlr.TerminalNode
+	OCT_INT() antlr.TerminalNode
+	BIN_INT() antlr.TerminalNode
 
 	// IsIntegerContext differentiates from other interfaces.
 	IsIntegerContext()
@@ -1987,7 +2045,7 @@ func (p *TomlParser) Integer() (localctx IIntegerContext) {
 		p.SetState(102)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<TomlParserDEC_INT)|(1<<TomlParserHEX_INT)|(1<<TomlParserOCT_INT)|(1<<TomlParserBIN_INT))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&31457280) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -2004,6 +2062,11 @@ type IFloatingPointContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	FLOAT() antlr.TerminalNode
+	INF() antlr.TerminalNode
+	NAN() antlr.TerminalNode
 
 	// IsFloatingPointContext differentiates from other interfaces.
 	IsFloatingPointContext()
@@ -2107,7 +2170,7 @@ func (p *TomlParser) FloatingPoint() (localctx IFloatingPointContext) {
 		p.SetState(104)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<TomlParserFLOAT)|(1<<TomlParserINF)|(1<<TomlParserNAN))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1835008) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -2124,6 +2187,9 @@ type IBooleanContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	BOOLEAN() antlr.TerminalNode
 
 	// IsBooleanContext differentiates from other interfaces.
 	IsBooleanContext()
@@ -2228,6 +2294,12 @@ type IDateTimeContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	OFFSET_DATE_TIME() antlr.TerminalNode
+	LOCAL_DATE_TIME() antlr.TerminalNode
+	LOCAL_DATE() antlr.TerminalNode
+	LOCAL_TIME() antlr.TerminalNode
 
 	// IsDateTimeContext differentiates from other interfaces.
 	IsDateTimeContext()
@@ -2335,7 +2407,7 @@ func (p *TomlParser) DateTime() (localctx IDateTimeContext) {
 		p.SetState(108)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<TomlParserOFFSET_DATE_TIME)|(1<<TomlParserLOCAL_DATE_TIME)|(1<<TomlParserLOCAL_DATE)|(1<<TomlParserLOCAL_TIME))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&503316480) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -2352,6 +2424,10 @@ type IArrayContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	CommentOrNl() ICommentOrNlContext
+	ArrayValues() IArrayValuesContext
 
 	// IsArrayContext differentiates from other interfaces.
 	IsArrayContext()
@@ -2502,6 +2578,12 @@ type IArrayValuesContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllCommentOrNl() []ICommentOrNlContext
+	CommentOrNl(i int) ICommentOrNlContext
+	Value() IValueContext
+	ArrayValues() IArrayValuesContext
 
 	// IsArrayValuesContext differentiates from other interfaces.
 	IsArrayValuesContext()
@@ -2721,6 +2803,12 @@ type ICommentOrNlContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllNL() []antlr.TerminalNode
+	NL(i int) antlr.TerminalNode
+	AllCOMMENT() []antlr.TerminalNode
+	COMMENT(i int) antlr.TerminalNode
+
 	// IsCommentOrNlContext differentiates from other interfaces.
 	IsCommentOrNlContext()
 }
@@ -2862,6 +2950,10 @@ type ITableContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	StandardTable() IStandardTableContext
+	ArrayTable() IArrayTableContext
 
 	// IsTableContext differentiates from other interfaces.
 	IsTableContext()
@@ -3011,6 +3103,9 @@ type IStandardTableContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Key() IKeyContext
+
 	// IsStandardTableContext differentiates from other interfaces.
 	IsStandardTableContext()
 }
@@ -3134,6 +3229,9 @@ type IInlineTableContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	InlineTableKeyvals() IInlineTableKeyvalsContext
 
 	// IsInlineTableContext differentiates from other interfaces.
 	IsInlineTableContext()
@@ -3259,6 +3357,9 @@ type IInlineTableKeyvalsContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	InlineTableKeyvalsNonEmpty() IInlineTableKeyvalsNonEmptyContext
+
 	// IsInlineTableKeyvalsContext differentiates from other interfaces.
 	IsInlineTableKeyvalsContext()
 }
@@ -3365,7 +3466,7 @@ func (p *TomlParser) InlineTableKeyvals() (localctx IInlineTableKeyvalsContext) 
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<TomlParserBASIC_STRING)|(1<<TomlParserLITERAL_STRING)|(1<<TomlParserUNQUOTED_KEY))) != 0 {
+	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&536952832) != 0 {
 		{
 			p.SetState(151)
 			p.InlineTableKeyvalsNonEmpty()
@@ -3382,6 +3483,11 @@ type IInlineTableKeyvalsNonEmptyContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Key() IKeyContext
+	Value() IValueContext
+	InlineTableKeyvalsNonEmpty() IInlineTableKeyvalsNonEmptyContext
 
 	// IsInlineTableKeyvalsNonEmptyContext differentiates from other interfaces.
 	IsInlineTableKeyvalsNonEmptyContext()
@@ -3554,6 +3660,9 @@ type IArrayTableContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Key() IKeyContext
 
 	// IsArrayTableContext differentiates from other interfaces.
 	IsArrayTableContext()

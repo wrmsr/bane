@@ -1,4 +1,4 @@
-// Code generated from Protobuf3.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Protobuf3.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Protobuf3
 
@@ -427,6 +427,12 @@ type IProtoContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Syntax() ISyntaxContext
+	EOF() antlr.TerminalNode
+	AllSyntaxExtra() []ISyntaxExtraContext
+	SyntaxExtra(i int) ISyntaxExtraContext
+
 	// IsProtoContext differentiates from other interfaces.
 	IsProtoContext()
 }
@@ -582,7 +588,7 @@ func (p *Protobuf3Parser) Proto() (localctx IProtoContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<Protobuf3ParserT__1)|(1<<Protobuf3ParserENUM)|(1<<Protobuf3ParserEXTEND)|(1<<Protobuf3ParserIMPORT)|(1<<Protobuf3ParserMESSAGE)|(1<<Protobuf3ParserOPTION)|(1<<Protobuf3ParserPACKAGE))) != 0) || _la == Protobuf3ParserSERVICE {
+	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&553263824900) != 0 {
 		{
 			p.SetState(97)
 			p.SyntaxExtra()
@@ -606,6 +612,11 @@ type ISyntaxContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	SYNTAX() antlr.TerminalNode
+	PROTO3_DOUBLE() antlr.TerminalNode
+	PROTO3_SINGLE() antlr.TerminalNode
 
 	// IsSyntaxContext differentiates from other interfaces.
 	IsSyntaxContext()
@@ -738,6 +749,13 @@ type ISyntaxExtraContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	ImportStatement() IImportStatementContext
+	PackageStatement() IPackageStatementContext
+	Option() IOptionContext
+	TopLevelDef() ITopLevelDefContext
+	EmptyStatement() IEmptyStatementContext
 
 	// IsSyntaxExtraContext differentiates from other interfaces.
 	IsSyntaxExtraContext()
@@ -956,6 +974,12 @@ type IImportStatementContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	IMPORT() antlr.TerminalNode
+	STR_LIT() antlr.TerminalNode
+	WEAK() antlr.TerminalNode
+	PUBLIC() antlr.TerminalNode
+
 	// IsImportStatementContext differentiates from other interfaces.
 	IsImportStatementContext()
 }
@@ -1099,6 +1123,10 @@ type IPackageStatementContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	PACKAGE() antlr.TerminalNode
+	FullIdent() IFullIdentContext
+
 	// IsPackageStatementContext differentiates from other interfaces.
 	IsPackageStatementContext()
 }
@@ -1226,6 +1254,12 @@ type IOptionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	OPTION() antlr.TerminalNode
+	OptionName() IOptionNameContext
+	Constant() IConstantContext
+	OptionBody() IOptionBodyContext
 
 	// IsOptionContext differentiates from other interfaces.
 	IsOptionContext()
@@ -1409,6 +1443,13 @@ type IOptionNameContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllIDENT() []antlr.TerminalNode
+	IDENT(i int) antlr.TerminalNode
+	FullIdent() IFullIdentContext
+	AllReservedWord() []IReservedWordContext
+	ReservedWord(i int) IReservedWordContext
 
 	// IsOptionNameContext differentiates from other interfaces.
 	IsOptionNameContext()
@@ -1632,6 +1673,10 @@ type IOptionBodyContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllOptionBodyVariable() []IOptionBodyVariableContext
+	OptionBodyVariable(i int) IOptionBodyVariableContext
+
 	// IsOptionBodyContext differentiates from other interfaces.
 	IsOptionBodyContext()
 }
@@ -1792,6 +1837,10 @@ type IOptionBodyVariableContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	OptionName() IOptionNameContext
+	Constant() IConstantContext
+
 	// IsOptionBodyVariableContext differentiates from other interfaces.
 	IsOptionBodyVariableContext()
 }
@@ -1931,6 +1980,12 @@ type ITopLevelDefContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Message() IMessageContext
+	EnumDefinition() IEnumDefinitionContext
+	Extend() IExtendContext
+	Service() IServiceContext
 
 	// IsTopLevelDefContext differentiates from other interfaces.
 	IsTopLevelDefContext()
@@ -2126,6 +2181,11 @@ type IMessageContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	MESSAGE() antlr.TerminalNode
+	MessageName() IMessageNameContext
+	MessageBody() IMessageBodyContext
+
 	// IsMessageContext differentiates from other interfaces.
 	IsMessageContext()
 }
@@ -2270,6 +2330,10 @@ type IMessageBodyContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllMessageBodyContent() []IMessageBodyContentContext
+	MessageBodyContent(i int) IMessageBodyContentContext
+
 	// IsMessageBodyContext differentiates from other interfaces.
 	IsMessageBodyContext()
 }
@@ -2405,7 +2469,7 @@ func (p *Protobuf3Parser) MessageBody() (localctx IMessageBodyContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<Protobuf3ParserT__1)|(1<<Protobuf3ParserT__4)|(1<<Protobuf3ParserBOOL)|(1<<Protobuf3ParserBYTES)|(1<<Protobuf3ParserDOUBLE)|(1<<Protobuf3ParserENUM)|(1<<Protobuf3ParserEXTEND)|(1<<Protobuf3ParserFIXED32)|(1<<Protobuf3ParserFIXED64)|(1<<Protobuf3ParserFLOAT)|(1<<Protobuf3ParserINT32)|(1<<Protobuf3ParserINT64)|(1<<Protobuf3ParserMAP)|(1<<Protobuf3ParserMESSAGE)|(1<<Protobuf3ParserONEOF)|(1<<Protobuf3ParserOPTION)|(1<<Protobuf3ParserPACKAGE))) != 0) || (((_la-35)&-(0x1f+1)) == 0 && ((1<<uint((_la-35)))&((1<<(Protobuf3ParserREPEATED-35))|(1<<(Protobuf3ParserRESERVED-35))|(1<<(Protobuf3ParserRPC-35))|(1<<(Protobuf3ParserSERVICE-35))|(1<<(Protobuf3ParserSFIXED32-35))|(1<<(Protobuf3ParserSFIXED64-35))|(1<<(Protobuf3ParserSINT32-35))|(1<<(Protobuf3ParserSINT64-35))|(1<<(Protobuf3ParserSTREAM-35))|(1<<(Protobuf3ParserSTRING-35))|(1<<(Protobuf3ParserSYNTAX-35))|(1<<(Protobuf3ParserUINT32-35))|(1<<(Protobuf3ParserUINT64-35))|(1<<(Protobuf3ParserWEAK-35))|(1<<(Protobuf3ParserIDENT-35)))) != 0) {
+	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&4362694618447908) != 0 {
 		{
 			p.SetState(178)
 			p.MessageBodyContent()
@@ -2429,6 +2493,17 @@ type IMessageBodyContentContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Field() IFieldContext
+	EnumDefinition() IEnumDefinitionContext
+	Message() IMessageContext
+	Extend() IExtendContext
+	Option() IOptionContext
+	Oneof() IOneofContext
+	MapField() IMapFieldContext
+	Reserved() IReservedContext
+	EmptyStatement() IEmptyStatementContext
 
 	// IsMessageBodyContentContext differentiates from other interfaces.
 	IsMessageBodyContentContext()
@@ -2736,6 +2811,11 @@ type IEnumDefinitionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	ENUM() antlr.TerminalNode
+	EnumName() IEnumNameContext
+	EnumBody() IEnumBodyContext
+
 	// IsEnumDefinitionContext differentiates from other interfaces.
 	IsEnumDefinitionContext()
 }
@@ -2879,6 +2959,14 @@ type IEnumBodyContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllOption() []IOptionContext
+	Option(i int) IOptionContext
+	AllEnumField() []IEnumFieldContext
+	EnumField(i int) IEnumFieldContext
+	AllEmptyStatement() []IEmptyStatementContext
+	EmptyStatement(i int) IEmptyStatementContext
 
 	// IsEnumBodyContext differentiates from other interfaces.
 	IsEnumBodyContext()
@@ -3097,7 +3185,7 @@ func (p *Protobuf3Parser) EnumBody() (localctx IEnumBodyContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for _la == Protobuf3ParserT__1 || _la == Protobuf3ParserOPTION || _la == Protobuf3ParserIDENT {
+	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&2251800887427076) != 0 {
 		p.SetState(205)
 		p.GetErrorHandler().Sync(p)
 
@@ -3142,6 +3230,12 @@ type IEnumFieldContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	IDENT() antlr.TerminalNode
+	INT_LIT() antlr.TerminalNode
+	AllEnumValueOption() []IEnumValueOptionContext
+	EnumValueOption(i int) IEnumValueOptionContext
 
 	// IsEnumFieldContext differentiates from other interfaces.
 	IsEnumFieldContext()
@@ -3353,6 +3447,10 @@ type IEnumValueOptionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	OptionName() IOptionNameContext
+	Constant() IConstantContext
+
 	// IsEnumValueOptionContext differentiates from other interfaces.
 	IsEnumValueOptionContext()
 }
@@ -3492,6 +3590,12 @@ type IExtendContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	EXTEND() antlr.TerminalNode
+	MessageType() IMessageTypeContext
+	Field() IFieldContext
+	EmptyStatement() IEmptyStatementContext
 
 	// IsExtendContext differentiates from other interfaces.
 	IsExtendContext()
@@ -3675,6 +3779,16 @@ type IServiceContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	SERVICE() antlr.TerminalNode
+	ServiceName() IServiceNameContext
+	AllOption() []IOptionContext
+	Option(i int) IOptionContext
+	AllRpc() []IRpcContext
+	Rpc(i int) IRpcContext
+	AllEmptyStatement() []IEmptyStatementContext
+	EmptyStatement(i int) IEmptyStatementContext
 
 	// IsServiceContext differentiates from other interfaces.
 	IsServiceContext()
@@ -3921,7 +4035,7 @@ func (p *Protobuf3Parser) Service() (localctx IServiceContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for _la == Protobuf3ParserT__1 || _la == Protobuf3ParserOPTION || _la == Protobuf3ParserRPC {
+	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&275951648772) != 0 {
 		p.SetState(252)
 		p.GetErrorHandler().Sync(p)
 
@@ -3966,6 +4080,19 @@ type IRpcContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	RPC() antlr.TerminalNode
+	RpcName() IRpcNameContext
+	AllMessageType() []IMessageTypeContext
+	MessageType(i int) IMessageTypeContext
+	RETURNS() antlr.TerminalNode
+	AllSTREAM() []antlr.TerminalNode
+	STREAM(i int) antlr.TerminalNode
+	AllOption() []IOptionContext
+	Option(i int) IOptionContext
+	AllEmptyStatement() []IEmptyStatementContext
+	EmptyStatement(i int) IEmptyStatementContext
 
 	// IsRpcContext differentiates from other interfaces.
 	IsRpcContext()
@@ -4329,6 +4456,11 @@ type IReservedContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	RESERVED() antlr.TerminalNode
+	Ranges() IRangesContext
+	FieldNames() IFieldNamesContext
+
 	// IsReservedContext differentiates from other interfaces.
 	IsReservedContext()
 }
@@ -4487,6 +4619,10 @@ type IRangesContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllRangeRule() []IRangeRuleContext
+	RangeRule(i int) IRangeRuleContext
 
 	// IsRangesContext differentiates from other interfaces.
 	IsRangesContext()
@@ -4648,6 +4784,11 @@ type IRangeRuleContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllINT_LIT() []antlr.TerminalNode
+	INT_LIT(i int) antlr.TerminalNode
+	TO() antlr.TerminalNode
+
 	// IsRangeRuleContext differentiates from other interfaces.
 	IsRangeRuleContext()
 }
@@ -4781,6 +4922,10 @@ type IFieldNamesContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllSTR_LIT() []antlr.TerminalNode
+	STR_LIT(i int) antlr.TerminalNode
+
 	// IsFieldNamesContext differentiates from other interfaces.
 	IsFieldNamesContext()
 }
@@ -4907,6 +5052,10 @@ type ITypeRuleContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	SimpleType() ISimpleTypeContext
+	MessageOrEnumType() IMessageOrEnumTypeContext
 
 	// IsTypeRuleContext differentiates from other interfaces.
 	IsTypeRuleContext()
@@ -5052,6 +5201,23 @@ type ISimpleTypeContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	DOUBLE() antlr.TerminalNode
+	FLOAT() antlr.TerminalNode
+	INT32() antlr.TerminalNode
+	INT64() antlr.TerminalNode
+	UINT32() antlr.TerminalNode
+	UINT64() antlr.TerminalNode
+	SINT32() antlr.TerminalNode
+	SINT64() antlr.TerminalNode
+	FIXED32() antlr.TerminalNode
+	FIXED64() antlr.TerminalNode
+	SFIXED32() antlr.TerminalNode
+	SFIXED64() antlr.TerminalNode
+	BOOL() antlr.TerminalNode
+	STRING() antlr.TerminalNode
+	BYTES() antlr.TerminalNode
 
 	// IsSimpleTypeContext differentiates from other interfaces.
 	IsSimpleTypeContext()
@@ -5203,7 +5369,7 @@ func (p *Protobuf3Parser) SimpleType() (localctx ISimpleTypeContext) {
 		p.SetState(319)
 		_la = p.GetTokenStream().LA(1)
 
-		if !((((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<Protobuf3ParserBOOL)|(1<<Protobuf3ParserBYTES)|(1<<Protobuf3ParserDOUBLE)|(1<<Protobuf3ParserFIXED32)|(1<<Protobuf3ParserFIXED64)|(1<<Protobuf3ParserFLOAT)|(1<<Protobuf3ParserINT32)|(1<<Protobuf3ParserINT64))) != 0) || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(Protobuf3ParserSFIXED32-40))|(1<<(Protobuf3ParserSFIXED64-40))|(1<<(Protobuf3ParserSINT32-40))|(1<<(Protobuf3ParserSINT64-40))|(1<<(Protobuf3ParserSTRING-40))|(1<<(Protobuf3ParserUINT32-40))|(1<<(Protobuf3ParserUINT64-40)))) != 0)) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&896102092439552) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -5220,6 +5386,9 @@ type IFieldNumberContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	INT_LIT() antlr.TerminalNode
 
 	// IsFieldNumberContext differentiates from other interfaces.
 	IsFieldNumberContext()
@@ -5324,6 +5493,13 @@ type IFieldContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	TypeRule() ITypeRuleContext
+	FieldName() IFieldNameContext
+	FieldNumber() IFieldNumberContext
+	REPEATED() antlr.TerminalNode
+	FieldOptions() IFieldOptionsContext
 
 	// IsFieldContext differentiates from other interfaces.
 	IsFieldContext()
@@ -5540,6 +5716,10 @@ type IFieldOptionsContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllFieldOption() []IFieldOptionContext
+	FieldOption(i int) IFieldOptionContext
+
 	// IsFieldOptionsContext differentiates from other interfaces.
 	IsFieldOptionsContext()
 }
@@ -5700,6 +5880,10 @@ type IFieldOptionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	OptionName() IOptionNameContext
+	Constant() IConstantContext
+
 	// IsFieldOptionContext differentiates from other interfaces.
 	IsFieldOptionContext()
 }
@@ -5839,6 +6023,14 @@ type IOneofContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	ONEOF() antlr.TerminalNode
+	OneofName() IOneofNameContext
+	AllOneofField() []IOneofFieldContext
+	OneofField(i int) IOneofFieldContext
+	AllEmptyStatement() []IEmptyStatementContext
+	EmptyStatement(i int) IEmptyStatementContext
 
 	// IsOneofContext differentiates from other interfaces.
 	IsOneofContext()
@@ -6044,7 +6236,7 @@ func (p *Protobuf3Parser) Oneof() (localctx IOneofContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<Protobuf3ParserT__1)|(1<<Protobuf3ParserT__4)|(1<<Protobuf3ParserBOOL)|(1<<Protobuf3ParserBYTES)|(1<<Protobuf3ParserDOUBLE)|(1<<Protobuf3ParserEXTEND)|(1<<Protobuf3ParserFIXED32)|(1<<Protobuf3ParserFIXED64)|(1<<Protobuf3ParserFLOAT)|(1<<Protobuf3ParserINT32)|(1<<Protobuf3ParserINT64)|(1<<Protobuf3ParserMESSAGE)|(1<<Protobuf3ParserOPTION)|(1<<Protobuf3ParserPACKAGE))) != 0) || (((_la-38)&-(0x1f+1)) == 0 && ((1<<uint((_la-38)))&((1<<(Protobuf3ParserRPC-38))|(1<<(Protobuf3ParserSERVICE-38))|(1<<(Protobuf3ParserSFIXED32-38))|(1<<(Protobuf3ParserSFIXED64-38))|(1<<(Protobuf3ParserSINT32-38))|(1<<(Protobuf3ParserSINT64-38))|(1<<(Protobuf3ParserSTREAM-38))|(1<<(Protobuf3ParserSTRING-38))|(1<<(Protobuf3ParserSYNTAX-38))|(1<<(Protobuf3ParserUINT32-38))|(1<<(Protobuf3ParserUINT64-38))|(1<<(Protobuf3ParserWEAK-38))|(1<<(Protobuf3ParserIDENT-38)))) != 0) {
+	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&4362590867619876) != 0 {
 		p.SetState(355)
 		p.GetErrorHandler().Sync(p)
 
@@ -6083,6 +6275,12 @@ type IOneofFieldContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	TypeRule() ITypeRuleContext
+	FieldName() IFieldNameContext
+	FieldNumber() IFieldNumberContext
+	FieldOptions() IFieldOptionsContext
 
 	// IsOneofFieldContext differentiates from other interfaces.
 	IsOneofFieldContext()
@@ -6283,6 +6481,14 @@ type IMapFieldContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	MAP() antlr.TerminalNode
+	KeyType() IKeyTypeContext
+	TypeRule() ITypeRuleContext
+	MapName() IMapNameContext
+	FieldNumber() IFieldNumberContext
+	FieldOptions() IFieldOptionsContext
 
 	// IsMapFieldContext differentiates from other interfaces.
 	IsMapFieldContext()
@@ -6524,6 +6730,20 @@ type IKeyTypeContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	INT32() antlr.TerminalNode
+	INT64() antlr.TerminalNode
+	UINT32() antlr.TerminalNode
+	UINT64() antlr.TerminalNode
+	SINT32() antlr.TerminalNode
+	SINT64() antlr.TerminalNode
+	FIXED32() antlr.TerminalNode
+	FIXED64() antlr.TerminalNode
+	SFIXED32() antlr.TerminalNode
+	SFIXED64() antlr.TerminalNode
+	BOOL() antlr.TerminalNode
+	STRING() antlr.TerminalNode
+
 	// IsKeyTypeContext differentiates from other interfaces.
 	IsKeyTypeContext()
 }
@@ -6662,7 +6882,7 @@ func (p *Protobuf3Parser) KeyType() (localctx IKeyTypeContext) {
 		p.SetState(391)
 		_la = p.GetTokenStream().LA(1)
 
-		if !((((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<Protobuf3ParserBOOL)|(1<<Protobuf3ParserFIXED32)|(1<<Protobuf3ParserFIXED64)|(1<<Protobuf3ParserINT32)|(1<<Protobuf3ParserINT64))) != 0) || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(Protobuf3ParserSFIXED32-40))|(1<<(Protobuf3ParserSFIXED64-40))|(1<<(Protobuf3ParserSINT32-40))|(1<<(Protobuf3ParserSINT64-40))|(1<<(Protobuf3ParserSTRING-40))|(1<<(Protobuf3ParserUINT32-40))|(1<<(Protobuf3ParserUINT64-40)))) != 0)) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&896102083657728) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -6679,6 +6899,18 @@ type IReservedWordContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	EXTEND() antlr.TerminalNode
+	MESSAGE() antlr.TerminalNode
+	OPTION() antlr.TerminalNode
+	PACKAGE() antlr.TerminalNode
+	RPC() antlr.TerminalNode
+	SERVICE() antlr.TerminalNode
+	STREAM() antlr.TerminalNode
+	STRING() antlr.TerminalNode
+	SYNTAX() antlr.TerminalNode
+	WEAK() antlr.TerminalNode
 
 	// IsReservedWordContext differentiates from other interfaces.
 	IsReservedWordContext()
@@ -6810,7 +7042,7 @@ func (p *Protobuf3Parser) ReservedWord() (localctx IReservedWordContext) {
 		p.SetState(393)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la-20)&-(0x1f+1)) == 0 && ((1<<uint((_la-20)))&((1<<(Protobuf3ParserEXTEND-20))|(1<<(Protobuf3ParserMESSAGE-20))|(1<<(Protobuf3ParserOPTION-20))|(1<<(Protobuf3ParserPACKAGE-20))|(1<<(Protobuf3ParserRPC-20))|(1<<(Protobuf3ParserSERVICE-20))|(1<<(Protobuf3ParserSTREAM-20))|(1<<(Protobuf3ParserSTRING-20))|(1<<(Protobuf3ParserSYNTAX-20))|(1<<(Protobuf3ParserWEAK-20)))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1249873333583872) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -6827,6 +7059,10 @@ type IFullIdentContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllIDENT() []antlr.TerminalNode
+	IDENT(i int) antlr.TerminalNode
 
 	// IsFullIdentContext differentiates from other interfaces.
 	IsFullIdentContext()
@@ -6955,6 +7191,9 @@ type IMessageNameContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	IDENT() antlr.TerminalNode
+
 	// IsMessageNameContext differentiates from other interfaces.
 	IsMessageNameContext()
 }
@@ -7058,6 +7297,9 @@ type IEnumNameContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	IDENT() antlr.TerminalNode
 
 	// IsEnumNameContext differentiates from other interfaces.
 	IsEnumNameContext()
@@ -7163,6 +7405,9 @@ type IMessageOrEnumNameContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	IDENT() antlr.TerminalNode
+
 	// IsMessageOrEnumNameContext differentiates from other interfaces.
 	IsMessageOrEnumNameContext()
 }
@@ -7266,6 +7511,10 @@ type IFieldNameContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	IDENT() antlr.TerminalNode
+	ReservedWord() IReservedWordContext
 
 	// IsFieldNameContext differentiates from other interfaces.
 	IsFieldNameContext()
@@ -7403,6 +7652,9 @@ type IOneofNameContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	IDENT() antlr.TerminalNode
+
 	// IsOneofNameContext differentiates from other interfaces.
 	IsOneofNameContext()
 }
@@ -7506,6 +7758,9 @@ type IMapNameContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	IDENT() antlr.TerminalNode
 
 	// IsMapNameContext differentiates from other interfaces.
 	IsMapNameContext()
@@ -7611,6 +7866,9 @@ type IServiceNameContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	IDENT() antlr.TerminalNode
+
 	// IsServiceNameContext differentiates from other interfaces.
 	IsServiceNameContext()
 }
@@ -7715,6 +7973,9 @@ type IRpcNameContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	IDENT() antlr.TerminalNode
+
 	// IsRpcNameContext differentiates from other interfaces.
 	IsRpcNameContext()
 }
@@ -7818,6 +8079,11 @@ type IMessageTypeContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	MessageName() IMessageNameContext
+	AllIDENT() []antlr.TerminalNode
+	IDENT(i int) antlr.TerminalNode
 
 	// IsMessageTypeContext differentiates from other interfaces.
 	IsMessageTypeContext()
@@ -7976,6 +8242,13 @@ type IMessageOrEnumTypeContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	MessageOrEnumName() IMessageOrEnumNameContext
+	AllIDENT() []antlr.TerminalNode
+	IDENT(i int) antlr.TerminalNode
+	AllReservedWord() []IReservedWordContext
+	ReservedWord(i int) IReservedWordContext
 
 	// IsMessageOrEnumTypeContext differentiates from other interfaces.
 	IsMessageOrEnumTypeContext()
@@ -8190,7 +8463,6 @@ type IEmptyStatementContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsEmptyStatementContext differentiates from other interfaces.
 	IsEmptyStatementContext()
 }
@@ -8289,6 +8561,13 @@ type IConstantContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	FullIdent() IFullIdentContext
+	INT_LIT() antlr.TerminalNode
+	FLOAT_LIT() antlr.TerminalNode
+	STR_LIT() antlr.TerminalNode
+	BOOL_LIT() antlr.TerminalNode
 
 	// IsConstantContext differentiates from other interfaces.
 	IsConstantContext()

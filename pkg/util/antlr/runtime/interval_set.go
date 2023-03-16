@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+// Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
 // Use of this file is governed by the BSD 3-clause license that
 // can be found in the LICENSE.txt file in the project root.
 
@@ -221,6 +221,10 @@ func (i *IntervalSet) StringVerbose(literalNames []string, symbolicNames []strin
 	}
 
 	return i.toIndexString()
+}
+
+func (i *IntervalSet) GetIntervals() []*Interval {
+	return i.intervals
 }
 
 func (i *IntervalSet) toCharString() string {

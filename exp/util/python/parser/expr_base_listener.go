@@ -1,4 +1,4 @@
-// Code generated from Expr.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Expr.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Expr
 
@@ -177,11 +177,11 @@ func (s *BaseExprListener) EnterConstAtom(ctx *ConstAtomContext) {}
 // ExitConstAtom is called when production constAtom is exited.
 func (s *BaseExprListener) ExitConstAtom(ctx *ConstAtomContext) {}
 
-// EnterConst is called when production const is entered.
-func (s *BaseExprListener) EnterConst(ctx *ConstContext) {}
+// EnterConstVal is called when production constVal is entered.
+func (s *BaseExprListener) EnterConstVal(ctx *ConstValContext) {}
 
-// ExitConst is called when production const is exited.
-func (s *BaseExprListener) ExitConst(ctx *ConstContext) {}
+// ExitConstVal is called when production constVal is exited.
+func (s *BaseExprListener) ExitConstVal(ctx *ConstValContext) {}
 
 // EnterTestListComp is called when production testListComp is entered.
 func (s *BaseExprListener) EnterTestListComp(ctx *TestListCompContext) {}

@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+// Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
 // Use of this file is governed by the BSD 3-clause license that
 // can be found in the LICENSE.txt file in the project root.
 package antlr
@@ -6,6 +6,7 @@ package antlr
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"testing"
 	"unicode"
 )
@@ -322,39 +323,8 @@ func TestLexerA(t *testing.T) {
 
 // Suppress unused import error
 var _ = fmt.Printf
+var _ = sync.Once{}
 var _ = unicode.IsLetter
-
-var serializedLexerAtn = []int32{
-	4, 0, 3, 13, 6, 65535, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 1, 0, 1, 0,
-	1, 1, 1, 1, 1, 2, 1, 2, 0, 0, 3, 1, 1, 3, 2, 5, 3, 1, 0, 0, 0, 12, 0, 1,
-	1, 0, 0, 0, 0, 3, 1, 0, 0, 0, 0, 5, 1, 0, 0, 0, 1, 7, 1, 0, 0, 0, 3, 9,
-	1, 0, 0, 0, 5, 11, 1, 0, 0, 0, 7, 8, 5, 97, 0, 0, 8, 2, 1, 0, 0, 0, 9,
-	10, 5, 98, 0, 0, 10, 4, 1, 0, 0, 0, 11, 12, 5, 99, 0, 0, 12, 6, 1, 0, 0,
-	0, 1, 0, 0,
-}
-
-var lexerDeserializer = NewATNDeserializer(nil)
-var lexerAtn = lexerDeserializer.Deserialize(serializedLexerAtn)
-
-var lexerChannelNames = []string{
-	"DEFAULT_TOKEN_CHANNEL", "HIDDEN",
-}
-
-var lexerModeNames = []string{
-	"DEFAULT_MODE",
-}
-
-var lexerLiteralNames = []string{
-	"", "'a'", "'b'", "'c'",
-}
-
-var lexerSymbolicNames = []string{
-	"", "A", "B", "C",
-}
-
-var lexerRuleNames = []string{
-	"A", "B", "C",
-}
 
 type LexerA struct {
 	*BaseLexer
@@ -363,26 +333,76 @@ type LexerA struct {
 	// TODO: EOF string
 }
 
-var lexerDecisionToDFA = make([]*DFA, len(lexerAtn.DecisionToState))
+var lexeraLexerStaticData struct {
+	once                   sync.Once
+	serializedATN          []int32
+	channelNames           []string
+	modeNames              []string
+	literalNames           []string
+	symbolicNames          []string
+	ruleNames              []string
+	predictionContextCache *PredictionContextCache
+	atn                    *ATN
+	decisionToDFA          []*DFA
+}
 
-func init() {
-	for index, ds := range lexerAtn.DecisionToState {
-		lexerDecisionToDFA[index] = NewDFA(ds, index)
+func lexeraLexerInit() {
+	staticData := &lexeraLexerStaticData
+	staticData.channelNames = []string{
+		"DEFAULT_TOKEN_CHANNEL", "HIDDEN",
+	}
+	staticData.modeNames = []string{
+		"DEFAULT_MODE",
+	}
+	staticData.literalNames = []string{
+		"", "'a'", "'b'", "'c'",
+	}
+	staticData.symbolicNames = []string{
+		"", "A", "B", "C",
+	}
+	staticData.ruleNames = []string{
+		"A", "B", "C",
+	}
+	staticData.predictionContextCache = NewPredictionContextCache()
+	staticData.serializedATN = []int32{
+		4, 0, 3, 13, 6, -1, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 1, 0, 1, 0, 1,
+		1, 1, 1, 1, 2, 1, 2, 0, 0, 3, 1, 1, 3, 2, 5, 3, 1, 0, 0, 12, 0, 1, 1, 0,
+		0, 0, 0, 3, 1, 0, 0, 0, 0, 5, 1, 0, 0, 0, 1, 7, 1, 0, 0, 0, 3, 9, 1, 0,
+		0, 0, 5, 11, 1, 0, 0, 0, 7, 8, 5, 97, 0, 0, 8, 2, 1, 0, 0, 0, 9, 10, 5,
+		98, 0, 0, 10, 4, 1, 0, 0, 0, 11, 12, 5, 99, 0, 0, 12, 6, 1, 0, 0, 0, 1,
+		0, 0,
+	}
+	deserializer := NewATNDeserializer(nil)
+	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
+	atn := staticData.atn
+	staticData.decisionToDFA = make([]*DFA, len(atn.DecisionToState))
+	decisionToDFA := staticData.decisionToDFA
+	for index, state := range atn.DecisionToState {
+		decisionToDFA[index] = NewDFA(state, index)
 	}
 }
 
+// LexerAInit initializes any static state used to implement LexerA. By default the
+// static state used to implement the lexer is lazily initialized during the first call to
+// NewLexerA(). You can call this function if you wish to initialize the static state ahead
+// of time.
+func LexerAInit() {
+	staticData := &lexeraLexerStaticData
+	staticData.once.Do(lexeraLexerInit)
+}
+
+// NewLexerA produces a new lexer instance for the optional input antlr.CharStream.
 func NewLexerA(input CharStream) *LexerA {
-
+	LexerAInit()
 	l := new(LexerA)
-
 	l.BaseLexer = NewBaseLexer(input)
-	l.Interpreter = NewLexerATNSimulator(l, lexerAtn, lexerDecisionToDFA, NewPredictionContextCache())
-
-	l.channelNames = lexerChannelNames
-	l.modeNames = lexerModeNames
-	l.RuleNames = lexerRuleNames
-	l.LiteralNames = lexerLiteralNames
-	l.SymbolicNames = lexerSymbolicNames
+	staticData := &lexeraLexerStaticData
+	l.Interpreter = NewLexerATNSimulator(l, staticData.atn, staticData.decisionToDFA, staticData.predictionContextCache)
+	l.channelNames = staticData.channelNames
+	l.modeNames = staticData.modeNames
+	l.RuleNames = staticData.ruleNames
+	l.LiteralNames = staticData.literalNames
+	l.SymbolicNames = staticData.symbolicNames
 	l.GrammarFileName = "LexerA.g4"
 	// TODO: l.EOF = antlr.TokenEOF
 

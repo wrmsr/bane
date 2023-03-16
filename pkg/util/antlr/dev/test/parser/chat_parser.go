@@ -1,6 +1,6 @@
 //go:build !nodev
 
-// Code generated from Chat.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Chat.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Chat
 
@@ -150,6 +150,11 @@ type IChatContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	EOF() antlr.TerminalNode
+	AllLine() []ILineContext
+	Line(i int) ILineContext
 
 	// IsChatContext differentiates from other interfaces.
 	IsChatContext()
@@ -310,6 +315,12 @@ type ILineContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	NEWLINE() antlr.TerminalNode
+	Name() INameContext
+	Command() ICommandContext
+	Message() IMessageContext
 
 	// IsLineContext differentiates from other interfaces.
 	IsLineContext()
@@ -483,6 +494,10 @@ type INameContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	WORD() antlr.TerminalNode
+	WHITESPACE() antlr.TerminalNode
+
 	// IsNameContext differentiates from other interfaces.
 	IsNameContext()
 }
@@ -594,6 +609,11 @@ type ICommandContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	WHITESPACE() antlr.TerminalNode
+	SAYS() antlr.TerminalNode
+	SHOUTS() antlr.TerminalNode
 
 	// IsCommandContext differentiates from other interfaces.
 	IsCommandContext()
@@ -722,6 +742,20 @@ type IMessageContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllEmoticon() []IEmoticonContext
+	Emoticon(i int) IEmoticonContext
+	AllLink() []ILinkContext
+	Link(i int) ILinkContext
+	AllColor() []IColorContext
+	Color(i int) IColorContext
+	AllMention() []IMentionContext
+	Mention(i int) IMentionContext
+	AllWORD() []antlr.TerminalNode
+	WORD(i int) antlr.TerminalNode
+	AllWHITESPACE() []antlr.TerminalNode
+	WHITESPACE(i int) antlr.TerminalNode
 
 	// IsMessageContext differentiates from other interfaces.
 	IsMessageContext()
@@ -1058,7 +1092,6 @@ type IEmoticonContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsEmoticonContext differentiates from other interfaces.
 	IsEmoticonContext()
 }
@@ -1202,6 +1235,10 @@ type ILinkContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllTEXT() []antlr.TerminalNode
+	TEXT(i int) antlr.TerminalNode
+
 	// IsLinkContext differentiates from other interfaces.
 	IsLinkContext()
 }
@@ -1313,6 +1350,10 @@ type IColorContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	WORD() antlr.TerminalNode
+	Message() IMessageContext
 
 	// IsColorContext differentiates from other interfaces.
 	IsColorContext()
@@ -1449,6 +1490,9 @@ type IMentionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	WORD() antlr.TerminalNode
 
 	// IsMentionContext differentiates from other interfaces.
 	IsMentionContext()

@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+// Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
 // Use of this file is governed by the BSD 3-clause license that
 // can be found in the LICENSE.txt file in the project root.
 
@@ -47,28 +47,25 @@ func (s *IntStack) Push(e int) {
 	*s = append(*s, e)
 }
 
-func standardEqualsFunction(a interface{}, b interface{}) bool {
+type comparable interface {
+	Equals(other Collectable[any]) bool
+}
 
-	ac, oka := a.(comparable)
-	bc, okb := b.(comparable)
+func standardEqualsFunction(a Collectable[any], b Collectable[any]) bool {
 
-	if !oka || !okb {
-		panic("Not Comparable")
-	}
-
-	return ac.equals(bc)
+	return a.Equals(b)
 }
 
 func standardHashFunction(a interface{}) int {
 	if h, ok := a.(hasher); ok {
-		return h.hash()
+		return h.Hash()
 	}
 
 	panic("Not Hasher")
 }
 
 type hasher interface {
-	hash() int
+	Hash() int
 }
 
 const bitsPerWord = 64
@@ -171,7 +168,7 @@ func (b *BitSet) equals(other interface{}) bool {
 
 	// We only compare set bits, so we cannot rely on the two slices having the same size. Its
 	// possible for two BitSets to have different slice lengths but the same set bits. So we only
-	// compare the relavent words and ignore the trailing zeros.
+	// compare the relevant words and ignore the trailing zeros.
 	bLen := b.minLen()
 	otherLen := otherBitSet.minLen()
 

@@ -87,6 +87,21 @@ func (f *Foo) init() {
 	f._def_init_barf()
 }
 
+func _def_inl_Baz(t InlineThing, y int) int {
+	var __def_inl_0 int
+	__def_inl_1 := t
+	__def_inl_2 := y
+	{
+		{
+			__def_inl_0 = __def_inl_1.x + __def_inl_2
+			goto __def_inl_3
+		}
+	__def_inl_3:
+	}
+
+	return __def_inl_0 + 1
+}
+
 func _def_inl_Bar(x, y int) int {
 	var __def_inl_0 int
 	__def_inl_1 := x
@@ -110,19 +125,4 @@ func _def_inl_Bar(x, y int) int {
 	}
 
 	return __def_inl_4
-}
-
-func _def_inl_Baz(t InlineThing, y int) int {
-	var __def_inl_0 int
-	__def_inl_1 := t
-	__def_inl_2 := y
-	{
-		{
-			__def_inl_0 = __def_inl_1.x + __def_inl_2
-			goto __def_inl_3
-		}
-	__def_inl_3:
-	}
-
-	return __def_inl_0 + 1
 }

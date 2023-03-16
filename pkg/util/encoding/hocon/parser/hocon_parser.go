@@ -1,4 +1,4 @@
-// Code generated from Hocon.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Hocon.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Hocon
 
@@ -217,6 +217,14 @@ type IHoconContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllObj() []IObjContext
+	Obj(i int) IObjContext
+	AllArray() []IArrayContext
+	Array(i int) IArrayContext
+	AllProp() []IPropContext
+	Prop(i int) IPropContext
 
 	// IsHoconContext differentiates from other interfaces.
 	IsHoconContext()
@@ -492,6 +500,13 @@ type IPropContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	ObjectData() IObjectDataContext
+	ArrayData() IArrayDataContext
+	StringData() IStringDataContext
+	ReferenceData() IReferenceDataContext
+	NumberData() INumberDataContext
+
 	// IsPropContext differentiates from other interfaces.
 	IsPropContext()
 }
@@ -706,6 +721,12 @@ type IObjContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	ObjectBegin() IObjectBeginContext
+	AllProp() []IPropContext
+	Prop(i int) IPropContext
+	ObjectEnd() IObjectEndContext
+
 	// IsObjContext differentiates from other interfaces.
 	IsObjContext()
 }
@@ -881,7 +902,7 @@ func (p *HoconParser) Obj() (localctx IObjContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		for ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<HoconParserT__0)|(1<<HoconParserSTRING)|(1<<HoconParserPATH_ELEMENT))) != 0 {
+		for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&3074) != 0 {
 			p.SetState(76)
 			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
@@ -929,7 +950,6 @@ type IObjectBeginContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsObjectBeginContext differentiates from other interfaces.
 	IsObjectBeginContext()
 }
@@ -1028,7 +1048,6 @@ type IObjectEndContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsObjectEndContext differentiates from other interfaces.
 	IsObjectEndContext()
 }
@@ -1127,6 +1146,11 @@ type IObjectDataContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Key() IKeyContext
+	Obj() IObjContext
+	KV() antlr.TerminalNode
 
 	// IsObjectDataContext differentiates from other interfaces.
 	IsObjectDataContext()
@@ -1280,6 +1304,11 @@ type IArrayDataContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Key() IKeyContext
+	KV() antlr.TerminalNode
+	Array() IArrayContext
+
 	// IsArrayDataContext differentiates from other interfaces.
 	IsArrayDataContext()
 }
@@ -1423,6 +1452,11 @@ type IStringDataContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Key() IKeyContext
+	KV() antlr.TerminalNode
+	StringValue() IStringValueContext
 
 	// IsStringDataContext differentiates from other interfaces.
 	IsStringDataContext()
@@ -1568,6 +1602,11 @@ type IReferenceDataContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Key() IKeyContext
+	KV() antlr.TerminalNode
+	REFERENCE() antlr.TerminalNode
+
 	// IsReferenceDataContext differentiates from other interfaces.
 	IsReferenceDataContext()
 }
@@ -1700,6 +1739,11 @@ type INumberDataContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Key() IKeyContext
+	KV() antlr.TerminalNode
+	NUMBER() antlr.TerminalNode
+
 	// IsNumberDataContext differentiates from other interfaces.
 	IsNumberDataContext()
 }
@@ -1831,6 +1875,10 @@ type IKeyContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Path() IPathContext
+	STRING() antlr.TerminalNode
 
 	// IsKeyContext differentiates from other interfaces.
 	IsKeyContext()
@@ -1968,6 +2016,10 @@ type IPathContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllPATH_ELEMENT() []antlr.TerminalNode
+	PATH_ELEMENT(i int) antlr.TerminalNode
+
 	// IsPathContext differentiates from other interfaces.
 	IsPathContext()
 }
@@ -2094,7 +2146,6 @@ type IArrayBeginContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsArrayBeginContext differentiates from other interfaces.
 	IsArrayBeginContext()
 }
@@ -2193,7 +2244,6 @@ type IArrayEndContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsArrayEndContext differentiates from other interfaces.
 	IsArrayEndContext()
 }
@@ -2292,6 +2342,12 @@ type IArrayContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	ArrayBegin() IArrayBeginContext
+	AllArrayValue() []IArrayValueContext
+	ArrayValue(i int) IArrayValueContext
+	ArrayEnd() IArrayEndContext
 
 	// IsArrayContext differentiates from other interfaces.
 	IsArrayContext()
@@ -2468,7 +2524,7 @@ func (p *HoconParser) Array() (localctx IArrayContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		for ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<HoconParserT__0)|(1<<HoconParserT__1)|(1<<HoconParserT__4)|(1<<HoconParserT__6)|(1<<HoconParserNUMBER)|(1<<HoconParserSTRING)|(1<<HoconParserPATH_ELEMENT)|(1<<HoconParserREFERENCE))) != 0 {
+		for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&7846) != 0 {
 			p.SetState(136)
 			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
@@ -2516,6 +2572,13 @@ type IArrayValueContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	ArrayString() IArrayStringContext
+	ArrayReference() IArrayReferenceContext
+	ArrayNumber() IArrayNumberContext
+	ArrayObj() IArrayObjContext
+	ArrayArray() IArrayArrayContext
 
 	// IsArrayValueContext differentiates from other interfaces.
 	IsArrayValueContext()
@@ -2731,6 +2794,9 @@ type IArrayStringContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	StringValue() IStringValueContext
+
 	// IsArrayStringContext differentiates from other interfaces.
 	IsArrayStringContext()
 }
@@ -2847,6 +2913,9 @@ type IArrayReferenceContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	REFERENCE() antlr.TerminalNode
+
 	// IsArrayReferenceContext differentiates from other interfaces.
 	IsArrayReferenceContext()
 }
@@ -2951,6 +3020,9 @@ type IArrayNumberContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	NUMBER() antlr.TerminalNode
+
 	// IsArrayNumberContext differentiates from other interfaces.
 	IsArrayNumberContext()
 }
@@ -3054,6 +3126,9 @@ type IArrayObjContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Obj() IObjContext
 
 	// IsArrayObjContext differentiates from other interfaces.
 	IsArrayObjContext()
@@ -3171,6 +3246,9 @@ type IArrayArrayContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Array() IArrayContext
+
 	// IsArrayArrayContext differentiates from other interfaces.
 	IsArrayArrayContext()
 }
@@ -3286,7 +3364,6 @@ type IStringValueContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsStringValueContext differentiates from other interfaces.
 	IsStringValueContext()
 }
@@ -3711,6 +3788,10 @@ type IRawstringContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllPATH_ELEMENT() []antlr.TerminalNode
+	PATH_ELEMENT(i int) antlr.TerminalNode
 
 	// IsRawstringContext differentiates from other interfaces.
 	IsRawstringContext()

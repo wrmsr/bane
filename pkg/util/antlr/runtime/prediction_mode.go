@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+// Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
 // Use of this file is governed by the BSD 3-clause license that
 // can be found in the LICENSE.txt file in the project root.
 
@@ -460,7 +460,7 @@ func PredictionModeGetAlts(altsets []*BitSet) *BitSet {
 	return all
 }
 
-// This func gets the conflicting alt subsets from a configuration set.
+// PredictionModegetConflictingAltSubsets gets the conflicting alt subsets from a configuration set.
 // For each configuration {@code c} in {@code configs}:
 //
 // <pre>
@@ -468,27 +468,22 @@ func PredictionModeGetAlts(altsets []*BitSet) *BitSet {
 // alt and not pred
 // </pre>
 func PredictionModegetConflictingAltSubsets(configs ATNConfigSet) []*BitSet {
-	configToAlts := make(map[int]*BitSet)
+	configToAlts := NewJMap[ATNConfig, *BitSet, *ATNAltConfigComparator[ATNConfig]](atnAltCfgEqInst)
 
 	for _, c := range configs.GetItems() {
-		key := 31*c.GetState().GetStateNumber() + c.GetContext().hash()
 
-		alts, ok := configToAlts[key]
+		alts, ok := configToAlts.Get(c)
 		if !ok {
 			alts = NewBitSet()
-			configToAlts[key] = alts
+			configToAlts.Put(c, alts)
 		}
 		alts.add(c.GetAlt())
 	}
 
-	values := make([]*BitSet, 0, 10)
-	for _, v := range configToAlts {
-		values = append(values, v)
-	}
-	return values
+	return configToAlts.Values()
 }
 
-// Get a map from state to alt subset from a configuration set. For each
+// PredictionModeGetStateToAltMap gets a map from state to alt subset from a configuration set. For each
 // configuration {@code c} in {@code configs}:
 //
 // <pre>

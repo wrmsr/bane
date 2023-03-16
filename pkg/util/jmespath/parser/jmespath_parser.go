@@ -1,4 +1,4 @@
-// Code generated from Jmespath.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Jmespath.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Jmespath
 
@@ -250,6 +250,10 @@ type ISingleExpressionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Expression() IExpressionContext
+	EOF() antlr.TerminalNode
+
 	// IsSingleExpressionContext differentiates from other interfaces.
 	IsSingleExpressionContext()
 }
@@ -373,7 +377,6 @@ type IExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsExpressionContext differentiates from other interfaces.
 	IsExpressionContext()
 }
@@ -1839,6 +1842,13 @@ type IChainedExpressionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Identifier() IIdentifierContext
+	MultiSelectList() IMultiSelectListContext
+	MultiSelectHash() IMultiSelectHashContext
+	FunctionExpression() IFunctionExpressionContext
+	Wildcard() IWildcardContext
+
 	// IsChainedExpressionContext differentiates from other interfaces.
 	IsChainedExpressionContext()
 }
@@ -2052,7 +2062,6 @@ type IWildcardContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsWildcardContext differentiates from other interfaces.
 	IsWildcardContext()
 }
@@ -2151,7 +2160,6 @@ type IBracketSpecifierContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsBracketSpecifierContext differentiates from other interfaces.
 	IsBracketSpecifierContext()
 }
@@ -2545,6 +2553,10 @@ type IMultiSelectListContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllExpression() []IExpressionContext
+	Expression(i int) IExpressionContext
+
 	// IsMultiSelectListContext differentiates from other interfaces.
 	IsMultiSelectListContext()
 }
@@ -2712,6 +2724,10 @@ type IMultiSelectHashContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllKeyvalExpr() []IKeyvalExprContext
+	KeyvalExpr(i int) IKeyvalExprContext
 
 	// IsMultiSelectHashContext differentiates from other interfaces.
 	IsMultiSelectHashContext()
@@ -2881,6 +2897,10 @@ type IKeyvalExprContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Identifier() IIdentifierContext
+	Expression() IExpressionContext
+
 	// IsKeyvalExprContext differentiates from other interfaces.
 	IsKeyvalExprContext()
 }
@@ -3038,6 +3058,10 @@ type ISliceNodeContext interface {
 
 	// SetSliceStep sets the sliceStep token.
 	SetSliceStep(antlr.Token)
+
+	// Getter signatures
+	AllSIGNED_INT() []antlr.TerminalNode
+	SIGNED_INT(i int) antlr.TerminalNode
 
 	// IsSliceNodeContext differentiates from other interfaces.
 	IsSliceNodeContext()
@@ -3215,7 +3239,6 @@ type IParameterNodeContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsParameterNodeContext differentiates from other interfaces.
 	IsParameterNodeContext()
 }
@@ -3408,6 +3431,11 @@ type IFunctionExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	NAME() antlr.TerminalNode
+	AllFunctionArg() []IFunctionArgContext
+	FunctionArg(i int) IFunctionArgContext
 
 	// IsFunctionExpressionContext differentiates from other interfaces.
 	IsFunctionExpressionContext()
@@ -3606,6 +3634,10 @@ type IFunctionArgContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Expression() IExpressionContext
+	ExpressionType() IExpressionTypeContext
+
 	// IsFunctionArgContext differentiates from other interfaces.
 	IsFunctionArgContext()
 }
@@ -3753,7 +3785,6 @@ type ICurrentNodeContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsCurrentNodeContext differentiates from other interfaces.
 	IsCurrentNodeContext()
 }
@@ -3852,6 +3883,9 @@ type IExpressionTypeContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Expression() IExpressionContext
 
 	// IsExpressionTypeContext differentiates from other interfaces.
 	IsExpressionTypeContext()
@@ -3972,6 +4006,9 @@ type ILiteralContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	JsonValue() IJsonValueContext
 
 	// IsLiteralContext differentiates from other interfaces.
 	IsLiteralContext()
@@ -4097,6 +4134,11 @@ type IIdentifierContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	NAME() antlr.TerminalNode
+	STRING() antlr.TerminalNode
+	JSON_CONSTANT() antlr.TerminalNode
+
 	// IsIdentifierContext differentiates from other interfaces.
 	IsIdentifierContext()
 }
@@ -4199,7 +4241,7 @@ func (p *JmespathParser) Identifier() (localctx IIdentifierContext) {
 		p.SetState(186)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<JmespathParserJSON_CONSTANT)|(1<<JmespathParserNAME)|(1<<JmespathParserSTRING))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&29360128) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -4216,6 +4258,10 @@ type IJsonObjectContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllJsonObjectPair() []IJsonObjectPairContext
+	JsonObjectPair(i int) IJsonObjectPairContext
 
 	// IsJsonObjectContext differentiates from other interfaces.
 	IsJsonObjectContext()
@@ -4402,6 +4448,10 @@ type IJsonObjectPairContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	STRING() antlr.TerminalNode
+	JsonValue() IJsonValueContext
+
 	// IsJsonObjectPairContext differentiates from other interfaces.
 	IsJsonObjectPairContext()
 }
@@ -4529,6 +4579,10 @@ type IJsonArrayContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllJsonValue() []IJsonValueContext
+	JsonValue(i int) IJsonValueContext
 
 	// IsJsonArrayContext differentiates from other interfaces.
 	IsJsonArrayContext()
@@ -4714,7 +4768,6 @@ type IJsonValueContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsJsonValueContext differentiates from other interfaces.
 	IsJsonValueContext()
 }

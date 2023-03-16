@@ -1,4 +1,4 @@
-// Code generated from Dot.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Dot.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Dot
 
@@ -191,6 +191,13 @@ type IGraphContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	StmtList() IStmtListContext
+	GRAPH() antlr.TerminalNode
+	DIGRAPH() antlr.TerminalNode
+	STRICT() antlr.TerminalNode
+	Ident() IIdentContext
+
 	// IsGraphContext differentiates from other interfaces.
 	IsGraphContext()
 }
@@ -347,7 +354,7 @@ func (p *DotParser) Graph() (localctx IGraphContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<DotParserNUMBER)|(1<<DotParserSTRING)|(1<<DotParserIDENT)|(1<<DotParserHTML_STRING))) != 0 {
+	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1966080) != 0 {
 		{
 			p.SetState(32)
 			p.Ident()
@@ -376,6 +383,10 @@ type IStmtListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllStmt() []IStmtContext
+	Stmt(i int) IStmtContext
 
 	// IsStmtListContext differentiates from other interfaces.
 	IsStmtListContext()
@@ -508,7 +519,7 @@ func (p *DotParser) StmtList() (localctx IStmtListContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<DotParserT__0)|(1<<DotParserGRAPH)|(1<<DotParserNODE)|(1<<DotParserEDGE)|(1<<DotParserSUBGRAPH)|(1<<DotParserNUMBER)|(1<<DotParserSTRING)|(1<<DotParserIDENT)|(1<<DotParserHTML_STRING))) != 0 {
+	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&2084866) != 0 {
 		{
 			p.SetState(39)
 			p.Stmt()
@@ -539,6 +550,14 @@ type IStmtContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	NodeStmt() INodeStmtContext
+	EdgeStmt() IEdgeStmtContext
+	AttrStmt() IAttrStmtContext
+	AllIdent() []IIdentContext
+	Ident(i int) IIdentContext
+	Subgraph() ISubgraphContext
 
 	// IsStmtContext differentiates from other interfaces.
 	IsStmtContext()
@@ -787,6 +806,12 @@ type IAttrStmtContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AttrList() IAttrListContext
+	GRAPH() antlr.TerminalNode
+	NODE() antlr.TerminalNode
+	EDGE() antlr.TerminalNode
+
 	// IsAttrStmtContext differentiates from other interfaces.
 	IsAttrStmtContext()
 }
@@ -905,7 +930,7 @@ func (p *DotParser) AttrStmt() (localctx IAttrStmtContext) {
 		p.SetState(58)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<DotParserGRAPH)|(1<<DotParserNODE)|(1<<DotParserEDGE))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&53248) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -926,6 +951,10 @@ type IAttrListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllAList() []IAListContext
+	AList(i int) IAListContext
 
 	// IsAttrListContext differentiates from other interfaces.
 	IsAttrListContext()
@@ -1067,7 +1096,7 @@ func (p *DotParser) AttrList() (localctx IAttrListContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<DotParserNUMBER)|(1<<DotParserSTRING)|(1<<DotParserIDENT)|(1<<DotParserHTML_STRING))) != 0 {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1966080) != 0 {
 			{
 				p.SetState(62)
 				p.AList()
@@ -1093,6 +1122,10 @@ type IAListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllIdent() []IIdentContext
+	Ident(i int) IIdentContext
 
 	// IsAListContext differentiates from other interfaces.
 	IsAListContext()
@@ -1225,7 +1258,7 @@ func (p *DotParser) AList() (localctx IAListContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ok := true; ok; ok = (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<DotParserNUMBER)|(1<<DotParserSTRING)|(1<<DotParserIDENT)|(1<<DotParserHTML_STRING))) != 0) {
+	for ok := true; ok; ok = ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1966080) != 0) {
 		{
 			p.SetState(70)
 			p.Ident()
@@ -1271,6 +1304,12 @@ type IEdgeStmtContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	EdgeRHS() IEdgeRHSContext
+	NodeId() INodeIdContext
+	Subgraph() ISubgraphContext
+	AttrList() IAttrListContext
 
 	// IsEdgeStmtContext differentiates from other interfaces.
 	IsEdgeStmtContext()
@@ -1466,6 +1505,14 @@ type IEdgeRHSContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllEdgeop() []IEdgeopContext
+	Edgeop(i int) IEdgeopContext
+	AllNodeId() []INodeIdContext
+	NodeId(i int) INodeIdContext
+	AllSubgraph() []ISubgraphContext
+	Subgraph(i int) ISubgraphContext
 
 	// IsEdgeRHSContext differentiates from other interfaces.
 	IsEdgeRHSContext()
@@ -1719,7 +1766,6 @@ type IEdgeopContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsEdgeopContext differentiates from other interfaces.
 	IsEdgeopContext()
 }
@@ -1826,6 +1872,10 @@ type INodeStmtContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	NodeId() INodeIdContext
+	AttrList() IAttrListContext
 
 	// IsNodeStmtContext differentiates from other interfaces.
 	IsNodeStmtContext()
@@ -1971,6 +2021,10 @@ type INodeIdContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Ident() IIdentContext
+	Port() IPortContext
+
 	// IsNodeIdContext differentiates from other interfaces.
 	IsNodeIdContext()
 }
@@ -2114,6 +2168,10 @@ type IPortContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllIdent() []IIdentContext
+	Ident(i int) IIdentContext
 
 	// IsPortContext differentiates from other interfaces.
 	IsPortContext()
@@ -2276,6 +2334,11 @@ type ISubgraphContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	StmtList() IStmtListContext
+	SUBGRAPH() antlr.TerminalNode
+	Ident() IIdentContext
+
 	// IsSubgraphContext differentiates from other interfaces.
 	IsSubgraphContext()
 }
@@ -2411,7 +2474,7 @@ func (p *DotParser) Subgraph() (localctx ISubgraphContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<DotParserNUMBER)|(1<<DotParserSTRING)|(1<<DotParserIDENT)|(1<<DotParserHTML_STRING))) != 0 {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1966080) != 0 {
 			{
 				p.SetState(116)
 				p.Ident()
@@ -2442,6 +2505,12 @@ type IIdentContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	IDENT() antlr.TerminalNode
+	STRING() antlr.TerminalNode
+	HTML_STRING() antlr.TerminalNode
+	NUMBER() antlr.TerminalNode
 
 	// IsIdentContext differentiates from other interfaces.
 	IsIdentContext()
@@ -2549,7 +2618,7 @@ func (p *DotParser) Ident() (localctx IIdentContext) {
 		p.SetState(125)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<DotParserNUMBER)|(1<<DotParserSTRING)|(1<<DotParserIDENT)|(1<<DotParserHTML_STRING))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1966080) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)

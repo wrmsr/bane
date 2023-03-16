@@ -1,4 +1,4 @@
-// Code generated from Protobuf3.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Protobuf3.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Protobuf3
 

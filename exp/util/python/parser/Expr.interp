@@ -138,7 +138,7 @@ factor
 power
 atomExpr
 atom
-const
+constVal
 testListComp
 exprOrStarExpr
 starExpr

@@ -1,4 +1,4 @@
-// Code generated from C.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from C.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // C
 
@@ -878,6 +878,10 @@ type ICompilationUnitContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	EOF() antlr.TerminalNode
+	TranslationUnit() ITranslationUnitContext
+
 	// IsCompilationUnitContext differentiates from other interfaces.
 	IsCompilationUnitContext()
 }
@@ -988,7 +992,7 @@ func (p *CParser) CompilationUnit() (localctx ICompilationUnitContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la-1)&-(0x1f+1)) == 0 && ((1<<uint((_la-1)))&((1<<(CParserT__0-1))|(1<<(CParserT__3-1))|(1<<(CParserT__4-1))|(1<<(CParserT__5-1))|(1<<(CParserT__6-1))|(1<<(CParserT__7-1))|(1<<(CParserT__8-1))|(1<<(CParserT__9-1))|(1<<(CParserT__10-1))|(1<<(CParserT__11-1))|(1<<(CParserT__12-1))|(1<<(CParserT__13-1))|(1<<(CParserT__14-1))|(1<<(CParserT__16-1))|(1<<(CParserAuto-1))|(1<<(CParserChar-1))|(1<<(CParserConst-1))|(1<<(CParserDouble-1))|(1<<(CParserEnum-1))|(1<<(CParserExtern-1))|(1<<(CParserFloat-1)))) != 0) || (((_la-36)&-(0x1f+1)) == 0 && ((1<<uint((_la-36)))&((1<<(CParserInline-36))|(1<<(CParserInt-36))|(1<<(CParserLong-36))|(1<<(CParserRegister-36))|(1<<(CParserRestrict-36))|(1<<(CParserShort-36))|(1<<(CParserSigned-36))|(1<<(CParserStatic-36))|(1<<(CParserStruct-36))|(1<<(CParserTypedef-36))|(1<<(CParserUnion-36))|(1<<(CParserUnsigned-36))|(1<<(CParserVoid-36))|(1<<(CParserVolatile-36))|(1<<(CParserAlignas-36))|(1<<(CParserAtomic-36))|(1<<(CParserBool-36))|(1<<(CParserComplex-36))|(1<<(CParserNoreturn-36))|(1<<(CParserStaticAssert-36))|(1<<(CParserThreadLocal-36))|(1<<(CParserLeftParen-36)))) != 0) || (((_la-80)&-(0x1f+1)) == 0 && ((1<<uint((_la-80)))&((1<<(CParserStar-80))|(1<<(CParserCaret-80))|(1<<(CParserSemi-80))|(1<<(CParserIdentifier-80)))) != 0) {
+	if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-1774578842790068238) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&70369021067265) != 0) {
 		{
 			p.SetState(178)
 			p.TranslationUnit()
@@ -1009,6 +1013,10 @@ type ITranslationUnitContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllExternalDeclaration() []IExternalDeclarationContext
+	ExternalDeclaration(i int) IExternalDeclarationContext
 
 	// IsTranslationUnitContext differentiates from other interfaces.
 	IsTranslationUnitContext()
@@ -1141,7 +1149,7 @@ func (p *CParser) TranslationUnit() (localctx ITranslationUnitContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ok := true; ok; ok = (((_la-1)&-(0x1f+1)) == 0 && ((1<<uint((_la-1)))&((1<<(CParserT__0-1))|(1<<(CParserT__3-1))|(1<<(CParserT__4-1))|(1<<(CParserT__5-1))|(1<<(CParserT__6-1))|(1<<(CParserT__7-1))|(1<<(CParserT__8-1))|(1<<(CParserT__9-1))|(1<<(CParserT__10-1))|(1<<(CParserT__11-1))|(1<<(CParserT__12-1))|(1<<(CParserT__13-1))|(1<<(CParserT__14-1))|(1<<(CParserT__16-1))|(1<<(CParserAuto-1))|(1<<(CParserChar-1))|(1<<(CParserConst-1))|(1<<(CParserDouble-1))|(1<<(CParserEnum-1))|(1<<(CParserExtern-1))|(1<<(CParserFloat-1)))) != 0) || (((_la-36)&-(0x1f+1)) == 0 && ((1<<uint((_la-36)))&((1<<(CParserInline-36))|(1<<(CParserInt-36))|(1<<(CParserLong-36))|(1<<(CParserRegister-36))|(1<<(CParserRestrict-36))|(1<<(CParserShort-36))|(1<<(CParserSigned-36))|(1<<(CParserStatic-36))|(1<<(CParserStruct-36))|(1<<(CParserTypedef-36))|(1<<(CParserUnion-36))|(1<<(CParserUnsigned-36))|(1<<(CParserVoid-36))|(1<<(CParserVolatile-36))|(1<<(CParserAlignas-36))|(1<<(CParserAtomic-36))|(1<<(CParserBool-36))|(1<<(CParserComplex-36))|(1<<(CParserNoreturn-36))|(1<<(CParserStaticAssert-36))|(1<<(CParserThreadLocal-36))|(1<<(CParserLeftParen-36)))) != 0) || (((_la-80)&-(0x1f+1)) == 0 && ((1<<uint((_la-80)))&((1<<(CParserStar-80))|(1<<(CParserCaret-80))|(1<<(CParserSemi-80))|(1<<(CParserIdentifier-80)))) != 0) {
+	for ok := true; ok; ok = ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-1774578842790068238) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&70369021067265) != 0) {
 		{
 			p.SetState(183)
 			p.ExternalDeclaration()
@@ -1161,6 +1169,11 @@ type IExternalDeclarationContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	FunctionDefinition() IFunctionDefinitionContext
+	Declaration() IDeclarationContext
+	Semi() antlr.TerminalNode
 
 	// IsExternalDeclarationContext differentiates from other interfaces.
 	IsExternalDeclarationContext()
@@ -1317,6 +1330,12 @@ type IFunctionDefinitionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Declarator() IDeclaratorContext
+	CompoundStatement() ICompoundStatementContext
+	DeclarationSpecifiers() IDeclarationSpecifiersContext
+	DeclarationList() IDeclarationListContext
 
 	// IsFunctionDefinitionContext differentiates from other interfaces.
 	IsFunctionDefinitionContext()
@@ -1486,7 +1505,7 @@ func (p *CParser) FunctionDefinition() (localctx IFunctionDefinitionContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserT__6)|(1<<CParserT__7)|(1<<CParserT__8)|(1<<CParserT__9)|(1<<CParserT__16)|(1<<CParserAuto)|(1<<CParserChar)|(1<<CParserConst)|(1<<CParserDouble)|(1<<CParserEnum)|(1<<CParserExtern))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserInline-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserRegister-32))|(1<<(CParserRestrict-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserStatic-32))|(1<<(CParserStruct-32))|(1<<(CParserTypedef-32))|(1<<(CParserUnion-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserVolatile-32))|(1<<(CParserAlignas-32))|(1<<(CParserAtomic-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32))|(1<<(CParserNoreturn-32))|(1<<(CParserStaticAssert-32))|(1<<(CParserThreadLocal-32)))) != 0) || _la == CParserIdentifier {
+	if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-1774578842790131726) != 0) || _la == CParserIdentifier {
 		{
 			p.SetState(197)
 			p.DeclarationList()
@@ -1507,6 +1526,10 @@ type IDeclarationListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllDeclaration() []IDeclarationContext
+	Declaration(i int) IDeclarationContext
 
 	// IsDeclarationListContext differentiates from other interfaces.
 	IsDeclarationListContext()
@@ -1639,7 +1662,7 @@ func (p *CParser) DeclarationList() (localctx IDeclarationListContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ok := true; ok; ok = (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserT__6)|(1<<CParserT__7)|(1<<CParserT__8)|(1<<CParserT__9)|(1<<CParserT__16)|(1<<CParserAuto)|(1<<CParserChar)|(1<<CParserConst)|(1<<CParserDouble)|(1<<CParserEnum)|(1<<CParserExtern))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserInline-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserRegister-32))|(1<<(CParserRestrict-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserStatic-32))|(1<<(CParserStruct-32))|(1<<(CParserTypedef-32))|(1<<(CParserUnion-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserVolatile-32))|(1<<(CParserAlignas-32))|(1<<(CParserAtomic-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32))|(1<<(CParserNoreturn-32))|(1<<(CParserStaticAssert-32))|(1<<(CParserThreadLocal-32)))) != 0) || _la == CParserIdentifier {
+	for ok := true; ok; ok = ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-1774578842790131726) != 0) || _la == CParserIdentifier {
 		{
 			p.SetState(202)
 			p.Declaration()
@@ -1659,6 +1682,12 @@ type IDeclarationContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	DeclarationSpecifiers() IDeclarationSpecifiersContext
+	Semi() antlr.TerminalNode
+	InitDeclaratorList() IInitDeclaratorListContext
+	StaticAssertDeclaration() IStaticAssertDeclarationContext
 
 	// IsDeclarationContext differentiates from other interfaces.
 	IsDeclarationContext()
@@ -1811,7 +1840,7 @@ func (p *CParser) Declaration() (localctx IDeclarationContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__8)|(1<<CParserT__10)|(1<<CParserT__11)|(1<<CParserT__12)|(1<<CParserT__13)|(1<<CParserT__14))) != 0) || (((_la-64)&-(0x1f+1)) == 0 && ((1<<uint((_la-64)))&((1<<(CParserLeftParen-64))|(1<<(CParserStar-64))|(1<<(CParserCaret-64)))) != 0) || _la == CParserIdentifier {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&64000) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&70368752631809) != 0) {
 			{
 				p.SetState(208)
 				p.InitDeclaratorList()
@@ -1843,6 +1872,10 @@ type IDeclarationSpecifiersContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllDeclarationSpecifier() []IDeclarationSpecifierContext
+	DeclarationSpecifier(i int) IDeclarationSpecifierContext
 
 	// IsDeclarationSpecifiersContext differentiates from other interfaces.
 	IsDeclarationSpecifiersContext()
@@ -2002,6 +2035,10 @@ type IDeclarationSpecifiers2Context interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllDeclarationSpecifier() []IDeclarationSpecifierContext
+	DeclarationSpecifier(i int) IDeclarationSpecifierContext
+
 	// IsDeclarationSpecifiers2Context differentiates from other interfaces.
 	IsDeclarationSpecifiers2Context()
 }
@@ -2133,7 +2170,7 @@ func (p *CParser) DeclarationSpecifiers2() (localctx IDeclarationSpecifiers2Cont
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ok := true; ok; ok = (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserT__6)|(1<<CParserT__7)|(1<<CParserT__8)|(1<<CParserT__9)|(1<<CParserT__16)|(1<<CParserAuto)|(1<<CParserChar)|(1<<CParserConst)|(1<<CParserDouble)|(1<<CParserEnum)|(1<<CParserExtern))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserInline-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserRegister-32))|(1<<(CParserRestrict-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserStatic-32))|(1<<(CParserStruct-32))|(1<<(CParserTypedef-32))|(1<<(CParserUnion-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserVolatile-32))|(1<<(CParserAlignas-32))|(1<<(CParserAtomic-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32))|(1<<(CParserNoreturn-32))|(1<<(CParserThreadLocal-32)))) != 0) || _la == CParserIdentifier {
+	for ok := true; ok; ok = ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-6386264861217519630) != 0) || _la == CParserIdentifier {
 		{
 			p.SetState(221)
 			p.DeclarationSpecifier()
@@ -2153,6 +2190,13 @@ type IDeclarationSpecifierContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	StorageClassSpecifier() IStorageClassSpecifierContext
+	TypeSpecifier() ITypeSpecifierContext
+	TypeQualifier() ITypeQualifierContext
+	FunctionSpecifier() IFunctionSpecifierContext
+	AlignmentSpecifier() IAlignmentSpecifierContext
 
 	// IsDeclarationSpecifierContext differentiates from other interfaces.
 	IsDeclarationSpecifierContext()
@@ -2368,6 +2412,12 @@ type IInitDeclaratorListContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllInitDeclarator() []IInitDeclaratorContext
+	InitDeclarator(i int) IInitDeclaratorContext
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
+
 	// IsInitDeclaratorListContext differentiates from other interfaces.
 	IsInitDeclaratorListContext()
 }
@@ -2536,6 +2586,11 @@ type IInitDeclaratorContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Declarator() IDeclaratorContext
+	Assign() antlr.TerminalNode
+	Initializer() IInitializerContext
+
 	// IsInitDeclaratorContext differentiates from other interfaces.
 	IsInitDeclaratorContext()
 }
@@ -2687,6 +2742,20 @@ type IPrimaryExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Identifier() antlr.TerminalNode
+	Constant() antlr.TerminalNode
+	AllStringLiteral() []antlr.TerminalNode
+	StringLiteral(i int) antlr.TerminalNode
+	LeftParen() antlr.TerminalNode
+	Expression() IExpressionContext
+	RightParen() antlr.TerminalNode
+	GenericSelection() IGenericSelectionContext
+	CompoundStatement() ICompoundStatementContext
+	UnaryExpression() IUnaryExpressionContext
+	Comma() antlr.TerminalNode
+	TypeName() ITypeNameContext
 
 	// IsPrimaryExpressionContext differentiates from other interfaces.
 	IsPrimaryExpressionContext()
@@ -3029,6 +3098,14 @@ type IGenericSelectionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Generic() antlr.TerminalNode
+	LeftParen() antlr.TerminalNode
+	AssignmentExpression() IAssignmentExpressionContext
+	Comma() antlr.TerminalNode
+	GenericAssocList() IGenericAssocListContext
+	RightParen() antlr.TerminalNode
+
 	// IsGenericSelectionContext differentiates from other interfaces.
 	IsGenericSelectionContext()
 }
@@ -3196,6 +3273,12 @@ type IGenericAssocListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllGenericAssociation() []IGenericAssociationContext
+	GenericAssociation(i int) IGenericAssociationContext
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
 
 	// IsGenericAssocListContext differentiates from other interfaces.
 	IsGenericAssocListContext()
@@ -3365,6 +3448,12 @@ type IGenericAssociationContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Colon() antlr.TerminalNode
+	AssignmentExpression() IAssignmentExpressionContext
+	TypeName() ITypeNameContext
+	Default() antlr.TerminalNode
+
 	// IsGenericAssociationContext differentiates from other interfaces.
 	IsGenericAssociationContext()
 }
@@ -3527,6 +3616,18 @@ type IPostfixExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	PrimaryExpression() IPrimaryExpressionContext
+	LeftParen() antlr.TerminalNode
+	TypeName() ITypeNameContext
+	RightParen() antlr.TerminalNode
+	LeftBrace() antlr.TerminalNode
+	InitializerList() IInitializerListContext
+	RightBrace() antlr.TerminalNode
+	AllPostfixExpression2() []IPostfixExpression2Context
+	PostfixExpression2(i int) IPostfixExpression2Context
+	Comma() antlr.TerminalNode
 
 	// IsPostfixExpressionContext differentiates from other interfaces.
 	IsPostfixExpressionContext()
@@ -3785,7 +3886,7 @@ func (p *CParser) PostfixExpression() (localctx IPostfixExpressionContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (((_la-64)&-(0x1f+1)) == 0 && ((1<<uint((_la-64)))&((1<<(CParserLeftParen-64))|(1<<(CParserLeftBracket-64))|(1<<(CParserPlusPlus-64))|(1<<(CParserMinusMinus-64)))) != 0) || _la == CParserArrow || _la == CParserDot {
+	for (int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&26388279107589) != 0 {
 		{
 			p.SetState(319)
 			p.PostfixExpression2()
@@ -3805,6 +3906,19 @@ type IPostfixExpression2Context interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	LeftBracket() antlr.TerminalNode
+	Expression() IExpressionContext
+	RightBracket() antlr.TerminalNode
+	LeftParen() antlr.TerminalNode
+	RightParen() antlr.TerminalNode
+	ArgumentExpressionList() IArgumentExpressionListContext
+	Identifier() antlr.TerminalNode
+	Dot() antlr.TerminalNode
+	Arrow() antlr.TerminalNode
+	PlusPlus() antlr.TerminalNode
+	MinusMinus() antlr.TerminalNode
 
 	// IsPostfixExpression2Context differentiates from other interfaces.
 	IsPostfixExpression2Context()
@@ -3988,7 +4102,7 @@ func (p *CParser) PostfixExpression2() (localctx IPostfixExpression2Context) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 			{
 				p.SetState(330)
 				p.ArgumentExpressionList()
@@ -4045,6 +4159,12 @@ type IArgumentExpressionListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllAssignmentExpression() []IAssignmentExpressionContext
+	AssignmentExpression(i int) IAssignmentExpressionContext
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
 
 	// IsArgumentExpressionListContext differentiates from other interfaces.
 	IsArgumentExpressionListContext()
@@ -4213,6 +4333,23 @@ type IUnaryExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	PostfixExpression() IPostfixExpressionContext
+	UnaryOperator() IUnaryOperatorContext
+	CastExpression() ICastExpressionContext
+	LeftParen() antlr.TerminalNode
+	TypeName() ITypeNameContext
+	RightParen() antlr.TerminalNode
+	AndAnd() antlr.TerminalNode
+	Identifier() antlr.TerminalNode
+	AllSizeof() []antlr.TerminalNode
+	Sizeof(i int) antlr.TerminalNode
+	Alignof() antlr.TerminalNode
+	AllPlusPlus() []antlr.TerminalNode
+	PlusPlus(i int) antlr.TerminalNode
+	AllMinusMinus() []antlr.TerminalNode
+	MinusMinus(i int) antlr.TerminalNode
 
 	// IsUnaryExpressionContext differentiates from other interfaces.
 	IsUnaryExpressionContext()
@@ -4420,7 +4557,7 @@ func (p *CParser) UnaryExpression() (localctx IUnaryExpressionContext) {
 				p.SetState(348)
 				_la = p.GetTokenStream().LA(1)
 
-				if !(_la == CParserSizeof || _la == CParserPlusPlus || _la == CParserMinusMinus) {
+				if !((int64((_la-44)) & ^0x3f) == 0 && ((int64(1)<<(_la-44))&42949672961) != 0) {
 					p.GetErrorHandler().RecoverInline(p)
 				} else {
 					p.GetErrorHandler().ReportMatch(p)
@@ -4501,6 +4638,14 @@ type IUnaryOperatorContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	And() antlr.TerminalNode
+	Star() antlr.TerminalNode
+	Plus() antlr.TerminalNode
+	Minus() antlr.TerminalNode
+	Tilde() antlr.TerminalNode
+	Not() antlr.TerminalNode
 
 	// IsUnaryOperatorContext differentiates from other interfaces.
 	IsUnaryOperatorContext()
@@ -4616,7 +4761,7 @@ func (p *CParser) UnaryOperator() (localctx IUnaryOperatorContext) {
 		p.SetState(367)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) {
+		if !((int64((_la-76)) & ^0x3f) == 0 && ((int64(1)<<(_la-76))&12437) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -4633,6 +4778,14 @@ type ICastExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	LeftParen() antlr.TerminalNode
+	TypeName() ITypeNameContext
+	RightParen() antlr.TerminalNode
+	CastExpression() ICastExpressionContext
+	UnaryExpression() IUnaryExpressionContext
+	DigitSequence() antlr.TerminalNode
 
 	// IsCastExpressionContext differentiates from other interfaces.
 	IsCastExpressionContext()
@@ -4838,6 +4991,16 @@ type IMultiplicativeExpressionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllCastExpression() []ICastExpressionContext
+	CastExpression(i int) ICastExpressionContext
+	AllStar() []antlr.TerminalNode
+	Star(i int) antlr.TerminalNode
+	AllDiv() []antlr.TerminalNode
+	Div(i int) antlr.TerminalNode
+	AllMod() []antlr.TerminalNode
+	Mod(i int) antlr.TerminalNode
+
 	// IsMultiplicativeExpressionContext differentiates from other interfaces.
 	IsMultiplicativeExpressionContext()
 }
@@ -4997,12 +5160,12 @@ func (p *CParser) MultiplicativeExpression() (localctx IMultiplicativeExpression
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ((_la-80)&-(0x1f+1)) == 0 && ((1<<uint((_la-80)))&((1<<(CParserStar-80))|(1<<(CParserDiv-80))|(1<<(CParserMod-80)))) != 0 {
+	for (int64((_la-80)) & ^0x3f) == 0 && ((int64(1)<<(_la-80))&7) != 0 {
 		{
 			p.SetState(382)
 			_la = p.GetTokenStream().LA(1)
 
-			if !(((_la-80)&-(0x1f+1)) == 0 && ((1<<uint((_la-80)))&((1<<(CParserStar-80))|(1<<(CParserDiv-80))|(1<<(CParserMod-80)))) != 0) {
+			if !((int64((_la-80)) & ^0x3f) == 0 && ((int64(1)<<(_la-80))&7) != 0) {
 				p.GetErrorHandler().RecoverInline(p)
 			} else {
 				p.GetErrorHandler().ReportMatch(p)
@@ -5028,6 +5191,14 @@ type IAdditiveExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllMultiplicativeExpression() []IMultiplicativeExpressionContext
+	MultiplicativeExpression(i int) IMultiplicativeExpressionContext
+	AllPlus() []antlr.TerminalNode
+	Plus(i int) antlr.TerminalNode
+	AllMinus() []antlr.TerminalNode
+	Minus(i int) antlr.TerminalNode
 
 	// IsAdditiveExpressionContext differentiates from other interfaces.
 	IsAdditiveExpressionContext()
@@ -5212,6 +5383,14 @@ type IShiftExpressionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllAdditiveExpression() []IAdditiveExpressionContext
+	AdditiveExpression(i int) IAdditiveExpressionContext
+	AllLeftShift() []antlr.TerminalNode
+	LeftShift(i int) antlr.TerminalNode
+	AllRightShift() []antlr.TerminalNode
+	RightShift(i int) antlr.TerminalNode
+
 	// IsShiftExpressionContext differentiates from other interfaces.
 	IsShiftExpressionContext()
 }
@@ -5395,6 +5574,18 @@ type IRelationalExpressionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllShiftExpression() []IShiftExpressionContext
+	ShiftExpression(i int) IShiftExpressionContext
+	AllLess() []antlr.TerminalNode
+	Less(i int) antlr.TerminalNode
+	AllGreater() []antlr.TerminalNode
+	Greater(i int) antlr.TerminalNode
+	AllLessEqual() []antlr.TerminalNode
+	LessEqual(i int) antlr.TerminalNode
+	AllGreaterEqual() []antlr.TerminalNode
+	GreaterEqual(i int) antlr.TerminalNode
+
 	// IsRelationalExpressionContext differentiates from other interfaces.
 	IsRelationalExpressionContext()
 }
@@ -5562,12 +5753,12 @@ func (p *CParser) RelationalExpression() (localctx IRelationalExpressionContext)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ((_la-70)&-(0x1f+1)) == 0 && ((1<<uint((_la-70)))&((1<<(CParserLess-70))|(1<<(CParserLessEqual-70))|(1<<(CParserGreater-70))|(1<<(CParserGreaterEqual-70)))) != 0 {
+	for (int64((_la-70)) & ^0x3f) == 0 && ((int64(1)<<(_la-70))&15) != 0 {
 		{
 			p.SetState(406)
 			_la = p.GetTokenStream().LA(1)
 
-			if !(((_la-70)&-(0x1f+1)) == 0 && ((1<<uint((_la-70)))&((1<<(CParserLess-70))|(1<<(CParserLessEqual-70))|(1<<(CParserGreater-70))|(1<<(CParserGreaterEqual-70)))) != 0) {
+			if !((int64((_la-70)) & ^0x3f) == 0 && ((int64(1)<<(_la-70))&15) != 0) {
 				p.GetErrorHandler().RecoverInline(p)
 			} else {
 				p.GetErrorHandler().ReportMatch(p)
@@ -5593,6 +5784,14 @@ type IEqualityExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllRelationalExpression() []IRelationalExpressionContext
+	RelationalExpression(i int) IRelationalExpressionContext
+	AllEqual() []antlr.TerminalNode
+	Equal(i int) antlr.TerminalNode
+	AllNotEqual() []antlr.TerminalNode
+	NotEqual(i int) antlr.TerminalNode
 
 	// IsEqualityExpressionContext differentiates from other interfaces.
 	IsEqualityExpressionContext()
@@ -5777,6 +5976,12 @@ type IAndExpressionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllEqualityExpression() []IEqualityExpressionContext
+	EqualityExpression(i int) IEqualityExpressionContext
+	AllAnd() []antlr.TerminalNode
+	And(i int) antlr.TerminalNode
+
 	// IsAndExpressionContext differentiates from other interfaces.
 	IsAndExpressionContext()
 }
@@ -5944,6 +6149,12 @@ type IExclusiveOrExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllAndExpression() []IAndExpressionContext
+	AndExpression(i int) IAndExpressionContext
+	AllCaret() []antlr.TerminalNode
+	Caret(i int) antlr.TerminalNode
 
 	// IsExclusiveOrExpressionContext differentiates from other interfaces.
 	IsExclusiveOrExpressionContext()
@@ -6113,6 +6324,12 @@ type IInclusiveOrExpressionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllExclusiveOrExpression() []IExclusiveOrExpressionContext
+	ExclusiveOrExpression(i int) IExclusiveOrExpressionContext
+	AllOr() []antlr.TerminalNode
+	Or(i int) antlr.TerminalNode
+
 	// IsInclusiveOrExpressionContext differentiates from other interfaces.
 	IsInclusiveOrExpressionContext()
 }
@@ -6280,6 +6497,12 @@ type ILogicalAndExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllInclusiveOrExpression() []IInclusiveOrExpressionContext
+	InclusiveOrExpression(i int) IInclusiveOrExpressionContext
+	AllAndAnd() []antlr.TerminalNode
+	AndAnd(i int) antlr.TerminalNode
 
 	// IsLogicalAndExpressionContext differentiates from other interfaces.
 	IsLogicalAndExpressionContext()
@@ -6449,6 +6672,12 @@ type ILogicalOrExpressionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllLogicalAndExpression() []ILogicalAndExpressionContext
+	LogicalAndExpression(i int) ILogicalAndExpressionContext
+	AllOrOr() []antlr.TerminalNode
+	OrOr(i int) antlr.TerminalNode
+
 	// IsLogicalOrExpressionContext differentiates from other interfaces.
 	IsLogicalOrExpressionContext()
 }
@@ -6616,6 +6845,13 @@ type IConditionalExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	LogicalOrExpression() ILogicalOrExpressionContext
+	Question() antlr.TerminalNode
+	Expression() IExpressionContext
+	Colon() antlr.TerminalNode
+	ConditionalExpression() IConditionalExpressionContext
 
 	// IsConditionalExpressionContext differentiates from other interfaces.
 	IsConditionalExpressionContext()
@@ -6796,6 +7032,13 @@ type IAssignmentExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	ConditionalExpression() IConditionalExpressionContext
+	UnaryExpression() IUnaryExpressionContext
+	AssignmentOperator() IAssignmentOperatorContext
+	AssignmentExpression() IAssignmentExpressionContext
+	DigitSequence() antlr.TerminalNode
 
 	// IsAssignmentExpressionContext differentiates from other interfaces.
 	IsAssignmentExpressionContext()
@@ -6993,6 +7236,19 @@ type IAssignmentOperatorContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Assign() antlr.TerminalNode
+	StarAssign() antlr.TerminalNode
+	DivAssign() antlr.TerminalNode
+	ModAssign() antlr.TerminalNode
+	PlusAssign() antlr.TerminalNode
+	MinusAssign() antlr.TerminalNode
+	LeftShiftAssign() antlr.TerminalNode
+	RightShiftAssign() antlr.TerminalNode
+	AndAssign() antlr.TerminalNode
+	XorAssign() antlr.TerminalNode
+	OrAssign() antlr.TerminalNode
+
 	// IsAssignmentOperatorContext differentiates from other interfaces.
 	IsAssignmentOperatorContext()
 }
@@ -7127,7 +7383,7 @@ func (p *CParser) AssignmentOperator() (localctx IAssignmentOperatorContext) {
 		p.SetState(477)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la-94)&-(0x1f+1)) == 0 && ((1<<uint((_la-94)))&((1<<(CParserAssign-94))|(1<<(CParserStarAssign-94))|(1<<(CParserDivAssign-94))|(1<<(CParserModAssign-94))|(1<<(CParserPlusAssign-94))|(1<<(CParserMinusAssign-94))|(1<<(CParserLeftShiftAssign-94))|(1<<(CParserRightShiftAssign-94))|(1<<(CParserAndAssign-94))|(1<<(CParserXorAssign-94))|(1<<(CParserOrAssign-94)))) != 0) {
+		if !((int64((_la-94)) & ^0x3f) == 0 && ((int64(1)<<(_la-94))&2047) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -7144,6 +7400,12 @@ type IExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllAssignmentExpression() []IAssignmentExpressionContext
+	AssignmentExpression(i int) IAssignmentExpressionContext
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
 
 	// IsExpressionContext differentiates from other interfaces.
 	IsExpressionContext()
@@ -7313,6 +7575,9 @@ type IConstantExpressionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	ConditionalExpression() IConditionalExpressionContext
+
 	// IsConstantExpressionContext differentiates from other interfaces.
 	IsConstantExpressionContext()
 }
@@ -7429,6 +7694,14 @@ type IStorageClassSpecifierContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Typedef() antlr.TerminalNode
+	Extern() antlr.TerminalNode
+	Static() antlr.TerminalNode
+	ThreadLocal() antlr.TerminalNode
+	Auto() antlr.TerminalNode
+	Register() antlr.TerminalNode
+
 	// IsStorageClassSpecifierContext differentiates from other interfaces.
 	IsStorageClassSpecifierContext()
 }
@@ -7543,7 +7816,7 @@ func (p *CParser) StorageClassSpecifier() (localctx IStorageClassSpecifierContex
 		p.SetState(489)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(_la == CParserAuto || _la == CParserExtern || (((_la-39)&-(0x1f+1)) == 0 && ((1<<uint((_la-39)))&((1<<(CParserRegister-39))|(1<<(CParserStatic-39))|(1<<(CParserTypedef-39))|(1<<(CParserThreadLocal-39)))) != 0)) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-9223054825601630208) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -7560,6 +7833,26 @@ type ITypeSpecifierContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Void() antlr.TerminalNode
+	Char() antlr.TerminalNode
+	Short() antlr.TerminalNode
+	Int() antlr.TerminalNode
+	Long() antlr.TerminalNode
+	Float() antlr.TerminalNode
+	Double() antlr.TerminalNode
+	Signed() antlr.TerminalNode
+	Unsigned() antlr.TerminalNode
+	Bool() antlr.TerminalNode
+	Complex() antlr.TerminalNode
+	LeftParen() antlr.TerminalNode
+	RightParen() antlr.TerminalNode
+	AtomicTypeSpecifier() IAtomicTypeSpecifierContext
+	StructOrUnionSpecifier() IStructOrUnionSpecifierContext
+	EnumSpecifier() IEnumSpecifierContext
+	TypedefName() ITypedefNameContext
+	ConstantExpression() IConstantExpressionContext
 
 	// IsTypeSpecifierContext differentiates from other interfaces.
 	IsTypeSpecifierContext()
@@ -7788,7 +8081,7 @@ func (p *CParser) TypeSpecifier() (localctx ITypeSpecifierContext) {
 			p.SetState(491)
 			_la = p.GetTokenStream().LA(1)
 
-			if !((((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserChar)|(1<<CParserDouble))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32)))) != 0)) {
+			if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&435736874976280688) != 0) {
 				p.GetErrorHandler().RecoverInline(p)
 			} else {
 				p.GetErrorHandler().ReportMatch(p)
@@ -7810,7 +8103,7 @@ func (p *CParser) TypeSpecifier() (localctx ITypeSpecifierContext) {
 			p.SetState(494)
 			_la = p.GetTokenStream().LA(1)
 
-			if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5))) != 0) {
+			if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&112) != 0) {
 				p.GetErrorHandler().RecoverInline(p)
 			} else {
 				p.GetErrorHandler().ReportMatch(p)
@@ -7882,6 +8175,13 @@ type IStructOrUnionSpecifierContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	StructOrUnion() IStructOrUnionContext
+	LeftBrace() antlr.TerminalNode
+	StructDeclarationList() IStructDeclarationListContext
+	RightBrace() antlr.TerminalNode
+	Identifier() antlr.TerminalNode
 
 	// IsStructOrUnionSpecifierContext differentiates from other interfaces.
 	IsStructOrUnionSpecifierContext()
@@ -8068,6 +8368,10 @@ type IStructOrUnionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Struct() antlr.TerminalNode
+	Union() antlr.TerminalNode
+
 	// IsStructOrUnionContext differentiates from other interfaces.
 	IsStructOrUnionContext()
 }
@@ -8183,6 +8487,10 @@ type IStructDeclarationListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllStructDeclaration() []IStructDeclarationContext
+	StructDeclaration(i int) IStructDeclarationContext
 
 	// IsStructDeclarationListContext differentiates from other interfaces.
 	IsStructDeclarationListContext()
@@ -8315,7 +8623,7 @@ func (p *CParser) StructDeclarationList() (localctx IStructDeclarationListContex
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ok := true; ok; ok = (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserT__6)|(1<<CParserChar)|(1<<CParserConst)|(1<<CParserDouble)|(1<<CParserEnum))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserRestrict-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserStruct-32))|(1<<(CParserUnion-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserVolatile-32))|(1<<(CParserAtomic-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32))|(1<<(CParserStaticAssert-32)))) != 0) || _la == CParserIdentifier {
+	for ok := true; ok; ok = ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&5124618506368712946) != 0) || _la == CParserIdentifier {
 		{
 			p.SetState(522)
 			p.StructDeclaration()
@@ -8335,6 +8643,12 @@ type IStructDeclarationContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	SpecifierQualifierList() ISpecifierQualifierListContext
+	StructDeclaratorList() IStructDeclaratorListContext
+	Semi() antlr.TerminalNode
+	StaticAssertDeclaration() IStaticAssertDeclarationContext
 
 	// IsStructDeclarationContext differentiates from other interfaces.
 	IsStructDeclarationContext()
@@ -8520,6 +8834,11 @@ type ISpecifierQualifierListContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	TypeSpecifier() ITypeSpecifierContext
+	TypeQualifier() ITypeQualifierContext
+	SpecifierQualifierList() ISpecifierQualifierListContext
+
 	// IsSpecifierQualifierListContext differentiates from other interfaces.
 	IsSpecifierQualifierListContext()
 }
@@ -8690,6 +9009,12 @@ type IStructDeclaratorListContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllStructDeclarator() []IStructDeclaratorContext
+	StructDeclarator(i int) IStructDeclaratorContext
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
+
 	// IsStructDeclaratorListContext differentiates from other interfaces.
 	IsStructDeclaratorListContext()
 }
@@ -8858,6 +9183,11 @@ type IStructDeclaratorContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Declarator() IDeclaratorContext
+	Colon() antlr.TerminalNode
+	ConstantExpression() IConstantExpressionContext
+
 	// IsStructDeclaratorContext differentiates from other interfaces.
 	IsStructDeclaratorContext()
 }
@@ -8995,7 +9325,7 @@ func (p *CParser) StructDeclarator() (localctx IStructDeclaratorContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__8)|(1<<CParserT__10)|(1<<CParserT__11)|(1<<CParserT__12)|(1<<CParserT__13)|(1<<CParserT__14))) != 0) || (((_la-64)&-(0x1f+1)) == 0 && ((1<<uint((_la-64)))&((1<<(CParserLeftParen-64))|(1<<(CParserStar-64))|(1<<(CParserCaret-64)))) != 0) || _la == CParserIdentifier {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&64000) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&70368752631809) != 0) {
 			{
 				p.SetState(553)
 				p.Declarator()
@@ -9022,6 +9352,14 @@ type IEnumSpecifierContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Enum() antlr.TerminalNode
+	LeftBrace() antlr.TerminalNode
+	EnumeratorList() IEnumeratorListContext
+	RightBrace() antlr.TerminalNode
+	Identifier() antlr.TerminalNode
+	Comma() antlr.TerminalNode
 
 	// IsEnumSpecifierContext differentiates from other interfaces.
 	IsEnumSpecifierContext()
@@ -9211,6 +9549,12 @@ type IEnumeratorListContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllEnumerator() []IEnumeratorContext
+	Enumerator(i int) IEnumeratorContext
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
+
 	// IsEnumeratorListContext differentiates from other interfaces.
 	IsEnumeratorListContext()
 }
@@ -9382,6 +9726,11 @@ type IEnumeratorContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	EnumerationConstant() IEnumerationConstantContext
+	Assign() antlr.TerminalNode
+	ConstantExpression() IConstantExpressionContext
+
 	// IsEnumeratorContext differentiates from other interfaces.
 	IsEnumeratorContext()
 }
@@ -9534,6 +9883,9 @@ type IEnumerationConstantContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Identifier() antlr.TerminalNode
+
 	// IsEnumerationConstantContext differentiates from other interfaces.
 	IsEnumerationConstantContext()
 }
@@ -9637,6 +9989,12 @@ type IAtomicTypeSpecifierContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Atomic() antlr.TerminalNode
+	LeftParen() antlr.TerminalNode
+	TypeName() ITypeNameContext
+	RightParen() antlr.TerminalNode
 
 	// IsAtomicTypeSpecifierContext differentiates from other interfaces.
 	IsAtomicTypeSpecifierContext()
@@ -9778,6 +10136,12 @@ type ITypeQualifierContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Const() antlr.TerminalNode
+	Restrict() antlr.TerminalNode
+	Volatile() antlr.TerminalNode
+	Atomic() antlr.TerminalNode
+
 	// IsTypeQualifierContext differentiates from other interfaces.
 	IsTypeQualifierContext()
 }
@@ -9884,7 +10248,7 @@ func (p *CParser) TypeQualifier() (localctx ITypeQualifierContext) {
 		p.SetState(595)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(_la == CParserConst || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(CParserRestrict-40))|(1<<(CParserVolatile-40))|(1<<(CParserAtomic-40)))) != 0)) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&76562293193703424) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -9901,6 +10265,14 @@ type IFunctionSpecifierContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Inline() antlr.TerminalNode
+	Noreturn() antlr.TerminalNode
+	GccAttributeSpecifier() IGccAttributeSpecifierContext
+	LeftParen() antlr.TerminalNode
+	Identifier() antlr.TerminalNode
+	RightParen() antlr.TerminalNode
 
 	// IsFunctionSpecifierContext differentiates from other interfaces.
 	IsFunctionSpecifierContext()
@@ -10033,7 +10405,7 @@ func (p *CParser) FunctionSpecifier() (localctx IFunctionSpecifierContext) {
 			p.SetState(597)
 			_la = p.GetTokenStream().LA(1)
 
-			if !(_la == CParserT__7 || _la == CParserT__8 || _la == CParserInline || _la == CParserNoreturn) {
+			if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&2305843077933171456) != 0) {
 				p.GetErrorHandler().RecoverInline(p)
 			} else {
 				p.GetErrorHandler().ReportMatch(p)
@@ -10080,6 +10452,13 @@ type IAlignmentSpecifierContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Alignas() antlr.TerminalNode
+	LeftParen() antlr.TerminalNode
+	RightParen() antlr.TerminalNode
+	TypeName() ITypeNameContext
+	ConstantExpression() IConstantExpressionContext
 
 	// IsAlignmentSpecifierContext differentiates from other interfaces.
 	IsAlignmentSpecifierContext()
@@ -10248,6 +10627,12 @@ type IDeclaratorContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	DirectDeclarator() IDirectDeclaratorContext
+	Pointer() IPointerContext
+	AllGccDeclaratorExtension() []IGccDeclaratorExtensionContext
+	GccDeclaratorExtension(i int) IGccDeclaratorExtensionContext
 
 	// IsDeclaratorContext differentiates from other interfaces.
 	IsDeclaratorContext()
@@ -10451,7 +10836,6 @@ type IDirectDeclaratorContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsDirectDeclaratorContext differentiates from other interfaces.
 	IsDirectDeclaratorContext()
 }
@@ -11483,7 +11867,7 @@ func (p *CParser) directDeclarator(_p int) (localctx IDirectDeclaratorContext) {
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if _la == CParserConst || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(CParserRestrict-40))|(1<<(CParserVolatile-40))|(1<<(CParserAtomic-40)))) != 0) {
+				if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&76562293193703424) != 0 {
 					{
 						p.SetState(644)
 						p.TypeQualifierList()
@@ -11494,7 +11878,7 @@ func (p *CParser) directDeclarator(_p int) (localctx IDirectDeclaratorContext) {
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+				if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 					{
 						p.SetState(647)
 						p.AssignmentExpression()
@@ -11526,7 +11910,7 @@ func (p *CParser) directDeclarator(_p int) (localctx IDirectDeclaratorContext) {
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if _la == CParserConst || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(CParserRestrict-40))|(1<<(CParserVolatile-40))|(1<<(CParserAtomic-40)))) != 0) {
+				if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&76562293193703424) != 0 {
 					{
 						p.SetState(654)
 						p.TypeQualifierList()
@@ -11587,7 +11971,7 @@ func (p *CParser) directDeclarator(_p int) (localctx IDirectDeclaratorContext) {
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if _la == CParserConst || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(CParserRestrict-40))|(1<<(CParserVolatile-40))|(1<<(CParserAtomic-40)))) != 0) {
+				if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&76562293193703424) != 0 {
 					{
 						p.SetState(669)
 						p.TypeQualifierList()
@@ -11669,7 +12053,6 @@ type IVcSpecificModifierContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsVcSpecificModifierContext differentiates from other interfaces.
 	IsVcSpecificModifierContext()
 }
@@ -11759,7 +12142,7 @@ func (p *CParser) VcSpecificModifier() (localctx IVcSpecificModifierContext) {
 		p.SetState(690)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__8)|(1<<CParserT__10)|(1<<CParserT__11)|(1<<CParserT__12)|(1<<CParserT__13)|(1<<CParserT__14))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&64000) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -11776,6 +12159,13 @@ type IGccDeclaratorExtensionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	LeftParen() antlr.TerminalNode
+	RightParen() antlr.TerminalNode
+	AllStringLiteral() []antlr.TerminalNode
+	StringLiteral(i int) antlr.TerminalNode
+	GccAttributeSpecifier() IGccAttributeSpecifierContext
 
 	// IsGccDeclaratorExtensionContext differentiates from other interfaces.
 	IsGccDeclaratorExtensionContext()
@@ -11948,6 +12338,13 @@ type IGccAttributeSpecifierContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllLeftParen() []antlr.TerminalNode
+	LeftParen(i int) antlr.TerminalNode
+	GccAttributeList() IGccAttributeListContext
+	AllRightParen() []antlr.TerminalNode
+	RightParen(i int) antlr.TerminalNode
+
 	// IsGccAttributeSpecifierContext differentiates from other interfaces.
 	IsGccAttributeSpecifierContext()
 }
@@ -12100,6 +12497,12 @@ type IGccAttributeListContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllGccAttribute() []IGccAttributeContext
+	GccAttribute(i int) IGccAttributeContext
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
+
 	// IsGccAttributeListContext differentiates from other interfaces.
 	IsGccAttributeListContext()
 }
@@ -12239,7 +12642,7 @@ func (p *CParser) GccAttributeList() (localctx IGccAttributeListContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2)|(1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserT__6)|(1<<CParserT__7)|(1<<CParserT__8)|(1<<CParserT__9)|(1<<CParserT__10)|(1<<CParserT__11)|(1<<CParserT__12)|(1<<CParserT__13)|(1<<CParserT__14)|(1<<CParserT__15)|(1<<CParserT__16)|(1<<CParserT__17)|(1<<CParserT__18)|(1<<CParserAuto)|(1<<CParserBreak)|(1<<CParserCase)|(1<<CParserChar)|(1<<CParserConst)|(1<<CParserContinue)|(1<<CParserDefault)|(1<<CParserDo)|(1<<CParserDouble)|(1<<CParserElse)|(1<<CParserEnum)|(1<<CParserExtern))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserFor-32))|(1<<(CParserGoto-32))|(1<<(CParserIf-32))|(1<<(CParserInline-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserRegister-32))|(1<<(CParserRestrict-32))|(1<<(CParserReturn-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserSizeof-32))|(1<<(CParserStatic-32))|(1<<(CParserStruct-32))|(1<<(CParserSwitch-32))|(1<<(CParserTypedef-32))|(1<<(CParserUnion-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserVolatile-32))|(1<<(CParserWhile-32))|(1<<(CParserAlignas-32))|(1<<(CParserAlignof-32))|(1<<(CParserAtomic-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32))|(1<<(CParserGeneric-32))|(1<<(CParserImaginary-32))|(1<<(CParserNoreturn-32))|(1<<(CParserStaticAssert-32))|(1<<(CParserThreadLocal-32)))) != 0) || (((_la-66)&-(0x1f+1)) == 0 && ((1<<uint((_la-66)))&((1<<(CParserLeftBracket-66))|(1<<(CParserRightBracket-66))|(1<<(CParserLeftBrace-66))|(1<<(CParserRightBrace-66))|(1<<(CParserLess-66))|(1<<(CParserLessEqual-66))|(1<<(CParserGreater-66))|(1<<(CParserGreaterEqual-66))|(1<<(CParserLeftShift-66))|(1<<(CParserRightShift-66))|(1<<(CParserPlus-66))|(1<<(CParserPlusPlus-66))|(1<<(CParserMinus-66))|(1<<(CParserMinusMinus-66))|(1<<(CParserStar-66))|(1<<(CParserDiv-66))|(1<<(CParserMod-66))|(1<<(CParserAnd-66))|(1<<(CParserOr-66))|(1<<(CParserAndAnd-66))|(1<<(CParserOrOr-66))|(1<<(CParserCaret-66))|(1<<(CParserNot-66))|(1<<(CParserTilde-66))|(1<<(CParserQuestion-66))|(1<<(CParserColon-66))|(1<<(CParserSemi-66))|(1<<(CParserAssign-66))|(1<<(CParserStarAssign-66))|(1<<(CParserDivAssign-66))|(1<<(CParserModAssign-66)))) != 0) || (((_la-98)&-(0x1f+1)) == 0 && ((1<<uint((_la-98)))&((1<<(CParserPlusAssign-98))|(1<<(CParserMinusAssign-98))|(1<<(CParserLeftShiftAssign-98))|(1<<(CParserRightShiftAssign-98))|(1<<(CParserAndAssign-98))|(1<<(CParserXorAssign-98))|(1<<(CParserOrAssign-98))|(1<<(CParserEqual-98))|(1<<(CParserNotEqual-98))|(1<<(CParserArrow-98))|(1<<(CParserDot-98))|(1<<(CParserEllipsis-98))|(1<<(CParserIdentifier-98))|(1<<(CParserConstant-98))|(1<<(CParserDigitSequence-98))|(1<<(CParserStringLiteral-98))|(1<<(CParserComplexDefine-98))|(1<<(CParserIncludeDirective-98))|(1<<(CParserAsmBlock-98))|(1<<(CParserLineAfterPreprocessing-98))|(1<<(CParserLineDirective-98))|(1<<(CParserPragmaDirective-98))|(1<<(CParserWhitespace-98))|(1<<(CParserNewline-98))|(1<<(CParserBlockComment-98))|(1<<(CParserLineComment-98)))) != 0) {
+	if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-2) != 0) || ((int64((_la-66)) & ^0x3f) == 0 && ((int64(1)<<(_la-66))&288230376017494015) != 0) {
 		{
 			p.SetState(710)
 			p.GccAttribute()
@@ -12259,7 +12662,7 @@ func (p *CParser) GccAttributeList() (localctx IGccAttributeListContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2)|(1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserT__6)|(1<<CParserT__7)|(1<<CParserT__8)|(1<<CParserT__9)|(1<<CParserT__10)|(1<<CParserT__11)|(1<<CParserT__12)|(1<<CParserT__13)|(1<<CParserT__14)|(1<<CParserT__15)|(1<<CParserT__16)|(1<<CParserT__17)|(1<<CParserT__18)|(1<<CParserAuto)|(1<<CParserBreak)|(1<<CParserCase)|(1<<CParserChar)|(1<<CParserConst)|(1<<CParserContinue)|(1<<CParserDefault)|(1<<CParserDo)|(1<<CParserDouble)|(1<<CParserElse)|(1<<CParserEnum)|(1<<CParserExtern))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserFor-32))|(1<<(CParserGoto-32))|(1<<(CParserIf-32))|(1<<(CParserInline-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserRegister-32))|(1<<(CParserRestrict-32))|(1<<(CParserReturn-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserSizeof-32))|(1<<(CParserStatic-32))|(1<<(CParserStruct-32))|(1<<(CParserSwitch-32))|(1<<(CParserTypedef-32))|(1<<(CParserUnion-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserVolatile-32))|(1<<(CParserWhile-32))|(1<<(CParserAlignas-32))|(1<<(CParserAlignof-32))|(1<<(CParserAtomic-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32))|(1<<(CParserGeneric-32))|(1<<(CParserImaginary-32))|(1<<(CParserNoreturn-32))|(1<<(CParserStaticAssert-32))|(1<<(CParserThreadLocal-32)))) != 0) || (((_la-66)&-(0x1f+1)) == 0 && ((1<<uint((_la-66)))&((1<<(CParserLeftBracket-66))|(1<<(CParserRightBracket-66))|(1<<(CParserLeftBrace-66))|(1<<(CParserRightBrace-66))|(1<<(CParserLess-66))|(1<<(CParserLessEqual-66))|(1<<(CParserGreater-66))|(1<<(CParserGreaterEqual-66))|(1<<(CParserLeftShift-66))|(1<<(CParserRightShift-66))|(1<<(CParserPlus-66))|(1<<(CParserPlusPlus-66))|(1<<(CParserMinus-66))|(1<<(CParserMinusMinus-66))|(1<<(CParserStar-66))|(1<<(CParserDiv-66))|(1<<(CParserMod-66))|(1<<(CParserAnd-66))|(1<<(CParserOr-66))|(1<<(CParserAndAnd-66))|(1<<(CParserOrOr-66))|(1<<(CParserCaret-66))|(1<<(CParserNot-66))|(1<<(CParserTilde-66))|(1<<(CParserQuestion-66))|(1<<(CParserColon-66))|(1<<(CParserSemi-66))|(1<<(CParserAssign-66))|(1<<(CParserStarAssign-66))|(1<<(CParserDivAssign-66))|(1<<(CParserModAssign-66)))) != 0) || (((_la-98)&-(0x1f+1)) == 0 && ((1<<uint((_la-98)))&((1<<(CParserPlusAssign-98))|(1<<(CParserMinusAssign-98))|(1<<(CParserLeftShiftAssign-98))|(1<<(CParserRightShiftAssign-98))|(1<<(CParserAndAssign-98))|(1<<(CParserXorAssign-98))|(1<<(CParserOrAssign-98))|(1<<(CParserEqual-98))|(1<<(CParserNotEqual-98))|(1<<(CParserArrow-98))|(1<<(CParserDot-98))|(1<<(CParserEllipsis-98))|(1<<(CParserIdentifier-98))|(1<<(CParserConstant-98))|(1<<(CParserDigitSequence-98))|(1<<(CParserStringLiteral-98))|(1<<(CParserComplexDefine-98))|(1<<(CParserIncludeDirective-98))|(1<<(CParserAsmBlock-98))|(1<<(CParserLineAfterPreprocessing-98))|(1<<(CParserLineDirective-98))|(1<<(CParserPragmaDirective-98))|(1<<(CParserWhitespace-98))|(1<<(CParserNewline-98))|(1<<(CParserBlockComment-98))|(1<<(CParserLineComment-98)))) != 0) {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-2) != 0) || ((int64((_la-66)) & ^0x3f) == 0 && ((int64(1)<<(_la-66))&288230376017494015) != 0) {
 			{
 				p.SetState(714)
 				p.GccAttribute()
@@ -12281,6 +12684,14 @@ type IGccAttributeContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Comma() antlr.TerminalNode
+	AllLeftParen() []antlr.TerminalNode
+	LeftParen(i int) antlr.TerminalNode
+	AllRightParen() []antlr.TerminalNode
+	RightParen(i int) antlr.TerminalNode
+	ArgumentExpressionList() IArgumentExpressionListContext
 
 	// IsGccAttributeContext differentiates from other interfaces.
 	IsGccAttributeContext()
@@ -12408,7 +12819,7 @@ func (p *CParser) GccAttribute() (localctx IGccAttributeContext) {
 		p.SetState(722)
 		_la = p.GetTokenStream().LA(1)
 
-		if _la <= 0 || (((_la-64)&-(0x1f+1)) == 0 && ((1<<uint((_la-64)))&((1<<(CParserLeftParen-64))|(1<<(CParserRightParen-64))|(1<<(CParserComma-64)))) != 0) {
+		if _la <= 0 || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&536870915) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -12428,7 +12839,7 @@ func (p *CParser) GccAttribute() (localctx IGccAttributeContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 			{
 				p.SetState(724)
 				p.ArgumentExpressionList()
@@ -12451,6 +12862,14 @@ type INestedParenthesesBlockContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllLeftParen() []antlr.TerminalNode
+	LeftParen(i int) antlr.TerminalNode
+	AllNestedParenthesesBlock() []INestedParenthesesBlockContext
+	NestedParenthesesBlock(i int) INestedParenthesesBlockContext
+	AllRightParen() []antlr.TerminalNode
+	RightParen(i int) antlr.TerminalNode
 
 	// IsNestedParenthesesBlockContext differentiates from other interfaces.
 	IsNestedParenthesesBlockContext()
@@ -12599,7 +13018,7 @@ func (p *CParser) NestedParenthesesBlock() (localctx INestedParenthesesBlockCont
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2)|(1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserT__6)|(1<<CParserT__7)|(1<<CParserT__8)|(1<<CParserT__9)|(1<<CParserT__10)|(1<<CParserT__11)|(1<<CParserT__12)|(1<<CParserT__13)|(1<<CParserT__14)|(1<<CParserT__15)|(1<<CParserT__16)|(1<<CParserT__17)|(1<<CParserT__18)|(1<<CParserAuto)|(1<<CParserBreak)|(1<<CParserCase)|(1<<CParserChar)|(1<<CParserConst)|(1<<CParserContinue)|(1<<CParserDefault)|(1<<CParserDo)|(1<<CParserDouble)|(1<<CParserElse)|(1<<CParserEnum)|(1<<CParserExtern))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserFor-32))|(1<<(CParserGoto-32))|(1<<(CParserIf-32))|(1<<(CParserInline-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserRegister-32))|(1<<(CParserRestrict-32))|(1<<(CParserReturn-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserSizeof-32))|(1<<(CParserStatic-32))|(1<<(CParserStruct-32))|(1<<(CParserSwitch-32))|(1<<(CParserTypedef-32))|(1<<(CParserUnion-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserVolatile-32))|(1<<(CParserWhile-32))|(1<<(CParserAlignas-32))|(1<<(CParserAlignof-32))|(1<<(CParserAtomic-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32))|(1<<(CParserGeneric-32))|(1<<(CParserImaginary-32))|(1<<(CParserNoreturn-32))|(1<<(CParserStaticAssert-32))|(1<<(CParserThreadLocal-32)))) != 0) || (((_la-64)&-(0x1f+1)) == 0 && ((1<<uint((_la-64)))&((1<<(CParserLeftParen-64))|(1<<(CParserLeftBracket-64))|(1<<(CParserRightBracket-64))|(1<<(CParserLeftBrace-64))|(1<<(CParserRightBrace-64))|(1<<(CParserLess-64))|(1<<(CParserLessEqual-64))|(1<<(CParserGreater-64))|(1<<(CParserGreaterEqual-64))|(1<<(CParserLeftShift-64))|(1<<(CParserRightShift-64))|(1<<(CParserPlus-64))|(1<<(CParserPlusPlus-64))|(1<<(CParserMinus-64))|(1<<(CParserMinusMinus-64))|(1<<(CParserStar-64))|(1<<(CParserDiv-64))|(1<<(CParserMod-64))|(1<<(CParserAnd-64))|(1<<(CParserOr-64))|(1<<(CParserAndAnd-64))|(1<<(CParserOrOr-64))|(1<<(CParserCaret-64))|(1<<(CParserNot-64))|(1<<(CParserTilde-64))|(1<<(CParserQuestion-64))|(1<<(CParserColon-64))|(1<<(CParserSemi-64))|(1<<(CParserComma-64))|(1<<(CParserAssign-64))|(1<<(CParserStarAssign-64)))) != 0) || (((_la-96)&-(0x1f+1)) == 0 && ((1<<uint((_la-96)))&((1<<(CParserDivAssign-96))|(1<<(CParserModAssign-96))|(1<<(CParserPlusAssign-96))|(1<<(CParserMinusAssign-96))|(1<<(CParserLeftShiftAssign-96))|(1<<(CParserRightShiftAssign-96))|(1<<(CParserAndAssign-96))|(1<<(CParserXorAssign-96))|(1<<(CParserOrAssign-96))|(1<<(CParserEqual-96))|(1<<(CParserNotEqual-96))|(1<<(CParserArrow-96))|(1<<(CParserDot-96))|(1<<(CParserEllipsis-96))|(1<<(CParserIdentifier-96))|(1<<(CParserConstant-96))|(1<<(CParserDigitSequence-96))|(1<<(CParserStringLiteral-96))|(1<<(CParserComplexDefine-96))|(1<<(CParserIncludeDirective-96))|(1<<(CParserAsmBlock-96))|(1<<(CParserLineAfterPreprocessing-96))|(1<<(CParserLineDirective-96))|(1<<(CParserPragmaDirective-96))|(1<<(CParserWhitespace-96))|(1<<(CParserNewline-96))|(1<<(CParserBlockComment-96))|(1<<(CParserLineComment-96)))) != 0) {
+	for ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-2) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1152921504606846973) != 0) {
 		p.SetState(735)
 		p.GetErrorHandler().Sync(p)
 
@@ -12649,6 +13068,14 @@ type IPointerContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllStar() []antlr.TerminalNode
+	Star(i int) antlr.TerminalNode
+	AllCaret() []antlr.TerminalNode
+	Caret(i int) antlr.TerminalNode
+	AllTypeQualifierList() []ITypeQualifierListContext
+	TypeQualifierList(i int) ITypeQualifierListContext
 
 	// IsPointerContext differentiates from other interfaces.
 	IsPointerContext()
@@ -12813,7 +13240,7 @@ func (p *CParser) Pointer() (localctx IPointerContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if _la == CParserConst || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(CParserRestrict-40))|(1<<(CParserVolatile-40))|(1<<(CParserAtomic-40)))) != 0) {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&76562293193703424) != 0 {
 			{
 				p.SetState(741)
 				p.TypeQualifierList()
@@ -12835,6 +13262,10 @@ type ITypeQualifierListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllTypeQualifier() []ITypeQualifierContext
+	TypeQualifier(i int) ITypeQualifierContext
 
 	// IsTypeQualifierListContext differentiates from other interfaces.
 	IsTypeQualifierListContext()
@@ -12967,7 +13398,7 @@ func (p *CParser) TypeQualifierList() (localctx ITypeQualifierListContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ok := true; ok; ok = _la == CParserConst || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(CParserRestrict-40))|(1<<(CParserVolatile-40))|(1<<(CParserAtomic-40)))) != 0) {
+	for ok := true; ok; ok = ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&76562293193703424) != 0) {
 		{
 			p.SetState(748)
 			p.TypeQualifier()
@@ -12987,6 +13418,11 @@ type IParameterTypeListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	ParameterList() IParameterListContext
+	Comma() antlr.TerminalNode
+	Ellipsis() antlr.TerminalNode
 
 	// IsParameterTypeListContext differentiates from other interfaces.
 	IsParameterTypeListContext()
@@ -13127,6 +13563,12 @@ type IParameterListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllParameterDeclaration() []IParameterDeclarationContext
+	ParameterDeclaration(i int) IParameterDeclarationContext
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
 
 	// IsParameterListContext differentiates from other interfaces.
 	IsParameterListContext()
@@ -13298,6 +13740,12 @@ type IParameterDeclarationContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	DeclarationSpecifiers() IDeclarationSpecifiersContext
+	Declarator() IDeclaratorContext
+	DeclarationSpecifiers2() IDeclarationSpecifiers2Context
+	AbstractDeclarator() IAbstractDeclaratorContext
 
 	// IsParameterDeclarationContext differentiates from other interfaces.
 	IsParameterDeclarationContext()
@@ -13472,7 +13920,7 @@ func (p *CParser) ParameterDeclaration() (localctx IParameterDeclarationContext)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if ((_la-64)&-(0x1f+1)) == 0 && ((1<<uint((_la-64)))&((1<<(CParserLeftParen-64))|(1<<(CParserLeftBracket-64))|(1<<(CParserStar-64))|(1<<(CParserCaret-64)))) != 0 {
+		if (int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&8454149) != 0 {
 			{
 				p.SetState(770)
 				p.AbstractDeclarator()
@@ -13491,6 +13939,12 @@ type IIdentifierListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllIdentifier() []antlr.TerminalNode
+	Identifier(i int) antlr.TerminalNode
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
 
 	// IsIdentifierListContext differentiates from other interfaces.
 	IsIdentifierListContext()
@@ -13627,6 +14081,10 @@ type ITypeNameContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	SpecifierQualifierList() ISpecifierQualifierListContext
+	AbstractDeclarator() IAbstractDeclaratorContext
+
 	// IsTypeNameContext differentiates from other interfaces.
 	IsTypeNameContext()
 }
@@ -13753,7 +14211,7 @@ func (p *CParser) TypeName() (localctx ITypeNameContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if ((_la-64)&-(0x1f+1)) == 0 && ((1<<uint((_la-64)))&((1<<(CParserLeftParen-64))|(1<<(CParserLeftBracket-64))|(1<<(CParserStar-64))|(1<<(CParserCaret-64)))) != 0 {
+	if (int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&8454149) != 0 {
 		{
 			p.SetState(784)
 			p.AbstractDeclarator()
@@ -13770,6 +14228,12 @@ type IAbstractDeclaratorContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Pointer() IPointerContext
+	DirectAbstractDeclarator() IDirectAbstractDeclaratorContext
+	AllGccDeclaratorExtension() []IGccDeclaratorExtensionContext
+	GccDeclaratorExtension(i int) IGccDeclaratorExtensionContext
 
 	// IsAbstractDeclaratorContext differentiates from other interfaces.
 	IsAbstractDeclaratorContext()
@@ -13982,7 +14446,6 @@ type IDirectAbstractDeclaratorContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsDirectAbstractDeclaratorContext differentiates from other interfaces.
 	IsDirectAbstractDeclaratorContext()
 }
@@ -15106,7 +15569,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if _la == CParserConst || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(CParserRestrict-40))|(1<<(CParserVolatile-40))|(1<<(CParserAtomic-40)))) != 0) {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&76562293193703424) != 0 {
 			{
 				p.SetState(811)
 				p.TypeQualifierList()
@@ -15117,7 +15580,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 			{
 				p.SetState(814)
 				p.AssignmentExpression()
@@ -15145,7 +15608,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if _la == CParserConst || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(CParserRestrict-40))|(1<<(CParserVolatile-40))|(1<<(CParserAtomic-40)))) != 0) {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&76562293193703424) != 0 {
 			{
 				p.SetState(820)
 				p.TypeQualifierList()
@@ -15215,7 +15678,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserT__6)|(1<<CParserT__7)|(1<<CParserT__8)|(1<<CParserT__9)|(1<<CParserT__16)|(1<<CParserAuto)|(1<<CParserChar)|(1<<CParserConst)|(1<<CParserDouble)|(1<<CParserEnum)|(1<<CParserExtern))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserInline-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserRegister-32))|(1<<(CParserRestrict-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserStatic-32))|(1<<(CParserStruct-32))|(1<<(CParserTypedef-32))|(1<<(CParserUnion-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserVolatile-32))|(1<<(CParserAlignas-32))|(1<<(CParserAtomic-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32))|(1<<(CParserNoreturn-32))|(1<<(CParserThreadLocal-32)))) != 0) || _la == CParserIdentifier {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-6386264861217519630) != 0) || _la == CParserIdentifier {
 			{
 				p.SetState(836)
 				p.ParameterTypeList()
@@ -15274,7 +15737,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if _la == CParserConst || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(CParserRestrict-40))|(1<<(CParserVolatile-40))|(1<<(CParserAtomic-40)))) != 0) {
+				if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&76562293193703424) != 0 {
 					{
 						p.SetState(850)
 						p.TypeQualifierList()
@@ -15285,7 +15748,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+				if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 					{
 						p.SetState(853)
 						p.AssignmentExpression()
@@ -15317,7 +15780,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if _la == CParserConst || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(CParserRestrict-40))|(1<<(CParserVolatile-40))|(1<<(CParserAtomic-40)))) != 0) {
+				if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&76562293193703424) != 0 {
 					{
 						p.SetState(860)
 						p.TypeQualifierList()
@@ -15399,7 +15862,7 @@ func (p *CParser) directAbstractDeclarator(_p int) (localctx IDirectAbstractDecl
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserT__6)|(1<<CParserT__7)|(1<<CParserT__8)|(1<<CParserT__9)|(1<<CParserT__16)|(1<<CParserAuto)|(1<<CParserChar)|(1<<CParserConst)|(1<<CParserDouble)|(1<<CParserEnum)|(1<<CParserExtern))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserInline-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserRegister-32))|(1<<(CParserRestrict-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserStatic-32))|(1<<(CParserStruct-32))|(1<<(CParserTypedef-32))|(1<<(CParserUnion-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserVolatile-32))|(1<<(CParserAlignas-32))|(1<<(CParserAtomic-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32))|(1<<(CParserNoreturn-32))|(1<<(CParserThreadLocal-32)))) != 0) || _la == CParserIdentifier {
+				if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-6386264861217519630) != 0) || _la == CParserIdentifier {
 					{
 						p.SetState(879)
 						p.ParameterTypeList()
@@ -15444,6 +15907,9 @@ type ITypedefNameContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Identifier() antlr.TerminalNode
 
 	// IsTypedefNameContext differentiates from other interfaces.
 	IsTypedefNameContext()
@@ -15548,6 +16014,13 @@ type IInitializerContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AssignmentExpression() IAssignmentExpressionContext
+	LeftBrace() antlr.TerminalNode
+	InitializerList() IInitializerListContext
+	RightBrace() antlr.TerminalNode
+	Comma() antlr.TerminalNode
 
 	// IsInitializerContext differentiates from other interfaces.
 	IsInitializerContext()
@@ -15728,6 +16201,14 @@ type IInitializerListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllInitializer() []IInitializerContext
+	Initializer(i int) IInitializerContext
+	AllDesignation() []IDesignationContext
+	Designation(i int) IDesignationContext
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
 
 	// IsInitializerListContext differentiates from other interfaces.
 	IsInitializerListContext()
@@ -15964,6 +16445,10 @@ type IDesignationContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	DesignatorList() IDesignatorListContext
+	Assign() antlr.TerminalNode
+
 	// IsDesignationContext differentiates from other interfaces.
 	IsDesignationContext()
 }
@@ -16087,6 +16572,10 @@ type IDesignatorListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllDesignator() []IDesignatorContext
+	Designator(i int) IDesignatorContext
 
 	// IsDesignatorListContext differentiates from other interfaces.
 	IsDesignatorListContext()
@@ -16239,6 +16728,13 @@ type IDesignatorContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	LeftBracket() antlr.TerminalNode
+	ConstantExpression() IConstantExpressionContext
+	RightBracket() antlr.TerminalNode
+	Dot() antlr.TerminalNode
+	Identifier() antlr.TerminalNode
 
 	// IsDesignatorContext differentiates from other interfaces.
 	IsDesignatorContext()
@@ -16399,6 +16895,16 @@ type IStaticAssertDeclarationContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	StaticAssert() antlr.TerminalNode
+	LeftParen() antlr.TerminalNode
+	ConstantExpression() IConstantExpressionContext
+	Comma() antlr.TerminalNode
+	RightParen() antlr.TerminalNode
+	Semi() antlr.TerminalNode
+	AllStringLiteral() []antlr.TerminalNode
+	StringLiteral(i int) antlr.TerminalNode
 
 	// IsStaticAssertDeclarationContext differentiates from other interfaces.
 	IsStaticAssertDeclarationContext()
@@ -16578,6 +17084,24 @@ type IStatementContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	LabeledStatement() ILabeledStatementContext
+	CompoundStatement() ICompoundStatementContext
+	ExpressionStatement() IExpressionStatementContext
+	SelectionStatement() ISelectionStatementContext
+	IterationStatement() IIterationStatementContext
+	JumpStatement() IJumpStatementContext
+	LeftParen() antlr.TerminalNode
+	RightParen() antlr.TerminalNode
+	Semi() antlr.TerminalNode
+	Volatile() antlr.TerminalNode
+	AllLogicalOrExpression() []ILogicalOrExpressionContext
+	LogicalOrExpression(i int) ILogicalOrExpressionContext
+	AllColon() []antlr.TerminalNode
+	Colon(i int) antlr.TerminalNode
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
 
 	// IsStatementContext differentiates from other interfaces.
 	IsStatementContext()
@@ -16910,7 +17434,7 @@ func (p *CParser) Statement() (localctx IStatementContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 			{
 				p.SetState(957)
 				p.LogicalOrExpression()
@@ -16948,7 +17472,7 @@ func (p *CParser) Statement() (localctx IStatementContext) {
 			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
 
-			if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+			if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 				{
 					p.SetState(968)
 					p.LogicalOrExpression()
@@ -16998,6 +17522,14 @@ type ILabeledStatementContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Identifier() antlr.TerminalNode
+	Colon() antlr.TerminalNode
+	Statement() IStatementContext
+	Case() antlr.TerminalNode
+	ConstantExpression() IConstantExpressionContext
+	Default() antlr.TerminalNode
 
 	// IsLabeledStatementContext differentiates from other interfaces.
 	IsLabeledStatementContext()
@@ -17198,6 +17730,11 @@ type ICompoundStatementContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	LeftBrace() antlr.TerminalNode
+	RightBrace() antlr.TerminalNode
+	BlockItemList() IBlockItemListContext
+
 	// IsCompoundStatementContext differentiates from other interfaces.
 	IsCompoundStatementContext()
 }
@@ -17316,7 +17853,7 @@ func (p *CParser) CompoundStatement() (localctx ICompoundStatementContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2)|(1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserT__6)|(1<<CParserT__7)|(1<<CParserT__8)|(1<<CParserT__9)|(1<<CParserT__15)|(1<<CParserT__16)|(1<<CParserT__17)|(1<<CParserAuto)|(1<<CParserBreak)|(1<<CParserCase)|(1<<CParserChar)|(1<<CParserConst)|(1<<CParserContinue)|(1<<CParserDefault)|(1<<CParserDo)|(1<<CParserDouble)|(1<<CParserEnum)|(1<<CParserExtern))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserFor-32))|(1<<(CParserGoto-32))|(1<<(CParserIf-32))|(1<<(CParserInline-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserRegister-32))|(1<<(CParserRestrict-32))|(1<<(CParserReturn-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserSizeof-32))|(1<<(CParserStatic-32))|(1<<(CParserStruct-32))|(1<<(CParserSwitch-32))|(1<<(CParserTypedef-32))|(1<<(CParserUnion-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserVolatile-32))|(1<<(CParserWhile-32))|(1<<(CParserAlignas-32))|(1<<(CParserAlignof-32))|(1<<(CParserAtomic-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32))|(1<<(CParserGeneric-32))|(1<<(CParserNoreturn-32))|(1<<(CParserStaticAssert-32))|(1<<(CParserThreadLocal-32)))) != 0) || (((_la-64)&-(0x1f+1)) == 0 && ((1<<uint((_la-64)))&((1<<(CParserLeftParen-64))|(1<<(CParserLeftBrace-64))|(1<<(CParserPlus-64))|(1<<(CParserPlusPlus-64))|(1<<(CParserMinus-64))|(1<<(CParserMinusMinus-64))|(1<<(CParserStar-64))|(1<<(CParserAnd-64))|(1<<(CParserAndAnd-64))|(1<<(CParserNot-64))|(1<<(CParserTilde-64))|(1<<(CParserSemi-64)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+	if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-1152921505144305666) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531484180497) != 0) {
 		{
 			p.SetState(1001)
 			p.BlockItemList()
@@ -17337,6 +17874,10 @@ type IBlockItemListContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllBlockItem() []IBlockItemContext
+	BlockItem(i int) IBlockItemContext
 
 	// IsBlockItemListContext differentiates from other interfaces.
 	IsBlockItemListContext()
@@ -17469,7 +18010,7 @@ func (p *CParser) BlockItemList() (localctx IBlockItemListContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for ok := true; ok; ok = (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2)|(1<<CParserT__3)|(1<<CParserT__4)|(1<<CParserT__5)|(1<<CParserT__6)|(1<<CParserT__7)|(1<<CParserT__8)|(1<<CParserT__9)|(1<<CParserT__15)|(1<<CParserT__16)|(1<<CParserT__17)|(1<<CParserAuto)|(1<<CParserBreak)|(1<<CParserCase)|(1<<CParserChar)|(1<<CParserConst)|(1<<CParserContinue)|(1<<CParserDefault)|(1<<CParserDo)|(1<<CParserDouble)|(1<<CParserEnum)|(1<<CParserExtern))) != 0) || (((_la-32)&-(0x1f+1)) == 0 && ((1<<uint((_la-32)))&((1<<(CParserFloat-32))|(1<<(CParserFor-32))|(1<<(CParserGoto-32))|(1<<(CParserIf-32))|(1<<(CParserInline-32))|(1<<(CParserInt-32))|(1<<(CParserLong-32))|(1<<(CParserRegister-32))|(1<<(CParserRestrict-32))|(1<<(CParserReturn-32))|(1<<(CParserShort-32))|(1<<(CParserSigned-32))|(1<<(CParserSizeof-32))|(1<<(CParserStatic-32))|(1<<(CParserStruct-32))|(1<<(CParserSwitch-32))|(1<<(CParserTypedef-32))|(1<<(CParserUnion-32))|(1<<(CParserUnsigned-32))|(1<<(CParserVoid-32))|(1<<(CParserVolatile-32))|(1<<(CParserWhile-32))|(1<<(CParserAlignas-32))|(1<<(CParserAlignof-32))|(1<<(CParserAtomic-32))|(1<<(CParserBool-32))|(1<<(CParserComplex-32))|(1<<(CParserGeneric-32))|(1<<(CParserNoreturn-32))|(1<<(CParserStaticAssert-32))|(1<<(CParserThreadLocal-32)))) != 0) || (((_la-64)&-(0x1f+1)) == 0 && ((1<<uint((_la-64)))&((1<<(CParserLeftParen-64))|(1<<(CParserLeftBrace-64))|(1<<(CParserPlus-64))|(1<<(CParserPlusPlus-64))|(1<<(CParserMinus-64))|(1<<(CParserMinusMinus-64))|(1<<(CParserStar-64))|(1<<(CParserAnd-64))|(1<<(CParserAndAnd-64))|(1<<(CParserNot-64))|(1<<(CParserTilde-64))|(1<<(CParserSemi-64)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+	for ok := true; ok; ok = ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-1152921505144305666) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531484180497) != 0) {
 		{
 			p.SetState(1006)
 			p.BlockItem()
@@ -17489,6 +18030,10 @@ type IBlockItemContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Statement() IStatementContext
+	Declaration() IDeclarationContext
 
 	// IsBlockItemContext differentiates from other interfaces.
 	IsBlockItemContext()
@@ -17635,6 +18180,10 @@ type IExpressionStatementContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Semi() antlr.TerminalNode
+	Expression() IExpressionContext
+
 	// IsExpressionStatementContext differentiates from other interfaces.
 	IsExpressionStatementContext()
 }
@@ -17745,7 +18294,7 @@ func (p *CParser) ExpressionStatement() (localctx IExpressionStatementContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+	if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 		{
 			p.SetState(1015)
 			p.Expression()
@@ -17766,6 +18315,16 @@ type ISelectionStatementContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	If() antlr.TerminalNode
+	LeftParen() antlr.TerminalNode
+	Expression() IExpressionContext
+	RightParen() antlr.TerminalNode
+	AllStatement() []IStatementContext
+	Statement(i int) IStatementContext
+	Else() antlr.TerminalNode
+	Switch() antlr.TerminalNode
 
 	// IsSelectionStatementContext differentiates from other interfaces.
 	IsSelectionStatementContext()
@@ -18005,6 +18564,17 @@ type IIterationStatementContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	While() antlr.TerminalNode
+	LeftParen() antlr.TerminalNode
+	Expression() IExpressionContext
+	RightParen() antlr.TerminalNode
+	Statement() IStatementContext
+	Do() antlr.TerminalNode
+	Semi() antlr.TerminalNode
+	For() antlr.TerminalNode
+	ForCondition() IForConditionContext
 
 	// IsIterationStatementContext differentiates from other interfaces.
 	IsIterationStatementContext()
@@ -18257,6 +18827,14 @@ type IForConditionContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllSemi() []antlr.TerminalNode
+	Semi(i int) antlr.TerminalNode
+	ForDeclaration() IForDeclarationContext
+	AllForExpression() []IForExpressionContext
+	ForExpression(i int) IForExpressionContext
+	Expression() IExpressionContext
+
 	// IsForConditionContext differentiates from other interfaces.
 	IsForConditionContext()
 }
@@ -18438,7 +19016,7 @@ func (p *CParser) ForCondition() (localctx IForConditionContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 			{
 				p.SetState(1060)
 				p.Expression()
@@ -18455,7 +19033,7 @@ func (p *CParser) ForCondition() (localctx IForConditionContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+	if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 		{
 			p.SetState(1066)
 			p.ForExpression()
@@ -18470,7 +19048,7 @@ func (p *CParser) ForCondition() (localctx IForConditionContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+	if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 		{
 			p.SetState(1070)
 			p.ForExpression()
@@ -18487,6 +19065,10 @@ type IForDeclarationContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	DeclarationSpecifiers() IDeclarationSpecifiersContext
+	InitDeclaratorList() IInitDeclaratorListContext
 
 	// IsForDeclarationContext differentiates from other interfaces.
 	IsForDeclarationContext()
@@ -18614,7 +19196,7 @@ func (p *CParser) ForDeclaration() (localctx IForDeclarationContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__8)|(1<<CParserT__10)|(1<<CParserT__11)|(1<<CParserT__12)|(1<<CParserT__13)|(1<<CParserT__14))) != 0) || (((_la-64)&-(0x1f+1)) == 0 && ((1<<uint((_la-64)))&((1<<(CParserLeftParen-64))|(1<<(CParserStar-64))|(1<<(CParserCaret-64)))) != 0) || _la == CParserIdentifier {
+	if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&64000) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&70368752631809) != 0) {
 		{
 			p.SetState(1074)
 			p.InitDeclaratorList()
@@ -18631,6 +19213,12 @@ type IForExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllAssignmentExpression() []IAssignmentExpressionContext
+	AssignmentExpression(i int) IAssignmentExpressionContext
+	AllComma() []antlr.TerminalNode
+	Comma(i int) antlr.TerminalNode
 
 	// IsForExpressionContext differentiates from other interfaces.
 	IsForExpressionContext()
@@ -18799,6 +19387,16 @@ type IJumpStatementContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	Semi() antlr.TerminalNode
+	Goto() antlr.TerminalNode
+	Identifier() antlr.TerminalNode
+	Return() antlr.TerminalNode
+	UnaryExpression() IUnaryExpressionContext
+	Continue() antlr.TerminalNode
+	Break() antlr.TerminalNode
+	Expression() IExpressionContext
 
 	// IsJumpStatementContext differentiates from other interfaces.
 	IsJumpStatementContext()
@@ -18977,7 +19575,7 @@ func (p *CParser) JumpStatement() (localctx IJumpStatementContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<CParserT__0)|(1<<CParserT__1)|(1<<CParserT__2))) != 0) || (((_la-44)&-(0x1f+1)) == 0 && ((1<<uint((_la-44)))&((1<<(CParserSizeof-44))|(1<<(CParserAlignof-44))|(1<<(CParserGeneric-44))|(1<<(CParserLeftParen-44)))) != 0) || (((_la-76)&-(0x1f+1)) == 0 && ((1<<uint((_la-76)))&((1<<(CParserPlus-76))|(1<<(CParserPlusPlus-76))|(1<<(CParserMinus-76))|(1<<(CParserMinusMinus-76))|(1<<(CParserStar-76))|(1<<(CParserAnd-76))|(1<<(CParserAndAnd-76))|(1<<(CParserNot-76))|(1<<(CParserTilde-76)))) != 0) || (((_la-110)&-(0x1f+1)) == 0 && ((1<<uint((_la-110)))&((1<<(CParserIdentifier-110))|(1<<(CParserConstant-110))|(1<<(CParserDigitSequence-110))|(1<<(CParserStringLiteral-110)))) != 0) {
+		if ((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&612507141508431886) != 0) || ((int64((_la-64)) & ^0x3f) == 0 && ((int64(1)<<(_la-64))&1055531215745025) != 0) {
 			{
 				p.SetState(1089)
 				p.Expression()

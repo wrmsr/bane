@@ -1,9 +1,9 @@
 //go:build !nodev
 
 /*
-cp -rv $(go mod download -json 'github.com/antlr/antlr4/runtime/Go/antlr@v1.4.10' | jq -r '.Dir') runtime
+cp -rv $(go mod download -json 'github.com/antlr/antlr4/runtime/Go/antlr@v4.12.0' | jq -r '.Dir') runtime
 chmod -R u+w runtime
-rm runtime/go.mod
+rm runtime/go.mod runtime/go.sum
 */
 package main
 

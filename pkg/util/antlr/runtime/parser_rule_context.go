@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+// Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
 // Use of this file is governed by the BSD 3-clause license that
 // can be found in the LICENSE.txt file in the project root.
 
@@ -340,7 +340,7 @@ func (prc *BaseParserRuleContext) String(ruleNames []string, stop RuleContext) s
 	return s
 }
 
-var RuleContextEmpty = NewBaseParserRuleContext(nil, -1)
+var ParserRuleContextEmpty = NewBaseParserRuleContext(nil, -1)
 
 type InterpreterRuleContext interface {
 	ParserRuleContext

@@ -1,4 +1,4 @@
-// Code generated from SimpleSql.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from SimpleSql.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // SimpleSql
 
@@ -403,6 +403,10 @@ type ISingleStatementContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Select_() ISelectContext
+	EOF() antlr.TerminalNode
+
 	// IsSingleStatementContext differentiates from other interfaces.
 	IsSingleStatementContext()
 }
@@ -434,7 +438,7 @@ func NewSingleStatementContext(parser antlr.Parser, parent antlr.ParserRuleConte
 
 func (s *SingleStatementContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *SingleStatementContext) Select() ISelectContext {
+func (s *SingleStatementContext) Select_() ISelectContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(ISelectContext); ok {
@@ -510,7 +514,7 @@ func (p *SimpleSqlParser) SingleStatement() (localctx ISingleStatementContext) {
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(68)
-		p.Select()
+		p.Select_()
 	}
 	{
 		p.SetState(69)
@@ -530,6 +534,9 @@ type ISelectContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	CteSelect() ICteSelectContext
 
 	// IsSelectContext differentiates from other interfaces.
 	IsSelectContext()
@@ -608,7 +615,7 @@ func (s *SelectContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 	}
 }
 
-func (p *SimpleSqlParser) Select() (localctx ISelectContext) {
+func (p *SimpleSqlParser) Select_() (localctx ISelectContext) {
 	this := p
 	_ = this
 
@@ -646,6 +653,12 @@ type ICteSelectContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	UnionSelect() IUnionSelectContext
+	WITH() antlr.TerminalNode
+	AllCte() []ICteContext
+	Cte(i int) ICteContext
 
 	// IsCteSelectContext differentiates from other interfaces.
 	IsCteSelectContext()
@@ -842,6 +855,11 @@ type ICteContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Identifier() IIdentifierContext
+	AS() antlr.TerminalNode
+	Select_() ISelectContext
+
 	// IsCteContext differentiates from other interfaces.
 	IsCteContext()
 }
@@ -893,7 +911,7 @@ func (s *CteContext) AS() antlr.TerminalNode {
 	return s.GetToken(SimpleSqlParserAS, 0)
 }
 
-func (s *CteContext) Select() ISelectContext {
+func (s *CteContext) Select_() ISelectContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(ISelectContext); ok {
@@ -977,7 +995,7 @@ func (p *SimpleSqlParser) Cte() (localctx ICteContext) {
 	}
 	{
 		p.SetState(90)
-		p.Select()
+		p.Select_()
 	}
 	{
 		p.SetState(91)
@@ -993,6 +1011,11 @@ type IUnionSelectContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	PrimarySelect() IPrimarySelectContext
+	AllUnionItem() []IUnionItemContext
+	UnionItem(i int) IUnionItemContext
 
 	// IsUnionSelectContext differentiates from other interfaces.
 	IsUnionSelectContext()
@@ -1166,6 +1189,11 @@ type IUnionItemContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	UNION() antlr.TerminalNode
+	PrimarySelect() IPrimarySelectContext
+	SetQuantifier() ISetQuantifierContext
+
 	// IsUnionItemContext differentiates from other interfaces.
 	IsUnionItemContext()
 }
@@ -1329,6 +1357,26 @@ type IPrimarySelectContext interface {
 
 	// SetHaving sets the having rule contexts.
 	SetHaving(IBooleanExpressionContext)
+
+	// Getter signatures
+	SELECT() antlr.TerminalNode
+	AllSelectItem() []ISelectItemContext
+	SelectItem(i int) ISelectItemContext
+	SetQuantifier() ISetQuantifierContext
+	FROM() antlr.TerminalNode
+	AllRelation() []IRelationContext
+	Relation(i int) IRelationContext
+	WHERE() antlr.TerminalNode
+	GROUP() antlr.TerminalNode
+	AllBY() []antlr.TerminalNode
+	BY(i int) antlr.TerminalNode
+	GroupBy() IGroupByContext
+	HAVING() antlr.TerminalNode
+	ORDER() antlr.TerminalNode
+	AllSortItem() []ISortItemContext
+	SortItem(i int) ISortItemContext
+	AllBooleanExpression() []IBooleanExpressionContext
+	BooleanExpression(i int) IBooleanExpressionContext
 
 	// IsPrimarySelectContext differentiates from other interfaces.
 	IsPrimarySelectContext()
@@ -1826,7 +1874,6 @@ type ISelectItemContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsSelectItemContext differentiates from other interfaces.
 	IsSelectItemContext()
 }
@@ -2033,7 +2080,7 @@ func (p *SimpleSqlParser) SelectItem() (localctx ISelectItemContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if _la == SimpleSqlParserAS || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(SimpleSqlParserLEFT-40))|(1<<(SimpleSqlParserRIGHT-40))|(1<<(SimpleSqlParserIDENTIFIER-40))|(1<<(SimpleSqlParserQUOTED_IDENTIFIER-40)))) != 0) {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-4610559019004723200) != 0 {
 			p.SetState(157)
 			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
@@ -2065,6 +2112,9 @@ type IExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	BooleanExpression() IBooleanExpressionContext
 
 	// IsExpressionContext differentiates from other interfaces.
 	IsExpressionContext()
@@ -2181,7 +2231,6 @@ type IBooleanExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsBooleanExpressionContext differentiates from other interfaces.
 	IsBooleanExpressionContext()
 }
@@ -2971,7 +3020,7 @@ func (s *InSelectPredicateContext) IN() antlr.TerminalNode {
 	return s.GetToken(SimpleSqlParserIN, 0)
 }
 
-func (s *InSelectPredicateContext) Select() ISelectContext {
+func (s *InSelectPredicateContext) Select_() ISelectContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(ISelectContext); ok {
@@ -3240,7 +3289,7 @@ func (p *SimpleSqlParser) Predicate(value antlr.ParserRuleContext) (localctx IPr
 		}
 		{
 			p.SetState(214)
-			p.Select()
+			p.Select_()
 		}
 		{
 			p.SetState(215)
@@ -3281,7 +3330,6 @@ type IValueExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsValueExpressionContext differentiates from other interfaces.
 	IsValueExpressionContext()
 }
@@ -3688,7 +3736,6 @@ type IPrimaryExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsPrimaryExpressionContext differentiates from other interfaces.
 	IsPrimaryExpressionContext()
 }
@@ -4156,7 +4203,7 @@ func (s *SelectExpressionContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *SelectExpressionContext) Select() ISelectContext {
+func (s *SelectExpressionContext) Select_() ISelectContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(ISelectContext); ok {
@@ -4236,7 +4283,7 @@ func (p *SimpleSqlParser) PrimaryExpression() (localctx IPrimaryExpressionContex
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<SimpleSqlParserT__2)|(1<<SimpleSqlParserT__14)|(1<<SimpleSqlParserT__15)|(1<<SimpleSqlParserCASE)|(1<<SimpleSqlParserFALSE))) != 0) || (((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(SimpleSqlParserLEFT-40))|(1<<(SimpleSqlParserNOT-40))|(1<<(SimpleSqlParserNULL-40))|(1<<(SimpleSqlParserRIGHT-40))|(1<<(SimpleSqlParserTRUE-40))|(1<<(SimpleSqlParserSTRING-40))|(1<<(SimpleSqlParserINTEGER_VALUE-40))|(1<<(SimpleSqlParserDECIMAL_VALUE-40))|(1<<(SimpleSqlParserFLOAT_VALUE-40))|(1<<(SimpleSqlParserIDENTIFIER-40))|(1<<(SimpleSqlParserQUOTED_IDENTIFIER-40)))) != 0) {
+		if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&-278069787018297336) != 0 {
 			{
 				p.SetState(242)
 				p.Expression()
@@ -4356,7 +4403,7 @@ func (p *SimpleSqlParser) PrimaryExpression() (localctx IPrimaryExpressionContex
 		}
 		{
 			p.SetState(276)
-			p.Select()
+			p.Select_()
 		}
 		{
 			p.SetState(277)
@@ -4398,6 +4445,14 @@ type ISimpleExpressionContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	QualifiedName() IQualifiedNameContext
+	Number() INumberContext
+	Str() IStrContext
+	Null() INullContext
+	True_() ITrueContext
+	False_() IFalseContext
 
 	// IsSimpleExpressionContext differentiates from other interfaces.
 	IsSimpleExpressionContext()
@@ -4494,7 +4549,7 @@ func (s *SimpleExpressionContext) Null() INullContext {
 	return t.(INullContext)
 }
 
-func (s *SimpleExpressionContext) True() ITrueContext {
+func (s *SimpleExpressionContext) True_() ITrueContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(ITrueContext); ok {
@@ -4510,7 +4565,7 @@ func (s *SimpleExpressionContext) True() ITrueContext {
 	return t.(ITrueContext)
 }
 
-func (s *SimpleExpressionContext) False() IFalseContext {
+func (s *SimpleExpressionContext) False_() IFalseContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IFalseContext); ok {
@@ -4615,14 +4670,14 @@ func (p *SimpleSqlParser) SimpleExpression() (localctx ISimpleExpressionContext)
 		p.EnterOuterAlt(localctx, 5)
 		{
 			p.SetState(290)
-			p.True()
+			p.True_()
 		}
 
 	case SimpleSqlParserFALSE:
 		p.EnterOuterAlt(localctx, 6)
 		{
 			p.SetState(291)
-			p.False()
+			p.False_()
 		}
 
 	default:
@@ -4638,6 +4693,12 @@ type ICaseItemContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	WHEN() antlr.TerminalNode
+	AllExpression() []IExpressionContext
+	Expression(i int) IExpressionContext
+	THEN() antlr.TerminalNode
 
 	// IsCaseItemContext differentiates from other interfaces.
 	IsCaseItemContext()
@@ -4799,6 +4860,13 @@ type IOverContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	OVER() antlr.TerminalNode
+	ORDER() antlr.TerminalNode
+	BY() antlr.TerminalNode
+	AllSortItem() []ISortItemContext
+	SortItem(i int) ISortItemContext
 
 	// IsOverContext differentiates from other interfaces.
 	IsOverContext()
@@ -5005,6 +5073,11 @@ type ISortItemContext interface {
 	// SetDirection sets the direction token.
 	SetDirection(antlr.Token)
 
+	// Getter signatures
+	Expression() IExpressionContext
+	ASC() antlr.TerminalNode
+	DESC() antlr.TerminalNode
+
 	// IsSortItemContext differentiates from other interfaces.
 	IsSortItemContext()
 }
@@ -5159,7 +5232,6 @@ type IRelationContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsRelationContext differentiates from other interfaces.
 	IsRelationContext()
 }
@@ -5438,7 +5510,7 @@ func (s *SelectRelationContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *SelectRelationContext) Select() ISelectContext {
+func (s *SelectRelationContext) Select_() ISelectContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(ISelectContext); ok {
@@ -5638,7 +5710,7 @@ func (p *SimpleSqlParser) relation(_p int) (localctx IRelationContext) {
 		}
 		{
 			p.SetState(321)
-			p.Select()
+			p.Select_()
 		}
 		{
 			p.SetState(322)
@@ -5724,7 +5796,7 @@ func (p *SimpleSqlParser) relation(_p int) (localctx IRelationContext) {
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				if ((_la-26)&-(0x1f+1)) == 0 && ((1<<uint((_la-26)))&((1<<(SimpleSqlParserCROSS-26))|(1<<(SimpleSqlParserFULL-26))|(1<<(SimpleSqlParserINNER-26))|(1<<(SimpleSqlParserLEFT-26))|(1<<(SimpleSqlParserNATURAL-26))|(1<<(SimpleSqlParserRIGHT-26)))) != 0 {
+				if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1131543560978432) != 0 {
 					{
 						p.SetState(337)
 
@@ -5780,6 +5852,10 @@ type IGroupByContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllExpression() []IExpressionContext
+	Expression(i int) IExpressionContext
 
 	// IsGroupByContext differentiates from other interfaces.
 	IsGroupByContext()
@@ -5940,6 +6016,10 @@ type IQualifiedNameContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllIdentifier() []IIdentifierContext
+	Identifier(i int) IIdentifierContext
 
 	// IsQualifiedNameContext differentiates from other interfaces.
 	IsQualifiedNameContext()
@@ -6104,6 +6184,10 @@ type IIdentifierListContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	AllIdentifier() []IIdentifierContext
+	Identifier(i int) IIdentifierContext
+
 	// IsIdentifierListContext differentiates from other interfaces.
 	IsIdentifierListContext()
 }
@@ -6264,6 +6348,10 @@ type IIdentifierContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	UnquotedIdentifier() IUnquotedIdentifierContext
+	QuotedIdentifier() IQuotedIdentifierContext
+
 	// IsIdentifierContext differentiates from other interfaces.
 	IsIdentifierContext()
 }
@@ -6412,6 +6500,9 @@ type IQuotedIdentifierContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	QUOTED_IDENTIFIER() antlr.TerminalNode
+
 	// IsQuotedIdentifierContext differentiates from other interfaces.
 	IsQuotedIdentifierContext()
 }
@@ -6515,7 +6606,6 @@ type INumberContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsNumberContext differentiates from other interfaces.
 	IsNumberContext()
 }
@@ -6756,6 +6846,9 @@ type IStrContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	STRING() antlr.TerminalNode
+
 	// IsStrContext differentiates from other interfaces.
 	IsStrContext()
 }
@@ -6859,6 +6952,9 @@ type INullContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	NULL() antlr.TerminalNode
 
 	// IsNullContext differentiates from other interfaces.
 	IsNullContext()
@@ -6964,6 +7060,9 @@ type ITrueContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	TRUE() antlr.TerminalNode
+
 	// IsTrueContext differentiates from other interfaces.
 	IsTrueContext()
 }
@@ -7029,7 +7128,7 @@ func (s *TrueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 	}
 }
 
-func (p *SimpleSqlParser) True() (localctx ITrueContext) {
+func (p *SimpleSqlParser) True_() (localctx ITrueContext) {
 	this := p
 	_ = this
 
@@ -7067,6 +7166,9 @@ type IFalseContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	FALSE() antlr.TerminalNode
 
 	// IsFalseContext differentiates from other interfaces.
 	IsFalseContext()
@@ -7133,7 +7235,7 @@ func (s *FalseContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 	}
 }
 
-func (p *SimpleSqlParser) False() (localctx IFalseContext) {
+func (p *SimpleSqlParser) False_() (localctx IFalseContext) {
 	this := p
 	_ = this
 
@@ -7171,6 +7273,10 @@ type ISetQuantifierContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	DISTINCT() antlr.TerminalNode
+	ALL() antlr.TerminalNode
 
 	// IsSetQuantifierContext differentiates from other interfaces.
 	IsSetQuantifierContext()
@@ -7287,6 +7393,15 @@ type IJoinTypeContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	INNER() antlr.TerminalNode
+	LEFT() antlr.TerminalNode
+	OUTER() antlr.TerminalNode
+	RIGHT() antlr.TerminalNode
+	FULL() antlr.TerminalNode
+	CROSS() antlr.TerminalNode
+	NATURAL() antlr.TerminalNode
 
 	// IsJoinTypeContext differentiates from other interfaces.
 	IsJoinTypeContext()
@@ -7489,7 +7604,6 @@ type ICmpOpContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsCmpOpContext differentiates from other interfaces.
 	IsCmpOpContext()
 }
@@ -7579,7 +7693,7 @@ func (p *SimpleSqlParser) CmpOp() (localctx ICmpOpContext) {
 		p.SetState(410)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<SimpleSqlParserT__7)|(1<<SimpleSqlParserT__8)|(1<<SimpleSqlParserT__9)|(1<<SimpleSqlParserT__10)|(1<<SimpleSqlParserT__11)|(1<<SimpleSqlParserT__12)|(1<<SimpleSqlParserT__13))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&32512) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -7596,7 +7710,6 @@ type IArithOpContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsArithOpContext differentiates from other interfaces.
 	IsArithOpContext()
 }
@@ -7686,7 +7799,7 @@ func (p *SimpleSqlParser) ArithOp() (localctx IArithOpContext) {
 		p.SetState(412)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<SimpleSqlParserT__4)|(1<<SimpleSqlParserT__14)|(1<<SimpleSqlParserT__15)|(1<<SimpleSqlParserT__16)|(1<<SimpleSqlParserT__17)|(1<<SimpleSqlParserT__18))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1015840) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -7703,7 +7816,6 @@ type IUnaryOpContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
-
 	// IsUnaryOpContext differentiates from other interfaces.
 	IsUnaryOpContext()
 }
@@ -7811,6 +7923,11 @@ type IUnquotedIdentifierContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	IDENTIFIER() antlr.TerminalNode
+	LEFT() antlr.TerminalNode
+	RIGHT() antlr.TerminalNode
+
 	// IsUnquotedIdentifierContext differentiates from other interfaces.
 	IsUnquotedIdentifierContext()
 }
@@ -7913,7 +8030,7 @@ func (p *SimpleSqlParser) UnquotedIdentifier() (localctx IUnquotedIdentifierCont
 		p.SetState(416)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la-40)&-(0x1f+1)) == 0 && ((1<<uint((_la-40)))&((1<<(SimpleSqlParserLEFT-40))|(1<<(SimpleSqlParserRIGHT-40))|(1<<(SimpleSqlParserIDENTIFIER-40)))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&4612813017845858304) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)

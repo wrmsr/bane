@@ -139,7 +139,7 @@ func main() {
 
 					src = strings.ReplaceAll(
 						src,
-						`"github.com/antlr/antlr4/runtime/Go/antlr"`,
+						`"github.com/antlr/antlr4/runtime/Go/antlr/v4"`,
 						`antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"`,
 					)
 

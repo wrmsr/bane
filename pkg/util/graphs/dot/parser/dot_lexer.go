@@ -1,4 +1,4 @@
-// Code generated from Dot.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Dot.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser
 

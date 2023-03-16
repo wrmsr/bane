@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+// Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
 // Use of this file is governed by the BSD 3-clause license that
 // can be found in the LICENSE.txt file in the project root.
 
@@ -90,16 +90,16 @@ func NewDFAState(stateNumber int, configs ATNConfigSet) *DFAState {
 }
 
 // GetAltSet gets the set of all alts mentioned by all ATN configurations in d.
-func (d *DFAState) GetAltSet() Set {
-	alts := newArray2DHashSet(nil, nil)
+func (d *DFAState) GetAltSet() []int {
+	var alts []int
 
 	if d.configs != nil {
 		for _, c := range d.configs.GetItems() {
-			alts.Add(c.GetAlt())
+			alts = append(alts, c.GetAlt())
 		}
 	}
 
-	if alts.Len() == 0 {
+	if len(alts) == 0 {
 		return nil
 	}
 
@@ -130,27 +130,6 @@ func (d *DFAState) setPrediction(v int) {
 	d.prediction = v
 }
 
-// equals returns whether d equals other. Two DFAStates are equal if their ATN
-// configuration sets are the same. This method is used to see if a state
-// already exists.
-//
-// Because the number of alternatives and number of ATN configurations are
-// finite, there is a finite number of DFA states that can be processed. This is
-// necessary to show that the algorithm terminates.
-//
-// Cannot test the DFA state numbers here because in
-// ParserATNSimulator.addDFAState we need to know if any other state exists that
-// has d exact set of ATN configurations. The stateNumber is irrelevant.
-func (d *DFAState) equals(other interface{}) bool {
-	if d == other {
-		return true
-	} else if _, ok := other.(*DFAState); !ok {
-		return false
-	}
-
-	return d.configs.Equals(other.(*DFAState).configs)
-}
-
 func (d *DFAState) String() string {
 	var s string
 	if d.isAcceptState {
@@ -164,8 +143,27 @@ func (d *DFAState) String() string {
 	return fmt.Sprintf("%d:%s%s", d.stateNumber, fmt.Sprint(d.configs), s)
 }
 
-func (d *DFAState) hash() int {
+func (d *DFAState) Hash() int {
 	h := murmurInit(7)
-	h = murmurUpdate(h, d.configs.hash())
+	h = murmurUpdate(h, d.configs.Hash())
 	return murmurFinish(h, 1)
+}
+
+// Equals returns whether d equals other. Two DFAStates are equal if their ATN
+// configuration sets are the same. This method is used to see if a state
+// already exists.
+//
+// Because the number of alternatives and number of ATN configurations are
+// finite, there is a finite number of DFA states that can be processed. This is
+// necessary to show that the algorithm terminates.
+//
+// Cannot test the DFA state numbers here because in
+// ParserATNSimulator.addDFAState we need to know if any other state exists that
+// has d exact set of ATN configurations. The stateNumber is irrelevant.
+func (d *DFAState) Equals(o Collectable[*DFAState]) bool {
+	if d == o {
+		return true
+	}
+
+	return d.configs.Equals(o.(*DFAState).configs)
 }

@@ -1,4 +1,4 @@
-// Code generated from Minml.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from Minml.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Minml
 
@@ -161,6 +161,9 @@ type IRootContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Value() IValueContext
+
 	// IsRootContext differentiates from other interfaces.
 	IsRootContext()
 }
@@ -277,6 +280,16 @@ type IValueContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	Obj() IObjContext
+	Array() IArrayContext
+	StringValue() IStringValueContext
+	Number() INumberContext
+	True_() ITrueContext
+	False_() IFalseContext
+	Null() INullContext
+	Identifier() IIdentifierContext
+
 	// IsValueContext differentiates from other interfaces.
 	IsValueContext()
 }
@@ -372,7 +385,7 @@ func (s *ValueContext) Number() INumberContext {
 	return t.(INumberContext)
 }
 
-func (s *ValueContext) True() ITrueContext {
+func (s *ValueContext) True_() ITrueContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(ITrueContext); ok {
@@ -388,7 +401,7 @@ func (s *ValueContext) True() ITrueContext {
 	return t.(ITrueContext)
 }
 
-func (s *ValueContext) False() IFalseContext {
+func (s *ValueContext) False_() IFalseContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IFalseContext); ok {
@@ -525,14 +538,14 @@ func (p *MinmlParser) Value() (localctx IValueContext) {
 		p.EnterOuterAlt(localctx, 5)
 		{
 			p.SetState(28)
-			p.True()
+			p.True_()
 		}
 
 	case MinmlParserFALSE:
 		p.EnterOuterAlt(localctx, 6)
 		{
 			p.SetState(29)
-			p.False()
+			p.False_()
 		}
 
 	case MinmlParserNULL:
@@ -562,6 +575,10 @@ type IObjContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllPair() []IPairContext
+	Pair(i int) IPairContext
 
 	// IsObjContext differentiates from other interfaces.
 	IsObjContext()
@@ -775,6 +792,10 @@ type IPairContext interface {
 	// SetV sets the v rule contexts.
 	SetV(IValueContext)
 
+	// Getter signatures
+	AllValue() []IValueContext
+	Value(i int) IValueContext
+
 	// IsPairContext differentiates from other interfaces.
 	IsPairContext()
 }
@@ -947,6 +968,10 @@ type IArrayContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	AllValue() []IValueContext
+	Value(i int) IValueContext
 
 	// IsArrayContext differentiates from other interfaces.
 	IsArrayContext()
@@ -1148,6 +1173,9 @@ type IIdentifierContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	IDENTIFIER() antlr.TerminalNode
+
 	// IsIdentifierContext differentiates from other interfaces.
 	IsIdentifierContext()
 }
@@ -1251,6 +1279,12 @@ type IStringValueContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	TRI_DQ_STRING() antlr.TerminalNode
+	TRI_SQ_STRING() antlr.TerminalNode
+	DQ_STRING() antlr.TerminalNode
+	SQ_STRING() antlr.TerminalNode
 
 	// IsStringValueContext differentiates from other interfaces.
 	IsStringValueContext()
@@ -1358,7 +1392,7 @@ func (p *MinmlParser) StringValue() (localctx IStringValueContext) {
 		p.SetState(77)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<MinmlParserDQ_STRING)|(1<<MinmlParserSQ_STRING)|(1<<MinmlParserTRI_DQ_STRING)|(1<<MinmlParserTRI_SQ_STRING))) != 0) {
+		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&15360) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -1375,6 +1409,9 @@ type INumberContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	NUMBER() antlr.TerminalNode
 
 	// IsNumberContext differentiates from other interfaces.
 	IsNumberContext()
@@ -1480,6 +1517,9 @@ type ITrueContext interface {
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
+	// Getter signatures
+	TRUE() antlr.TerminalNode
+
 	// IsTrueContext differentiates from other interfaces.
 	IsTrueContext()
 }
@@ -1545,7 +1585,7 @@ func (s *TrueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 	}
 }
 
-func (p *MinmlParser) True() (localctx ITrueContext) {
+func (p *MinmlParser) True_() (localctx ITrueContext) {
 	this := p
 	_ = this
 
@@ -1583,6 +1623,9 @@ type IFalseContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	FALSE() antlr.TerminalNode
 
 	// IsFalseContext differentiates from other interfaces.
 	IsFalseContext()
@@ -1649,7 +1692,7 @@ func (s *FalseContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
 	}
 }
 
-func (p *MinmlParser) False() (localctx IFalseContext) {
+func (p *MinmlParser) False_() (localctx IFalseContext) {
 	this := p
 	_ = this
 
@@ -1687,6 +1730,9 @@ type INullContext interface {
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
+
+	// Getter signatures
+	NULL() antlr.TerminalNode
 
 	// IsNullContext differentiates from other interfaces.
 	IsNullContext()

@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+// Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
 // Use of this file is governed by the BSD 3-clause license that
 // can be found in the LICENSE.txt file in the project root.
 
@@ -591,19 +591,24 @@ func (l *LexerATNSimulator) addDFAState(configs ATNConfigSet, suppressEdge bool)
 		proposed.lexerActionExecutor = firstConfigWithRuleStopState.(*LexerATNConfig).lexerActionExecutor
 		proposed.setPrediction(l.atn.ruleToTokenType[firstConfigWithRuleStopState.GetState().GetRuleIndex()])
 	}
-	hash := proposed.hash()
 	dfa := l.decisionToDFA[l.mode]
 
 	l.atn.stateMu.Lock()
 	defer l.atn.stateMu.Unlock()
-	existing, ok := dfa.getState(hash)
-	if ok {
+	existing, present := dfa.states.Get(proposed)
+	if present {
+
+		// This state was already present, so just return it.
+		//
 		proposed = existing
 	} else {
-		proposed.stateNumber = dfa.numStates()
+
+		// We need to add the new state
+		//
+		proposed.stateNumber = dfa.states.Len()
 		configs.SetReadOnly(true)
 		proposed.configs = configs
-		dfa.setState(hash, proposed)
+		dfa.states.Put(proposed)
 	}
 	if !suppressEdge {
 		dfa.setS0(proposed)

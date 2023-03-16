@@ -57,9 +57,12 @@ clean:
 		.venv* \
 		bin \
 
+	${MAKE} clean-antlr
+
+.PHONY: clean-antlr
+clean-antlr:
 	ds=$$(find ${SRCS} -name parser -type d) && \
 	for d in $$ds ; do rm -rf "$$d" ; done
-
 
 ### sys
 
@@ -89,7 +92,7 @@ dep-tidy:
 .PHONY: gen
 gen: gen-antlr gen-go
 
-ANTLR_VERSION=4.10.1
+ANTLR_VERSION=4.12.0
 
 .PHONY: gen-antlr
 gen-antlr:

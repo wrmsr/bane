@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+// Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
 // Use of this file is governed by the BSD 3-clause license that
 // can be found in the LICENSE.txt file in the project root.
 
@@ -151,4 +151,28 @@ func TestCommonTokenStreamCannotConsumeEOF(t *testing.T) {
 	assert.Equal(0, tokens.index)
 	assert.Equal(1, tokens.Size())
 	assert.Panics(tokens.Consume)
+}
+
+func TestCommonTokenStreamGetTextFromInterval(t *testing.T) {
+	assert := assertNew(t)
+	lexEngine := &commonTokenStreamTestLexer{
+		tokens: []Token{
+			newTestCommonToken(1, " ", LexerHidden),                    // 0
+			newTestCommonToken(1, "x", LexerDefaultTokenChannel),       // 1
+			newTestCommonToken(1, " ", LexerHidden),                    // 2
+			newTestCommonToken(1, "=", LexerDefaultTokenChannel),       // 3
+			newTestCommonToken(1, "34", LexerDefaultTokenChannel),      // 4
+			newTestCommonToken(1, " ", LexerHidden),                    // 5
+			newTestCommonToken(1, " ", LexerHidden),                    // 6
+			newTestCommonToken(1, ";", LexerDefaultTokenChannel),       // 7
+			newTestCommonToken(1, " ", LexerHidden),                    // 8
+			newTestCommonToken(1, "\n", LexerHidden),                   // 9
+			newTestCommonToken(TokenEOF, "", LexerDefaultTokenChannel), // 10
+		},
+	}
+	tokens := NewCommonTokenStream(lexEngine, TokenDefaultChannel)
+	assert.Equal("x", tokens.GetTextFromInterval(&Interval{Start: 1, Stop: 1}))
+	assert.Equal(len(tokens.tokens), 2)
+	assert.Equal(" x =34  ; \n", tokens.GetTextFromInterval(nil))
+	assert.Equal(len(tokens.tokens), 11)
 }
