@@ -81,15 +81,15 @@ func (i *treapMapIterator[K, V]) Next() bt.Kv[K, V] {
 	n := i.n
 	if n.Right != nil {
 		i.n = n.Right
+		for i.n.Left != nil {
+			i.st = append(i.st, i.n)
+			i.n = i.n.Left
+		}
 	} else if len(i.st) > 0 {
 		i.n = i.st[len(i.st)-1]
 		i.st = i.st[:len(i.st)-1]
 	} else {
 		i.n = nil
-	}
-	for i.n != nil && i.n.Left != nil {
-		i.st = append(i.st, i.n)
-		i.n = i.n.Left
 	}
 	return n.Value
 }
