@@ -41,4 +41,9 @@ func TestTreapMap(t *testing.T) {
 	fmt.Println(old.Get(53))
 	fmt.Println(old.Get(52))
 	fmt.Println(old.Get(500))
+
+	for it := m.Iterate(); it.HasNext(); {
+		v := it.Next()
+		fmt.Println(v)
+	}
 }

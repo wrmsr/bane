@@ -61,8 +61,49 @@ func (m TreapMap[K, V]) TryGet(k K) (V, bool) {
 	return n.Value.V, true
 }
 
+type treapMapIterator[K, V any] struct {
+	st []*treap.TreapNode[bt.Kv[K, V]]
+	n  *treap.TreapNode[bt.Kv[K, V]]
+	b  bool
+}
+
+var _ bt.Iterator[bt.Kv[int, string]] = &treapMapIterator[int, string]{}
+
+func (i *treapMapIterator[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
+	return i
+}
+
+func (i *treapMapIterator[K, V]) HasNext() bool {
+	return i.n != nil
+}
+
+func (i *treapMapIterator[K, V]) Next() bt.Kv[K, V] {
+	n := i.n
+	if n.Right != nil {
+		i.n = n.Right
+	} else if len(i.st) > 0 {
+		i.n = i.st[len(i.st)-1]
+		i.st = i.st[:len(i.st)-1]
+	} else {
+		i.n = nil
+	}
+	for i.n != nil && i.n.Left != nil {
+		i.st = append(i.st, i.n)
+		i.n = i.n.Left
+	}
+	return n.Value
+}
+
 func (m TreapMap[K, V]) Iterate() bt.Iterator[bt.Kv[K, V]] {
-	panic("implement me")
+	i := &treapMapIterator[K, V]{
+		st: make([]*treap.TreapNode[bt.Kv[K, V]], 0, 8),
+		n:  m.n,
+	}
+	for i.n.Left != nil {
+		i.st = append(i.st, i.n)
+		i.n = i.n.Left
+	}
+	return i
 }
 
 func (m TreapMap[K, V]) ForEach(fn func(kv bt.Kv[K, V]) bool) bool {
