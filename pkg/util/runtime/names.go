@@ -78,16 +78,16 @@ func SortNames(pfx string, ns []string) (ret SortedNames) {
 //
 
 type ParsedGenericName struct {
-	Base ParsedName          `json:"base,omitempty"`
+	ParsedName
 	Args []ParsedGenericName `json:"args,omitempty"`
 }
 
 func (n ParsedGenericName) String() string {
 	if len(n.Args) < 1 {
-		return n.Base.String()
+		return n.ParsedName.String()
 	}
 	var sb strings.Builder
-	sb.WriteString(n.Base.String())
+	sb.WriteString(n.ParsedName.String())
 	sb.WriteString("[")
 	for i, a := range n.Args {
 		if i > 0 {
@@ -111,7 +111,7 @@ func ParseGenericName(name string) (ParsedGenericName, error) {
 			return ParsedGenericName{}, fmt.Errorf("invalid length: %d", nl)
 		}
 
-		ret := ParsedGenericName{Base: ParseName(nl[0].(string))}
+		ret := ParsedGenericName{ParsedName: ParseName(nl[0].(string))}
 
 		if len(nl) > 1 {
 			al := nl[1].([]any)
