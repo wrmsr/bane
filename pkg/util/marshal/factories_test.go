@@ -1,11 +1,13 @@
 package marshal
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	tu "github.com/wrmsr/bane/pkg/util/dev/testing"
 	ju "github.com/wrmsr/bane/pkg/util/json"
 	stu "github.com/wrmsr/bane/pkg/util/structs"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -110,5 +112,31 @@ func TestFactoryCaching(t *testing.T) {
 
 			fmt.Println(ju.MarshalPretty(v))
 		}
+	}
+}
+
+type intOnlyMf struct{}
+
+var _ MarshalerFactory = intOnlyMf{}
+
+func (i intOnlyMf) Make(ctx *MarshalContext, ty reflect.Type) (Marshaler, error) {
+	if ty == reflect.TypeOf(0) {
+		return NewPrimitiveMarshalerFactory().Make(ctx, ty)
+	}
+	return nil, errors.New("no")
+}
+
+func TestTypCacheFactoryClearNmBug(t *testing.T) {
+	mf := NewTypeCacheMarshalerFactory(intOnlyMf{})
+
+	rv := reflect.ValueOf(420)
+
+	m := check.Must1(mf.Make(&MarshalContext{}, rv.Type()))
+	fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(m.Marshal(&MarshalContext{}, rv)))))
+
+	for i := 0; i < 3; i++ {
+		rv = reflect.ValueOf("420")
+		_, err := mf.Make(&MarshalContext{}, rv.Type())
+		tu.AssertEqual(t, err != nil, true)
 	}
 }
