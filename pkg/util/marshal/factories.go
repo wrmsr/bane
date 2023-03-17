@@ -80,11 +80,11 @@ func (f *TypeCacheFactory[R, C]) Make(ctx C, a reflect.Type) (ret R, err error) 
 
 	d := f.mtx.Lock(ctx)
 	defer func() {
-		if d == 1 {
-			if err == nil && f.nm != nil {
+		if d == 1 && f.nm != nil {
+			if err == nil {
 				f.m.Store(f.nm)
-				f.nm = nil
 			}
+			f.nm = nil
 		}
 		f.mtx.Unlock(ctx)
 	}()
