@@ -125,7 +125,7 @@ var ljunkv = ljunk()
 		"junkv",
 		"ljunkv",
 	} {
-		v := s.Eval(&ast.Ident{Name: n}).(Value)
-		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v)))))
+		v := s.Eval(&ast.Ident{Name: n}).(effect)
+		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v.val)))))
 	}
 }

@@ -156,11 +156,31 @@ type flow int8
 
 const (
 	noFlow flow = iota
+	nextFlow
 	returnFlow
 	breakFlow
 	gotoFlow
 	panicFlow
 )
+
+func (f flow) String() string {
+	switch f {
+	case noFlow:
+		return "no"
+	case nextFlow:
+		return "next"
+	case returnFlow:
+		return "return"
+	case breakFlow:
+		return "break"
+	case gotoFlow:
+		return "goto"
+	case panicFlow:
+		return "panic"
+	default:
+		panic(f)
+	}
+}
 
 type effect struct {
 	flow flow
@@ -372,7 +392,20 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 }
 
 func (sc *Scope) execStmts(sts []ast.Stmt) effect {
-
+	for _, st := range sts {
+		e := sc.execStmt(st)
+		if e.err != nil {
+			return e
+		}
+		switch e.flow {
+		case nextFlow:
+		case returnFlow:
+			return e
+		default:
+			panic(e)
+		}
+	}
+	return effect{flow: nextFlow}
 }
 
 func (sc *Scope) execStmt(st ast.Stmt) effect {
@@ -400,8 +433,16 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 		check.Nil(st.Cond)
 		check.Nil(st.Post)
 		for {
-			if rv := sc.makeChild().execStmts(st.Body.List); rv != nil {
-				return rv
+			e := sc.makeChild().execStmts(st.Body.List)
+			if e.err != nil {
+				return e
+			}
+			switch e.flow {
+			case nextFlow:
+			case returnFlow:
+				return e
+			default:
+				panic(e)
 			}
 		}
 
@@ -415,8 +456,16 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 		check.Equal(cbv.K, BoolBasic)
 		cb := stringBool(cbv.S)
 		if cb {
-			if rv := sc.makeChild().execStmts(st.Body.List); rv != nil {
-				return rv
+			e := sc.makeChild().execStmts(st.Body.List)
+			if e.err != nil {
+				return e
+			}
+			switch e.flow {
+			case nextFlow:
+			case returnFlow:
+				return e
+			default:
+				panic(e)
 			}
 		} else if st.Else != nil {
 			panic(st)
@@ -425,4 +474,6 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 	default:
 		panic(st)
 	}
+
+	return effect{flow: nextFlow}
 }
