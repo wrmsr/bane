@@ -191,7 +191,7 @@ func (e effect) mustVal() Value {
 	if e.val == nil {
 		panic(fmt.Errorf("must have val: %#v", e))
 	}
-	return e.v
+	return e.val
 }
 
 //
@@ -319,31 +319,31 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 	//
 
 	case *ast.UnaryExpr:
-		x := sc.evalExpr(n.X)
-		if _, ok := x.(error); ok {
+		x := sc.evalExpr(n.X).expr()
+		if x.err != nil {
 			return x
 		}
-		xb := x.(Basic)
+		xb := x.mustVal().(Basic)
 		xc := constant.MakeFromLiteral(xb.S, xb.K.Ast(), 0)
 		zc := constant.UnaryOp(n.Op, xc, 0) // FIXME: prec?
-		return Basic{
+		return valEffect(Basic{
 			K: xb.K,
 			S: zc.ExactString(),
-		}
+		})
 
 	case *ast.BinaryExpr:
-		x := sc.evalExpr(n.X)
-		if _, ok := x.(error); ok {
+		x := sc.evalExpr(n.X).expr()
+		if x.err != nil {
 			return x
 		}
-		y := sc.evalExpr(n.Y)
-		if _, ok := y.(error); ok {
+		y := sc.evalExpr(n.Y).expr()
+		if y.err != nil {
 			return y
 		}
-		xb := x.(Basic)
-		yb := y.(Basic)
+		xb := x.mustVal().(Basic)
+		yb := y.mustVal().(Basic)
 		if xb.K != yb.K {
-			return TypeError{S: []string{xb.K.String(), yb.K.String()}}
+			return errEffect(TypeError{S: []string{xb.K.String(), yb.K.String()}})
 		}
 		xc := constant.MakeFromLiteral(xb.S, xb.K.Ast(), 0)
 		yc := constant.MakeFromLiteral(yb.S, yb.K.Ast(), 0)
@@ -355,20 +355,24 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 			token.GTR,
 			token.GEQ:
 			b := constant.Compare(xc, n.Op, yc)
-			return Basic{
+			return valEffect(Basic{
 				K: BoolBasic,
 				S: boolString(b),
-			}
+			})
 		default:
 			zc := constant.BinaryOp(xc, n.Op, yc)
-			return Basic{
+			return valEffect(Basic{
 				K: xb.K,
 				S: zc.ExactString(),
-			}
+			})
 		}
 
 	}
-	return Dynamic{}
+	return valEffect(Dynamic{})
+}
+
+func (sc *Scope) execStmts(sts []ast.Stmt) effect {
+
 }
 
 func (sc *Scope) execStmt(st ast.Stmt) effect {
@@ -381,8 +385,8 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 	case *ast.AssignStmt:
 		tn := check.Single(st.Lhs).(*ast.Ident).Name
 		vn := check.Single(st.Rhs)
-		vv := sc.evalExpr(vn)
-		if _, ok := vv.(error); ok {
+		vv := sc.evalExpr(vn).expr()
+		if vv.err != nil {
 			return vv
 		}
 		sc.assign(tn, vv)
@@ -403,11 +407,11 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 
 	case *ast.IfStmt:
 		check.Nil(st.Init)
-		cv := sc.evalExpr(st.Cond)
-		if _, ok := cv.(error); ok {
+		cv := sc.evalExpr(st.Cond).expr()
+		if cv.err != nil {
 			return cv
 		}
-		cbv := cv.(Basic)
+		cbv := cv.mustVal().(Basic)
 		check.Equal(cbv.K, BoolBasic)
 		cb := stringBool(cbv.S)
 		if cb {
