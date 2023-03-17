@@ -39,6 +39,7 @@ BREW_DEPS=\
 
 PYTHON_DEPS=\
 	ipython \
+	llvmlite \
 	numpy \
 	pandas \
 	pyyaml \

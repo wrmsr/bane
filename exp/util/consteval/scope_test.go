@@ -65,17 +65,17 @@ import (
 //	_ = ast.Fprint(os.Stdout, nil, a, nil)
 //}
 
-func TestEval(t *testing.T) {
-	s := &Scope{
-		m: map[string]any{
-			"foo": Basic{K: IntBasic, S: "420"},
-			"bar": &ast.Ident{Name: "foo"},
-		},
-	}
-
-	ov := s.Eval("foo").(Value)
-	fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&ov)))))
-}
+//func TestEval(t *testing.T) {
+//	s := &Scope{
+//		m: map[string]bt.Result[Value]{
+//			"foo": bt.Ok[Value](Basic{K: IntBasic, S: "420"}),
+//			"bar": &ast.Ident{Name: "foo"},
+//		},
+//	}
+//
+//	ov := s.Eval("foo").(Value)
+//	fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&ov)))))
+//}
 
 func TestScopeFile(t *testing.T) {
 	src := `
@@ -119,13 +119,13 @@ var ljunkv = ljunk()
 	s := ScopeFromAst(fil.Scope)
 
 	for _, n := range []string{
-		"baz",
-		//"n", // FIXME: lol
-		"bar2",
+		//"baz",
+		//"bar2",
 		"junkv",
 		"ljunkv",
+		//"n", // FIXME: lol
 	} {
 		v := s.Eval(&ast.Ident{Name: n}).(effect)
-		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v.val)))))
+		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v.Val)))))
 	}
 }

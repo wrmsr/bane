@@ -27,6 +27,7 @@ import (
 	"go/token"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
 //
@@ -40,7 +41,7 @@ type Lookup interface {
 type Scope struct {
 	p *Scope
 	a *ast.Scope
-	m map[string]any // Value | error
+	m map[string]bt.Result[Value]
 }
 
 func findValueSpecExpr(vs *ast.ValueSpec, n string) ast.Expr {
@@ -55,13 +56,13 @@ func findValueSpecExpr(vs *ast.ValueSpec, n string) ast.Expr {
 func ScopeFromAst(a *ast.Scope) *Scope {
 	return &Scope{
 		a: a,
-		m: make(map[string]any),
+		m: make(map[string]bt.Result[Value]),
 	}
 }
 
 func (sc *Scope) lookup(n string) any {
 	if sc.m != nil {
-		if v := sc.m[n]; v != nil {
+		if v, ok := sc.m[n]; ok {
 			return v
 		}
 	}
@@ -88,7 +89,7 @@ func (sc *Scope) lookup(n string) any {
 	return NameError{N: n}
 }
 
-func (sc *Scope) assign(n string, v any) bool {
+func (sc *Scope) assign(n string, v bt.Result[Value]) bool {
 	if sc.m != nil {
 		if _, ok := sc.m[n]; ok {
 			sc.m[n] = v
@@ -128,7 +129,7 @@ func (sc *Scope) Eval(o any) any {
 func (sc *Scope) makeChild() *Scope {
 	return &Scope{
 		p: sc,
-		m: make(map[string]any),
+		m: make(map[string]bt.Result[Value]),
 	}
 }
 
@@ -183,35 +184,34 @@ func (f flow) String() string {
 }
 
 type effect struct {
+	bt.Result[Value]
 	flow flow
-	val  Value
-	err  error
 }
 
 func valEffect(v Value) effect {
-	return effect{val: v}
+	return effect{Result: bt.Ok(v)}
 }
 
 func errEffect(err error) effect {
-	return effect{err: err}
+	return effect{Result: bt.Err[Value](err)}
 }
 
 func (e effect) expr() effect {
-	if e.err == nil {
+	if e.Err == nil {
 		if e.flow != noFlow {
-			e.err = fmt.Errorf("expr has flow: %#v", e)
-		} else if e.val == nil && e.err != nil {
-			e.err = fmt.Errorf("empty expr: %#v", e)
+			e.Err = fmt.Errorf("expr has flow: %#v", e)
+		} else if e.Val == nil && e.Err != nil {
+			e.Err = fmt.Errorf("empty expr: %#v", e)
 		}
 	}
 	return e
 }
 
 func (e effect) mustVal() Value {
-	if e.val == nil {
+	if e.Val == nil {
 		panic(fmt.Errorf("must have val: %#v", e))
 	}
-	return e.val
+	return e.Val
 }
 
 //
@@ -236,7 +236,7 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 					kv := ne.(*ast.KeyValueExpr)
 					k := kv.Key.(*ast.Ident).Name
 					v := sc.evalExpr(kv.Value).expr()
-					if v.err != nil {
+					if v.Err != nil {
 						return v
 					}
 					m[k] = v.mustVal()
@@ -254,7 +254,7 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 				s = make([]Value, len(n.Elts))
 				for i, ne := range n.Elts {
 					v := sc.evalExpr(ne).expr()
-					if v.err != nil {
+					if v.Err != nil {
 						return v
 					}
 					s[i] = v.mustVal()
@@ -274,11 +274,11 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 				for i, ne := range n.Elts {
 					kve := ne.(*ast.KeyValueExpr)
 					k := sc.evalExpr(kve.Key).expr()
-					if k.err != nil {
+					if k.Err != nil {
 						return k
 					}
 					v := sc.evalExpr(kve.Value).expr()
-					if v.err != nil {
+					if v.Err != nil {
 						return v
 					}
 					s[i] = MapEntry{
@@ -332,18 +332,20 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 
 		if ie, ok := iv.(ast.Expr); ok {
 			rv := sc.evalExpr(ie).expr()
-			if rv.err != nil {
+			if rv.Err != nil {
 				return rv
 			}
-			sc.assign(n.Name, rv.mustVal())
+			sc.assign(n.Name, rv.Result)
 			return rv
 		}
+
+		panic("???")
 
 	//
 
 	case *ast.UnaryExpr:
 		x := sc.evalExpr(n.X).expr()
-		if x.err != nil {
+		if x.Err != nil {
 			return x
 		}
 		xb := x.mustVal().(Basic)
@@ -356,11 +358,11 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 
 	case *ast.BinaryExpr:
 		x := sc.evalExpr(n.X).expr()
-		if x.err != nil {
+		if x.Err != nil {
 			return x
 		}
 		y := sc.evalExpr(n.Y).expr()
-		if y.err != nil {
+		if y.Err != nil {
 			return y
 		}
 		xb := x.mustVal().(Basic)
@@ -397,13 +399,14 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 func (sc *Scope) execStmts(sts []ast.Stmt) effect {
 	for _, st := range sts {
 		e := sc.execStmt(st)
-		if e.err != nil {
+		if e.Err != nil {
 			return e
 		}
 		switch e.flow {
 		case nextFlow:
 		case returnFlow:
 			return e
+
 		default:
 			panic(e)
 		}
@@ -422,10 +425,10 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 		tn := check.Single(st.Lhs).(*ast.Ident).Name
 		vn := check.Single(st.Rhs)
 		vv := sc.evalExpr(vn).expr()
-		if vv.err != nil {
+		if vv.Err != nil {
 			return vv
 		}
-		sc.assign(tn, vv)
+		sc.assign(tn, vv.Result)
 
 	case *ast.BranchStmt:
 		// BREAK, CONTINUE, GOTO, FALLTHROUGH
@@ -437,7 +440,7 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 		check.Nil(st.Post)
 		for {
 			e := sc.makeChild().execStmts(st.Body.List)
-			if e.err != nil {
+			if e.Err != nil {
 				return e
 			}
 			switch e.flow {
@@ -452,7 +455,7 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 	case *ast.IfStmt:
 		check.Nil(st.Init)
 		cv := sc.evalExpr(st.Cond).expr()
-		if cv.err != nil {
+		if cv.Err != nil {
 			return cv
 		}
 		cbv := cv.mustVal().(Basic)
@@ -460,7 +463,7 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 		cb := stringBool(cbv.S)
 		if cb {
 			e := sc.makeChild().execStmts(st.Body.List)
-			if e.err != nil {
+			if e.Err != nil {
 				return e
 			}
 			switch e.flow {
