@@ -331,8 +331,11 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 		}
 
 		if ie, ok := iv.(ast.Expr); ok {
-			rv := sc.evalExpr(ie)
-			sc.assign(n.Name, rv)
+			rv := sc.evalExpr(ie).expr()
+			if rv.err != nil {
+				return rv
+			}
+			sc.assign(n.Name, rv.mustVal())
 			return rv
 		}
 
