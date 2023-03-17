@@ -67,11 +67,13 @@ func (l *OMutex) TryLock(o any) int {
 	return d
 }
 
+type OMutexIncorrectOwnerError struct{}
+
 func (l *OMutex) Unlock(o any) int {
 	l.mtx.Lock()
 	if l.st.Owner != o || l.st.Depth < 1 {
 		l.mtx.Unlock()
-		panic("oops")
+		panic(OMutexIncorrectOwnerError{})
 	}
 	l.st.Depth--
 	d := l.st.Depth
