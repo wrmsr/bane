@@ -21,6 +21,7 @@ TODO:
 package consteval
 
 import (
+	"fmt"
 	"go/ast"
 	"go/constant"
 	"go/token"
@@ -154,7 +155,7 @@ func stringBool(s string) bool {
 type flow int8
 
 const (
-	nextFlow flow = iota
+	noFlow flow = iota
 	returnFlow
 	breakFlow
 	gotoFlow
@@ -169,6 +170,28 @@ type effect struct {
 
 func valEffect(v Value) effect {
 	return effect{val: v}
+}
+
+func errEffect(err error) effect {
+	return effect{err: err}
+}
+
+func (e effect) expr() effect {
+	if e.err == nil {
+		if e.flow != noFlow {
+			e.err = fmt.Errorf("expr has flow: %#v", e)
+		} else if e.val == nil && e.err != nil {
+			e.err = fmt.Errorf("empty expr: %#v", e)
+		}
+	}
+	return e
+}
+
+func (e effect) mustVal() Value {
+	if e.val == nil {
+		panic(fmt.Errorf("must have val: %#v", e))
+	}
+	return e.v
 }
 
 //
@@ -192,17 +215,17 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 				for _, ne := range n.Elts {
 					kv := ne.(*ast.KeyValueExpr)
 					k := kv.Key.(*ast.Ident).Name
-					v := sc.evalExpr(kv.Value)
-					if _, ok := v.(error); ok {
+					v := sc.evalExpr(kv.Value).expr()
+					if v.err != nil {
 						return v
 					}
-					m[k] = v.(Value)
+					m[k] = v.mustVal()
 				}
 			}
-			return Struct{
+			return valEffect(Struct{
 				T: TypeName(tn.Name),
 				M: m,
-			}
+			})
 
 		case *ast.ArrayType:
 			t := tn.Elt.(*ast.Ident).Name
@@ -210,17 +233,17 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 			if len(n.Elts) > 0 {
 				s = make([]Value, len(n.Elts))
 				for i, ne := range n.Elts {
-					sv := sc.evalExpr(ne)
-					if _, ok := sv.(error); ok {
-						return sv
+					v := sc.evalExpr(ne).expr()
+					if v.err != nil {
+						return v
 					}
-					s[i] = sv.(Value)
+					s[i] = v.mustVal()
 				}
 			}
-			return Array{
+			return valEffect(Array{
 				T: TypeName(t),
 				S: s,
-			}
+			})
 
 		case *ast.MapType:
 			kt := tn.Key.(*ast.Ident).Name
@@ -230,25 +253,25 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 				s = make([]MapEntry, len(n.Elts))
 				for i, ne := range n.Elts {
 					kve := ne.(*ast.KeyValueExpr)
-					k := sc.evalExpr(kve.Key)
-					if _, ok := k.(error); ok {
+					k := sc.evalExpr(kve.Key).expr()
+					if k.err != nil {
 						return k
 					}
-					v := sc.evalExpr(kve.Value)
-					if _, ok := v.(error); ok {
+					v := sc.evalExpr(kve.Value).expr()
+					if v.err != nil {
 						return v
 					}
 					s[i] = MapEntry{
-						K: k.(Value),
-						V: v.(Value),
+						K: k.mustVal(),
+						V: v.mustVal(),
 					}
 				}
 			}
-			return Map{
+			return valEffect(Map{
 				KT: TypeName(kt),
 				VT: TypeName(vt),
 				S:  s,
-			}
+			})
 		}
 
 	case *ast.CallExpr:
@@ -261,9 +284,9 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 					panic(n)
 				}
 				tn := ie.Index.(*ast.Ident).Name
-				return Type{
+				return valEffect(Type{
 					T: TypeName(tn),
-				}
+				})
 
 			}
 			break
@@ -271,8 +294,8 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 
 		if ii, ok := n.Fun.(*ast.Ident); ok {
 			fd := sc.lookup(ii.Name)
-			if _, ok := fd.(error); ok {
-				return fd
+			if err, ok := fd.(error); ok {
+				return errEffect(err)
 			}
 			return sc.makeChild().execStmts(fd.(*ast.FuncDecl).Body.List)
 		}
@@ -280,11 +303,11 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 	case *ast.Ident:
 		iv := sc.lookup(n.Name)
 
-		if _, ok := iv.(error); ok {
-			return iv
+		if err, ok := iv.(error); ok {
+			return errEffect(err)
 		}
-		if _, ok := iv.(Value); ok {
-			return iv
+		if val, ok := iv.(Value); ok {
+			return valEffect(val)
 		}
 
 		if ie, ok := iv.(ast.Expr); ok {
