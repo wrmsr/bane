@@ -149,14 +149,38 @@ func stringBool(s string) bool {
 	panic(s)
 }
 
-func (sc *Scope) evalExpr(n ast.Expr) any {
+//
+
+type flow int8
+
+const (
+	nextFlow flow = iota
+	returnFlow
+	breakFlow
+	gotoFlow
+	panicFlow
+)
+
+type effect struct {
+	flow flow
+	val  Value
+	err  error
+}
+
+func valEffect(v Value) effect {
+	return effect{val: v}
+}
+
+//
+
+func (sc *Scope) evalExpr(n ast.Expr) effect {
 	switch n := n.(type) {
 
 	case *ast.BasicLit:
-		return Basic{
+		return valEffect(Basic{
 			K: basicKindFromAst(n.Kind),
 			S: n.Value,
-		}
+		})
 
 	case *ast.CompositeLit:
 		switch tn := n.Type.(type) {
@@ -324,54 +348,54 @@ func (sc *Scope) evalExpr(n ast.Expr) any {
 	return Dynamic{}
 }
 
-func (sc *Scope) execStmts(sts []ast.Stmt) any {
-	check.NotNil(sc.m)
-	for _, st := range sts {
-		switch st := st.(type) {
+func (sc *Scope) execStmt(st ast.Stmt) effect {
+	switch st := st.(type) {
 
-		case *ast.ReturnStmt:
-			vn := check.Single(st.Results)
-			return sc.evalExpr(vn)
+	case *ast.ReturnStmt:
+		vn := check.Single(st.Results)
+		return sc.evalExpr(vn)
 
-		case *ast.AssignStmt:
-			tn := check.Single(st.Lhs).(*ast.Ident).Name
-			vn := check.Single(st.Rhs)
-			vv := sc.evalExpr(vn)
-			if _, ok := vv.(error); ok {
-				return vv
+	case *ast.AssignStmt:
+		tn := check.Single(st.Lhs).(*ast.Ident).Name
+		vn := check.Single(st.Rhs)
+		vv := sc.evalExpr(vn)
+		if _, ok := vv.(error); ok {
+			return vv
+		}
+		sc.assign(tn, vv)
+
+	case *ast.BranchStmt:
+		// BREAK, CONTINUE, GOTO, FALLTHROUGH
+		panic(st)
+
+	case *ast.ForStmt:
+		check.Nil(st.Init)
+		check.Nil(st.Cond)
+		check.Nil(st.Post)
+		for {
+			if rv := sc.makeChild().execStmts(st.Body.List); rv != nil {
+				return rv
 			}
-			sc.assign(tn, vv)
+		}
 
-		case *ast.ForStmt:
-			check.Nil(st.Init)
-			check.Nil(st.Cond)
-			check.Nil(st.Post)
-			for {
-				if rv := sc.makeChild().execStmts(st.Body.List); rv != nil {
-					return rv
-				}
+	case *ast.IfStmt:
+		check.Nil(st.Init)
+		cv := sc.evalExpr(st.Cond)
+		if _, ok := cv.(error); ok {
+			return cv
+		}
+		cbv := cv.(Basic)
+		check.Equal(cbv.K, BoolBasic)
+		cb := stringBool(cbv.S)
+		if cb {
+			if rv := sc.makeChild().execStmts(st.Body.List); rv != nil {
+				return rv
 			}
-
-		case *ast.IfStmt:
-			check.Nil(st.Init)
-			cv := sc.evalExpr(st.Cond)
-			if _, ok := cv.(error); ok {
-				return cv
-			}
-			cbv := cv.(Basic)
-			check.Equal(cbv.K, BoolBasic)
-			cb := stringBool(cbv.S)
-			if cb {
-				if rv := sc.makeChild().execStmts(st.Body.List); rv != nil {
-					return rv
-				}
-			} else if st.Else != nil {
-				panic(st)
-			}
-
-		default:
+		} else if st.Else != nil {
 			panic(st)
 		}
+
+	default:
+		panic(st)
 	}
-	return nil
 }

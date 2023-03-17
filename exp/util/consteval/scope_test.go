@@ -102,7 +102,8 @@ func ljunk() int {
 	for {
 		i = i + 1
 		if i > 3 {
-			return i
+			// return i
+			break
 		}
 	}
 	return 0
