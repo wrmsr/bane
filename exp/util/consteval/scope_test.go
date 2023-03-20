@@ -125,7 +125,7 @@ var ljunkv = ljunk()
 		"ljunkv",
 		//"n", // FIXME: lol
 	} {
-		v := s.Eval(&ast.Ident{Name: n}).(effect)
+		v := (&executor{sc: s}).evalExpr(&ast.Ident{Name: n})
 		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v.Val)))))
 	}
 }

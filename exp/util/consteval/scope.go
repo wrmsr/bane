@@ -109,26 +109,24 @@ func (sc *Scope) assign(n string, v bt.Result[Value]) bool {
 	return false
 }
 
-func (sc *Scope) Eval(o any) any {
-	if v, ok := o.(Value); ok {
-		return v
-	}
-
-	if err, ok := o.(error); ok {
-		return err
-	}
-
-	if n, ok := o.(ast.Expr); ok {
-		return sc.evalExpr(n)
-	}
-
-	panic(o)
-}
-
 func (sc *Scope) makeChild() *Scope {
 	return &Scope{
 		p: sc,
 		m: make(map[string]bt.Result[Value]),
+	}
+}
+
+//
+
+//
+
+type executor struct {
+	sc *Scope
+}
+
+func (ex *executor) makeChild() *executor {
+	return &executor{
+		sc: ex.sc.makeChild(),
 	}
 }
 
@@ -150,9 +148,7 @@ func stringBool(s string) bool {
 	panic(s)
 }
 
-//
-
-func (sc *Scope) evalExpr(n ast.Expr) effect {
+func (ex *executor) evalExpr(n ast.Expr) effect {
 	switch n := n.(type) {
 
 	case *ast.BasicLit:
@@ -171,7 +167,7 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 				for _, ne := range n.Elts {
 					kv := ne.(*ast.KeyValueExpr)
 					k := kv.Key.(*ast.Ident).Name
-					v := sc.evalExpr(kv.Value).expr()
+					v := ex.evalExpr(kv.Value).expr()
 					if v.Err != nil {
 						return v
 					}
@@ -189,7 +185,7 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 			if len(n.Elts) > 0 {
 				s = make([]Value, len(n.Elts))
 				for i, ne := range n.Elts {
-					v := sc.evalExpr(ne).expr()
+					v := ex.evalExpr(ne).expr()
 					if v.Err != nil {
 						return v
 					}
@@ -209,11 +205,11 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 				s = make([]MapEntry, len(n.Elts))
 				for i, ne := range n.Elts {
 					kve := ne.(*ast.KeyValueExpr)
-					k := sc.evalExpr(kve.Key).expr()
+					k := ex.evalExpr(kve.Key).expr()
 					if k.Err != nil {
 						return k
 					}
-					v := sc.evalExpr(kve.Value).expr()
+					v := ex.evalExpr(kve.Value).expr()
 					if v.Err != nil {
 						return v
 					}
@@ -249,11 +245,11 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 		}
 
 		if ii, ok := n.Fun.(*ast.Ident); ok {
-			fd := sc.lookup(ii.Name)
+			fd := ex.sc.lookup(ii.Name)
 			if err, ok := fd.(error); ok {
 				return errEffect(err)
 			}
-			rv := sc.makeChild().execStmts(fd.(*ast.FuncDecl).Body.List)
+			rv := ex.makeChild().execStmts(fd.(*ast.FuncDecl).Body.List)
 			if rv.flow != returnFlow {
 				panic(rv)
 			}
@@ -261,18 +257,18 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 		}
 
 	case *ast.Ident:
-		iv := sc.lookup(n.Name)
+		iv := ex.sc.lookup(n.Name)
 
 		if ix, ok := iv.(bt.Result[Value]); ok {
 			return effect{Result: ix}
 		}
 
 		if ie, ok := iv.(ast.Expr); ok {
-			rv := sc.evalExpr(ie).expr()
+			rv := ex.evalExpr(ie).expr()
 			if rv.Err != nil {
 				return rv
 			}
-			sc.assign(n.Name, rv.Result)
+			ex.sc.assign(n.Name, rv.Result)
 			return rv
 		}
 
@@ -281,7 +277,7 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 	//
 
 	case *ast.UnaryExpr:
-		x := sc.evalExpr(n.X).expr()
+		x := ex.evalExpr(n.X).expr()
 		if x.Err != nil {
 			return x
 		}
@@ -294,11 +290,11 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 		})
 
 	case *ast.BinaryExpr:
-		x := sc.evalExpr(n.X).expr()
+		x := ex.evalExpr(n.X).expr()
 		if x.Err != nil {
 			return x
 		}
-		y := sc.evalExpr(n.Y).expr()
+		y := ex.evalExpr(n.Y).expr()
 		if y.Err != nil {
 			return y
 		}
@@ -333,9 +329,9 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 	return valEffect(Dynamic{})
 }
 
-func (sc *Scope) execStmts(sts []ast.Stmt) effect {
+func (ex *executor) execStmts(sts []ast.Stmt) effect {
 	for _, st := range sts {
-		e := sc.execStmt(st)
+		e := ex.execStmt(st)
 		if e.Err != nil || e.flow != noFlow {
 			return e
 		}
@@ -343,12 +339,12 @@ func (sc *Scope) execStmts(sts []ast.Stmt) effect {
 	return effect{}
 }
 
-func (sc *Scope) execStmt(st ast.Stmt) effect {
+func (ex *executor) execStmt(st ast.Stmt) effect {
 	switch st := st.(type) {
 
 	case *ast.ReturnStmt:
 		vn := check.Single(st.Results)
-		ve := sc.evalExpr(vn)
+		ve := ex.evalExpr(vn)
 		if ve.Err != nil || ve.flow != noFlow {
 			return ve
 		}
@@ -357,11 +353,11 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 	case *ast.AssignStmt:
 		tn := check.Single(st.Lhs).(*ast.Ident).Name
 		vn := check.Single(st.Rhs)
-		vv := sc.evalExpr(vn).expr()
+		vv := ex.evalExpr(vn).expr()
 		if vv.Err != nil {
 			return vv
 		}
-		sc.assign(tn, vv.Result)
+		ex.sc.assign(tn, vv.Result)
 
 	case *ast.BranchStmt:
 		// BREAK, CONTINUE, GOTO, FALLTHROUGH
@@ -380,7 +376,7 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 		check.Nil(st.Cond)
 		check.Nil(st.Post)
 		for {
-			e := sc.makeChild().execStmts(st.Body.List)
+			e := ex.makeChild().execStmts(st.Body.List)
 			if e.Err != nil {
 				return e
 			}
@@ -397,7 +393,7 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 
 	case *ast.IfStmt:
 		check.Nil(st.Init)
-		cv := sc.evalExpr(st.Cond).expr()
+		cv := ex.evalExpr(st.Cond).expr()
 		if cv.Err != nil {
 			return cv
 		}
@@ -405,7 +401,7 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 		check.Equal(cbv.K, BoolBasic)
 		cb := stringBool(cbv.S)
 		if cb {
-			e := sc.makeChild().execStmts(st.Body.List)
+			e := ex.makeChild().execStmts(st.Body.List)
 			if e.Err != nil || e.flow != noFlow {
 				return e
 			}
