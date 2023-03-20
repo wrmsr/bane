@@ -323,11 +323,8 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 	case *ast.Ident:
 		iv := sc.lookup(n.Name)
 
-		if err, ok := iv.(error); ok {
-			return errEffect(err)
-		}
-		if val, ok := iv.(Value); ok {
-			return valEffect(val)
+		if ix, ok := iv.(bt.Result[Value]); ok {
+			return effect{Result: ix}
 		}
 
 		if ie, ok := iv.(ast.Expr); ok {
