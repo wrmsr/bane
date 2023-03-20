@@ -1,7 +1,24 @@
 //
 /*
+https://github.com/golang/tools/tree/master/go/ssa/interp
+https://github.com/llvm/llvm-project/tree/main/clang/lib/AST/Interp
+
 TODO:
  - type-specific default values..
+ - more lazy - mirror ast.Scope re inheritance
+ - togglable memoization - consteval func scopes
+ - func
+ - addr - *including* var refs, like &foo[2]
+ - func Const[T any](v T) { return v } ?
+  - if consteval then _no_ as running funcs lol
+ - intrinsics?
+  - math
+  - strings
+  - reflect - fields, etc
+  - io? encoding?
+ - views interop - frozen slices
+  - inlineable? lol fuckin go
+ - Call values - tack type names onto args? optionally?
 */
 package consteval
 
@@ -109,6 +126,7 @@ func ljunk() int {
 	return 0
 }
 var ljunkv = ljunk()
+var ahem = Bluh(420)
 `
 
 	const mode = parser.AllErrors
@@ -118,14 +136,18 @@ var ljunkv = ljunk()
 
 	s := ScopeFromAst(fil.Scope)
 
+	sfs := make(map[string]struct{})
+	sfs["Bluh"] = struct{}{}
+
 	for _, n := range []string{
 		//"baz",
 		//"bar2",
 		"junkv",
 		"ljunkv",
+		"ahem",
 		//"n", // FIXME: lol
 	} {
-		v := (&executor{sc: s}).evalExpr(&ast.Ident{Name: n})
+		v := (&executor{sc: s, synthFuncs: sfs}).evalExpr(&ast.Ident{Name: n})
 		fmt.Println(check.Must1(ju.MarshalPretty(check.Must1(msh.Marshal(&v.Val)))))
 	}
 }
