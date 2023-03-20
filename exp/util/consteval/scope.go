@@ -314,7 +314,11 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 			if err, ok := fd.(error); ok {
 				return errEffect(err)
 			}
-			return sc.makeChild().execStmts(fd.(*ast.FuncDecl).Body.List)
+			rv := sc.makeChild().execStmts(fd.(*ast.FuncDecl).Body.List)
+			if rv.flow != returnFlow {
+				panic(rv)
+			}
+			return effect{Result: rv.Result}
 		}
 
 	case *ast.Ident:
@@ -393,16 +397,8 @@ func (sc *Scope) evalExpr(n ast.Expr) effect {
 func (sc *Scope) execStmts(sts []ast.Stmt) effect {
 	for _, st := range sts {
 		e := sc.execStmt(st)
-		if e.Err != nil {
+		if e.Err != nil || e.flow != noFlow {
 			return e
-		}
-		switch e.flow {
-		case noFlow:
-		case returnFlow:
-			return e
-
-		default:
-			panic(e)
 		}
 	}
 	return effect{}
@@ -430,7 +426,15 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 
 	case *ast.BranchStmt:
 		// BREAK, CONTINUE, GOTO, FALLTHROUGH
-		panic(st)
+		if st.Label != nil {
+			panic(st)
+		}
+		switch st.Tok {
+		case token.BREAK:
+			return effect{flow: breakFlow}
+		default:
+			panic(st)
+		}
 
 	case *ast.ForStmt:
 		check.Nil(st.Init)
@@ -443,6 +447,8 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 			}
 			switch e.flow {
 			case noFlow:
+			case breakFlow:
+				return effect{}
 			case returnFlow:
 				return e
 			default:
@@ -461,15 +467,8 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 		cb := stringBool(cbv.S)
 		if cb {
 			e := sc.makeChild().execStmts(st.Body.List)
-			if e.Err != nil {
+			if e.Err != nil || e.flow != noFlow {
 				return e
-			}
-			switch e.flow {
-			case noFlow:
-			case returnFlow:
-				return e
-			default:
-				panic(e)
 			}
 		} else if st.Else != nil {
 			panic(st)
