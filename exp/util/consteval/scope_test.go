@@ -3,6 +3,9 @@
 https://github.com/golang/tools/tree/master/go/ssa/interp
 https://github.com/llvm/llvm-project/tree/main/clang/lib/AST/Interp
 
+IMMED:
+ - toplevel instantiations
+
 TODO:
  - type-specific default values..
  - more lazy - mirror ast.Scope re inheritance
@@ -126,7 +129,7 @@ func ljunk() int {
 	return 0
 }
 var ljunkv = ljunk()
-var ahem = Bluh(420)
+var ahem = Bluh[int, float](420)
 `
 
 	const mode = parser.AllErrors
