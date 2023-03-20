@@ -157,7 +157,6 @@ type flow int8
 
 const (
 	noFlow flow = iota
-	nextFlow
 	returnFlow
 	breakFlow
 	gotoFlow
@@ -168,8 +167,6 @@ func (f flow) String() string {
 	switch f {
 	case noFlow:
 		return "no"
-	case nextFlow:
-		return "next"
 	case returnFlow:
 		return "return"
 	case breakFlow:
@@ -400,7 +397,7 @@ func (sc *Scope) execStmts(sts []ast.Stmt) effect {
 			return e
 		}
 		switch e.flow {
-		case nextFlow:
+		case noFlow:
 		case returnFlow:
 			return e
 
@@ -408,7 +405,7 @@ func (sc *Scope) execStmts(sts []ast.Stmt) effect {
 			panic(e)
 		}
 	}
-	return effect{flow: nextFlow}
+	return effect{}
 }
 
 func (sc *Scope) execStmt(st ast.Stmt) effect {
@@ -416,7 +413,11 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 
 	case *ast.ReturnStmt:
 		vn := check.Single(st.Results)
-		return sc.evalExpr(vn)
+		ve := sc.evalExpr(vn)
+		if ve.Err != nil || ve.flow != noFlow {
+			return ve
+		}
+		return effect{Result: ve.Result, flow: returnFlow}
 
 	case *ast.AssignStmt:
 		tn := check.Single(st.Lhs).(*ast.Ident).Name
@@ -441,7 +442,7 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 				return e
 			}
 			switch e.flow {
-			case nextFlow:
+			case noFlow:
 			case returnFlow:
 				return e
 			default:
@@ -464,7 +465,7 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 				return e
 			}
 			switch e.flow {
-			case nextFlow:
+			case noFlow:
 			case returnFlow:
 				return e
 			default:
@@ -478,5 +479,5 @@ func (sc *Scope) execStmt(st ast.Stmt) effect {
 		panic(st)
 	}
 
-	return effect{flow: nextFlow}
+	return effect{}
 }
