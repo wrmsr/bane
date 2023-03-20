@@ -104,13 +104,6 @@ type Struct struct {
 
 //
 
-type Type struct {
-	value
-	T TypeName
-}
-
-//
-
 type Array struct {
 	value
 	T TypeName
@@ -129,6 +122,22 @@ type Map struct {
 	KT,
 	VT TypeName
 	S []MapEntry
+}
+
+//
+
+type Type struct {
+	value
+	T TypeName
+}
+
+//
+
+type Call struct {
+	value
+	N string
+	G []TypeName
+	A []Value
 }
 
 //

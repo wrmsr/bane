@@ -3,21 +3,22 @@ package consteval
 import msh "github.com/wrmsr/bane/pkg/util/marshal"
 
 var _ = msh.RegisterTo[Value](
-	msh.SetImplOf[Nil](),
-	msh.SetImplOf[Basic](),
-	msh.SetImplOf[Type](),
-	msh.SetImplOf[Struct](),
 	msh.SetImplOf[Array](),
-	msh.SetImplOf[Map](),
+	msh.SetImplOf[Basic](),
+	msh.SetImplOf[Call](),
 	msh.SetImplOf[Dynamic](),
+	msh.SetImplOf[Map](),
+	msh.SetImplOf[Nil](),
+	msh.SetImplOf[Struct](),
+	msh.SetImplOf[Type](),
 )
 
 var _ = msh.RegisterTo[BasicKind](
 	msh.SetStringerEnumTypes(
-		IntBasic,
+		CharBasic,
 		FloatBasic,
 		ImagBasic,
-		CharBasic,
+		IntBasic,
 		StringBasic,
 	),
 )
