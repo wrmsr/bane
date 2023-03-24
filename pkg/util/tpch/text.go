@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	au "github.com/wrmsr/bane/pkg/util/atomic"
 	"github.com/wrmsr/bane/pkg/util/check"
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	syncu "github.com/wrmsr/bane/pkg/util/sync"
 )
 
 //
@@ -318,7 +318,7 @@ func (p textPool) getText(begin, end int) string {
 	return string(p.buf[begin:end])
 }
 
-var defaultTextPoolLazy = au.NewLazy(func() *textPool {
+var defaultTextPoolLazy = syncu.NewLazyFn(func() *textPool {
 	return newTextPool(textPoolDefaultSize, getTextDists())
 })
 

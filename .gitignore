@@ -8,3 +8,4 @@
 .venv*/
 _obj/
 bin/
+ssa*.html

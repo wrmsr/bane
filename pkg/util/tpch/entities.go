@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
-	au "github.com/wrmsr/bane/pkg/util/atomic"
 	"github.com/wrmsr/bane/pkg/util/check"
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
+	syncu "github.com/wrmsr/bane/pkg/util/sync"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -185,7 +185,7 @@ func _registerEntity(e *Entity) any {
 	return _entities
 }
 
-var entitiesOnce = au.NewLazy(func() *EntitySet {
+var entitiesOnce = syncu.NewLazyFn(func() *EntitySet {
 	return newEntitySet(_entities)
 })
 

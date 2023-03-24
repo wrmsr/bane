@@ -72,4 +72,3 @@ type WithPattern struct {
 }
 
 var _ Pattern = WithPattern{}
-

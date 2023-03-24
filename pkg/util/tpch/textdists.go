@@ -5,11 +5,11 @@ import (
 	"strconv"
 	"strings"
 
-	au "github.com/wrmsr/bane/pkg/util/atomic"
 	"github.com/wrmsr/bane/pkg/util/check"
 	ctr "github.com/wrmsr/bane/pkg/util/container"
 	its "github.com/wrmsr/bane/pkg/util/iterators"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
+	syncu "github.com/wrmsr/bane/pkg/util/sync"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -111,7 +111,7 @@ func (tdl textDistsLoader) isEnd(name, line string) bool {
 //go:embed textdists.dss
 var textDistsEmbed embed.FS
 
-var textDistsLazy = au.NewLazy(func() textDists {
+var textDistsLazy = syncu.NewLazyFn(func() textDists {
 	buf := string(check.Must1(textDistsEmbed.ReadFile("textdists.dss")))
 	return textDistsLoader{}.LoadDists(buf)
 })

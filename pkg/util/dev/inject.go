@@ -6,8 +6,8 @@ import (
 	"errors"
 	"sync"
 
-	au "github.com/wrmsr/bane/pkg/util/atomic"
 	inj "github.com/wrmsr/bane/pkg/util/inject"
+	au "github.com/wrmsr/bane/pkg/util/sync/atomic"
 )
 
 //

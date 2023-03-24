@@ -1,10 +1,10 @@
 package errors
 
 import (
-	au "github.com/wrmsr/bane/pkg/util/atomic"
+	syncu "github.com/wrmsr/bane/pkg/util/sync"
 )
 
 func ErrOnce(fn func() error) func() error {
-	lz := au.Lazy[error]{Fn: fn}
-	return lz.Get
+	lz := syncu.Lazy[error]{}
+	return func() error { return lz.Get(fn) }
 }
