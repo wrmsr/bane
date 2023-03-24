@@ -59,7 +59,7 @@ func BoolHashEq() HashEqImpl[bool] {
 
 func IntHashEq[T constraints.Integer]() HashEqImpl[T] {
 	return HashEqImpl[T]{
-		Hash: func(i T) uintptr { return uintptr(i) },
+		Hash: func(i T) uintptr { return uintptr(i) }, // FIXME: barf
 		Eq:   func(l, r T) bool { return l == r },
 	}
 }
