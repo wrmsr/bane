@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
+	"flag"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"runtime/pprof"
 	"strconv"
 	"strings"
 
@@ -15,6 +17,7 @@ import (
 	tgdev "github.com/wrmsr/bane/exp/util/tg/dev"
 	"github.com/wrmsr/bane/pkg/util/check"
 	ju "github.com/wrmsr/bane/pkg/util/json"
+	"github.com/wrmsr/bane/pkg/util/log"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
 	"github.com/wrmsr/bane/pkg/util/slices"
 	bt "github.com/wrmsr/bane/pkg/util/types"
@@ -56,7 +59,19 @@ func readMnistLabels(name string) nd.NdArray[byte] {
 	return nd.Maker[byte]{Data: b}.Make()
 }
 
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+
 func main() {
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.IfFatal(pprof.StartCPUProfile(f))
+		defer pprof.StopCPUProfile()
+	}
+
 	l1t := tg.NewTensor(tg.MakeLoadBuffer(tg.BufferOfNd(
 		//readTgMat2("l1.json"),
 		readTgNpy("l1.npy").Reshape(nd.ShapeOf(784, 128)),
