@@ -631,6 +631,7 @@ func (v *parseVisitor) VisitParameterTypeListDirectAbstractDeclarator(ctx *parse
 }
 
 func (v *parseVisitor) VisitParenDirectAbstractDeclarator(ctx *parser.ParenDirectAbstractDeclaratorContext) any {
+	check.Equal(ctx.GetChildCount(), 0)
 	panic("implement me")
 }
 
