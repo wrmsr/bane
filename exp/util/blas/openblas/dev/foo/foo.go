@@ -1,16 +1,45 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 
 	"github.com/wrmsr/bane/exp/util/blas/openblas"
 )
 
 func main() {
-	x := make([]float32, 1024*1024)
-	for i := range x {
-		x[i] = float32(i)
+	m := 16
+	n := 16
+	k := 16
+	a := make([]float32, m*k)
+	for i := range a {
+		a[i] = float32(i)
 	}
-	r := openblas.Ssum(len(x), x, 1)
-	fmt.Println(r)
+	b := make([]float32, k*n)
+	for i := range b {
+		b[i] = float32(i)
+	}
+	c := make([]float32, m*n)
+	for {
+		fmt.Println(os.Getpid())
+		bufio.NewScanner(os.Stdin).Scan()
+		openblas.Sgemm(
+			openblas.Colmajor,
+			openblas.Notrans,
+			openblas.Notrans,
+			m,
+			n,
+			k,
+			1,
+			a,
+			m,
+			b,
+			k,
+			1,
+			c,
+			m,
+		)
+		fmt.Println(c)
+	}
 }

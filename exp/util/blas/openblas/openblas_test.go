@@ -1,3 +1,9 @@
+//
+/*
+https://github.com/xianyi/OpenBLAS/wiki/Developer-manual#optimizing-gemm-for-a-given-hardware
+https://www.cs.utexas.edu/~flame/web/FLAMEPublications.html
+https://www.cs.utexas.edu/~flame/pubs/GotoTOMS_revision.pdf
+*/
 package openblas
 
 import (

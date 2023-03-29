@@ -19,8 +19,8 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 package openblas
 
 /*
-#cgo darwin CFLAGS: -I/opt/homebrew/opt/openblas/include
-#cgo darwin LDFLAGS: -L/opt/homebrew/opt/openblas/lib -lopenblas
+#cgo darwin CFLAGS: -I/Users/spinlock/src/xianyi/OpenBLAS/cmake-build-debug -I/Users/spinlock/src/xianyi/OpenBLAS/cmake-build-debug/generated
+#cgo darwin LDFLAGS: -L/Users/spinlock/src/xianyi/OpenBLAS/cmake-build-debug/lib -lopenblas
 #include "cblas.h"
 */
 import "C"
