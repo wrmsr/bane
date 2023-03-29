@@ -9,9 +9,9 @@ import (
 )
 
 func main() {
-	m := 16
-	n := 16
-	k := 16
+	m := 4096
+	n := 4096
+	k := 4096
 	a := make([]float32, m*k)
 	for i := range a {
 		a[i] = float32(i)
@@ -40,6 +40,7 @@ func main() {
 			c,
 			m,
 		)
-		fmt.Println(c)
+		s := openblas.Sasum(len(c), c, 1)
+		fmt.Println(s)
 	}
 }
