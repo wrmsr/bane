@@ -59,3 +59,9 @@ func GetStackTrace(n, ofs int) []StackFrame {
 func GetCaller(ofs int) ParsedName {
 	return GetStackFrame(ofs + 1).ParsedName()
 }
+
+func GetPc() uintptr {
+	var pcs [1]uintptr
+	runtime.Callers(1, pcs[:])
+	return pcs[0]
+}
