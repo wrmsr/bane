@@ -96,6 +96,23 @@ func (v readerAtSliceView) Extract(l, r int) ([]byte, error) {
 	return b, nil
 }
 
+//
+
+type sliceViewReaderAt struct {
+	sv SliceView[byte]
+}
+
+var _ io.ReaderAt = sliceViewReaderAt{}
+
+func (r sliceViewReaderAt) ReadAt(p []byte, off int64) (n int, err error) {
+	b, err := r.sv.Extract(int(off), int(off)+len(p))
+	if err != nil {
+		return
+	}
+	copy(p, b)
+	return
+}
+
 ///
 
 //
@@ -121,7 +138,8 @@ func machoCstring(b []byte) string {
 
 var readChunkSize = uint64(128 * 1024)
 
-func machoForEachSym2(r io.ReaderAt, fn func(s FileSym) bool) (ret bool, err error) {
+func machoForEachSym2(sv SliceView[byte], fn func(s FileSym) bool) (ret bool, err error) {
+	r :=
 	var f macho.File
 
 	// Read and decode Mach magic to determine byte order, size. Magic32 and Magic64 differ only in the bottom bit.
@@ -243,7 +261,7 @@ func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error
 	}
 	defer eu.AppendInvoke(&err, eu.Close(r))
 
-	return machoForEachSym2(r, fn)
+	return machoForEachSym2(, fn)
 }
 
 //
