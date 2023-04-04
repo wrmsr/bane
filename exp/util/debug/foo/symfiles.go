@@ -89,6 +89,9 @@ func OpenSymFile(name string, os string, singleShot bool) (SymFile, Closer, erro
 		}
 		return machoSymFile{f: f}, f.Close, nil
 	case "linux":
+		if singleShot {
+			return elfSymFile2{name: name}, nil, nil
+		}
 		f, err := elf.Open(name)
 		if err != nil {
 			return nil, nil, err

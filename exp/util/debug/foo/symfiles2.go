@@ -8,6 +8,7 @@ import (
 	"debug/macho"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -29,7 +30,7 @@ const (
 	machoFileHeaderSize64 = 8 * 4
 )
 
-func cstring(b []byte) string {
+func machoCstring(b []byte) string {
 	i := bytes.IndexByte(b, 0)
 	if i == -1 {
 		i = len(b)
@@ -148,7 +149,7 @@ func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error
 					return false, errors.New("invalid name in symbol table")
 				}
 				// We add "_" to Go symbols. Strip it here. See issue 33808.
-				name := cstring(strtab[n.Name:])
+				name := machoCstring(strtab[n.Name:])
 				if strings.Contains(name, ".") && name[0] == '_' {
 					name = name[1:]
 				}
@@ -185,6 +186,19 @@ const (
 	elfSeekCurrent int = 1
 	elfSeekEnd     int = 2
 )
+
+func elfGetString(section []byte, start int) (string, bool) {
+	if start < 0 || start >= len(section) {
+		return "", false
+	}
+
+	for end := start; end < len(section); end++ {
+		if section[end] == 0 {
+			return string(section[start:end]), true
+		}
+	}
+	return "", false
+}
 
 func (f2 elfSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error) {
 	r, err := os.Open(f2.name)
@@ -349,8 +363,8 @@ func (f2 elfSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error) 
 		if int64(p.Filesz) < 0 {
 			return false, errors.New("invalid program header file size")
 		}
-		p.sr = io.NewSectionReader(r, int64(p.Off), int64(p.Filesz))
-		p.ReaderAt = p.sr
+		// p.sr = io.NewSectionReader(r, int64(p.Off), int64(p.Filesz))
+		// p.ReaderAt = p.sr
 		f.Progs[i] = p
 	}
 
@@ -457,36 +471,77 @@ func (f2 elfSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error) 
 		if int64(s.FileSize) < 0 {
 			return false, errors.New("invalid section size")
 		}
-		s.sr = io.NewSectionReader(r, int64(s.Offset), int64(s.FileSize))
+		ssr := io.NewSectionReader(r, int64(s.Offset), int64(s.FileSize))
 
 		if s.Flags&elf.SHF_COMPRESSED == 0 {
-			s.ReaderAt = s.sr
+			s.ReaderAt = ssr
 			s.Size = s.FileSize
 		} else {
 			// Read the compression header.
 			switch f.Class {
 			case elf.ELFCLASS32:
 				ch := new(elf.Chdr32)
-				if err = binary.Read(s.sr, f.ByteOrder, ch); err != nil {
+				if err = binary.Read(ssr, f.ByteOrder, ch); err != nil {
 					return
 				}
-				s.compressionType = elf.CompressionType(ch.Type)
+				// s.compressionType = elf.CompressionType(ch.Type)
 				s.Size = uint64(ch.Size)
 				s.Addralign = uint64(ch.Addralign)
-				s.compressionOffset = int64(binary.Size(ch))
+				// s.compressionOffset = int64(binary.Size(ch))
 			case elf.ELFCLASS64:
 				ch := new(elf.Chdr64)
-				if err = binary.Read(s.sr, f.ByteOrder, ch); err != nil {
+				if err = binary.Read(ssr, f.ByteOrder, ch); err != nil {
 					return
 				}
-				s.compressionType = elf.CompressionType(ch.Type)
+				// s.compressionType = elf.CompressionType(ch.Type)
 				s.Size = ch.Size
 				s.Addralign = ch.Addralign
-				s.compressionOffset = int64(binary.Size(ch))
+				// s.compressionOffset = int64(binary.Size(ch))
 			}
 		}
 
 		f.Sections = append(f.Sections, s)
+	}
+
+	{
+		symtabSection := f.SectionByType(elf.SHT_SYMTAB)
+		if symtabSection == nil {
+			return false, errors.New("no symbols")
+		}
+
+		data, err := symtabSection.Data()
+		if err != nil {
+			return false, fmt.Errorf("cannot load symbol section: %w", err)
+		}
+		symtab := bytes.NewReader(data)
+		if symtab.Len()%elf.Sym64Size != 0 {
+			return false, errors.New("length of symbol section is not a multiple of Sym64Size")
+		}
+
+		strdata, err := f.stringTable(symtabSection.Link)
+		if err != nil {
+			return false, fmt.Errorf("cannot load string table section: %w", err)
+		}
+
+		// The first entry is all zeros.
+		var skip [elf.Sym64Size]byte
+		symtab.Read(skip[:])
+
+		symbols := make([]elf.Symbol, symtab.Len()/elf.Sym64Size)
+
+		i := 0
+		var sym elf.Sym64
+		for symtab.Len() > 0 {
+			binary.Read(symtab, f.ByteOrder, &sym)
+			str, _ := elfGetString(strdata, int(sym.Name))
+			symbols[i].Name = str
+			symbols[i].Info = sym.Info
+			symbols[i].Other = sym.Other
+			symbols[i].Section = elf.SectionIndex(sym.Shndx)
+			symbols[i].Value = sym.Value
+			symbols[i].Size = sym.Size
+			i++
+		}
 	}
 
 	panic("implement me")
