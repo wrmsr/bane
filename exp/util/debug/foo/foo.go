@@ -24,16 +24,16 @@ func debugWait() {
 }
 
 func main() {
-	debugWait()
+	//debugWait()
 
 	pn := rtu.GetCaller(0)
 	pu := reflect.ValueOf(&marker).Pointer()
 
 	name := os.Args[0]
-	name = "/Users/spinlock/src/wrmsr/bane/bin/linuxlogfoo"
-
 	os := ""
-	os = "linux"
+
+	//name = "/Users/spinlock/src/wrmsr/bane/bin/linuxlogfoo"
+	//os = "linux"
 
 	var f SymFile
 	var clo Closer
@@ -62,5 +62,5 @@ func main() {
 	var std **log.Logger = (**log.Logger)(unsafe.Pointer(lp + ofs))
 	(*std).Println("hi")
 
-	debugWait()
+	//debugWait()
 }

@@ -1,4 +1,4 @@
-$$ FIXME: mmap lol
+// $$ FIXME: mmap lol
 // Copyright 2022 The Go Authors. All rights reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 package main
@@ -13,6 +13,8 @@ import (
 	"io"
 	"os"
 	"strings"
+
+	"golang.org/x/exp/mmap"
 
 	eu "github.com/wrmsr/bane/pkg/util/errors"
 	iou "github.com/wrmsr/bane/pkg/util/io"
@@ -41,13 +43,7 @@ func machoCstring(b []byte) string {
 
 var readChunkSize = uint64(128 * 1024)
 
-func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error) {
-	r, err := os.Open(f2.name)
-	if err != nil {
-		return
-	}
-	defer eu.AppendInvoke(&err, eu.Close(r))
-
+func machoForEachSym2(r io.ReaderAt, fn func(s FileSym) bool) (ret bool, err error) {
 	sr := io.NewSectionReader(r, 0, 1<<63-1)
 
 	var f macho.File
@@ -112,23 +108,13 @@ func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error
 			if _, err := r.ReadAt(strtab, int64(hdr.Stroff)); err != nil {
 				return false, err
 			}
-			var symsz int
-			if f.Magic == macho.Magic64 {
-				symsz = 16
-			} else {
-				symsz = 12
-			}
-			// FIXME: block caching file wrapper
-			symdat, err := iou.SafeReadDataAt(r, uint64(hdr.Nsyms)*uint64(symsz), int64(hdr.Symoff), readChunkSize)
-			if err != nil {
-				return false, err
-			}
+			sdr := iou.OffsetReaderAt{Off: int64(hdr.Symoff), R: r}
 			bo := f.ByteOrder
 			c := iou.SafeSliceCap((*macho.Symbol)(nil), uint64(hdr.Nsyms), readChunkSize)
 			if c < 0 {
 				return false, errors.New("too many symbols")
 			}
-			b2 := bytes.NewReader(symdat)
+			b2 := &iou.ReaderAtReader{R: sdr}
 			for i := 0; i < int(hdr.Nsyms); i++ {
 				var n macho.Nlist64
 				if f.Magic == macho.Magic64 {
@@ -174,6 +160,16 @@ func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error
 	return true, nil
 }
 
+func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error) {
+	r, err := mmap.Open(f2.name)
+	if err != nil {
+		return
+	}
+	defer eu.AppendInvoke(&err, eu.Close(r))
+
+	return machoForEachSym2(r, fn)
+}
+
 //
 
 type elfSymFile2 struct {
@@ -199,6 +195,13 @@ func elfGetString(section []byte, start int) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func elfStringTable(f *elf.File, link uint32) ([]byte, error) {
+	if link <= 0 || link >= uint32(len(f.Sections)) {
+		return nil, errors.New("section has invalid string table link")
+	}
+	return f.Sections[link].Data()
 }
 
 func (f2 elfSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error) {
@@ -504,6 +507,32 @@ func (f2 elfSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error) 
 		f.Sections = append(f.Sections, s)
 	}
 
+	if len(f.Sections) == 0 {
+		return false, nil
+	}
+
+	// Load section header string table.
+	if shstrndx == 0 {
+		// If the file has no section name string table,
+		// shstrndx holds the value SHN_UNDEF (0).
+		return false, nil
+	}
+	shstr := f.Sections[shstrndx]
+	if shstr.Type != elf.SHT_STRTAB {
+		return false, errors.New("invalid ELF section name string table type")
+	}
+	shstrtab, err := shstr.Data()
+	if err != nil {
+		return false, err
+	}
+	for i, s := range f.Sections {
+		var ok bool
+		s.Name, ok = elfGetString(shstrtab, int(names[i]))
+		if !ok {
+			return false, errors.New("bad section name index")
+		}
+	}
+
 	{
 		symtabSection := f.SectionByType(elf.SHT_SYMTAB)
 		if symtabSection == nil {
@@ -519,7 +548,7 @@ func (f2 elfSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error) 
 			return false, errors.New("length of symbol section is not a multiple of Sym64Size")
 		}
 
-		strdata, err := f.stringTable(symtabSection.Link)
+		strdata, err := elfStringTable(f, symtabSection.Link)
 		if err != nil {
 			return false, fmt.Errorf("cannot load string table section: %w", err)
 		}
