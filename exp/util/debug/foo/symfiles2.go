@@ -105,6 +105,7 @@ func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error
 				return false, err
 			}
 			strtab := make([]byte, hdr.Strsize)
+			// FIXME: block caching file wrapper
 			if _, err := r.ReadAt(strtab, int64(hdr.Stroff)); err != nil {
 				return false, err
 			}
@@ -114,6 +115,7 @@ func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error
 			} else {
 				symsz = 12
 			}
+			// FIXME: block caching file wrapper
 			symdat, err := iou.SafeReadDataAt(r, uint64(hdr.Nsyms)*uint64(symsz), int64(hdr.Symoff), readChunkSize)
 			if err != nil {
 				return false, err
