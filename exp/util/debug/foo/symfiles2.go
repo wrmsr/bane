@@ -84,6 +84,7 @@ func machoForEachSym2(r io.ReaderAt, fn func(s FileSym) bool) (ret bool, err err
 	}
 	f.Loads = make([]macho.Load, 0, c)
 	bo := f.ByteOrder
+	buf := bytes.NewBuffer(nil)
 	for i := uint32(0); i < f.Ncmd; i++ {
 		if len(dat) < 8 {
 			return false, errors.New("command block too small")
