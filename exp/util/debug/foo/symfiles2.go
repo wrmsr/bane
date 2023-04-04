@@ -14,11 +14,89 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/exp/mmap"
-
 	eu "github.com/wrmsr/bane/pkg/util/errors"
 	iou "github.com/wrmsr/bane/pkg/util/io"
+	mmapu "github.com/wrmsr/bane/pkg/util/mmap"
 )
+
+///
+
+type SliceView[T any] interface {
+	IsNil() bool
+	Len() int
+	At(i int) (T, error)
+	Extract(l, r int) ([]T, error)
+}
+
+//
+
+type sliceView[T any] struct {
+	s []T
+}
+
+var _ SliceView[int] = sliceView[int]{}
+
+func (v sliceView[T]) IsNil() bool {
+	return v.s == nil
+}
+
+func (v sliceView[T]) Len() int {
+	return len(v.s)
+}
+
+func (v sliceView[T]) At(i int) (T, error) {
+	return v.s[i], nil
+}
+
+func (v sliceView[T]) Extract(l, r int) ([]T, error) {
+	if r < 0 {
+		return v.s[l:]
+	}
+	return v.s[l:r]
+}
+
+//
+
+type readerAtSliceView struct {
+	r io.ReaderAt
+	l int
+}
+
+var _ sliceView[byte] = readerAtSliceView{}
+
+func (v readerAtSliceView) IsNil() bool {
+	return v.l < 1
+}
+
+func (v readerAtSliceView) Len() int {
+	return v.l
+}
+
+func (v readerAtSliceView) At(i int) (byte, error) {
+	var b [1]byte
+	n, err := v.r.ReadAt(b[:], i)
+	if err != nil {
+		return 0, err
+	}
+	return b[0], nil
+}
+
+func (v readerAtSliceView) Extract(l, r int) ([]byte, error) {
+	var c int
+	if r < 0 {
+		c = v.l - l
+	} else {
+		c = r - l
+	}
+	b := make([]byte, c)
+	n, err := v.r.ReadAt(b, l)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+///
 
 //
 
@@ -162,7 +240,7 @@ func machoForEachSym2(r io.ReaderAt, fn func(s FileSym) bool) (ret bool, err err
 }
 
 func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error) {
-	r, err := mmap.Open(f2.name)
+	r, err := mmapu.Open(f2.name)
 	if err != nil {
 		return
 	}
