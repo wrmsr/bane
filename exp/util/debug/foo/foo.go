@@ -17,6 +17,7 @@ import (
 	"unsafe"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	eu "github.com/wrmsr/bane/pkg/util/errors"
 	iou "github.com/wrmsr/bane/pkg/util/io"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 )
@@ -73,20 +74,21 @@ func cstring(b []byte) string {
 	return string(b[0:i])
 }
 
-func (f2 machoExeFile2) ForEachSym(fn func(s ExeSym) bool) (bool, error) {
+func (f2 machoExeFile2) ForEachSym(fn func(s ExeSym) bool) (ret bool, err error) {
 	r, err := os.Open(f2.name)
 	if err != nil {
-		return false, err
+		return
 	}
+	defer eu.AppendInvoke(&err, eu.Close(r))
+
 	sr := io.NewSectionReader(r, 0, 1<<63-1)
 
 	var f macho.File
 
-	// Read and decode Mach magic to determine byte order, size.
-	// Magic32 and Magic64 differ only in the bottom bit.
+	// Read and decode Mach magic to determine byte order, size. Magic32 and Magic64 differ only in the bottom bit.
 	var ident [4]byte
-	if _, err := r.ReadAt(ident[0:], 0); err != nil {
-		return false, err
+	if _, err = r.ReadAt(ident[0:], 0); err != nil {
+		return
 	}
 	be := binary.BigEndian.Uint32(ident[0:])
 	le := binary.LittleEndian.Uint32(ident[0:])
@@ -101,12 +103,10 @@ func (f2 machoExeFile2) ForEachSym(fn func(s ExeSym) bool) (bool, error) {
 		return false, errors.New("invalid magic number")
 	}
 
-	// Read entire file header.
 	if err := binary.Read(sr, f.ByteOrder, &f.FileHeader); err != nil {
 		return false, err
 	}
 
-	// Then load commands.
 	offset := int64(machoFileHeaderSize32)
 	if f.Magic == macho.Magic64 {
 		offset = machoFileHeaderSize64
@@ -122,7 +122,6 @@ func (f2 machoExeFile2) ForEachSym(fn func(s ExeSym) bool) (bool, error) {
 	f.Loads = make([]macho.Load, 0, c)
 	bo := f.ByteOrder
 	for i := uint32(0); i < f.Ncmd; i++ {
-		// Each load command begins with uint32 command and length.
 		if len(dat) < 8 {
 			return false, errors.New("command block too small")
 		}
@@ -135,7 +134,6 @@ func (f2 machoExeFile2) ForEachSym(fn func(s ExeSym) bool) (bool, error) {
 		offset += int64(siz)
 		var s *macho.Segment
 		switch cmd {
-
 		case macho.LoadCmdSymtab:
 			var hdr macho.SymtabCmd
 			b := bytes.NewReader(cmddat)
@@ -161,7 +159,6 @@ func (f2 machoExeFile2) ForEachSym(fn func(s ExeSym) bool) (bool, error) {
 			if c < 0 {
 				return false, errors.New("too many symbols")
 			}
-			symtab := make([]macho.Symbol, 0, c)
 			b2 := bytes.NewReader(symdat)
 			for i := 0; i < int(hdr.Nsyms); i++ {
 				var n macho.Nlist64
@@ -188,19 +185,13 @@ func (f2 machoExeFile2) ForEachSym(fn func(s ExeSym) bool) (bool, error) {
 				if strings.Contains(name, ".") && name[0] == '_' {
 					name = name[1:]
 				}
-				symtab = append(symtab, macho.Symbol{
-					Name:  name,
-					Type:  n.Type,
-					Sect:  n.Sect,
-					Desc:  n.Desc,
-					Value: n.Value,
-				})
+				if !fn(ExeSym{
+					Name: name,
+					Addr: n.Value,
+				}) {
+					return false, nil
+				}
 			}
-			st := new(macho.Symtab)
-			st.LoadBytes = macho.LoadBytes(cmddat)
-			st.Syms = symtab
-			f.Loads = append(f.Loads, st)
-			f.Symtab = st
 		}
 		if s != nil {
 			if int64(s.Offset) < 0 {
