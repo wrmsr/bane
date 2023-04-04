@@ -91,6 +91,12 @@ func OpenExeFile(name string) (ExeFile, Closer, error) {
 			return nil, nil, err
 		}
 		return machoExeFile{f: f}, f.Close, nil
+	case "linux":
+		f, err := elf.Open(name)
+		if err != nil {
+			return nil, nil, err
+		}
+		return elfExeFile{f: f}, f.Close, nil
 	}
 	return nil, nil, UnsupportedPlatformError{}
 }
@@ -123,8 +129,6 @@ func main() {
 		}
 		return ofs == 0 || lp == 0
 	}))
-	fmt.Printf("ofs: %x\n", ofs)
-	fmt.Printf("lp: %x\n", lp)
 
 	var std **log.Logger = (**log.Logger)(unsafe.Pointer(lp + ofs))
 	(*std).Println("hi")
