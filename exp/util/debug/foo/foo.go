@@ -1,66 +1,134 @@
-//
-/*
-
-golang.org/x/text/cases.nlTitle: 1000b6ac0 - 1000b6ce0
-[  358]    358     Code            0x00000001000b6ac0 0x0000000100366ac0 0x0000000000000220 0x000e0000 golang.org/x/text/cases.nlTitle
-0x2B0000 = 2818048
-*/
 package main
 
 import (
 	"bufio"
-	"debug/gosym"
+	"debug/elf"
 	"debug/macho"
 	"fmt"
 	"log"
 	"os"
+	"reflect"
+	"runtime"
+	"unsafe"
 
+	"github.com/wrmsr/bane/pkg/util/check"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 )
 
-func crackMacho(file string) (*macho.File, *gosym.Table) {
-	f, err := macho.Open(file)
-	if err != nil {
-		panic(err)
-	}
-	s := f.Section("__gosymtab")
-	if s == nil {
-		panic("no __gosymtab section")
-	}
-	symdat, err := s.Data()
-	if err != nil {
-		f.Close()
-		panic(err)
-	}
-	pclndat, err := f.Section("__gopclntab").Data()
-	if err != nil {
-		f.Close()
-		panic(err)
-	}
-	pcln := gosym.NewLineTable(pclndat, f.Section("__text").Addr)
-	tab, err := gosym.NewTable(symdat, pcln)
-	if err != nil {
-		f.Close()
-		panic(err)
-	}
-	return f, tab
+//
+
+type ExeSym struct {
+	Name string
+	Addr uint64
 }
 
-func main() {
-	log.Println("hi")
+type ExeFile interface {
+	ForEachSym(fn func(s ExeSym) bool) (bool, error)
+}
 
-	f, tab := crackMacho(os.Args[0])
-	f.Close()
+//
 
-	pc := uint64(rtu.GetPc())
-	fmt.Printf("pc: %x\n", pc)
-	for _, f := range tab.Funcs {
-		fmt.Printf("%s: %x - %x\n", f.Name, f.Entry, f.End)
-		if pc >= f.Entry && pc < f.End {
-			fmt.Printf("!!!!\n")
+type machoExeFile struct {
+	f *macho.File
+}
+
+var _ ExeFile = machoExeFile{}
+
+func (f machoExeFile) ForEachSym(fn func(s ExeSym) bool) (bool, error) {
+	for _, s := range f.f.Symtab.Syms {
+		if !fn(ExeSym{
+			Name: s.Name,
+			Addr: s.Value,
+		}) {
+			return false, nil
 		}
 	}
+	return true, nil
+}
 
-	fmt.Println(os.Getpid())
+//
+
+type elfExeFile struct {
+	f *elf.File
+}
+
+var _ ExeFile = elfExeFile{}
+
+func (f elfExeFile) ForEachSym(fn func(s ExeSym) bool) (bool, error) {
+	syms, err := f.f.Symbols()
+	if err != nil {
+		return false, err
+	}
+
+	for _, s := range syms {
+		if !fn(ExeSym{
+			Name: s.Name,
+			Addr: s.Value,
+		}) {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
+//
+
+type UnsupportedPlatformError struct{}
+
+var _ error = UnsupportedPlatformError{}
+
+func (e UnsupportedPlatformError) Error() string {
+	return "unsupported platform"
+}
+
+type Closer func() error
+
+func OpenExeFile(name string) (ExeFile, Closer, error) {
+	switch runtime.GOOS {
+	case "darwin":
+		f, err := macho.Open(name)
+		if err != nil {
+			return nil, nil, err
+		}
+		return machoExeFile{f: f}, f.Close, nil
+	}
+	return nil, nil, UnsupportedPlatformError{}
+}
+
+//
+
+var marker = 0
+
+//
+
+func main() {
+	pn := rtu.GetCaller(0)
+	pu := reflect.ValueOf(&marker).Pointer()
+
+	f, clo := check.Must2(OpenExeFile(os.Args[0]))
+	defer func() {
+		clo()
+	}()
+
+	var ofs uintptr
+	var lp uintptr
+	mn := fmt.Sprintf("%s.%s", pn.Pkg, "marker")
+
+	check.Must1(f.ForEachSym(func(s ExeSym) bool {
+		if s.Name == mn {
+			ofs = pu - uintptr(s.Addr)
+		}
+		if s.Name == "log.std" {
+			lp = uintptr(s.Addr)
+		}
+		return ofs == 0 || lp == 0
+	}))
+	fmt.Printf("ofs: %x\n", ofs)
+	fmt.Printf("lp: %x\n", lp)
+
+	var std **log.Logger = (**log.Logger)(unsafe.Pointer(lp + ofs))
+	(*std).Println("hi")
+
+	log.Println(os.Getpid())
 	bufio.NewScanner(os.Stdin).Scan()
 }

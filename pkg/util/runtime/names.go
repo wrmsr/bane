@@ -38,7 +38,7 @@ func ParseName(name string) ParsedName {
 
 	sl := strings.LastIndexByte(name, '/')
 	if sl < 0 {
-		return ParsedName{Obj: name}
+		sl = 0
 	}
 	dl := strings.IndexByte(name[sl:], '.') + sl
 	if dl < 0 {
