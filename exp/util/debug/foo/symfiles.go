@@ -74,8 +74,11 @@ func (e UnsupportedPlatformError) Error() string {
 
 type Closer func() error
 
-func OpenSymFile(name string, singleShot bool) (SymFile, Closer, error) {
-	switch runtime.GOOS {
+func OpenSymFile(name string, os string, singleShot bool) (SymFile, Closer, error) {
+	if os == "" {
+		os = runtime.GOOS
+	}
+	switch os {
 	case "darwin":
 		if singleShot {
 			return machoSymFile2{name: name}, nil, nil

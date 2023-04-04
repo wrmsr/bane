@@ -30,11 +30,15 @@ func main() {
 	pu := reflect.ValueOf(&marker).Pointer()
 
 	name := os.Args[0]
+	name = "/Users/spinlock/src/wrmsr/bane/bin/linuxlogfoo"
+
+	os := ""
+	os = "linux"
 
 	var f SymFile
 	var clo Closer
 
-	f, clo = check.Must2(OpenSymFile(name, true))
+	f, clo = check.Must2(OpenSymFile(name, os, true))
 	defer func() {
 		if clo != nil {
 			check.Must(clo())
