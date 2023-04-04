@@ -210,9 +210,8 @@ func machoForEachSym2(sv SliceView[byte], fn func(s FileSym) bool) (ret bool, er
 			//	symsz = 12
 			//}
 			//uint64(hdr.Nsyms)*uint64(symsz)
-			sdr := iou.OffsetReaderAt{Off: int64(hdr.Symoff), R: r}
 			bo := f.ByteOrder
-			b2 := &iou.ReaderAtReader{R: sdr}
+			b2 := &iou.ReaderAtReader{R: iou.OffsetReaderAt{Off: int64(hdr.Symoff), R: r}}
 			for i := 0; i < int(hdr.Nsyms); i++ {
 				var n macho.Nlist64
 				if f.Magic == macho.Magic64 {

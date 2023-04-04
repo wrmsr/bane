@@ -24,7 +24,7 @@ func debugWait() {
 }
 
 func main() {
-	//debugWait()
+	debugWait()
 
 	pn := rtu.GetCaller(0)
 	pu := reflect.ValueOf(&marker).Pointer()
@@ -62,5 +62,5 @@ func main() {
 	var std **log.Logger = (**log.Logger)(unsafe.Pointer(lp + ofs))
 	(*std).Println("hi")
 
-	//debugWait()
+	debugWait()
 }
