@@ -145,8 +145,8 @@ func machoForEachSym2(sv SliceView[byte], fn func(s FileSym) bool) (ret bool, er
 	var f macho.File
 
 	// Read and decode Mach magic to determine byte order, size. Magic32 and Magic64 differ only in the bottom bit.
-	var ident [4]byte
-	if _, err = r.ReadAt(ident[0:], 0); err != nil {
+	ident, err := sv.Extract(0, 4)
+	if err != nil {
 		return
 	}
 	be := binary.BigEndian.Uint32(ident[0:])
@@ -170,7 +170,7 @@ func machoForEachSym2(sv SliceView[byte], fn func(s FileSym) bool) (ret bool, er
 	if f.Magic == macho.Magic64 {
 		offset = machoFileHeaderSize64
 	}
-	dat, err := iou.SafeReadDataAt(r, uint64(f.Cmdsz), offset, readChunkSize)
+	dat, err := sv.Extract(int(offset), int(offset)+int(f.Cmdsz))
 	if err != nil {
 		return false, err
 	}
@@ -199,17 +199,19 @@ func machoForEachSym2(sv SliceView[byte], fn func(s FileSym) bool) (ret bool, er
 			if err := binary.Read(b, bo, &hdr); err != nil {
 				return false, err
 			}
-			strtab := make([]byte, hdr.Strsize)
-			// FIXME: block caching file wrapper
-			if _, err := r.ReadAt(strtab, int64(hdr.Stroff)); err != nil {
+			strtab, err := sv.Extract(int(hdr.Stroff), int(hdr.Stroff+hdr.Strsize))
+			if err != nil {
 				return false, err
 			}
+			//var symsz int
+			//if f.Magic == macho.Magic64 {
+			//	symsz = 16
+			//} else {
+			//	symsz = 12
+			//}
+			//uint64(hdr.Nsyms)*uint64(symsz)
 			sdr := iou.OffsetReaderAt{Off: int64(hdr.Symoff), R: r}
 			bo := f.ByteOrder
-			c := iou.SafeSliceCap((*macho.Symbol)(nil), uint64(hdr.Nsyms), readChunkSize)
-			if c < 0 {
-				return false, errors.New("too many symbols")
-			}
 			b2 := &iou.ReaderAtReader{R: sdr}
 			for i := 0; i < int(hdr.Nsyms); i++ {
 				var n macho.Nlist64
