@@ -50,9 +50,9 @@ func (v sliceView[T]) At(i int) (T, error) {
 
 func (v sliceView[T]) Extract(l, r int) ([]T, error) {
 	if r < 0 {
-		return v.s[l:]
+		return v.s[l:], nil
 	}
-	return v.s[l:r]
+	return v.s[l:r], nil
 }
 
 //
@@ -62,7 +62,7 @@ type readerAtSliceView struct {
 	l int
 }
 
-var _ sliceView[byte] = readerAtSliceView{}
+var _ SliceView[byte] = readerAtSliceView{}
 
 func (v readerAtSliceView) IsNil() bool {
 	return v.l < 1
@@ -74,7 +74,7 @@ func (v readerAtSliceView) Len() int {
 
 func (v readerAtSliceView) At(i int) (byte, error) {
 	var b [1]byte
-	n, err := v.r.ReadAt(b[:], i)
+	_, err := v.r.ReadAt(b[:], int64(i))
 	if err != nil {
 		return 0, err
 	}
@@ -89,7 +89,7 @@ func (v readerAtSliceView) Extract(l, r int) ([]byte, error) {
 		c = r - l
 	}
 	b := make([]byte, c)
-	n, err := v.r.ReadAt(b, l)
+	_, err := v.r.ReadAt(b, int64(l))
 	if err != nil {
 		return nil, err
 	}
@@ -122,8 +122,6 @@ func machoCstring(b []byte) string {
 var readChunkSize = uint64(128 * 1024)
 
 func machoForEachSym2(r io.ReaderAt, fn func(s FileSym) bool) (ret bool, err error) {
-	sr := io.NewSectionReader(r, 0, 1<<63-1)
-
 	var f macho.File
 
 	// Read and decode Mach magic to determine byte order, size. Magic32 and Magic64 differ only in the bottom bit.
@@ -144,7 +142,7 @@ func machoForEachSym2(r io.ReaderAt, fn func(s FileSym) bool) (ret bool, err err
 		return false, errors.New("invalid magic number")
 	}
 
-	if err := binary.Read(sr, f.ByteOrder, &f.FileHeader); err != nil {
+	if err := binary.Read(&iou.ReaderAtReader{R: r}, f.ByteOrder, &f.FileHeader); err != nil {
 		return false, err
 	}
 
@@ -162,7 +160,6 @@ func machoForEachSym2(r io.ReaderAt, fn func(s FileSym) bool) (ret bool, err err
 	}
 	f.Loads = make([]macho.Load, 0, c)
 	bo := f.ByteOrder
-	buf := bytes.NewBuffer(nil)
 	for i := uint32(0); i < f.Ncmd; i++ {
 		if len(dat) < 8 {
 			return false, errors.New("command block too small")
