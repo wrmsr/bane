@@ -73,53 +73,6 @@ func cstring(b []byte) string {
 	return string(b[0:i])
 }
 
-func machoParseSymtab(f *macho.File, symdat, strtab, cmddat []byte, hdr *macho.SymtabCmd, offset int64) (*macho.Symtab, error) {
-	bo := f.ByteOrder
-	c := iou.SafeSliceCap((*macho.Symbol)(nil), uint64(hdr.Nsyms))
-	if c < 0 {
-		return nil, errors.New("too many symbols")
-	}
-	symtab := make([]macho.Symbol, 0, c)
-	b := bytes.NewReader(symdat)
-	for i := 0; i < int(hdr.Nsyms); i++ {
-		var n macho.Nlist64
-		if f.Magic == macho.Magic64 {
-			if err := binary.Read(b, bo, &n); err != nil {
-				return nil, err
-			}
-		} else {
-			var n32 macho.Nlist32
-			if err := binary.Read(b, bo, &n32); err != nil {
-				return nil, err
-			}
-			n.Name = n32.Name
-			n.Type = n32.Type
-			n.Sect = n32.Sect
-			n.Desc = n32.Desc
-			n.Value = uint64(n32.Value)
-		}
-		if n.Name >= uint32(len(strtab)) {
-			return nil, errors.New("invalid name in symbol table")
-		}
-		// We add "_" to Go symbols. Strip it here. See issue 33808.
-		name := cstring(strtab[n.Name:])
-		if strings.Contains(name, ".") && name[0] == '_' {
-			name = name[1:]
-		}
-		symtab = append(symtab, macho.Symbol{
-			Name:  name,
-			Type:  n.Type,
-			Sect:  n.Sect,
-			Desc:  n.Desc,
-			Value: n.Value,
-		})
-	}
-	st := new(macho.Symtab)
-	st.LoadBytes = macho.LoadBytes(cmddat)
-	st.Syms = symtab
-	return st, nil
-}
-
 func (f2 machoExeFile2) ForEachSym(fn func(s ExeSym) bool) (bool, error) {
 	r, err := os.Open(f2.name)
 	if err != nil {
@@ -203,10 +156,49 @@ func (f2 machoExeFile2) ForEachSym(fn func(s ExeSym) bool) (bool, error) {
 			if err != nil {
 				return false, err
 			}
-			st, err := machoParseSymtab(&f, symdat, strtab, cmddat, &hdr, offset)
-			if err != nil {
-				return false, err
+			bo := f.ByteOrder
+			c := iou.SafeSliceCap((*macho.Symbol)(nil), uint64(hdr.Nsyms))
+			if c < 0 {
+				return false, errors.New("too many symbols")
 			}
+			symtab := make([]macho.Symbol, 0, c)
+			b2 := bytes.NewReader(symdat)
+			for i := 0; i < int(hdr.Nsyms); i++ {
+				var n macho.Nlist64
+				if f.Magic == macho.Magic64 {
+					if err := binary.Read(b2, bo, &n); err != nil {
+						return false, err
+					}
+				} else {
+					var n32 macho.Nlist32
+					if err := binary.Read(b2, bo, &n32); err != nil {
+						return false, err
+					}
+					n.Name = n32.Name
+					n.Type = n32.Type
+					n.Sect = n32.Sect
+					n.Desc = n32.Desc
+					n.Value = uint64(n32.Value)
+				}
+				if n.Name >= uint32(len(strtab)) {
+					return false, errors.New("invalid name in symbol table")
+				}
+				// We add "_" to Go symbols. Strip it here. See issue 33808.
+				name := cstring(strtab[n.Name:])
+				if strings.Contains(name, ".") && name[0] == '_' {
+					name = name[1:]
+				}
+				symtab = append(symtab, macho.Symbol{
+					Name:  name,
+					Type:  n.Type,
+					Sect:  n.Sect,
+					Desc:  n.Desc,
+					Value: n.Value,
+				})
+			}
+			st := new(macho.Symtab)
+			st.LoadBytes = macho.LoadBytes(cmddat)
+			st.Syms = symtab
 			f.Loads = append(f.Loads, st)
 			f.Symtab = st
 		}
