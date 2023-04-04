@@ -36,6 +36,8 @@ func cstring(b []byte) string {
 	return string(b[0:i])
 }
 
+var readChunkSize = uint64(128 * 1024)
+
 func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error) {
 	r, err := os.Open(f2.name)
 	if err != nil {
@@ -73,11 +75,11 @@ func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error
 	if f.Magic == macho.Magic64 {
 		offset = machoFileHeaderSize64
 	}
-	dat, err := iou.SafeReadDataAt(r, uint64(f.Cmdsz), offset)
+	dat, err := iou.SafeReadDataAt(r, uint64(f.Cmdsz), offset, readChunkSize)
 	if err != nil {
 		return false, err
 	}
-	c := iou.SafeSliceCap((*macho.Load)(nil), uint64(f.Ncmd))
+	c := iou.SafeSliceCap((*macho.Load)(nil), uint64(f.Ncmd), readChunkSize)
 	if c < 0 {
 		return false, errors.New("too many load commands")
 	}
@@ -112,12 +114,12 @@ func (f2 machoSymFile2) ForEachSym(fn func(s FileSym) bool) (ret bool, err error
 			} else {
 				symsz = 12
 			}
-			symdat, err := iou.SafeReadDataAt(r, uint64(hdr.Nsyms)*uint64(symsz), int64(hdr.Symoff))
+			symdat, err := iou.SafeReadDataAt(r, uint64(hdr.Nsyms)*uint64(symsz), int64(hdr.Symoff), readChunkSize)
 			if err != nil {
 				return false, err
 			}
 			bo := f.ByteOrder
-			c := iou.SafeSliceCap((*macho.Symbol)(nil), uint64(hdr.Nsyms))
+			c := iou.SafeSliceCap((*macho.Symbol)(nil), uint64(hdr.Nsyms), readChunkSize)
 			if c < 0 {
 				return false, errors.New("too many symbols")
 			}

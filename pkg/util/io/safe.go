@@ -7,21 +7,18 @@ import (
 	"reflect"
 )
 
-// chunk is an arbitrary limit on how much memory we are willing to allocate without concern.
-const safeChunk = 10 << 20 // 10M
-
 // ReadData reads n bytes from the input stream, but avoids allocating all n bytes if n is large. This avoids crashing
 // the program by allocating all n bytes in cases where n is incorrect.
 //
 // The error is io.EOF only if no bytes were read. If an io.EOF happens after reading some but not all the bytes,
 // ReadData returns io.ErrUnexpectedEOF.
-func SafeReadData(r io.Reader, n uint64) ([]byte, error) {
+func SafeReadData(r io.Reader, n uint64, chunkSize uint64) ([]byte, error) {
 	if int64(n) < 0 || n != uint64(int(n)) {
 		// n is too large to fit in int, so we can't allocate a buffer large enough. Treat this as a read failure.
 		return nil, io.ErrUnexpectedEOF
 	}
 
-	if n < safeChunk {
+	if n < chunkSize {
 		buf := make([]byte, n)
 		_, err := io.ReadFull(r, buf)
 		if err != nil {
@@ -31,11 +28,11 @@ func SafeReadData(r io.Reader, n uint64) ([]byte, error) {
 	}
 
 	var buf []byte
-	buf1 := make([]byte, safeChunk)
+	buf1 := make([]byte, chunkSize)
 	for n > 0 {
 		next := n
-		if next > safeChunk {
-			next = safeChunk
+		if next > chunkSize {
+			next = chunkSize
 		}
 		_, err := io.ReadFull(r, buf1[:next])
 		if err != nil {
@@ -52,13 +49,13 @@ func SafeReadData(r io.Reader, n uint64) ([]byte, error) {
 
 // ReadDataAt reads n bytes from the input stream at off, but avoids allocating all n bytes if n is large. This avoids
 // crashing the program by allocating all n bytes in cases where n is incorrect.
-func SafeReadDataAt(r io.ReaderAt, n uint64, off int64) ([]byte, error) {
+func SafeReadDataAt(r io.ReaderAt, n uint64, off int64, chunkSize uint64) ([]byte, error) {
 	if int64(n) < 0 || n != uint64(int(n)) {
 		// n is too large to fit in int, so we can't allocate a buffer large enough. Treat this as a read failure.
 		return nil, io.ErrUnexpectedEOF
 	}
 
-	if n < safeChunk {
+	if n < chunkSize {
 		buf := make([]byte, n)
 		_, err := r.ReadAt(buf, off)
 		if err != nil {
@@ -71,11 +68,11 @@ func SafeReadDataAt(r io.ReaderAt, n uint64, off int64) ([]byte, error) {
 	}
 
 	var buf []byte
-	buf1 := make([]byte, safeChunk)
+	buf1 := make([]byte, chunkSize)
 	for n > 0 {
 		next := n
-		if next > safeChunk {
-			next = safeChunk
+		if next > chunkSize {
+			next = chunkSize
 		}
 		_, err := r.ReadAt(buf1[:next], off)
 		if err != nil {
@@ -96,7 +93,7 @@ func SafeReadDataAt(r io.ReaderAt, n uint64, off int64) ([]byte, error) {
 // The element type is described by passing a pointer to a value of that type. This would ideally use generics, but this
 // code is built with the bootstrap compiler which need not support generics. We use a pointer so that we can handle
 // slices of interface type.
-func SafeSliceCap(v any, c uint64) int {
+func SafeSliceCap(v any, c uint64, chunkSize uint64) int {
 	if int64(c) < 0 || c != uint64(int(c)) {
 		return -1
 	}
@@ -108,8 +105,8 @@ func SafeSliceCap(v any, c uint64) int {
 	if size > 0 && c > (1<<64-1)/size {
 		return -1
 	}
-	if c*size > safeChunk {
-		c = safeChunk / size
+	if c*size > chunkSize {
+		c = chunkSize / size
 		if c == 0 {
 			c = 1
 		}
