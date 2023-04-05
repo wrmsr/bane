@@ -215,11 +215,13 @@ func machoForEachSym2(sv SliceView[byte], fn func(s FileSym) bool) (ret bool, er
 			for i := 0; i < int(hdr.Nsyms); i++ {
 				var n macho.Nlist64
 				if f.Magic == macho.Magic64 {
+					// FIXME: allocs []byte
 					if err := binary.Read(b2, bo, &n); err != nil {
 						return false, err
 					}
 				} else {
 					var n32 macho.Nlist32
+					// FIXME: allocs []byte
 					if err := binary.Read(b2, bo, &n32); err != nil {
 						return false, err
 					}
@@ -233,11 +235,13 @@ func machoForEachSym2(sv SliceView[byte], fn func(s FileSym) bool) (ret bool, er
 					return false, errors.New("invalid name in symbol table")
 				}
 				// We add "_" to Go symbols. Strip it here. See issue 33808.
+				// FIXME: allocs []byte to copy string
 				name := machoCstring(strtab[n.Name:])
 				if strings.Contains(name, ".") && name[0] == '_' {
 					name = name[1:]
 				}
 				if !fn(FileSym{
+					// FIXME: name []byte? name StringView?
 					Name: name,
 					Addr: n.Value,
 				}) {
