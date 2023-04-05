@@ -12,72 +12,72 @@ import (
 
 //
 
-type coder struct {
-	order  binary.ByteOrder
-	buf    []byte
-	offset int
+type Coder struct {
+	Order  binary.ByteOrder
+	Buf    []byte
+	Offset int
 }
 
-type Decoder coder
-type Encoder coder
+type Decoder Coder
+type Encoder Coder
 
 func (d *Decoder) Bool() bool {
-	x := d.buf[d.offset]
-	d.offset++
+	x := d.Buf[d.Offset]
+	d.Offset++
 	return x != 0
 }
 
 func (e *Encoder) Bool(x bool) {
 	if x {
-		e.buf[e.offset] = 1
+		e.Buf[e.Offset] = 1
 	} else {
-		e.buf[e.offset] = 0
+		e.Buf[e.Offset] = 0
 	}
-	e.offset++
+	e.Offset++
 }
 
 func (d *Decoder) Uint8() uint8 {
-	x := d.buf[d.offset]
-	d.offset++
+	x := d.Buf[d.Offset]
+	d.Offset++
 	return x
 }
 
 func (e *Encoder) Uint8(x uint8) {
-	e.buf[e.offset] = x
-	e.offset++
+	e.Buf[e.Offset] = x
+	e.Offset++
 }
 
 func (d *Decoder) Uint16() uint16 {
-	x := d.order.Uint16(d.buf[d.offset : d.offset+2])
-	d.offset += 2
+	x := d.Order.Uint16(d.Buf[d.Offset : d.Offset+2])
+	d.Offset += 2
 	return x
 }
 
 func (e *Encoder) Uint16(x uint16) {
-	e.order.PutUint16(e.buf[e.offset:e.offset+2], x)
-	e.offset += 2
+	e.Order.PutUint16(e.Buf[e.Offset:e.Offset+2], x)
+	e.Offset += 2
 }
 
 func (d *Decoder) Uint32() uint32 {
-	x := d.order.Uint32(d.buf[d.offset : d.offset+4])
-	d.offset += 4
+	x := d.Order.Uint32(d.Buf[d.Offset : d.Offset+4])
+	d.Offset += 4
 	return x
 }
 
 func (e *Encoder) Uint32(x uint32) {
-	e.order.PutUint32(e.buf[e.offset:e.offset+4], x)
-	e.offset += 4
+	e.Order.PutUint32(e.Buf[e.Offset:e.Offset+4], x)
+	e.Offset += 4
 }
 
 func (d *Decoder) Uint64() uint64 {
-	x := d.order.Uint64(d.buf[d.offset : d.offset+8])
-	d.offset += 8
+	x := d.Order.Uint64(d.Buf[d.Offset : d.Offset+8])
+	d.Offset += 8
 	return x
 }
 
 func (e *Encoder) Uint64(x uint64) {
-	e.order.PutUint64(e.buf[e.offset:e.offset+8], x)
-	e.offset += 8
+	e.Order.PutUint64(e.Buf[e.Offset:e.Offset+8], x)
+	e.Offset += 8
 }
 
 func (d *Decoder) Int8() int8 { return int8(d.Uint8()) }
@@ -241,16 +241,16 @@ func (e *Encoder) Value(v reflect.Value) {
 }
 
 func (d *Decoder) Skip(v reflect.Value) {
-	d.offset += ValueSize(v)
+	d.Offset += ValueSize(v)
 }
 
 func (e *Encoder) Skip(v reflect.Value) {
 	n := ValueSize(v)
-	zero := e.buf[e.offset : e.offset+n]
+	zero := e.Buf[e.Offset : e.Offset+n]
 	for i := range zero {
 		zero[i] = 0
 	}
-	e.offset += n
+	e.Offset += n
 }
 
 //
@@ -356,8 +356,8 @@ func Read(r io.Reader, order binary.ByteOrder, data any) error {
 	if size < 0 {
 		return errors.New("binary.Read: invalid type " + reflect.TypeOf(data).String())
 	}
-	d := &Decoder{order: order, buf: make([]byte, size)}
-	if _, err := io.ReadFull(r, d.buf); err != nil {
+	d := &Decoder{Order: order, Buf: make([]byte, size)}
+	if _, err := io.ReadFull(r, d.Buf); err != nil {
 		return err
 	}
 	d.Value(v)
@@ -483,7 +483,7 @@ func Write(w io.Writer, order binary.ByteOrder, data any) error {
 		return errors.New("binary.Write: invalid type " + reflect.TypeOf(data).String())
 	}
 	buf := make([]byte, size)
-	e := &Encoder{order: order, buf: buf}
+	e := &Encoder{Order: order, Buf: buf}
 	e.Value(v)
 	_, err := w.Write(buf)
 	return err
