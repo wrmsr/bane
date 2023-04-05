@@ -8,33 +8,6 @@ import (
 
 ///
 
-type BytesOrString struct {
-	b []byte
-	s string
-}
-
-func (bs BytesOrString) Bytes() []byte {
-	if bs.b != nil {
-		return bs.b
-	}
-	if bs.s == "" {
-		return nil
-	}
-	return []byte(bs.s)
-}
-
-func (bs BytesOrString) String() string {
-	if bs.s != "" {
-		return bs.s
-	}
-	if len(bs.b) < 1 {
-		return ""
-	}
-	return string(bs.b)
-}
-
-///
-
 type FileSym struct {
 	Name BytesOrString
 	Addr uint64
