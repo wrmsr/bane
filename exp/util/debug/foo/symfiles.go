@@ -6,10 +6,37 @@ import (
 	"runtime"
 )
 
-//
+///
+
+type BytesOrString struct {
+	b []byte
+	s string
+}
+
+func (bs BytesOrString) Bytes() []byte {
+	if bs.b != nil {
+		return bs.b
+	}
+	if bs.s == "" {
+		return nil
+	}
+	return []byte(bs.s)
+}
+
+func (bs BytesOrString) String() string {
+	if bs.s != "" {
+		return bs.s
+	}
+	if len(bs.b) < 1 {
+		return ""
+	}
+	return string(bs.b)
+}
+
+///
 
 type FileSym struct {
-	Name string
+	Name BytesOrString
 	Addr uint64
 }
 
@@ -28,7 +55,7 @@ var _ SymFile = machoSymFile{}
 func (f machoSymFile) ForEachSym(fn func(s FileSym) bool) (bool, error) {
 	for _, s := range f.f.Symtab.Syms {
 		if !fn(FileSym{
-			Name: s.Name,
+			Name: BytesOrString{s: s.Name},
 			Addr: s.Value,
 		}) {
 			return false, nil
@@ -53,7 +80,7 @@ func (f elfSymFile) ForEachSym(fn func(s FileSym) bool) (bool, error) {
 
 	for _, s := range syms {
 		if !fn(FileSym{
-			Name: s.Name,
+			Name: BytesOrString{s: s.Name},
 			Addr: s.Value,
 		}) {
 			return false, nil

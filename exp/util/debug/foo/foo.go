@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -19,8 +18,8 @@ var marker = 0
 //
 
 func debugWait() {
-	log.Println(os.Getpid())
-	bufio.NewScanner(os.Stdin).Scan()
+	//log.Println(os.Getpid())
+	//bufio.NewScanner(os.Stdin).Scan()
 }
 
 func main() {
@@ -50,10 +49,11 @@ func main() {
 	mn := fmt.Sprintf("%s.%s", pn.Pkg, "marker")
 
 	check.Must1(f.ForEachSym(func(s FileSym) bool {
-		if s.Name == mn {
+		sn := s.Name.String()
+		if sn == mn {
 			ofs = pu - uintptr(s.Addr)
 		}
-		if s.Name == "log.std" {
+		if sn == "log.std" {
 			lp = uintptr(s.Addr)
 		}
 		return ofs == 0 || lp == 0

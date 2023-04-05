@@ -242,7 +242,7 @@ func machoForEachSym2(sv SliceView[byte], fn func(s FileSym) bool) (ret bool, er
 				}
 				if !fn(FileSym{
 					// FIXME: name []byte? name StringView?
-					Name: name,
+					Name: BytesOrString{s: name},
 					Addr: n.Value,
 				}) {
 					return false, nil
