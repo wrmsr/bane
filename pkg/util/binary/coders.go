@@ -108,10 +108,8 @@ func (d *Decoder) Value(v reflect.Value) {
 		t := v.Type()
 		l := v.NumField()
 		for i := 0; i < l; i++ {
-			// Note: Calling v.CanSet() below is an optimization.
-			// It would be sufficient to check the field name,
-			// but creating the StructField info for each field is
-			// costly (run "go test -bench=ReadStruct" and compare
+			// Note: Calling v.CanSet() below is an optimization. It would be sufficient to check the field name, but
+			// creating the StructField info for each field is costly (run "go test -bench=ReadStruct" and compare
 			// results when making changes to this code).
 			if v := v.Field(i); v.CanSet() || t.Field(i).Name != "_" {
 				d.Value(v)
