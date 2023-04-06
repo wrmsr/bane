@@ -11,12 +11,6 @@ import (
 
 //
 
-type DefaultLogger struct {
-	l *slog.Logger
-}
-
-//
-
 type colorHandler struct {
 	level Level
 }
@@ -50,12 +44,20 @@ func (h *colorHandler) WithGroup(name string) Handler {
 func TestSlog(t *testing.T) {
 	slog.SetDefault(slog.New(
 		//slog.NewTextHandler(os.Stderr),
-		slog.NewJSONHandler(os.Stderr),
+		//slog.NewJSONHandler(os.Stderr),
+		slog.HandlerOptions{
+			AddSource: true,
+		}.NewJSONHandler(os.Stderr),
 	))
 
 	slog.Info("hello", "name", "Al")
 	slog.Error("oops", "err", net.ErrClosed, "status", 500)
 
-	slog.LogAttrs(nil, slog.LevelError, "oops",
-		slog.Any("err", net.ErrClosed), slog.Int("status", 500))
+	slog.LogAttrs(nil, slog.LevelError, "oops", slog.Any("err", net.ErrClosed), slog.Int("status", 500))
+
+	l := slogLogger{slog.Default()}
+	l.Info("hi")
+
+	var dl DefaultLogger
+	dl.Info("hi2")
 }
