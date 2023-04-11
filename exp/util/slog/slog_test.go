@@ -11,8 +11,10 @@ package slog
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"testing"
 
 	"golang.org/x/exp/slog"
@@ -65,9 +67,22 @@ func TestSlog(t *testing.T) {
 
 	slog.LogAttrs(nil, slog.LevelError, "oops", slog.Any("err", net.ErrClosed), slog.Int("status", 500))
 
-	l := slogLogger{slog.Default()}
+	var l Logger
 	l.Info("hi")
+}
 
-	var dl DefaultLogger
-	dl.Info("hi2")
+func TestAllocs(t *testing.T) {
+	slog.SetDefault(slog.New(NullHandler{}))
+
+	var l Logger
+	n := testing.AllocsPerRun(1_000, func() {
+		var a []any
+		a = append(a, "foo", 420)
+		for i := 0; i < 3; i++ {
+			a = append(a, strconv.Itoa(i), i)
+		}
+		l.Info("hi", a...)
+	})
+
+	fmt.Println(n)
 }

@@ -69,23 +69,34 @@ func ArgsToAttr(args []any) (Attr, []any) {
 
 //
 
+func DefaultHandler() Handler {
+	// FIXME: cache
+	return slog.Default().Handler()
+}
+
+//
+
 type Logger struct {
 	h   Handler
 	ctx context.Context
+}
+
+func NewLogger(h Handler) Logger {
+	return Logger{
+		h: h,
+	}
 }
 
 func (l Logger) Handler() Handler {
 	return l.h
 }
 
-func DefaultHandler() Handler {
-	// FIXME: cache
-	return slog.Default().Handler()
-}
-
 func (l Logger) DefaultHandler() Handler {
-	if l.h != nil {
-		return DefaultHandler()
+	if h := l.h; h != nil {
+		return h
+	}
+	if h := DefaultHandler(); h != nil {
+		return h
 	}
 	return NullHandler{}
 }
@@ -146,15 +157,14 @@ func (l LogPanic) Error() string {
 
 var IgnorePC = false
 
-func (l Logger) log(
+func log(
+	ctx context.Context,
+	h Handler,
 	level Level,
 	action Action,
 	msg string,
 	args ...any,
 ) {
-	h := l.h
-	ctx := l.DefaultContext()
-
 	if !h.Enabled(ctx, level) {
 		return
 	}
@@ -162,7 +172,8 @@ func (l Logger) log(
 	var pc uintptr
 	if !IgnorePC {
 		var pcs [1]uintptr
-		runtime.Callers(3, pcs[:])
+		// skip [runtime.Callers, log, Logger.log, Logger.<public>]
+		runtime.Callers(4, pcs[:])
 		pc = pcs[0]
 	}
 
@@ -174,7 +185,7 @@ func (l Logger) log(
 		r.AddAttrs(attr)
 	}
 
-	_ = l.Handler().Handle(ctx, r)
+	_ = h.Handle(ctx, r)
 
 	switch action {
 	case ActionPanic:
@@ -185,6 +196,22 @@ func (l Logger) log(
 }
 
 //
+
+func (l Logger) log(
+	level Level,
+	action Action,
+	msg string,
+	args ...any,
+) {
+	log(
+		l.DefaultContext(),
+		l.DefaultHandler(),
+		level,
+		action,
+		msg,
+		args...,
+	)
+}
 
 func (l Logger) Log(level Level, msg string, args ...any) { l.log(level, ActionNone, msg, args...) }
 
