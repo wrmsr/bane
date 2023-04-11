@@ -129,6 +129,10 @@ var safeSet = [utf8.RuneSelf]bool{
 	'\u007f': true,
 }
 
+func IsSafeRune(r rune) bool {
+	return safeSet[r]
+}
+
 // htmlSafeSet holds the value true if the ASCII character with the given array position can be safely represented
 // inside a JSON string, embedded inside of HTML <script> tags, without any additional escaping.
 //
@@ -231,4 +235,8 @@ var htmlSafeSet = [utf8.RuneSelf]bool{
 	'}':      true,
 	'~':      true,
 	'\u007f': true,
+}
+
+func IsHtmlSafeRune(r rune) bool {
+	return htmlSafeSet[r]
 }

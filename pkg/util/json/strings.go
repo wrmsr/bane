@@ -245,6 +245,76 @@ func EncodeStringBytes(w io.Writer, s []byte, escapeHTML bool) error {
 	return nil
 }
 
+// FIXME: :|
+func AppendEncodedString(buf []byte, s string, escapeHTML bool) []byte {
+	char := func(b byte) { buf = append(buf, b) }
+	str := func(s string) { buf = append(buf, s...) }
+
+	start := 0
+	for i := 0; i < len(s); {
+		if b := s[i]; b < utf8.RuneSelf {
+			if htmlSafeSet[b] || (!escapeHTML && safeSet[b]) {
+				i++
+				continue
+			}
+			if start < i {
+				str(s[start:i])
+			}
+			char('\\')
+			switch b {
+			case '\\', '"':
+				char(b)
+			case '\n':
+				char('n')
+			case '\r':
+				char('r')
+			case '\t':
+				char('t')
+			default:
+				// This encodes bytes < 0x20 except for \t, \n and \r.
+				str(`u00`)
+				char(hex[b>>4])
+				char(hex[b&0xF])
+			}
+			i++
+			start = i
+			continue
+		}
+		c, size := utf8.DecodeRuneInString(s[i:])
+		if c == utf8.RuneError && size == 1 {
+			if start < i {
+				str(s[start:i])
+			}
+			str(`\ufffd`)
+			i += size
+			start = i
+			continue
+		}
+		// U+2028 is LINE SEPARATOR.
+		// U+2029 is PARAGRAPH SEPARATOR.
+		// They are both technically valid characters in JSON strings,
+		// but don't work in JSONP, which has to be evaluated as JavaScript,
+		// and can lead to security holes there. It is valid JSON to
+		// escape them, so we do so unconditionally.
+		// See http://timelessrepo.com/json-isnt-a-javascript-subset for discussion.
+		if c == '\u2028' || c == '\u2029' {
+			if start < i {
+				str(s[start:i])
+			}
+			str(`\u202`)
+			char(hex[c&0xF])
+			i += size
+			start = i
+			continue
+		}
+		i += size
+	}
+	if start < len(s) {
+		str(s[start:])
+	}
+	return buf
+}
+
 // getu4 decodes \uXXXX from the beginning of s, returning the hex value,
 // or it returns -1.
 func getu4(s []byte) rune {
