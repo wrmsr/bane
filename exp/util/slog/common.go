@@ -5,6 +5,7 @@ package slog
 import (
 	"fmt"
 	"io"
+	"runtime"
 	"strconv"
 	"sync"
 	"time"
@@ -24,23 +25,25 @@ type CommonOpts struct {
 
 type commonHandler struct {
 	opts CommonOpts
+	w    io.Writer
+
+	mtx sync.Mutex
 
 	preformattedAttrs []byte
 	groupPrefix       string
 	groups            []string
 	nOpenGroups       int
-	mu                sync.Mutex
-	w                 io.Writer
 }
 
 func (h *commonHandler) clone() *commonHandler {
 	return &commonHandler{
-		opts:              h.opts,
+		w:    h.w,
+		opts: h.opts,
+
 		preformattedAttrs: slices.Clip(h.preformattedAttrs),
 		groupPrefix:       h.groupPrefix,
 		groups:            slices.Clip(h.groups),
 		nOpenGroups:       h.nOpenGroups,
-		w:                 h.w,
 	}
 }
 
@@ -54,10 +57,12 @@ func (h *commonHandler) enabled(l Level) bool {
 
 func (h *commonHandler) withAttrs(as []Attr) *commonHandler {
 	h2 := h.clone()
+
 	// Pre-format the attributes as an optimization.
 	prefix := buffer.New()
 	defer prefix.Free()
 	prefix.WriteString(h.groupPrefix)
+
 	state := h2.newHandleState((*buffer.Buffer)(&h2.preformattedAttrs), false, "", prefix)
 	defer state.free()
 	if len(h2.preformattedAttrs) > 0 {
@@ -67,10 +72,13 @@ func (h *commonHandler) withAttrs(as []Attr) *commonHandler {
 	for _, a := range as {
 		state.appendAttr(a)
 	}
+
 	// Remember the new prefix for later keys.
 	h2.groupPrefix = state.prefix.String()
+
 	// Remember how many opened groups are in preformattedAttrs, so we don't open them again when we handle a Record.
 	h2.nOpenGroups = len(h2.groups)
+
 	return h2
 }
 
@@ -83,16 +91,25 @@ func (h *commonHandler) withGroup(name string) *commonHandler {
 	return h2
 }
 
+func RecordFrame(r Record) runtime.Frame {
+	fs := runtime.CallersFrames([]uintptr{r.PC})
+	f, _ := fs.Next()
+	return f
+}
+
 func (h *commonHandler) handle(r Record) error {
 	state := h.newHandleState(buffer.New(), true, "", nil)
 	defer state.free()
+
 	if h.json {
 		state.buf.WriteByte('{')
 	}
+
 	// Built-in attributes. They are not in a group.
 	stateGroups := state.groups
 	state.groups = nil // So ReplaceAttrs sees no groups instead of the pre groups.
 	rep := h.opts.ReplaceAttr
+
 	// time
 	if !r.Time.IsZero() {
 		key := TimeKey
@@ -104,6 +121,7 @@ func (h *commonHandler) handle(r Record) error {
 			state.appendAttr(Time(key, val))
 		}
 	}
+
 	// level
 	key := LevelKey
 	val := r.Level
@@ -113,9 +131,10 @@ func (h *commonHandler) handle(r Record) error {
 	} else {
 		state.appendAttr(Any(key, val))
 	}
+
 	// source
 	if h.opts.AddSource {
-		frame := r.frame()
+		frame := RecordFrame(r)
 		if frame.File != "" {
 			key := SourceKey
 			if rep == nil {
@@ -132,6 +151,7 @@ func (h *commonHandler) handle(r Record) error {
 			}
 		}
 	}
+
 	key = MessageKey
 	msg := r.Message
 	if rep == nil {
@@ -140,12 +160,13 @@ func (h *commonHandler) handle(r Record) error {
 	} else {
 		state.appendAttr(String(key, msg))
 	}
+
 	state.groups = stateGroups // Restore groups passed to ReplaceAttrs.
 	state.appendNonBuiltIns(r)
 	state.buf.WriteByte('\n')
 
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.mtx.Lock()
+	defer h.mtx.Unlock()
 	_, err := h.w.Write(*state.buf)
 	return err
 }
@@ -157,8 +178,7 @@ func (s *handleState) appendNonBuiltIns(r Record) {
 		s.buf.Write(s.h.preformattedAttrs)
 		s.sep = s.h.attrSep()
 	}
-	// Attrs in Record -- unlike the built-in ones, they are in groups started
-	// from WithGroup.
+	// Attrs in Record -- unlike the built-in ones, they are in groups started from WithGroup.
 	s.prefix = buffer.New()
 	defer s.prefix.Free()
 	s.prefix.WriteString(s.h.groupPrefix)
@@ -184,9 +204,8 @@ func (h *commonHandler) attrSep() string {
 	return " "
 }
 
-// handleState holds state for a single call to commonHandler.handle.
-// The initial value of sep determines whether to emit a separator
-// before the next key, after which it stays true.
+// handleState holds state for a single call to commonHandler.handle. The initial value of sep determines whether to
+// emit a separator before the next key, after which it stays true.
 type handleState struct {
 	h       *commonHandler
 	buf     *buffer.Buffer
@@ -271,10 +290,12 @@ func (s *handleState) closeGroup(name string) {
 // after replacement).
 func (s *handleState) appendAttr(a Attr) {
 	v := a.Value
+
 	// Elide a non-group with an empty key.
 	if a.Key == "" && v.Kind() != KindGroup {
 		return
 	}
+
 	if rep := s.h.opts.ReplaceAttr; rep != nil && v.Kind() != KindGroup {
 		var gs []string
 		if s.groups != nil {
@@ -288,6 +309,7 @@ func (s *handleState) appendAttr(a Attr) {
 		// This one came from the user, so it may not have been.
 		v = a.Value.Resolve()
 	}
+
 	if v.Kind() == KindGroup {
 		attrs := v.Group()
 		// Output only non-empty groups.

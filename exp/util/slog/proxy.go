@@ -25,18 +25,22 @@ func Any(key string, value any) Attr            { return slog.Any(key, value) }
 
 type Handler = slog.Handler
 
-const TimeKey = slog.TimeKey
-const LevelKey = slog.LevelKey
-const MessageKey = slog.MessageKey
-const SourceKey = slog.SourceKey
+const (
+	TimeKey    = slog.TimeKey
+	LevelKey   = slog.LevelKey
+	MessageKey = slog.MessageKey
+	SourceKey  = slog.SourceKey
+)
 
 type Level = slog.Level
 type LevelVar = slog.LevelVar
 
-const LevelDebug = slog.LevelDebug
-const LevelInfo = slog.LevelInfo
-const LevelWarn = slog.LevelWarn
-const LevelError = slog.LevelError
+const (
+	LevelDebug = slog.LevelDebug
+	LevelInfo  = slog.LevelInfo
+	LevelWarn  = slog.LevelWarn
+	LevelError = slog.LevelError
+)
 
 type Leveler = slog.Leveler
 
@@ -48,3 +52,16 @@ type Record = slog.Record
 
 type Kind = slog.Kind
 type Value = slog.Value
+
+const (
+	KindAny       = slog.KindAny
+	KindBool      = slog.KindBool
+	KindDuration  = slog.KindDuration
+	KindFloat64   = slog.KindFloat64
+	KindInt64     = slog.KindInt64
+	KindString    = slog.KindString
+	KindTime      = slog.KindTime
+	KindUint64    = slog.KindUint64
+	KindGroup     = slog.KindGroup
+	KindLogValuer = slog.KindLogValuer
+)
