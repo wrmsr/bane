@@ -1,6 +1,12 @@
+// Copyright 2022 The Go Authors. All rights reserved. Use of this source code is governed by a BSD-style license that
+// can be found in the LICENSE file.
 package handlers
 
-import "time"
+import (
+	"time"
+
+	"github.com/wrmsr/bane/exp/util/slog"
+)
 
 type jsonCommonHandlerImpl struct{}
 
@@ -46,7 +52,7 @@ func (i jsonCommonHandlerImpl) appendString(s *handleState, str string) {
 	s.buf.WriteByte('"')
 }
 
-func (i jsonCommonHandlerImpl) appendValue(s *handleState, v Value) {
+func (i jsonCommonHandlerImpl) appendValue(s *handleState, v slog.Value) {
 	var err error
 	err = appendJSONValue(s, v)
 	if err != nil {
