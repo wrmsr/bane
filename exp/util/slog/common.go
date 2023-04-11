@@ -178,6 +178,7 @@ func (s *handleState) appendNonBuiltIns(r Record) {
 		s.buf.Write(s.h.preformattedAttrs)
 		s.sep = s.h.attrSep()
 	}
+
 	// Attrs in Record -- unlike the built-in ones, they are in groups started from WithGroup.
 	s.prefix = buffer.New()
 	defer s.prefix.Free()
@@ -186,6 +187,7 @@ func (s *handleState) appendNonBuiltIns(r Record) {
 	r.Attrs(func(a Attr) {
 		s.appendAttr(a)
 	})
+
 	if s.h.json {
 		// Close all open groups.
 		for range s.h.groups {
@@ -254,8 +256,7 @@ func (s *handleState) openGroups() {
 // Separator for group names and keys.
 const keyComponentSep = '.'
 
-// openGroup starts a new group of attributes
-// with the given name.
+// openGroup starts a new group of attributes with the given name.
 func (s *handleState) openGroup(name string) {
 	if s.h.json {
 		s.appendKey(name)
