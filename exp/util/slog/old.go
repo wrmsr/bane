@@ -3,7 +3,13 @@ package slog
 import (
 	"io"
 	old "log"
+	"reflect"
 )
+
+func isSlogDefaultHandler(h Handler) bool {
+	ty := reflect.ValueOf(h).Elem().Type()
+	return ty.String() == "slog.defaultHandler"
+}
 
 type oldLogAdapter struct {
 	l  Logger
