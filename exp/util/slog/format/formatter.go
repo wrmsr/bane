@@ -16,6 +16,8 @@ import (
 //
 
 type FormatterOpts struct {
+	OmitTime  bool
+	OmitLevel bool
 	AddSource bool
 
 	ReplaceAttr func(groups []string, a slog.Attr) slog.Attr
@@ -122,7 +124,7 @@ func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 	rep := f.opts.ReplaceAttr
 
 	// time
-	if !r.Time.IsZero() {
+	if !f.opts.OmitTime && !r.Time.IsZero() {
 		key := slog.TimeKey
 		val := r.Time.Round(0) // strip monotonic to match Attr behavior
 		if rep == nil {
@@ -134,13 +136,15 @@ func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 	}
 
 	// level
-	key := slog.LevelKey
-	val := r.Level
-	if rep == nil {
-		st.appendKey(key)
-		st.appendString(val.String())
-	} else {
-		st.appendAttr(slog.Any(key, val))
+	if !f.opts.OmitLevel {
+		key := slog.LevelKey
+		val := r.Level
+		if rep == nil {
+			st.appendKey(key)
+			st.appendString(val.String())
+		} else {
+			st.appendAttr(slog.Any(key, val))
+		}
 	}
 
 	// source
@@ -163,7 +167,7 @@ func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 		}
 	}
 
-	key = slog.MessageKey
+	key := slog.MessageKey
 	msg := r.Message
 	if rep == nil {
 		st.appendKey(key)

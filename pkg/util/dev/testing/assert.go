@@ -32,3 +32,13 @@ func AssertNoErr(t *testing.T, err error) {
 		t.Fatalf("%v", err)
 	}
 }
+
+func AssertPanic(t *testing.T, fn func()) (p any) {
+	defer func() {
+		if p = recover(); p == nil {
+			t.Fatalf("should panic")
+		}
+	}()
+	fn()
+	return
+}

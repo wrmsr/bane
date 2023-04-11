@@ -11,14 +11,14 @@ func isSlogDefaultHandler(h Handler) bool {
 	return ty.String() == "slog.defaultHandler"
 }
 
-type oldLogAdapter struct {
+type loggerWriter struct {
 	l  Logger
 	lv Level
 }
 
-var _ io.Writer = oldLogAdapter{}
+var _ io.Writer = loggerWriter{}
 
-func (a oldLogAdapter) Write(p []byte) (n int, err error) {
+func (a loggerWriter) Write(p []byte) (n int, err error) {
 	p2 := p
 	if len(p2) > 0 && p2[len(p2)-1] == '\n' {
 		p2 = p2[:len(p2)-1]
@@ -35,6 +35,15 @@ func (a oldLogAdapter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func InstallOldAdapter(o *old.Logger, l Logger, level Level) {
-	o.SetOutput(oldLogAdapter{l: l, lv: level})
+func InstallOldWriter(o *old.Logger, l Logger, level Level) {
+	if isSlogDefaultHandler(l.Handler()) {
+		h := NewFormatterHandler(
+			nil, // FIXME:
+			old.Writer().Write,
+			LevelInfo,
+		)
+		l = Logger{h: &h}
+		panic("FIXME")
+	}
+	o.SetOutput(loggerWriter{l: l, lv: level})
 }

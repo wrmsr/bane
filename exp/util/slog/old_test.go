@@ -19,12 +19,17 @@ func TestOldDetect(t *testing.T) {
 }
 
 func TestOld(t *testing.T) {
-	//stdslog.SetDefault(stdslog.New(stdslog.HandlerOptions{AddSource: true}.NewJSONHandler(os.Stderr)))
+	stdslog.Info("hi")
+	tu.AssertPanic(t, func() {
+		InstallOldWriter(old.Default(), Default(), LevelInfo)
+	})
+
+	stdslog.SetDefault(stdslog.New(stdslog.HandlerOptions{AddSource: true}.NewJSONHandler(os.Stderr)))
 
 	o := old.Default()
 	fmt.Printf("%#v\n", o)
 
-	InstallOldAdapter(o, Default(), LevelInfo)
+	InstallOldWriter(o, Default(), LevelInfo)
 	o.SetFlags(0)
 
 	old.Println("hi")
