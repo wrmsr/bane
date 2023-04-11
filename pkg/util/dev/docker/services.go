@@ -15,8 +15,8 @@ import (
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
 	fnu "github.com/wrmsr/bane/pkg/util/funcs"
 	inj "github.com/wrmsr/bane/pkg/util/inject"
-	"github.com/wrmsr/bane/pkg/util/log"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 	stru "github.com/wrmsr/bane/pkg/util/strings"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )

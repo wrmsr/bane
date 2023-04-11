@@ -11,9 +11,9 @@ import (
 	"github.com/wrmsr/bane/exp/util/python"
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev/paths"
-	"github.com/wrmsr/bane/pkg/util/log"
 	osu "github.com/wrmsr/bane/pkg/util/os"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 )
 
 /*

@@ -9,8 +9,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/wrmsr/bane/pkg/util/log"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 )
 
 func crackElf(file string, t *testing.T) (*elf.File, *gosym.Table) {

@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	"github.com/wrmsr/bane/pkg/util/log"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 

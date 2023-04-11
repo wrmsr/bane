@@ -8,7 +8,7 @@ import (
 
 	"github.com/chzyer/readline"
 
-	"github.com/wrmsr/bane/pkg/util/log"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 )
 
 var interrupted = make(chan os.Signal, 1)

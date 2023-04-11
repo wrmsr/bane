@@ -8,8 +8,8 @@ import (
 
 	"github.com/wrmsr/bane/exp/util/python"
 	"github.com/wrmsr/bane/pkg/util/check"
-	"github.com/wrmsr/bane/pkg/util/log"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 )
 
 func ShittyReadFloat32s(pth string) []float32 {

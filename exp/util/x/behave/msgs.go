@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/wrmsr/bane/pkg/util/check"
-	"github.com/wrmsr/bane/pkg/util/log"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 
@@ -51,7 +51,7 @@ type Dispatcher[T any] struct {
 
 	queue slices.PriorityQueue[Delayed[T]]
 
-	log log.DefaultGlobalLogger
+	log log.Logger
 }
 
 func NewDispatcher[T any]() *Dispatcher[T] {

@@ -12,8 +12,8 @@ import (
 
 	"github.com/wrmsr/bane/pkg/util/check"
 	"github.com/wrmsr/bane/pkg/util/dev"
-	"github.com/wrmsr/bane/pkg/util/log"
 	rfl "github.com/wrmsr/bane/pkg/util/reflect"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 	sqa "github.com/wrmsr/bane/pkg/util/sql/adapters"
 	sqb "github.com/wrmsr/bane/pkg/util/sql/base"
 	bt "github.com/wrmsr/bane/pkg/util/types"

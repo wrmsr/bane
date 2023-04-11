@@ -17,9 +17,9 @@ import (
 	tgdev "github.com/wrmsr/bane/exp/util/tg/dev"
 	"github.com/wrmsr/bane/pkg/util/check"
 	ju "github.com/wrmsr/bane/pkg/util/json"
-	"github.com/wrmsr/bane/pkg/util/log"
 	nd "github.com/wrmsr/bane/pkg/util/ndarray"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 	bt "github.com/wrmsr/bane/pkg/util/types"
 )
 

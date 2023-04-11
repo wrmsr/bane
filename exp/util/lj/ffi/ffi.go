@@ -5,7 +5,7 @@ import (
 	_ "unsafe"
 
 	"github.com/wrmsr/bane/exp/util/unsafe/dl"
-	"github.com/wrmsr/bane/pkg/util/log"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 )
 
 const CCALL_NARG_GPR = 8

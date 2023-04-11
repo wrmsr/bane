@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"net"
 
-	"github.com/wrmsr/bane/pkg/util/log"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 )
 
 type Server struct {

@@ -4,7 +4,7 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/wrmsr/bane/pkg/util/log"
+	log "github.com/wrmsr/bane/pkg/util/slog"
 )
 
 func mmapFile(f *os.File) mmapData {
