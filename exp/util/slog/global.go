@@ -60,57 +60,59 @@ func ErrorCtx(ctx context.Context, msg string, args ...any) {
 
 //
 
-//func Panic(msg any, args ...Arg) {
-//	if msg, ok := msg.(string); ok {
-//		Global().Log(PanicLevel, msg, args...)
-//		return
-//	}
-//	Global().Log(PanicLevel, fmt.Sprint(msg), args...)
-//}
+func Panic(obj any, args ...any) {
+	var msg string
+	var ok bool
+	if msg, ok = obj.(string); !ok {
+		msg = fmt.Sprint(obj)
+	}
+	Default().log(LevelError, ActionPanic, msg, args...)
+}
 
-//func Fatal(msg any, args ...Arg) {
-//	if msg, ok := msg.(string); ok {
-//		Global().Log(FatalLevel, msg, args...)
-//		return
-//	}
-//	Global().Log(FatalLevel, fmt.Sprint(msg), args...)
-//}
+func Fatal(obj any, args ...any) {
+	var msg string
+	var ok bool
+	if msg, ok = obj.(string); !ok {
+		msg = fmt.Sprint(obj)
+	}
+	Default().log(LevelError, ActionFatal, msg, args...)
+}
 
-//func IfError(err error, args ...Arg) {
-//	if err != nil {
-//		Global().Log(ErrorLevel, "error", append(args, E(err))...)
-//	}
-//}
+func IfError(err error, args ...any) {
+	if err != nil {
+		Default().log(LevelError, ActionNone, ErrorMsg, append(args, E(err))...)
+	}
+}
 
-//func IfPanic(err error, args ...Arg) {
-//	if err != nil {
-//		Global().Log(PanicLevel, "error", append(args, E(err))...)
-//	}
-//}
+func IfPanic(err error, args ...any) {
+	if err != nil {
+		Default().log(LevelError, ActionPanic, ErrorMsg, append(args, E(err))...)
+	}
+}
 
-//func IfFatal(err error, args ...Arg) {
-//	if err != nil {
-//		Global().Log(FatalLevel, "error", append(args, E(err))...)
-//	}
-//}
+func IfFatal(err error, args ...any) {
+	if err != nil {
+		Default().log(LevelError, ActionFatal, ErrorMsg, append(args, E(err))...)
+	}
+}
 
-//func OrError(fn func() error, args ...Arg) {
-//	if err := fn(); err != nil {
-//		Global().Log(ErrorLevel, "error", append(args, E(err))...)
-//	}
-//}
+func OrError(fn func() error, args ...any) {
+	if err := fn(); err != nil {
+		Default().log(LevelError, ActionNone, ErrorMsg, append(args, E(err))...)
+	}
+}
 
-//func OrPanic(fn func() error, args ...Arg) {
-//	if err := fn(); err != nil {
-//		Global().Log(PanicLevel, "error", append(args, E(err))...)
-//	}
-//}
+func OrPanic(fn func() error, args ...any) {
+	if err := fn(); err != nil {
+		Default().log(LevelError, ActionPanic, ErrorMsg, append(args, E(err))...)
+	}
+}
 
-//func OrFatal(fn func() error, args ...Arg) {
-//	if err := fn(); err != nil {
-//		Global().Log(FatalLevel, "error", append(args, E(err))...)
-//	}
-//}
+func OrFatal(fn func() error, args ...any) {
+	if err := fn(); err != nil {
+		Default().log(LevelError, ActionFatal, ErrorMsg, append(args, E(err))...)
+	}
+}
 
 //
 

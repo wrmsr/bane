@@ -12,51 +12,6 @@ import (
 
 //
 
-type Action int8
-
-const (
-	ActionNone Action = iota
-	ActionPanic
-	ActionFatal
-)
-
-func (a Action) String() string {
-	switch a {
-	case ActionNone:
-		return "none"
-	case ActionPanic:
-		return "panic"
-	case ActionFatal:
-		return "fatal"
-	}
-	panic(a)
-}
-
-//
-
-const BadKey = "!BADKEY"
-
-func ArgsToAttr(args []any) (Attr, []any) {
-	switch x := args[0].(type) {
-	case string:
-		if len(args) == 1 {
-			return String(BadKey, x), nil
-		}
-		a := Any(x, args[1])
-		a.Value = a.Value.Resolve()
-		return a, args[2:]
-
-	case Attr:
-		x.Value = x.Value.Resolve()
-		return x, args[1:]
-
-	default:
-		return Any(BadKey, x), args[1:]
-	}
-}
-
-//
-
 func DefaultHandler() Handler {
 	// FIXME: cache
 	return slog.Default().Handler()
@@ -232,13 +187,61 @@ func (l Logger) Debug(msg string, args ...any) { l.log(LevelDebug, ActionNone, m
 func (l Logger) Info(msg string, args ...any)  { l.log(LevelInfo, ActionNone, msg, args...) }
 func (l Logger) Warn(msg string, args ...any)  { l.log(LevelWarn, ActionNone, msg, args...) }
 func (l Logger) Error(msg string, args ...any) { l.log(LevelError, ActionNone, msg, args...) }
-func (l Logger) Panic(msg string, args ...any) { l.log(LevelError, ActionPanic, msg, args...) }
-func (l Logger) Fatal(msg string, args ...any) { l.log(LevelError, ActionFatal, msg, args...) }
 
-func (l Logger) IfError(err error, args ...any) {}
-func (l Logger) IfPanic(err error, args ...any) {}
-func (l Logger) IfFatal(err error, args ...any) {}
+//
 
-func (l Logger) OrError(fn func() error, args ...any) {}
-func (l Logger) OrPanic(fn func() error, args ...any) {}
-func (l Logger) OrFatal(fn func() error, args ...any) {}
+func (l Logger) Panic(obj any, args ...any) {
+	var msg string
+	var ok bool
+	if msg, ok = obj.(string); !ok {
+		msg = fmt.Sprint(obj)
+	}
+	l.log(LevelError, ActionPanic, msg, args...)
+}
+
+func (l Logger) Fatal(obj any, args ...any) {
+	var msg string
+	var ok bool
+	if msg, ok = obj.(string); !ok {
+		msg = fmt.Sprint(obj)
+	}
+	l.log(LevelError, ActionFatal, msg, args...)
+}
+
+const ErrorMsg = "error"
+
+func (l Logger) IfError(err error, args ...any) {
+	if err != nil {
+		l.log(LevelError, ActionNone, ErrorMsg, append(args, E(err))...)
+	}
+}
+
+func (l Logger) IfPanic(err error, args ...any) {
+	if err != nil {
+		l.log(LevelError, ActionPanic, ErrorMsg, append(args, E(err))...)
+	}
+}
+
+func (l Logger) IfFatal(err error, args ...any) {
+	if err != nil {
+		l.log(LevelError, ActionFatal, ErrorMsg, append(args, E(err))...)
+	}
+}
+
+func (l Logger) OrError(fn func() error, args ...any) {
+	if err := fn(); err != nil {
+		l.log(LevelError, ActionNone, ErrorMsg, append(args, E(err))...)
+	}
+}
+
+func (l Logger) OrPanic(fn func() error, args ...any) {
+	if err := fn(); err != nil {
+		l.log(LevelError, ActionPanic, ErrorMsg, append(args, E(err))...)
+	}
+}
+
+func (l Logger) OrFatal(fn func() error, args ...any) {
+	if err := fn(); err != nil {
+		l.log(LevelError, ActionFatal, ErrorMsg, append(args, E(err))...)
+	}
+}

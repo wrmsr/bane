@@ -11,6 +11,7 @@ package slog_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -76,13 +77,23 @@ func TestSlog(t *testing.T) {
 	slog.Info("hi")
 
 	//slog.LogAttrs(nil, )
+
+	l.OrError(func() error {
+		return errors.New("oops")
+	})
+
+	slog.OrError(func() error {
+		return errors.New("oops")
+	})
 }
 
 func TestAllocs(t *testing.T) {
 	stdslog.SetDefault(stdslog.New(slog.NullHandler{}))
+	var l slog.Logger
 
 	n := testing.AllocsPerRun(1_000, func() {
 		slog.Info("hi", "foo", 420)
+		l.Info("hi", "foo", 421)
 	})
 
 	fmt.Println(n)
