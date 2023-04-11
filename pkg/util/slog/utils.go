@@ -9,3 +9,9 @@ func RecordFrame(r Record) runtime.Frame {
 	f, _ := fs.Next()
 	return f
 }
+
+func ParseLevel(s string) (Level, error) {
+	var l Level
+	err := l.UnmarshalText([]byte(s))
+	return l, err
+}
