@@ -26,6 +26,8 @@ type LogConfig struct {
 func LogBootstrap(cfg LogConfig, ds *eu.DeferStack) error {
 	var fo slogf.FormatterOpts
 
+	fo.AddSource = true
+
 	var f slog.Formatter
 	switch cfg.Format {
 	case LogText:
@@ -38,18 +40,19 @@ func LogBootstrap(cfg LogConfig, ds *eu.DeferStack) error {
 		panic(cfg.Format)
 	}
 
-	w := stdlog.Default().Writer()
+	lv := cfg.Level
 
-	h := slog.NewFormatterHandler(
-		f,
-		w.Write,
-		cfg.Level,
-	)
+	o := stdlog.Default()
+	w := o.Writer()
+	h := slog.NewFormatterHandler(f, w.Write, lv)
+	l := slog.NewLogger(&h)
+	n := stdslog.New(slog.AsStdHandler(&h))
 
-	o := stdslog.Default()
-	stdslog.SetDefault(stdslog.New(slog.AsStdHandler(&h)))
+	stdslog.SetDefault(n)
+	slog.InstallOldWriter(o, l, lv)
 	ds.Defer(func() {
-		stdslog.SetDefault(o)
+		o.SetOutput(w)
+		stdslog.SetDefault(n)
 	})
 
 	return nil
