@@ -1,13 +1,11 @@
 package slog
 
-import "golang.org/x/exp/slog"
-
 //
 
 const ErrorKey = "error"
 
 func E(e error) Attr {
-	return slog.Any(ErrorKey, e)
+	return Any(ErrorKey, e)
 }
 
 //
@@ -15,7 +13,7 @@ func E(e error) Attr {
 const PanicKey = "panic"
 
 func P(v any) Attr {
-	return slog.Any(PanicKey, v)
+	return Any(PanicKey, v)
 }
 
 //

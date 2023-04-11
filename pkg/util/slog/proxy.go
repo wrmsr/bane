@@ -48,6 +48,10 @@ type Leveler = slog.Leveler
 
 type Record = slog.Record
 
+func NewRecord(t time.Time, level Level, msg string, pc uintptr) Record {
+	return slog.NewRecord(t, level, msg, pc)
+}
+
 // value.go
 
 type Kind = slog.Kind

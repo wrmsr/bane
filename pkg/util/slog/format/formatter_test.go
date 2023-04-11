@@ -6,8 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/exp/slog"
-
+	"github.com/wrmsr/bane/pkg/util/slog"
 	slogf "github.com/wrmsr/bane/pkg/util/slog/format"
 )
 

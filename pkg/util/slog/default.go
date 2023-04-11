@@ -3,7 +3,7 @@ package slog
 import (
 	"context"
 
-	"golang.org/x/exp/slog"
+	stdslog "golang.org/x/exp/slog"
 )
 
 //
@@ -17,5 +17,5 @@ func DefaultCtx(ctx context.Context) Logger {
 }
 
 func DefaultHandler() Handler {
-	return slog.Default().Handler()
+	return stdslog.Default().Handler()
 }

@@ -5,8 +5,6 @@ import (
 	"os"
 	"runtime"
 	"time"
-
-	"golang.org/x/exp/slog"
 )
 
 var IgnorePC = false
@@ -31,7 +29,7 @@ func log(
 		pc = pcs[0]
 	}
 
-	r := slog.NewRecord(time.Now(), level, msg, pc)
+	r := NewRecord(time.Now(), level, msg, pc)
 	if prepRec != nil {
 		prepRec(&r)
 	}
