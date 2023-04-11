@@ -18,6 +18,13 @@ import (
 
 type textFormatterStyle struct{}
 
+func NewTextFormatter(opts FormatterOpts) slog.Formatter {
+	return &formatter{
+		opts: opts,
+		sty:  textFormatterStyle{},
+	}
+}
+
 var _ Style = textFormatterStyle{}
 
 func (sty textFormatterStyle) attrSep() string  { return " " }

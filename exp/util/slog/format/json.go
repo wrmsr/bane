@@ -18,6 +18,13 @@ import (
 
 type jsonFormatterStyle struct{}
 
+func NewJsonFormatter(opts FormatterOpts) slog.Formatter {
+	return &formatter{
+		opts: opts,
+		sty: jsonFormatterStyle{},
+	}
+}
+
 var _ Style = jsonFormatterStyle{}
 
 func (sty jsonFormatterStyle) attrSep() string  { return "," }

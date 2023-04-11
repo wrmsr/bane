@@ -1,4 +1,4 @@
-package format
+package format_test
 
 import (
 	"bytes"
@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"golang.org/x/exp/slog"
+
+	slogf "github.com/wrmsr/bane/exp/util/slog/format"
 )
 
 func TestHandlers(t *testing.T) {
-	f := formatter{
-		sty: jsonFormatterStyle{},
-	}
+	f := slogf.NewJsonFormatter(slogf.FormatterOpts{})
 
 	r := slog.NewRecord(
 		time.Now(),
