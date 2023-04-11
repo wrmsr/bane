@@ -2,126 +2,203 @@ package slog
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"runtime"
+	"time"
 
 	"golang.org/x/exp/slog"
 )
 
 //
 
-type Logger interface {
-	Handler() Handler
+type Action int8
 
-	With(args ...any) Logger
-	WithGroup(name string) Logger
+const (
+	ActionNone Action = iota
+	ActionPanic
+	ActionFatal
+)
 
-	Enabled(ctx context.Context, level Level) bool
-
-	Log(ctx context.Context, level Level, msg string, args ...any)
-	LogAttrs(ctx context.Context, level Level, msg string, attrs ...Attr)
-
-	Debug(msg string, args ...any)
-	DebugCtx(ctx context.Context, msg string, args ...any)
-
-	Info(msg string, args ...any)
-	InfoCtx(ctx context.Context, msg string, args ...any)
-
-	Warn(msg string, args ...any)
-	WarnCtx(ctx context.Context, msg string, args ...any)
-
-	Error(msg string, args ...any)
-	ErrorCtx(ctx context.Context, msg string, args ...any)
-}
-
-//
-
-type slogLogger struct {
-	*slog.Logger
-}
-
-var _ Logger = slogLogger{}
-
-func (l slogLogger) With(args ...any) Logger {
-	return slogLogger{l.Logger.With(args...)}
-}
-
-func (l slogLogger) WithGroup(name string) Logger {
-	return slogLogger{l.Logger.WithGroup(name)}
-}
-
-//
-
-func Default() Logger {
-	// FIXME: atomic global, save alloc
-	return slogLogger{slog.Default()}
-}
-
-//
-
-type DefaultLogger struct {
-	Logger Logger
-}
-
-func (l DefaultLogger) get() Logger {
-	if l.Logger != nil {
-		return l.Logger
+func (a Action) String() string {
+	switch a {
+	case ActionNone:
+		return "none"
+	case ActionPanic:
+		return "panic"
+	case ActionFatal:
+		return "fatal"
 	}
-	return Default()
+	panic(a)
 }
 
-var _ Logger = DefaultLogger{}
+//
 
-func (l DefaultLogger) Handler() Handler {
-	return l.get().Handler()
+type NullHandler struct{}
+
+var _ Handler = NullHandler{}
+
+func (h NullHandler) Enabled(ctx context.Context, level slog.Level) bool   { return false }
+func (h NullHandler) Handle(ctx context.Context, record slog.Record) error { return nil }
+
+func (h NullHandler) WithAttrs(attrs []slog.Attr) slog.Handler { return h }
+func (h NullHandler) WithGroup(name string) slog.Handler       { return h }
+
+//
+
+const BadKey = "!BADKEY"
+
+func ArgsToAttr(args []any) (Attr, []any) {
+	switch x := args[0].(type) {
+	case string:
+		if len(args) == 1 {
+			return String(BadKey, x), nil
+		}
+		a := Any(x, args[1])
+		a.Value = a.Value.Resolve()
+		return a, args[2:]
+
+	case Attr:
+		x.Value = x.Value.Resolve()
+		return x, args[1:]
+
+	default:
+		return Any(BadKey, x), args[1:]
+	}
 }
 
-func (l DefaultLogger) With(args ...any) Logger {
-	return DefaultLogger{l.get().With(args...)}
+//
+
+type Logger struct {
+	h   Handler
+	ctx context.Context
 }
 
-func (l DefaultLogger) WithGroup(name string) Logger {
-	return DefaultLogger{l.get().WithGroup(name)}
+func (l Logger) Handler() Handler {
+	return l.h
 }
 
-func (l DefaultLogger) Enabled(ctx context.Context, level Level) bool {
-	return l.get().Enabled(ctx, level)
+func DefaultHandler() Handler {
+	// FIXME: cache
+	return slog.Default().Handler()
 }
 
-func (l DefaultLogger) Log(ctx context.Context, level Level, msg string, args ...any) {
-	l.get().Log(ctx, level, msg, args...)
+func (l Logger) DefaultHandler() Handler {
+	if l.h != nil {
+		return DefaultHandler()
+	}
+	return NullHandler{}
 }
 
-func (l DefaultLogger) LogAttrs(ctx context.Context, level Level, msg string, attrs ...Attr) {
-	l.get().LogAttrs(ctx, level, msg, attrs...)
+func (l Logger) Context() context.Context {
+	return l.ctx
 }
 
-func (l DefaultLogger) Debug(msg string, args ...any) {
-	l.get().Debug(msg, args...)
+func (l Logger) DefaultContext() context.Context {
+	if l.ctx != nil {
+		return l.ctx
+	}
+	return context.Background()
 }
 
-func (l DefaultLogger) DebugCtx(ctx context.Context, msg string, args ...any) {
-	l.get().DebugCtx(ctx, msg, args...)
+//
+
+func (l Logger) With(args ...any) Logger {
+	var (
+		attr  Attr
+		attrs []Attr
+	)
+	for len(args) > 0 {
+		attr, args = ArgsToAttr(args)
+		attrs = append(attrs, attr)
+	}
+	l.h = l.h.WithAttrs(attrs)
+	return l
 }
 
-func (l DefaultLogger) Info(msg string, args ...any) {
-	l.get().Info(msg, args...)
+func (l Logger) WithGroup(name string) Logger {
+	l.h = l.h.WithGroup(name)
+	return l
 }
 
-func (l DefaultLogger) InfoCtx(ctx context.Context, msg string, args ...any) {
-	l.get().InfoCtx(ctx, msg, args...)
+func (l Logger) WithContext(ctx context.Context) Logger {
+	l.ctx = ctx
+	return l
 }
 
-func (l DefaultLogger) Warn(msg string, args ...any) {
-	l.get().Warn(msg, args...)
+func (l Logger) Enabled(level Level) bool {
+	return l.h.Enabled(l.DefaultContext(), level)
 }
 
-func (l DefaultLogger) WarnCtx(ctx context.Context, msg string, args ...any) {
-	l.get().WarnCtx(ctx, msg, args...)
+//
+
+type LogPanic struct {
+	*Record
 }
 
-func (l DefaultLogger) Error(msg string, args ...any) {
-	l.get().Error(msg, args...)
+var _ error = LogPanic{}
+
+func (l LogPanic) Error() string {
+	return fmt.Sprintf("%+v", l.Record)
 }
 
-func (l DefaultLogger) ErrorCtx(ctx context.Context, msg string, args ...any) {
-	l.get().ErrorCtx(ctx, msg, args...)
+//
+
+var IgnorePC = false
+
+func (l Logger) log(
+	level Level,
+	action Action,
+	msg string,
+	args ...any,
+) {
+	h := l.h
+	ctx := l.DefaultContext()
+
+	if !h.Enabled(ctx, level) {
+		return
+	}
+
+	var pc uintptr
+	if !IgnorePC {
+		var pcs [1]uintptr
+		runtime.Callers(3, pcs[:])
+		pc = pcs[0]
+	}
+
+	r := slog.NewRecord(time.Now(), level, msg, pc)
+
+	var attr Attr
+	for len(args) > 0 {
+		attr, args = ArgsToAttr(args)
+		r.AddAttrs(attr)
+	}
+
+	_ = l.Handler().Handle(ctx, r)
+
+	switch action {
+	case ActionPanic:
+		panic(r)
+	case ActionFatal:
+		os.Exit(1)
+	}
 }
+
+//
+
+func (l Logger) Log(level Level, msg string, args ...any) { l.log(level, ActionNone, msg, args...) }
+
+func (l Logger) Debug(msg string, args ...any) { l.log(LevelDebug, ActionNone, msg, args...) }
+func (l Logger) Info(msg string, args ...any)  { l.log(LevelInfo, ActionNone, msg, args...) }
+func (l Logger) Warn(msg string, args ...any)  { l.log(LevelWarn, ActionNone, msg, args...) }
+func (l Logger) Error(msg string, args ...any) { l.log(LevelError, ActionNone, msg, args...) }
+func (l Logger) Panic(msg string, args ...any) { l.log(LevelError, ActionPanic, msg, args...) }
+func (l Logger) Fatal(msg string, args ...any) { l.log(LevelError, ActionFatal, msg, args...) }
+
+func (l Logger) IfError(err error, args ...any) {}
+func (l Logger) IfPanic(err error, args ...any) {}
+func (l Logger) IfFatal(err error, args ...any) {}
+
+func (l Logger) OrError(fn func() error, args ...any) {}
+func (l Logger) OrPanic(fn func() error, args ...any) {}
+func (l Logger) OrFatal(fn func() error, args ...any) {}

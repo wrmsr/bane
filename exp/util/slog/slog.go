@@ -31,6 +31,11 @@ type Handler = slog.Handler
 type Level = slog.Level
 type LevelVar = slog.LevelVar
 
+const LevelDebug = slog.LevelDebug
+const LevelInfo = slog.LevelInfo
+const LevelWarn = slog.LevelWarn
+const LevelError = slog.LevelError
+
 // logger.go
 
 func Debug(msg string, args ...any)                         { slog.Debug(msg, args...) }
