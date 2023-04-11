@@ -87,6 +87,10 @@ func NewLogger(h Handler) Logger {
 	}
 }
 
+func Default() Logger {
+	return NewLogger(DefaultHandler())
+}
+
 func (l Logger) Handler() Handler {
 	return l.h
 }

@@ -7,23 +7,24 @@ TODO:
   - Error/Panic/Fatal
   - OrFatal
 */
-package slog
+package slog_test
 
 import (
 	"context"
 	"fmt"
 	"net"
 	"os"
-	"strconv"
 	"testing"
 
-	"golang.org/x/exp/slog"
+	stdslog "golang.org/x/exp/slog"
+
+	"github.com/wrmsr/bane/exp/util/slog"
 )
 
 //
 
 type colorHandler struct {
-	level Level
+	level slog.Level
 }
 
 func (h *colorHandler) clone() *colorHandler {
@@ -32,31 +33,31 @@ func (h *colorHandler) clone() *colorHandler {
 	}
 }
 
-var _ Handler = &colorHandler{}
+var _ slog.Handler = &colorHandler{}
 
-func (h *colorHandler) Enabled(ctx context.Context, level Level) bool {
+func (h *colorHandler) Enabled(ctx context.Context, level slog.Level) bool {
 	return level >= h.level
 }
 
-func (h *colorHandler) Handle(ctx context.Context, record Record) error {
+func (h *colorHandler) Handle(ctx context.Context, record slog.Record) error {
 	panic("implement me")
 }
 
-func (h *colorHandler) WithAttrs(attrs []Attr) Handler {
+func (h *colorHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	panic("implement me")
 }
 
-func (h *colorHandler) WithGroup(name string) Handler {
+func (h *colorHandler) WithGroup(name string) slog.Handler {
 	panic("implement me")
 }
 
 //
 
 func TestSlog(t *testing.T) {
-	slog.SetDefault(slog.New(
+	stdslog.SetDefault(stdslog.New(
 		//slog.NewTextHandler(os.Stderr),
 		//slog.NewJSONHandler(os.Stderr),
-		slog.HandlerOptions{
+		stdslog.HandlerOptions{
 			AddSource: true,
 		}.NewJSONHandler(os.Stderr),
 	))
@@ -67,21 +68,15 @@ func TestSlog(t *testing.T) {
 
 	slog.LogAttrs(nil, slog.LevelError, "oops", slog.Any("err", net.ErrClosed), slog.Int("status", 500))
 
-	var l Logger
+	var l slog.Logger
 	l.Info("hi")
 }
 
 func TestAllocs(t *testing.T) {
-	slog.SetDefault(slog.New(NullHandler{}))
+	stdslog.SetDefault(stdslog.New(slog.NullHandler{}))
 
-	var l Logger
 	n := testing.AllocsPerRun(1_000, func() {
-		var a []any
-		a = append(a, "foo", 420)
-		for i := 0; i < 3; i++ {
-			a = append(a, strconv.Itoa(i), i)
-		}
-		l.Info("hi", a...)
+		slog.Info("hi", "foo", 420)
 	})
 
 	fmt.Println(n)
