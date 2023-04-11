@@ -59,12 +59,12 @@ type Union1 struct {
 func (u Union1) Kind() Union1_Kind { return u.k }
 
 func Union1_Dog(v Dog) Union1 {
-	return Union1{
-		k: Union1_Kind_Dog,
-
-		int_0: v.Woofs,
-		any_0: v.Howl,
+	u := Union1{k: Union1_Kind_Dog}
+	u.int_0 = v.Woofs
+	if v.Howl != nil {
+		u.any_0 = v.Howl
 	}
+	return u
 }
 
 func (u Union1) Dog() Dog {
@@ -78,12 +78,10 @@ func (u Union1) Dog() Dog {
 }
 
 func Union1_Person(v Person) Union1 {
-	return Union1{
-		k: Union1_Kind_Person,
-
-		float32_0: v.Age,
-		int_0:     v.Money,
-	}
+	u := Union1{k: Union1_Kind_Person}
+	u.float32_0 = v.Age
+	u.int_0 = v.Money
+	return u
 }
 
 func (u Union1) Person() Person {
@@ -98,6 +96,9 @@ func (u Union1) Person() Person {
 
 func TestUnion1(t *testing.T) {
 	var u Union1
+
+	u = Union1_Dog(Dog{Woofs: 5})
+	fmt.Printf("%#v\n", u.Dog())
 
 	u = Union1_Dog(Dog{Woofs: 5, Howl: LoudHowl{}})
 	fmt.Printf("%#v\n", u.Dog())

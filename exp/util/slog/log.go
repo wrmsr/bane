@@ -32,7 +32,9 @@ func log(
 	}
 
 	r := slog.NewRecord(time.Now(), level, msg, pc)
-	prepRec(&r)
+	if prepRec != nil {
+		prepRec(&r)
+	}
 	_ = h.Handle(ctx, r)
 
 	switch action {
