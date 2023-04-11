@@ -66,10 +66,12 @@ func TestSlog(t *testing.T) {
 	slog.Default().Info("hello", "name", "Al")
 	slog.Error("oops", "err", net.ErrClosed, "status", 500)
 
-	//slog.LogAttrs(nil, slog.LevelError, "oops", slog.Any("err", net.ErrClosed), slog.Int("status", 500))
+	slog.LogAttrs(nil, slog.LevelError, "oops", slog.Any("err", net.ErrClosed), slog.Int("status", 500))
 
 	var l slog.Logger
 	l.Info("hi")
+
+	l.LogAttrs(slog.LevelError, "oops", slog.Any("err", net.ErrClosed), slog.Int("status", 500))
 
 	slog.Info("hi")
 

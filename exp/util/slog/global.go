@@ -12,8 +12,18 @@ func Log(ctx context.Context, level Level, msg string, args ...any) {
 }
 
 func LogAttrs(ctx context.Context, level Level, msg string, attrs ...Attr) {
-	//DefaultCtx(ctx).LogAttrs(level, msg, attrs...)
-	panic("FIXME")
+	l := DefaultCtx(ctx)
+	log(
+		l.DefaultContext(),
+		l.DefaultHandler(),
+		level,
+		ActionNone,
+		0,
+		msg,
+		func(r *Record) {
+			r.AddAttrs(attrs...)
+		},
+	)
 }
 
 func Debug(msg string, args ...any) {
