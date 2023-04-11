@@ -29,7 +29,7 @@ func LogBootstrap(cfg LogConfig, ds *eu.DeferStack) error {
 	var f slog.Formatter
 	switch cfg.Format {
 	case LogText:
-		f = slogf.NewJsonFormatter(fo)
+		f = slogf.NewTextFormatter(fo)
 	case LogJson:
 		f = slogf.NewJsonFormatter(fo)
 	case LogNone:
