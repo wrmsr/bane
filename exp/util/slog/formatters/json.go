@@ -1,6 +1,6 @@
 // Copyright 2022 The Go Authors. All rights reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
-package handlers
+package formatters
 
 import (
 	"bytes"
@@ -16,37 +16,37 @@ import (
 	ju "github.com/wrmsr/bane/pkg/util/json"
 )
 
-type jsonCommonHandlerImpl struct{}
+type jsonFormatterStyle struct{}
 
-var _ commonHandlerImpl = jsonCommonHandlerImpl{}
+var _ formatterStyle = jsonFormatterStyle{}
 
-func (i jsonCommonHandlerImpl) attrSep() string  { return "," }
-func (i jsonCommonHandlerImpl) valueSep() string { return "=" }
+func (i jsonFormatterStyle) attrSep() string  { return "," }
+func (i jsonFormatterStyle) valueSep() string { return "=" }
 
-func (i jsonCommonHandlerImpl) beginHandle(s *handleState) {
+func (i jsonFormatterStyle) begin(s *formatState) {
 	s.buf.WriteByte('{')
 }
 
-func (i jsonCommonHandlerImpl) endHandle(s *handleState) {
+func (i jsonFormatterStyle) end(s *formatState) {
 	// Close all open groups.
-	for range s.h.groups {
+	for range s.f.groups {
 		s.buf.WriteByte('}')
 	}
 	// Close the top-level object.
 	s.buf.WriteByte('}')
 }
 
-func (i jsonCommonHandlerImpl) openGroup(s *handleState, name string) {
+func (i jsonFormatterStyle) openGroup(s *formatState, name string) {
 	s.appendKey(name)
 	s.buf.WriteByte('{')
 	s.sep = ""
 }
 
-func (i jsonCommonHandlerImpl) closeGroup(s *handleState, name string) {
+func (i jsonFormatterStyle) closeGroup(s *formatState, name string) {
 	s.buf.WriteByte('}')
 }
 
-func (i jsonCommonHandlerImpl) appendSource(s *handleState, file string, line int) {
+func (i jsonFormatterStyle) appendSource(s *formatState, file string, line int) {
 	s.buf.WriteByte('"')
 	*s.buf = ju.AppendEncodedString(*s.buf, file, false)
 	s.buf.WriteByte(':')
@@ -54,13 +54,13 @@ func (i jsonCommonHandlerImpl) appendSource(s *handleState, file string, line in
 	s.buf.WriteByte('"')
 }
 
-func (i jsonCommonHandlerImpl) appendString(s *handleState, str string) {
+func (i jsonFormatterStyle) appendString(s *formatState, str string) {
 	s.buf.WriteByte('"')
 	*s.buf = ju.AppendEncodedString(*s.buf, str, false)
 	s.buf.WriteByte('"')
 }
 
-func (i jsonCommonHandlerImpl) appendValue(s *handleState, v slog.Value) {
+func (i jsonFormatterStyle) appendValue(s *formatState, v slog.Value) {
 	var err error
 	err = appendJSONValue(s, v)
 	if err != nil {
@@ -68,11 +68,11 @@ func (i jsonCommonHandlerImpl) appendValue(s *handleState, v slog.Value) {
 	}
 }
 
-func (i jsonCommonHandlerImpl) appendTime(s *handleState, t time.Time) {
+func (i jsonFormatterStyle) appendTime(s *formatState, t time.Time) {
 	appendJSONTime(s, t)
 }
 
-func appendJSONTime(s *handleState, t time.Time) {
+func appendJSONTime(s *formatState, t time.Time) {
 	if y := t.Year(); y < 0 || y >= 10000 {
 		s.appendError(errors.New("time.Time year outside of range [0,9999]"))
 	}
@@ -81,7 +81,7 @@ func appendJSONTime(s *handleState, t time.Time) {
 	s.buf.WriteByte('"')
 }
 
-func appendJSONValue(s *handleState, v slog.Value) error {
+func appendJSONValue(s *formatState, v slog.Value) error {
 	switch v.Kind() {
 	case slog.KindString:
 		s.appendString(v.String())

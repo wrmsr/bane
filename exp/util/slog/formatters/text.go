@@ -1,6 +1,6 @@
 // Copyright 2022 The Go Authors. All rights reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
-package handlers
+package formatters
 
 import (
 	"encoding"
@@ -16,27 +16,27 @@ import (
 
 //
 
-type textCommonHandlerImpl struct{}
+type textFormatterStyle struct{}
 
-var _ commonHandlerImpl = textCommonHandlerImpl{}
+var _ formatterStyle = textFormatterStyle{}
 
-func (i textCommonHandlerImpl) attrSep() string  { return " " }
-func (i textCommonHandlerImpl) valueSep() string { return ":" }
+func (i textFormatterStyle) attrSep() string  { return " " }
+func (i textFormatterStyle) valueSep() string { return ":" }
 
-func (i textCommonHandlerImpl) beginHandle(s *handleState) {}
+func (i textFormatterStyle) begin(s *formatState) {}
 
-func (i textCommonHandlerImpl) endHandle(s *handleState) {}
+func (i textFormatterStyle) end(s *formatState) {}
 
-func (i textCommonHandlerImpl) openGroup(s *handleState, name string) {
+func (i textFormatterStyle) openGroup(s *formatState, name string) {
 	s.prefix.WriteString(name)
 	s.prefix.WriteByte(keyComponentSep)
 }
 
-func (i textCommonHandlerImpl) closeGroup(s *handleState, name string) {
+func (i textFormatterStyle) closeGroup(s *formatState, name string) {
 	*s.prefix = (*s.prefix)[:len(*s.prefix)-len(name)-1 /* for keyComponentSep */]
 }
 
-func (i textCommonHandlerImpl) appendSource(s *handleState, file string, line int) {
+func (i textFormatterStyle) appendSource(s *formatState, file string, line int) {
 	if needsQuoting(file) {
 		s.appendString(file + ":" + strconv.Itoa(line))
 	} else {
@@ -47,7 +47,7 @@ func (i textCommonHandlerImpl) appendSource(s *handleState, file string, line in
 	}
 }
 
-func (i textCommonHandlerImpl) appendString(s *handleState, str string) {
+func (i textFormatterStyle) appendString(s *formatState, str string) {
 	if needsQuoting(str) {
 		*s.buf = strconv.AppendQuote(*s.buf, str)
 	} else {
@@ -55,7 +55,7 @@ func (i textCommonHandlerImpl) appendString(s *handleState, str string) {
 	}
 }
 
-func (i textCommonHandlerImpl) appendValue(s *handleState, v slog.Value) {
+func (i textFormatterStyle) appendValue(s *formatState, v slog.Value) {
 	var err error
 	err = appendTextValue(s, v)
 	if err != nil {
@@ -63,13 +63,13 @@ func (i textCommonHandlerImpl) appendValue(s *handleState, v slog.Value) {
 	}
 }
 
-func (i textCommonHandlerImpl) appendTime(s *handleState, t time.Time) {
+func (i textFormatterStyle) appendTime(s *formatState, t time.Time) {
 	WriteTimeRFC3339Millis(s.buf, t)
 }
 
 //
 
-func appendTextValue(s *handleState, v slog.Value) error {
+func appendTextValue(s *formatState, v slog.Value) error {
 	switch v.Kind() {
 	case slog.KindString:
 		s.appendString(v.String())

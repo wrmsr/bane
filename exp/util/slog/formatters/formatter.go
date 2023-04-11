@@ -1,6 +1,6 @@
 // Copyright 2022 The Go Authors. All rights reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
-package handlers
+package formatters
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ import (
 
 //
 
-type CommonOpts struct {
+type FormatterOpts struct {
 	AddSource bool
 
 	Level slog.Leveler
@@ -26,28 +26,27 @@ type CommonOpts struct {
 
 //
 
-type commonHandlerImpl interface {
+type formatterStyle interface {
 	attrSep() string
 	valueSep() string
 
-	beginHandle(s *handleState)
-	endHandle(s *handleState)
+	begin(s *formatState)
+	end(s *formatState)
 
-	openGroup(s *handleState, name string)
-	closeGroup(s *handleState, name string)
+	openGroup(s *formatState, name string)
+	closeGroup(s *formatState, name string)
 
-	appendSource(s *handleState, file string, line int)
-	appendString(s *handleState, str string)
-	appendValue(s *handleState, v slog.Value)
-	appendTime(s *handleState, t time.Time)
+	appendSource(s *formatState, file string, line int)
+	appendString(s *formatState, str string)
+	appendValue(s *formatState, v slog.Value)
+	appendTime(s *formatState, t time.Time)
 }
 
 //
 
-type commonHandler struct {
-	opts CommonOpts
-	w    io.Writer
-	i    commonHandlerImpl
+type formatter struct {
+	opts FormatterOpts
+	sty  formatterStyle
 
 	mtx sync.Mutex
 
@@ -57,38 +56,37 @@ type commonHandler struct {
 	nOpenGroups       int
 }
 
-func (h *commonHandler) clone() *commonHandler {
-	return &commonHandler{
-		w:    h.w,
-		opts: h.opts,
+func (f *formatter) clone() *formatter {
+	return &formatter{
+		opts: f.opts,
 
-		preformattedAttrs: slices.Clip(h.preformattedAttrs),
-		groupPrefix:       h.groupPrefix,
-		groups:            slices.Clip(h.groups),
-		nOpenGroups:       h.nOpenGroups,
+		preformattedAttrs: slices.Clip(f.preformattedAttrs),
+		groupPrefix:       f.groupPrefix,
+		groups:            slices.Clip(f.groups),
+		nOpenGroups:       f.nOpenGroups,
 	}
 }
 
-func (h *commonHandler) enabled(l slog.Level) bool {
+func (f *formatter) enabled(l slog.Level) bool {
 	minLevel := slog.LevelInfo
-	if h.opts.Level != nil {
-		minLevel = h.opts.Level.Level()
+	if f.opts.Level != nil {
+		minLevel = f.opts.Level.Level()
 	}
 	return l >= minLevel
 }
 
-func (h *commonHandler) withAttrs(as []slog.Attr) *commonHandler {
-	h2 := h.clone()
+func (f *formatter) withAttrs(as []slog.Attr) *formatter {
+	h2 := f.clone()
 
 	// Pre-format the attributes as an optimization.
 	prefix := buffer.New()
 	defer prefix.Free()
-	prefix.WriteString(h.groupPrefix)
+	prefix.WriteString(f.groupPrefix)
 
 	state := h2.newHandleState((*buffer.Buffer)(&h2.preformattedAttrs), false, "", prefix)
 	defer state.free()
 	if len(h2.preformattedAttrs) > 0 {
-		state.sep = h.i.attrSep()
+		state.sep = f.sty.attrSep()
 	}
 	state.openGroups()
 	for _, a := range as {
@@ -104,25 +102,25 @@ func (h *commonHandler) withAttrs(as []slog.Attr) *commonHandler {
 	return h2
 }
 
-func (h *commonHandler) withGroup(name string) *commonHandler {
+func (f *formatter) withGroup(name string) *formatter {
 	if name == "" {
-		return h
+		return f
 	}
-	h2 := h.clone()
+	h2 := f.clone()
 	h2.groups = append(h2.groups, name)
 	return h2
 }
 
-func (h *commonHandler) handle(r slog.Record) error {
-	state := h.newHandleState(buffer.New(), true, "", nil)
+func (f *formatter) format(r slog.Record, w io.Writer) error {
+	state := f.newHandleState(buffer.New(), true, "", nil)
 	defer state.free()
 
-	h.i.beginHandle(&state)
+	f.sty.begin(&state)
 
 	// Built-in attributes. They are not in a group.
 	stateGroups := state.groups
 	state.groups = nil // So ReplaceAttrs sees no groups instead of the pre groups.
-	rep := h.opts.ReplaceAttr
+	rep := f.opts.ReplaceAttr
 
 	// time
 	if !r.Time.IsZero() {
@@ -147,7 +145,7 @@ func (h *commonHandler) handle(r slog.Record) error {
 	}
 
 	// source
-	if h.opts.AddSource {
+	if f.opts.AddSource {
 		frame := slog.RecordFrame(r)
 		if frame.File != "" {
 			key := slog.SourceKey
@@ -179,38 +177,38 @@ func (h *commonHandler) handle(r slog.Record) error {
 	state.appendNonBuiltIns(r)
 	state.buf.WriteByte('\n')
 
-	h.mtx.Lock()
-	defer h.mtx.Unlock()
-	_, err := h.w.Write(*state.buf)
+	f.mtx.Lock()
+	defer f.mtx.Unlock()
+	_, err := w.Write(*state.buf)
 	return err
 }
 
 //
 
-func (s *handleState) appendNonBuiltIns(r slog.Record) {
+func (s *formatState) appendNonBuiltIns(r slog.Record) {
 	// preformatted Attrs
-	if len(s.h.preformattedAttrs) > 0 {
+	if len(s.f.preformattedAttrs) > 0 {
 		s.buf.WriteString(s.sep)
-		_, _ = s.buf.Write(s.h.preformattedAttrs)
-		s.sep = s.h.i.attrSep()
+		_, _ = s.buf.Write(s.f.preformattedAttrs)
+		s.sep = s.f.sty.attrSep()
 	}
 
 	// Attrs in Record -- unlike the built-in ones, they are in groups started from WithGroup.
 	s.prefix = buffer.New()
 	defer s.prefix.Free()
-	s.prefix.WriteString(s.h.groupPrefix)
+	s.prefix.WriteString(s.f.groupPrefix)
 	s.openGroups()
 	r.Attrs(func(a slog.Attr) {
 		s.appendAttr(a)
 	})
 
-	s.h.i.endHandle(s)
+	s.f.sty.end(s)
 }
 
-// handleState holds state for a single call to commonHandler.handle. The initial value of sep determines whether to
+// formatState holds state for a single call to commonHandler.handle. The initial value of sep determines whether to
 // emit a separator before the next key, after which it stays true.
-type handleState struct {
-	h       *commonHandler
+type formatState struct {
+	f       *formatter
 	buf     *buffer.Buffer
 	freeBuf bool           // should buf be freed?
 	sep     string         // separator to write before next key
@@ -223,22 +221,22 @@ var groupPool = sync.Pool{New: func() any {
 	return &s
 }}
 
-func (h *commonHandler) newHandleState(buf *buffer.Buffer, freeBuf bool, sep string, prefix *buffer.Buffer) handleState {
-	s := handleState{
-		h:       h,
+func (f *formatter) newHandleState(buf *buffer.Buffer, freeBuf bool, sep string, prefix *buffer.Buffer) formatState {
+	s := formatState{
+		f:       f,
 		buf:     buf,
 		freeBuf: freeBuf,
 		sep:     sep,
 		prefix:  prefix,
 	}
-	if h.opts.ReplaceAttr != nil {
+	if f.opts.ReplaceAttr != nil {
 		s.groups = groupPool.Get().(*[]string)
-		*s.groups = append(*s.groups, h.groups[:h.nOpenGroups]...)
+		*s.groups = append(*s.groups, f.groups[:f.nOpenGroups]...)
 	}
 	return s
 }
 
-func (s *handleState) free() {
+func (s *formatState) free() {
 	if s.freeBuf {
 		s.buf.Free()
 	}
@@ -248,8 +246,8 @@ func (s *handleState) free() {
 	}
 }
 
-func (s *handleState) openGroups() {
-	for _, n := range s.h.groups[s.h.nOpenGroups:] {
+func (s *formatState) openGroups() {
+	for _, n := range s.f.groups[s.f.nOpenGroups:] {
 		s.openGroup(n)
 	}
 }
@@ -258,8 +256,8 @@ func (s *handleState) openGroups() {
 const keyComponentSep = '.'
 
 // openGroup starts a new group of attributes with the given name.
-func (s *handleState) openGroup(name string) {
-	s.h.i.openGroup(s, name)
+func (s *formatState) openGroup(name string) {
+	s.f.sty.openGroup(s, name)
 	// Collect group names for ReplaceAttr.
 	if s.groups != nil {
 		*s.groups = append(*s.groups, name)
@@ -267,18 +265,17 @@ func (s *handleState) openGroup(name string) {
 }
 
 // closeGroup ends the group with the given name.
-func (s *handleState) closeGroup(name string) {
-	s.h.i.closeGroup(s, name)
-	s.sep = s.h.i.attrSep()
+func (s *formatState) closeGroup(name string) {
+	s.f.sty.closeGroup(s, name)
+	s.sep = s.f.sty.attrSep()
 	if s.groups != nil {
 		*s.groups = (*s.groups)[:len(*s.groups)-1]
 	}
 }
 
-// appendAttr appends the Attr's key and value using app.
-// It handles replacement and checking for an empty key.
-// after replacement).
-func (s *handleState) appendAttr(a slog.Attr) {
+// appendAttr appends the Attr's key and value using app. It handles replacement and checking for an empty key. after
+// replacement).
+func (s *formatState) appendAttr(a slog.Attr) {
 	v := a.Value
 
 	// Elide a non-group with an empty key.
@@ -286,7 +283,7 @@ func (s *handleState) appendAttr(a slog.Attr) {
 		return
 	}
 
-	if rep := s.h.opts.ReplaceAttr; rep != nil && v.Kind() != slog.KindGroup {
+	if rep := s.f.opts.ReplaceAttr; rep != nil && v.Kind() != slog.KindGroup {
 		var gs []string
 		if s.groups != nil {
 			gs = *s.groups
@@ -321,11 +318,11 @@ func (s *handleState) appendAttr(a slog.Attr) {
 	}
 }
 
-func (s *handleState) appendError(err error) {
+func (s *formatState) appendError(err error) {
 	s.appendString(fmt.Sprintf("!ERROR:%v", err))
 }
 
-func (s *handleState) appendKey(key string) {
+func (s *formatState) appendKey(key string) {
 	s.buf.WriteString(s.sep)
 	if s.prefix != nil {
 		// TODO: optimize by avoiding allocation.
@@ -333,22 +330,22 @@ func (s *handleState) appendKey(key string) {
 	} else {
 		s.appendString(key)
 	}
-	s.buf.WriteString(s.h.i.valueSep())
-	s.sep = s.h.i.attrSep()
+	s.buf.WriteString(s.f.sty.valueSep())
+	s.sep = s.f.sty.attrSep()
 }
 
-func (s *handleState) appendSource(file string, line int) {
-	s.h.i.appendSource(s, file, line)
+func (s *formatState) appendSource(file string, line int) {
+	s.f.sty.appendSource(s, file, line)
 }
 
-func (s *handleState) appendString(str string) {
-	s.h.i.appendString(s, str)
+func (s *formatState) appendString(str string) {
+	s.f.sty.appendString(s, str)
 }
 
-func (s *handleState) appendValue(v slog.Value) {
-	s.h.i.appendValue(s, v)
+func (s *formatState) appendValue(v slog.Value) {
+	s.f.sty.appendValue(s, v)
 }
 
-func (s *handleState) appendTime(t time.Time) {
-	s.h.i.appendTime(s, t)
+func (s *formatState) appendTime(t time.Time) {
+	s.f.sty.appendTime(s, t)
 }
