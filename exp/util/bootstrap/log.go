@@ -42,17 +42,19 @@ func LogBootstrap(cfg LogConfig, ds *eu.DeferStack) error {
 
 	lv := cfg.Level
 
-	o := stdlog.Default()
-	w := o.Writer()
+	o0 := stdlog.Default()
+	o1 := stdslog.Default()
+
+	w := o0.Writer()
 	h := slog.NewFormatterHandler(f, w.Write, lv)
 	l := slog.NewLogger(&h)
 	n := stdslog.New(slog.AsStdHandler(&h))
 
 	stdslog.SetDefault(n)
-	slog.InstallOldWriter(o, l, lv)
+	slog.InstallOldWriter(o0, l, lv)
 	ds.Defer(func() {
-		o.SetOutput(w)
-		stdslog.SetDefault(n)
+		o0.SetOutput(w)
+		stdslog.SetDefault(o1)
 	})
 
 	return nil
