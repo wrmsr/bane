@@ -23,27 +23,27 @@ type FormatterOpts struct {
 
 //
 
-type formatterStyle interface {
+type Style interface {
 	attrSep() string
 	valueSep() string
 
-	begin(s *formatState)
-	end(s *formatState)
+	begin(s *state)
+	end(s *state)
 
-	openGroup(s *formatState, name string)
-	closeGroup(s *formatState, name string)
+	openGroup(s *state, name string)
+	closeGroup(s *state, name string)
 
-	appendSource(s *formatState, file string, line int)
-	appendString(s *formatState, str string)
-	appendValue(s *formatState, v slog.Value)
-	appendTime(s *formatState, t time.Time)
+	appendSource(s *state, file string, line int)
+	appendString(s *state, str string)
+	appendValue(s *state, v slog.Value)
+	appendTime(s *state, t time.Time)
 }
 
 //
 
 type formatter struct {
 	opts FormatterOpts
-	sty  formatterStyle
+	sty  Style
 
 	mtx sync.Mutex
 
@@ -111,14 +111,14 @@ func (f *formatter) WithGroup(name string) slog.Formatter {
 }
 
 func (f *formatter) Format(r slog.Record, w slog.Writer) error {
-	state := f.newHandleState(buffer.New(), true, "", nil)
-	defer state.free()
+	st := f.newHandleState(buffer.New(), true, "", nil)
+	defer st.free()
 
-	f.sty.begin(&state)
+	f.sty.begin(&st)
 
 	// Built-in attributes. They are not in a group.
-	stateGroups := state.groups
-	state.groups = nil // So ReplaceAttrs sees no groups instead of the pre groups.
+	stateGroups := st.groups
+	st.groups = nil // So ReplaceAttrs sees no groups instead of the pre groups.
 	rep := f.opts.ReplaceAttr
 
 	// time
@@ -126,10 +126,10 @@ func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 		key := slog.TimeKey
 		val := r.Time.Round(0) // strip monotonic to match Attr behavior
 		if rep == nil {
-			state.appendKey(key)
-			state.appendTime(val)
+			st.appendKey(key)
+			st.appendTime(val)
 		} else {
-			state.appendAttr(slog.Time(key, val))
+			st.appendAttr(slog.Time(key, val))
 		}
 	}
 
@@ -137,10 +137,10 @@ func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 	key := slog.LevelKey
 	val := r.Level
 	if rep == nil {
-		state.appendKey(key)
-		state.appendString(val.String())
+		st.appendKey(key)
+		st.appendString(val.String())
 	} else {
-		state.appendAttr(slog.Any(key, val))
+		st.appendAttr(slog.Any(key, val))
 	}
 
 	// source
@@ -149,8 +149,8 @@ func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 		if frame.File != "" {
 			key := slog.SourceKey
 			if rep == nil {
-				state.appendKey(key)
-				state.appendSource(frame.File, frame.Line)
+				st.appendKey(key)
+				st.appendSource(frame.File, frame.Line)
 			} else {
 				buf := buffer.New()
 				buf.WriteString(frame.File) // TODO: escape?
@@ -158,7 +158,7 @@ func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 				buf.WritePosInt(frame.Line)
 				s := buf.String()
 				buf.Free()
-				state.appendAttr(slog.String(key, s))
+				st.appendAttr(slog.String(key, s))
 			}
 		}
 	}
@@ -166,25 +166,25 @@ func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 	key = slog.MessageKey
 	msg := r.Message
 	if rep == nil {
-		state.appendKey(key)
-		state.appendString(msg)
+		st.appendKey(key)
+		st.appendString(msg)
 	} else {
-		state.appendAttr(slog.String(key, msg))
+		st.appendAttr(slog.String(key, msg))
 	}
 
-	state.groups = stateGroups // Restore groups passed to ReplaceAttrs.
-	state.appendNonBuiltIns(r)
-	state.buf.WriteByte('\n')
+	st.groups = stateGroups // Restore groups passed to ReplaceAttrs.
+	st.appendNonBuiltIns(r)
+	st.buf.WriteByte('\n')
 
 	f.mtx.Lock()
 	defer f.mtx.Unlock()
-	_, err := w(*state.buf)
+	_, err := w(*st.buf)
 	return err
 }
 
 //
 
-func (s *formatState) appendNonBuiltIns(r slog.Record) {
+func (s *state) appendNonBuiltIns(r slog.Record) {
 	// preformatted Attrs
 	if len(s.f.preformattedAttrs) > 0 {
 		s.buf.WriteString(s.sep)
@@ -204,9 +204,9 @@ func (s *formatState) appendNonBuiltIns(r slog.Record) {
 	s.f.sty.end(s)
 }
 
-// formatState holds state for a single call to commonHandler.handle. The initial value of sep determines whether to
+// state holds state for a single call to commonHandler.handle. The initial value of sep determines whether to
 // emit a separator before the next key, after which it stays true.
-type formatState struct {
+type state struct {
 	f       *formatter
 	buf     *buffer.Buffer
 	freeBuf bool           // should buf be freed?
@@ -220,8 +220,8 @@ var groupPool = sync.Pool{New: func() any {
 	return &s
 }}
 
-func (f *formatter) newHandleState(buf *buffer.Buffer, freeBuf bool, sep string, prefix *buffer.Buffer) formatState {
-	s := formatState{
+func (f *formatter) newHandleState(buf *buffer.Buffer, freeBuf bool, sep string, prefix *buffer.Buffer) state {
+	s := state{
 		f:       f,
 		buf:     buf,
 		freeBuf: freeBuf,
@@ -235,7 +235,7 @@ func (f *formatter) newHandleState(buf *buffer.Buffer, freeBuf bool, sep string,
 	return s
 }
 
-func (s *formatState) free() {
+func (s *state) free() {
 	if s.freeBuf {
 		s.buf.Free()
 	}
@@ -245,7 +245,7 @@ func (s *formatState) free() {
 	}
 }
 
-func (s *formatState) openGroups() {
+func (s *state) openGroups() {
 	for _, n := range s.f.groups[s.f.nOpenGroups:] {
 		s.openGroup(n)
 	}
@@ -255,7 +255,7 @@ func (s *formatState) openGroups() {
 const keyComponentSep = '.'
 
 // openGroup starts a new group of attributes with the given name.
-func (s *formatState) openGroup(name string) {
+func (s *state) openGroup(name string) {
 	s.f.sty.openGroup(s, name)
 	// Collect group names for ReplaceAttr.
 	if s.groups != nil {
@@ -264,7 +264,7 @@ func (s *formatState) openGroup(name string) {
 }
 
 // closeGroup ends the group with the given name.
-func (s *formatState) closeGroup(name string) {
+func (s *state) closeGroup(name string) {
 	s.f.sty.closeGroup(s, name)
 	s.sep = s.f.sty.attrSep()
 	if s.groups != nil {
@@ -274,7 +274,7 @@ func (s *formatState) closeGroup(name string) {
 
 // appendAttr appends the Attr's key and value using app. It handles replacement and checking for an empty key. after
 // replacement).
-func (s *formatState) appendAttr(a slog.Attr) {
+func (s *state) appendAttr(a slog.Attr) {
 	v := a.Value
 
 	// Elide a non-group with an empty key.
@@ -317,11 +317,11 @@ func (s *formatState) appendAttr(a slog.Attr) {
 	}
 }
 
-func (s *formatState) appendError(err error) {
+func (s *state) appendError(err error) {
 	s.appendString(fmt.Sprintf("!ERROR:%v", err))
 }
 
-func (s *formatState) appendKey(key string) {
+func (s *state) appendKey(key string) {
 	s.buf.WriteString(s.sep)
 	if s.prefix != nil {
 		// TODO: optimize by avoiding allocation.
@@ -333,18 +333,18 @@ func (s *formatState) appendKey(key string) {
 	s.sep = s.f.sty.attrSep()
 }
 
-func (s *formatState) appendSource(file string, line int) {
+func (s *state) appendSource(file string, line int) {
 	s.f.sty.appendSource(s, file, line)
 }
 
-func (s *formatState) appendString(str string) {
+func (s *state) appendString(str string) {
 	s.f.sty.appendString(s, str)
 }
 
-func (s *formatState) appendValue(v slog.Value) {
+func (s *state) appendValue(v slog.Value) {
 	s.f.sty.appendValue(s, v)
 }
 
-func (s *formatState) appendTime(t time.Time) {
+func (s *state) appendTime(t time.Time) {
 	s.f.sty.appendTime(s, t)
 }

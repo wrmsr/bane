@@ -18,16 +18,16 @@ import (
 
 type jsonFormatterStyle struct{}
 
-var _ formatterStyle = jsonFormatterStyle{}
+var _ Style = jsonFormatterStyle{}
 
-func (i jsonFormatterStyle) attrSep() string  { return "," }
-func (i jsonFormatterStyle) valueSep() string { return "=" }
+func (sty jsonFormatterStyle) attrSep() string  { return "," }
+func (sty jsonFormatterStyle) valueSep() string { return "=" }
 
-func (i jsonFormatterStyle) begin(s *formatState) {
+func (sty jsonFormatterStyle) begin(s *state) {
 	s.buf.WriteByte('{')
 }
 
-func (i jsonFormatterStyle) end(s *formatState) {
+func (sty jsonFormatterStyle) end(s *state) {
 	// Close all open groups.
 	for range s.f.groups {
 		s.buf.WriteByte('}')
@@ -36,17 +36,17 @@ func (i jsonFormatterStyle) end(s *formatState) {
 	s.buf.WriteByte('}')
 }
 
-func (i jsonFormatterStyle) openGroup(s *formatState, name string) {
+func (sty jsonFormatterStyle) openGroup(s *state, name string) {
 	s.appendKey(name)
 	s.buf.WriteByte('{')
 	s.sep = ""
 }
 
-func (i jsonFormatterStyle) closeGroup(s *formatState, name string) {
+func (sty jsonFormatterStyle) closeGroup(s *state, name string) {
 	s.buf.WriteByte('}')
 }
 
-func (i jsonFormatterStyle) appendSource(s *formatState, file string, line int) {
+func (sty jsonFormatterStyle) appendSource(s *state, file string, line int) {
 	s.buf.WriteByte('"')
 	*s.buf = ju.AppendEncodedString(*s.buf, file, false)
 	s.buf.WriteByte(':')
@@ -54,13 +54,13 @@ func (i jsonFormatterStyle) appendSource(s *formatState, file string, line int) 
 	s.buf.WriteByte('"')
 }
 
-func (i jsonFormatterStyle) appendString(s *formatState, str string) {
+func (sty jsonFormatterStyle) appendString(s *state, str string) {
 	s.buf.WriteByte('"')
 	*s.buf = ju.AppendEncodedString(*s.buf, str, false)
 	s.buf.WriteByte('"')
 }
 
-func (i jsonFormatterStyle) appendValue(s *formatState, v slog.Value) {
+func (sty jsonFormatterStyle) appendValue(s *state, v slog.Value) {
 	var err error
 	err = appendJSONValue(s, v)
 	if err != nil {
@@ -68,11 +68,11 @@ func (i jsonFormatterStyle) appendValue(s *formatState, v slog.Value) {
 	}
 }
 
-func (i jsonFormatterStyle) appendTime(s *formatState, t time.Time) {
+func (sty jsonFormatterStyle) appendTime(s *state, t time.Time) {
 	appendJSONTime(s, t)
 }
 
-func appendJSONTime(s *formatState, t time.Time) {
+func appendJSONTime(s *state, t time.Time) {
 	if y := t.Year(); y < 0 || y >= 10000 {
 		s.appendError(errors.New("time.Time year outside of range [0,9999]"))
 	}
@@ -81,7 +81,7 @@ func appendJSONTime(s *formatState, t time.Time) {
 	s.buf.WriteByte('"')
 }
 
-func appendJSONValue(s *formatState, v slog.Value) error {
+func appendJSONValue(s *state, v slog.Value) error {
 	switch v.Kind() {
 	case slog.KindString:
 		s.appendString(v.String())
