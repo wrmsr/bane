@@ -1,5 +1,9 @@
 package slog
 
+import "fmt"
+
+//
+
 type Action int8
 
 const (
@@ -18,4 +22,20 @@ func (a Action) String() string {
 		return "fatal"
 	}
 	panic(a)
+}
+
+//
+
+const ErrorMsg = "error"
+
+//
+
+type LogPanic struct {
+	*Record
+}
+
+var _ error = LogPanic{}
+
+func (l LogPanic) Error() string {
+	return fmt.Sprintf("%+v", l.Record)
 }

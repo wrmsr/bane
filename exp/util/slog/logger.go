@@ -3,19 +3,7 @@ package slog
 import (
 	"context"
 	"fmt"
-	"os"
-	"runtime"
-	"time"
-
-	"golang.org/x/exp/slog"
 )
-
-//
-
-func DefaultHandler() Handler {
-	// FIXME: cache
-	return slog.Default().Handler()
-}
 
 //
 
@@ -28,14 +16,6 @@ func NewLogger(h Handler) Logger {
 	return Logger{
 		h: h,
 	}
-}
-
-func Default() Logger {
-	return NewLogger(DefaultHandler())
-}
-
-func DefaultCtx(ctx context.Context) Logger {
-	return NewLogger(DefaultHandler()).WithContext(ctx)
 }
 
 func (l Logger) Handler() Handler {
@@ -90,54 +70,6 @@ func (l Logger) WithContext(ctx context.Context) Logger {
 
 func (l Logger) Enabled(level Level) bool {
 	return l.h.Enabled(l.DefaultContext(), level)
-}
-
-//
-
-type LogPanic struct {
-	*Record
-}
-
-var _ error = LogPanic{}
-
-func (l LogPanic) Error() string {
-	return fmt.Sprintf("%+v", l.Record)
-}
-
-//
-
-var IgnorePC = false
-
-func log(
-	ctx context.Context,
-	h Handler,
-	level Level,
-	action Action,
-	pco int,
-	msg string,
-	prepRec func(*Record),
-) {
-	if !h.Enabled(ctx, level) {
-		return
-	}
-
-	var pc uintptr
-	if !IgnorePC {
-		var pcs [1]uintptr
-		runtime.Callers(3+pco, pcs[:])
-		pc = pcs[0]
-	}
-
-	r := slog.NewRecord(time.Now(), level, msg, pc)
-	prepRec(&r)
-	_ = h.Handle(ctx, r)
-
-	switch action {
-	case ActionPanic:
-		panic(r)
-	case ActionFatal:
-		os.Exit(1)
-	}
 }
 
 //
@@ -207,8 +139,6 @@ func (l Logger) Fatal(obj any, args ...any) {
 	}
 	l.log(LevelError, ActionFatal, msg, args...)
 }
-
-const ErrorMsg = "error"
 
 func (l Logger) IfError(err error, args ...any) {
 	if err != nil {
