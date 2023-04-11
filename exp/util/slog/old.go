@@ -6,8 +6,8 @@ import (
 )
 
 type oldLogAdapter struct {
-	l     Logger
-	level Level
+	l  Logger
+	lv Level
 }
 
 var _ io.Writer = oldLogAdapter{}
@@ -20,7 +20,7 @@ func (a oldLogAdapter) Write(p []byte) (n int, err error) {
 	log(
 		a.l.DefaultContext(),
 		a.l.DefaultHandler(),
-		a.level,
+		a.lv,
 		ActionNone,
 		2,
 		string(p2),
@@ -30,5 +30,5 @@ func (a oldLogAdapter) Write(p []byte) (n int, err error) {
 }
 
 func InstallOldAdapter(o *old.Logger, l Logger, level Level) {
-	o.SetOutput(oldLogAdapter{l: l, level: level})
+	o.SetOutput(oldLogAdapter{l: l, lv: level})
 }

@@ -4,7 +4,6 @@ package format
 
 import (
 	"fmt"
-	"io"
 	"sync"
 	"time"
 
@@ -18,8 +17,6 @@ import (
 
 type FormatterOpts struct {
 	AddSource bool
-
-	Level slog.Leveler
 
 	ReplaceAttr func(groups []string, a slog.Attr) slog.Attr
 }
@@ -56,6 +53,8 @@ type formatter struct {
 	nOpenGroups       int
 }
 
+var _ slog.Formatter = &formatter{}
+
 func (f *formatter) clone() *formatter {
 	return &formatter{
 		opts: f.opts,
@@ -65,14 +64,6 @@ func (f *formatter) clone() *formatter {
 		groups:            slices.Clip(f.groups),
 		nOpenGroups:       f.nOpenGroups,
 	}
-}
-
-func (f *formatter) enabled(l slog.Level) bool {
-	minLevel := slog.LevelInfo
-	if f.opts.Level != nil {
-		minLevel = f.opts.Level.Level()
-	}
-	return l >= minLevel
 }
 
 func (f *formatter) withAttrs(as []slog.Attr) *formatter {
@@ -102,6 +93,10 @@ func (f *formatter) withAttrs(as []slog.Attr) *formatter {
 	return h2
 }
 
+func (f *formatter) WithAttrs(as []slog.Attr) slog.Formatter {
+	return f.withAttrs(as)
+}
+
 func (f *formatter) withGroup(name string) *formatter {
 	if name == "" {
 		return f
@@ -111,7 +106,11 @@ func (f *formatter) withGroup(name string) *formatter {
 	return h2
 }
 
-func (f *formatter) format(r slog.Record, w io.Writer) error {
+func (f *formatter) WithGroup(name string) slog.Formatter {
+	return f.WithGroup(name)
+}
+
+func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 	state := f.newHandleState(buffer.New(), true, "", nil)
 	defer state.free()
 
@@ -179,7 +178,7 @@ func (f *formatter) format(r slog.Record, w io.Writer) error {
 
 	f.mtx.Lock()
 	defer f.mtx.Unlock()
-	_, err := w.Write(*state.buf)
+	_, err := w(*state.buf)
 	return err
 }
 

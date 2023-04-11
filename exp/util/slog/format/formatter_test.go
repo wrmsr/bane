@@ -22,6 +22,6 @@ func TestHandlers(t *testing.T) {
 	)
 
 	var b bytes.Buffer
-	_ = f.format(r, &b)
+	_ = f.Format(r, (&b).Write)
 	fmt.Println(b.String())
 }
