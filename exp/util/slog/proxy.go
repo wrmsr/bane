@@ -1,7 +1,6 @@
 package slog
 
 import (
-	"context"
 	"time"
 
 	"golang.org/x/exp/slog"
@@ -35,28 +34,6 @@ const LevelDebug = slog.LevelDebug
 const LevelInfo = slog.LevelInfo
 const LevelWarn = slog.LevelWarn
 const LevelError = slog.LevelError
-
-// logger.go
-
-func Debug(msg string, args ...any)                         { slog.Debug(msg, args...) }
-func DebugCtx(ctx context.Context, msg string, args ...any) { slog.DebugCtx(ctx, msg, args...) }
-
-func Info(msg string, args ...any)                         { slog.Info(msg, args...) }
-func InfoCtx(ctx context.Context, msg string, args ...any) { slog.InfoCtx(ctx, msg, args...) }
-
-func Warn(msg string, args ...any)                         { slog.Warn(msg, args...) }
-func WarnCtx(ctx context.Context, msg string, args ...any) { slog.WarnCtx(ctx, msg, args...) }
-
-func Error(msg string, args ...any)                         { slog.Error(msg, args...) }
-func ErrorCtx(ctx context.Context, msg string, args ...any) { slog.ErrorCtx(ctx, msg, args...) }
-
-func Log(ctx context.Context, level Level, msg string, args ...any) {
-	slog.Log(ctx, level, msg, args...)
-}
-
-func LogAttrs(ctx context.Context, level Level, msg string, attrs ...Attr) {
-	slog.LogAttrs(ctx, level, msg, attrs...)
-}
 
 // record.go
 

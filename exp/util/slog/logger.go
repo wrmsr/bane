@@ -91,6 +91,10 @@ func Default() Logger {
 	return NewLogger(DefaultHandler())
 }
 
+func DefaultCtx(ctx context.Context) Logger {
+	return NewLogger(DefaultHandler()).WithContext(ctx)
+}
+
 func (l Logger) Handler() Handler {
 	return l.h
 }
@@ -166,8 +170,9 @@ func log(
 	h Handler,
 	level Level,
 	action Action,
+	pco int,
 	msg string,
-	args ...any,
+	prepRec func(*Record),
 ) {
 	if !h.Enabled(ctx, level) {
 		return
@@ -176,19 +181,12 @@ func log(
 	var pc uintptr
 	if !IgnorePC {
 		var pcs [1]uintptr
-		// skip [runtime.Callers, log, Logger.log, Logger.<public>]
-		runtime.Callers(4, pcs[:])
+		runtime.Callers(3+pco, pcs[:])
 		pc = pcs[0]
 	}
 
 	r := slog.NewRecord(time.Now(), level, msg, pc)
-
-	var attr Attr
-	for len(args) > 0 {
-		attr, args = ArgsToAttr(args)
-		r.AddAttrs(attr)
-	}
-
+	prepRec(&r)
 	_ = h.Handle(ctx, r)
 
 	switch action {
@@ -212,12 +210,35 @@ func (l Logger) log(
 		l.DefaultHandler(),
 		level,
 		action,
+		1,
 		msg,
-		args...,
+		func(r *Record) {
+			var attr Attr
+			for len(args) > 0 {
+				attr, args = ArgsToAttr(args)
+				r.AddAttrs(attr)
+			}
+		},
 	)
 }
 
-func (l Logger) Log(level Level, msg string, args ...any) { l.log(level, ActionNone, msg, args...) }
+func (l Logger) Log(level Level, msg string, args ...any) {
+	l.log(level, ActionNone, msg, args...)
+}
+
+func (l Logger) LogAttrs(level Level, msg string, attrs ...Attr) {
+	log(
+		l.DefaultContext(),
+		l.DefaultHandler(),
+		level,
+		ActionNone,
+		0,
+		msg,
+		func(r *Record) {
+			r.AddAttrs(attrs...)
+		},
+	)
+}
 
 func (l Logger) Debug(msg string, args ...any) { l.log(LevelDebug, ActionNone, msg, args...) }
 func (l Logger) Info(msg string, args ...any)  { l.log(LevelInfo, ActionNone, msg, args...) }
