@@ -8,8 +8,8 @@ import "testing"
 func Test(t *testing.T) {
 	b := New()
 	defer b.Free()
-	b.WriteString("hello")
-	b.WriteByte(',')
+	b.WriteS("hello")
+	b.WriteB(',')
 	_, _ = b.Write([]byte(" world"))
 	b.WritePosIntWidth(17, 4)
 

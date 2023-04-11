@@ -11,7 +11,7 @@ func TestAlloc(t *testing.T) {
 	got := int(testing.AllocsPerRun(5, func() {
 		b := New()
 		defer b.Free()
-		b.WriteString("not 1K worth of bytes")
+		b.WriteS("not 1K worth of bytes")
 	}))
 	if got != 0 {
 		t.Errorf("got %d allocs, want 0", got)

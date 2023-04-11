@@ -9,8 +9,8 @@ import (
 
 	"golang.org/x/exp/slices"
 
-	"github.com/wrmsr/bane/exp/util/slog"
-	"github.com/wrmsr/bane/exp/util/slog/buffer"
+	"github.com/wrmsr/bane/pkg/util/slog"
+	"github.com/wrmsr/bane/pkg/util/slog/buffer"
 )
 
 //
@@ -74,7 +74,7 @@ func (f *formatter) withAttrs(as []slog.Attr) *formatter {
 	// Pre-format the attributes as an optimization.
 	prefix := buffer.New()
 	defer prefix.Free()
-	prefix.WriteString(f.groupPrefix)
+	prefix.WriteS(f.groupPrefix)
 
 	state := h2.newHandleState((*buffer.Buffer)(&h2.preformattedAttrs), false, "", prefix)
 	defer state.free()
@@ -157,8 +157,8 @@ func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 				st.appendSource(frame.File, frame.Line)
 			} else {
 				buf := buffer.New()
-				buf.WriteString(frame.File) // TODO: escape?
-				buf.WriteByte(':')
+				buf.WriteS(frame.File) // TODO: escape?
+				buf.WriteB(':')
 				buf.WritePosInt(frame.Line)
 				s := buf.String()
 				buf.Free()
@@ -178,7 +178,7 @@ func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 
 	st.groups = stateGroups // Restore groups passed to ReplaceAttrs.
 	st.appendNonBuiltIns(r)
-	st.buf.WriteByte('\n')
+	st.buf.WriteB('\n')
 
 	f.mtx.Lock()
 	defer f.mtx.Unlock()
@@ -191,7 +191,7 @@ func (f *formatter) Format(r slog.Record, w slog.Writer) error {
 func (s *state) appendNonBuiltIns(r slog.Record) {
 	// preformatted Attrs
 	if len(s.f.preformattedAttrs) > 0 {
-		s.buf.WriteString(s.sep)
+		s.buf.WriteS(s.sep)
 		_, _ = s.buf.Write(s.f.preformattedAttrs)
 		s.sep = s.f.sty.attrSep()
 	}
@@ -199,7 +199,7 @@ func (s *state) appendNonBuiltIns(r slog.Record) {
 	// Attrs in Record -- unlike the built-in ones, they are in groups started from WithGroup.
 	s.prefix = buffer.New()
 	defer s.prefix.Free()
-	s.prefix.WriteString(s.f.groupPrefix)
+	s.prefix.WriteS(s.f.groupPrefix)
 	s.openGroups()
 	r.Attrs(func(a slog.Attr) {
 		s.appendAttr(a)
@@ -326,14 +326,14 @@ func (s *state) appendError(err error) {
 }
 
 func (s *state) appendKey(key string) {
-	s.buf.WriteString(s.sep)
+	s.buf.WriteS(s.sep)
 	if s.prefix != nil {
 		// TODO: optimize by avoiding allocation.
 		s.appendString(string(*s.prefix) + key)
 	} else {
 		s.appendString(key)
 	}
-	s.buf.WriteString(s.f.sty.valueSep())
+	s.buf.WriteS(s.f.sty.valueSep())
 	s.sep = s.f.sty.attrSep()
 }
 

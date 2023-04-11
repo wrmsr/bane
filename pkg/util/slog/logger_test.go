@@ -19,7 +19,7 @@ import (
 
 	stdslog "golang.org/x/exp/slog"
 
-	"github.com/wrmsr/bane/exp/util/slog"
+	"github.com/wrmsr/bane/pkg/util/slog"
 )
 
 //

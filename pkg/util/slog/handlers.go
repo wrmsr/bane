@@ -2,6 +2,8 @@ package slog
 
 import (
 	"context"
+
+	eu "github.com/wrmsr/bane/pkg/util/errors"
 )
 
 //
@@ -70,4 +72,49 @@ func (h *FormatterHandler) WithGroup(name string) Handler {
 	c := h.clone()
 	c.f = h.f.WithGroup(name)
 	return c
+}
+
+//
+
+type MultiHandler struct {
+	hs []Handler
+}
+
+func NewMultiHandler(hs ...Handler) MultiHandler {
+	return MultiHandler{hs: hs}
+}
+
+var _ Handler = MultiHandler{}
+
+func (h MultiHandler) Enabled(ctx context.Context, level Level) bool {
+	for _, c := range h.hs {
+		if c.Enabled(ctx, level) {
+			return true
+		}
+	}
+	return false
+}
+
+func (h MultiHandler) Handle(ctx context.Context, record Record) error {
+	var err error
+	for _, c := range h.hs {
+		err = eu.Append(err, c.Handle(ctx, record))
+	}
+	return err
+}
+
+func (h MultiHandler) WithAttrs(attrs []Attr) Handler {
+	hs := make([]Handler, len(h.hs))
+	for i, c := range h.hs {
+		hs[i] = c.WithAttrs(attrs)
+	}
+	return NewMultiHandler(hs...)
+}
+
+func (h MultiHandler) WithGroup(name string) Handler {
+	hs := make([]Handler, len(h.hs))
+	for i, c := range h.hs {
+		hs[i] = c.WithGroup(name)
+	}
+	return NewMultiHandler(hs...)
 }

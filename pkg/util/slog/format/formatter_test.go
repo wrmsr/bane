@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/exp/slog"
 
-	slogf "github.com/wrmsr/bane/exp/util/slog/format"
+	slogf "github.com/wrmsr/bane/pkg/util/slog/format"
 )
 
 func TestHandlers(t *testing.T) {

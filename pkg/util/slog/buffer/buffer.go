@@ -37,11 +37,11 @@ func (b *Buffer) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-func (b *Buffer) WriteString(s string) {
+func (b *Buffer) WriteS(s string) {
 	*b = append(*b, s...)
 }
 
-func (b *Buffer) WriteByte(c byte) {
+func (b *Buffer) WriteB(c byte) {
 	*b = append(*b, c)
 }
 

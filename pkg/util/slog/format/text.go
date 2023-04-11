@@ -11,7 +11,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/wrmsr/bane/exp/util/slog"
+	"github.com/wrmsr/bane/pkg/util/slog"
 )
 
 //
@@ -35,8 +35,8 @@ func (sty textFormatterStyle) begin(s *state) {}
 func (sty textFormatterStyle) end(s *state) {}
 
 func (sty textFormatterStyle) openGroup(s *state, name string) {
-	s.prefix.WriteString(name)
-	s.prefix.WriteByte(keyComponentSep)
+	s.prefix.WriteS(name)
+	s.prefix.WriteB(keyComponentSep)
 }
 
 func (sty textFormatterStyle) closeGroup(s *state, name string) {
@@ -49,7 +49,7 @@ func (sty textFormatterStyle) appendSource(s *state, file string, line int) {
 	} else {
 		// common case: no quoting needed.
 		s.appendString(file)
-		s.buf.WriteByte(':')
+		s.buf.WriteB(':')
 		s.buf.WritePosInt(line)
 	}
 }
@@ -58,7 +58,7 @@ func (sty textFormatterStyle) appendString(s *state, str string) {
 	if needsQuoting(str) {
 		*s.buf = strconv.AppendQuote(*s.buf, str)
 	} else {
-		s.buf.WriteString(str)
+		s.buf.WriteS(str)
 	}
 }
 
@@ -95,7 +95,7 @@ func appendTextValue(s *state, v slog.Value) error {
 		}
 		if bs, ok := byteSlice(a); ok {
 			// As of Go 1.19, this only allocates for strings longer than 32 bytes.
-			s.buf.WriteString(strconv.Quote(string(bs)))
+			s.buf.WriteS(strconv.Quote(string(bs)))
 			return nil
 		}
 		s.appendString(fmt.Sprintf("%+v", v.Any()))
