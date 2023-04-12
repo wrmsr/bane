@@ -10,6 +10,7 @@ type Config struct {
 	Paths  PathsConfig
 	Limits LimitsConfig
 	Log    LogConfig
+	Dump   DumpConfig
 }
 
 func Bootstrap(cfg Config) (fn bt.ErrFn, err error) {
@@ -30,6 +31,9 @@ func Bootstrap(cfg Config) (fn bt.ErrFn, err error) {
 		return
 	}
 	if err = LogBootstrap(cfg.Log, ds); err != nil {
+		return
+	}
+	if err = DumpBootstrap(cfg.Dump, ds); err != nil {
 		return
 	}
 

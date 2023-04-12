@@ -19,7 +19,7 @@ func DumpBootstrap(cfg DumpConfig, ds *eu.DeferStack) error {
 		buf := make([]byte, 256*1024)
 		fn := func() {
 			n := runtime.Stack(buf, true)
-			_, _ = os.Stdout.Write(buf[:n]) // FIXME:
+			_, _ = os.Stderr.Write(buf[:n]) // FIXME:
 		}
 
 		w := workers.NewSleepWorker(func() bool {
