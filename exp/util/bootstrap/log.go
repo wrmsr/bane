@@ -21,6 +21,7 @@ const (
 type LogConfig struct {
 	Format LogFormat
 	Level  slog.Level
+	Reset  bool
 }
 
 func LogBootstrap(cfg LogConfig, ds *eu.DeferStack) error {
@@ -52,10 +53,13 @@ func LogBootstrap(cfg LogConfig, ds *eu.DeferStack) error {
 
 	stdslog.SetDefault(n)
 	slog.InstallOldWriter(o0, l, lv)
-	ds.Defer(func() {
-		o0.SetOutput(w)
-		stdslog.SetDefault(o1)
-	})
+
+	if cfg.Reset {
+		ds.Defer(func() {
+			o0.SetOutput(w)
+			stdslog.SetDefault(o1)
+		})
+	}
 
 	return nil
 }
