@@ -68,13 +68,15 @@ func Union1_Dog(v Dog) Union1 {
 }
 
 func (u Union1) Dog() Dog {
-	if u.k == Union1_Kind_Dog {
-		return Dog{
-			Woofs: u.int_0,
-			Howl:  u.any_0.(Howler),
-		}
+	if u.k != Union1_Kind_Dog {
+		panic(u.k)
 	}
-	panic(u.k)
+	v := Dog{}
+	v.Woofs = u.int_0
+	if u.any_0 != nil {
+		v.Howl = u.any_0.(Howler)
+	}
+	return v
 }
 
 func Union1_Person(v Person) Union1 {
@@ -85,13 +87,13 @@ func Union1_Person(v Person) Union1 {
 }
 
 func (u Union1) Person() Person {
-	if u.k == Union1_Kind_Person {
-		return Person{
-			Age:   u.float32_0,
-			Money: u.int_0,
-		}
+	if u.k != Union1_Kind_Person {
+		panic(u.k)
 	}
-	panic(u.k)
+	v := Person{}
+	v.Age = u.float32_0
+	v.Money = u.int_0
+	return v
 }
 
 func TestUnion1(t *testing.T) {

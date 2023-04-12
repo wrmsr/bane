@@ -1,4 +1,3 @@
-- logging
 - env vars, files
 - repl server
 - profile
