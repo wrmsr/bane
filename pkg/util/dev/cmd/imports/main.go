@@ -21,11 +21,19 @@ import (
 	osu "github.com/wrmsr/bane/pkg/util/os"
 	rtu "github.com/wrmsr/bane/pkg/util/runtime"
 	"github.com/wrmsr/bane/pkg/util/slices"
+	bt "github.com/wrmsr/bane/pkg/util/types"
 	"github.com/wrmsr/bane/pkg/util/workers"
 )
 
 var dontFixRetract modfile.VersionFixer = func(_, vers string) (string, error) {
 	return vers, nil
+}
+
+type Output struct {
+	Builtin  map[string][]string `json:"builtin,omitempty"`
+	External map[string][]string `json:"external,omitempty"`
+
+	Internal ctr.Map[string, rtu.SortedNames] `json:"internal"`
 }
 
 func main() {
@@ -79,6 +87,28 @@ func main() {
 	}
 	_ = check.Must1(workers.DoParallelErrGroup(context.Background(), rtu.MaxProcs(), wfns))
 
-	o := ctr.MapValues[string, []string, rtu.SortedNames](fnu.Bind1x1x1(rtu.SortNames, mp), m)
+	i := ctr.MapValues[string, []string, rtu.SortedNames](fnu.Bind1x1x1(rtu.SortNames, mp), m)
+
+	bsm := make(map[string]maps.Set[string])
+	esm := make(map[string]maps.Set[string])
+	i.ForEach(func(kv bt.Kv[string, rtu.SortedNames]) bool {
+		for _, b := range kv.V.Builtin {
+			maps.ComputeDefault(bsm, b, maps.MakeSet[string]).Add(kv.K)
+		}
+		for _, e := range kv.V.External {
+			maps.ComputeDefault(esm, e, maps.MakeSet[string]).Add(kv.K)
+		}
+		return true
+	})
+
+	gsm := func(s maps.Set[string]) []string {
+		return slices.Sort(s.Slice())
+	}
+	o := Output{
+		Builtin:  maps.MapValues(gsm, bsm),
+		External: maps.MapValues(gsm, esm),
+		Internal: i,
+	}
+
 	fmt.Println(check.Must1(ju.MarshalIndentString(o, "", "  ")))
 }
