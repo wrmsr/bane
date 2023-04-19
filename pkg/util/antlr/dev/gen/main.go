@@ -137,11 +137,15 @@ func main() {
 					fp := filepath.Join(rp, info.Name())
 					src := string(check.Must1(os.ReadFile(fp)))
 
-					src = strings.ReplaceAll(
-						src,
-						`"github.com/antlr/antlr4/runtime/Go/antlr/v4"`,
-						`antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"`,
-					)
+					for _, rep := range []struct{ l, r string }{
+						{
+							`"github.com/antlr/antlr4/runtime/Go/antlr/v4"`,
+							`antlr "github.com/wrmsr/bane/pkg/util/antlr/runtime"`,
+						},
+						{"interface{}", "any"},
+					} {
+						src = strings.ReplaceAll(src, rep.l, rep.r)
+					}
 
 					check.Must(os.WriteFile(fp, []byte(src), info.Mode()))
 
