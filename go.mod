@@ -15,7 +15,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.13
 	github.com/segmentio/asm v1.2.0
 	golang.org/x/arch v0.0.0-20220412001346-fc48f9fe4c15
-	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
+	golang.org/x/exp v0.0.0-20230419192730-864b3d6c5c2c
 	golang.org/x/mod v0.10.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/sys v0.7.0

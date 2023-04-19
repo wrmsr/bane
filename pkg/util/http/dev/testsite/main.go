@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/pkg/util/http/dev/testsite/services"
 	inj "github.com/wrmsr/bane/pkg/util/inject"
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
@@ -42,6 +43,9 @@ func main() {
 	mux := http.NewServeMux()
 
 	injector := inj.NewInjector(inj.Bind(
+		inj.Singleton{services.NewUptimeService},
+		inj.Singleton{services.NewStatusService},
+
 		inj.BindArrayOf[serverFunc]{},
 
 		inj.As(inj.ArrayOf[serverFunc]{}, inj.Const{func(mux *http.ServeMux) {
@@ -57,6 +61,8 @@ func main() {
 	for _, fn := range arr {
 		fn(mux)
 	}
+
+	fmt.Printf("%#v\n", inj.ProvideAs[*services.StatusService](injector).Status())
 
 	check.Must(http.ListenAndServe(":8090", mux))
 }
