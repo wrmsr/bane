@@ -9,74 +9,74 @@ type TomlVisitor interface {
 	antlr.ParseTreeVisitor
 
 	// Visit a parse tree produced by TomlParser#document.
-	VisitDocument(ctx *DocumentContext) interface{}
+	VisitDocument(ctx *DocumentContext) any
 
 	// Visit a parse tree produced by TomlParser#expression.
-	VisitExpression(ctx *ExpressionContext) interface{}
+	VisitExpression(ctx *ExpressionContext) any
 
 	// Visit a parse tree produced by TomlParser#comment.
-	VisitComment(ctx *CommentContext) interface{}
+	VisitComment(ctx *CommentContext) any
 
 	// Visit a parse tree produced by TomlParser#keyValue.
-	VisitKeyValue(ctx *KeyValueContext) interface{}
+	VisitKeyValue(ctx *KeyValueContext) any
 
 	// Visit a parse tree produced by TomlParser#key.
-	VisitKey(ctx *KeyContext) interface{}
+	VisitKey(ctx *KeyContext) any
 
 	// Visit a parse tree produced by TomlParser#simpleKey.
-	VisitSimpleKey(ctx *SimpleKeyContext) interface{}
+	VisitSimpleKey(ctx *SimpleKeyContext) any
 
 	// Visit a parse tree produced by TomlParser#unquotedKey.
-	VisitUnquotedKey(ctx *UnquotedKeyContext) interface{}
+	VisitUnquotedKey(ctx *UnquotedKeyContext) any
 
 	// Visit a parse tree produced by TomlParser#quotedKey.
-	VisitQuotedKey(ctx *QuotedKeyContext) interface{}
+	VisitQuotedKey(ctx *QuotedKeyContext) any
 
 	// Visit a parse tree produced by TomlParser#dottedKey.
-	VisitDottedKey(ctx *DottedKeyContext) interface{}
+	VisitDottedKey(ctx *DottedKeyContext) any
 
 	// Visit a parse tree produced by TomlParser#value.
-	VisitValue(ctx *ValueContext) interface{}
+	VisitValue(ctx *ValueContext) any
 
 	// Visit a parse tree produced by TomlParser#stringValue.
-	VisitStringValue(ctx *StringValueContext) interface{}
+	VisitStringValue(ctx *StringValueContext) any
 
 	// Visit a parse tree produced by TomlParser#integer.
-	VisitInteger(ctx *IntegerContext) interface{}
+	VisitInteger(ctx *IntegerContext) any
 
 	// Visit a parse tree produced by TomlParser#floatingPoint.
-	VisitFloatingPoint(ctx *FloatingPointContext) interface{}
+	VisitFloatingPoint(ctx *FloatingPointContext) any
 
 	// Visit a parse tree produced by TomlParser#boolean.
-	VisitBoolean(ctx *BooleanContext) interface{}
+	VisitBoolean(ctx *BooleanContext) any
 
 	// Visit a parse tree produced by TomlParser#dateTime.
-	VisitDateTime(ctx *DateTimeContext) interface{}
+	VisitDateTime(ctx *DateTimeContext) any
 
 	// Visit a parse tree produced by TomlParser#array.
-	VisitArray(ctx *ArrayContext) interface{}
+	VisitArray(ctx *ArrayContext) any
 
 	// Visit a parse tree produced by TomlParser#arrayValues.
-	VisitArrayValues(ctx *ArrayValuesContext) interface{}
+	VisitArrayValues(ctx *ArrayValuesContext) any
 
 	// Visit a parse tree produced by TomlParser#commentOrNl.
-	VisitCommentOrNl(ctx *CommentOrNlContext) interface{}
+	VisitCommentOrNl(ctx *CommentOrNlContext) any
 
 	// Visit a parse tree produced by TomlParser#table.
-	VisitTable(ctx *TableContext) interface{}
+	VisitTable(ctx *TableContext) any
 
 	// Visit a parse tree produced by TomlParser#standardTable.
-	VisitStandardTable(ctx *StandardTableContext) interface{}
+	VisitStandardTable(ctx *StandardTableContext) any
 
 	// Visit a parse tree produced by TomlParser#inlineTable.
-	VisitInlineTable(ctx *InlineTableContext) interface{}
+	VisitInlineTable(ctx *InlineTableContext) any
 
 	// Visit a parse tree produced by TomlParser#inlineTableKeyvals.
-	VisitInlineTableKeyvals(ctx *InlineTableKeyvalsContext) interface{}
+	VisitInlineTableKeyvals(ctx *InlineTableKeyvalsContext) any
 
 	// Visit a parse tree produced by TomlParser#inlineTableKeyvalsNonEmpty.
-	VisitInlineTableKeyvalsNonEmpty(ctx *InlineTableKeyvalsNonEmptyContext) interface{}
+	VisitInlineTableKeyvalsNonEmpty(ctx *InlineTableKeyvalsNonEmptyContext) any
 
 	// Visit a parse tree produced by TomlParser#arrayTable.
-	VisitArrayTable(ctx *ArrayTableContext) interface{}
+	VisitArrayTable(ctx *ArrayTableContext) any
 }

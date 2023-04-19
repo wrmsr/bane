@@ -953,7 +953,7 @@ func (s *CompilationUnitContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *CompilationUnitContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *CompilationUnitContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitCompilationUnit(s)
@@ -1110,7 +1110,7 @@ func (s *TranslationUnitContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *TranslationUnitContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *TranslationUnitContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitTranslationUnit(s)
@@ -1262,7 +1262,7 @@ func (s *ExternalDeclarationContext) ExitRule(listener antlr.ParseTreeListener) 
 	}
 }
 
-func (s *ExternalDeclarationContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ExternalDeclarationContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitExternalDeclaration(s)
@@ -1452,7 +1452,7 @@ func (s *FunctionDefinitionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FunctionDefinitionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FunctionDefinitionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitFunctionDefinition(s)
@@ -1623,7 +1623,7 @@ func (s *DeclarationListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *DeclarationListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *DeclarationListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitDeclarationList(s)
@@ -1792,7 +1792,7 @@ func (s *DeclarationContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *DeclarationContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *DeclarationContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitDeclaration(s)
@@ -1969,7 +1969,7 @@ func (s *DeclarationSpecifiersContext) ExitRule(listener antlr.ParseTreeListener
 	}
 }
 
-func (s *DeclarationSpecifiersContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *DeclarationSpecifiersContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitDeclarationSpecifiers(s)
@@ -2131,7 +2131,7 @@ func (s *DeclarationSpecifiers2Context) ExitRule(listener antlr.ParseTreeListene
 	}
 }
 
-func (s *DeclarationSpecifiers2Context) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *DeclarationSpecifiers2Context) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitDeclarationSpecifiers2(s)
@@ -2329,7 +2329,7 @@ func (s *DeclarationSpecifierContext) ExitRule(listener antlr.ParseTreeListener)
 	}
 }
 
-func (s *DeclarationSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *DeclarationSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitDeclarationSpecifier(s)
@@ -2518,7 +2518,7 @@ func (s *InitDeclaratorListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *InitDeclaratorListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *InitDeclaratorListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitInitDeclaratorList(s)
@@ -2678,7 +2678,7 @@ func (s *InitDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *InitDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *InitDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitInitDeclarator(s)
@@ -2916,7 +2916,7 @@ func (s *PrimaryExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *PrimaryExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *PrimaryExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitPrimaryExpression(s)
@@ -3205,7 +3205,7 @@ func (s *GenericSelectionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *GenericSelectionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *GenericSelectionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitGenericSelection(s)
@@ -3380,7 +3380,7 @@ func (s *GenericAssocListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *GenericAssocListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *GenericAssocListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitGenericAssocList(s)
@@ -3545,7 +3545,7 @@ func (s *GenericAssociationContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *GenericAssociationContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *GenericAssociationContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitGenericAssociation(s)
@@ -3789,7 +3789,7 @@ func (s *PostfixExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *PostfixExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *PostfixExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitPostfixExpression(s)
@@ -4039,7 +4039,7 @@ func (s *PostfixExpression2Context) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *PostfixExpression2Context) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *PostfixExpression2Context) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitPostfixExpression2(s)
@@ -4266,7 +4266,7 @@ func (s *ArgumentExpressionListContext) ExitRule(listener antlr.ParseTreeListene
 	}
 }
 
-func (s *ArgumentExpressionListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArgumentExpressionListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitArgumentExpressionList(s)
@@ -4510,7 +4510,7 @@ func (s *UnaryExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *UnaryExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *UnaryExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitUnaryExpression(s)
@@ -4722,7 +4722,7 @@ func (s *UnaryOperatorContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *UnaryOperatorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *UnaryOperatorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitUnaryOperator(s)
@@ -4898,7 +4898,7 @@ func (s *CastExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *CastExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *CastExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitCastExpression(s)
@@ -5117,7 +5117,7 @@ func (s *MultiplicativeExpressionContext) ExitRule(listener antlr.ParseTreeListe
 	}
 }
 
-func (s *MultiplicativeExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MultiplicativeExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitMultiplicativeExpression(s)
@@ -5308,7 +5308,7 @@ func (s *AdditiveExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *AdditiveExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *AdditiveExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitAdditiveExpression(s)
@@ -5499,7 +5499,7 @@ func (s *ShiftExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ShiftExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ShiftExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitShiftExpression(s)
@@ -5710,7 +5710,7 @@ func (s *RelationalExpressionContext) ExitRule(listener antlr.ParseTreeListener)
 	}
 }
 
-func (s *RelationalExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RelationalExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitRelationalExpression(s)
@@ -5901,7 +5901,7 @@ func (s *EqualityExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EqualityExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EqualityExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitEqualityExpression(s)
@@ -6082,7 +6082,7 @@ func (s *AndExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *AndExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *AndExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitAndExpression(s)
@@ -6256,7 +6256,7 @@ func (s *ExclusiveOrExpressionContext) ExitRule(listener antlr.ParseTreeListener
 	}
 }
 
-func (s *ExclusiveOrExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ExclusiveOrExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitExclusiveOrExpression(s)
@@ -6430,7 +6430,7 @@ func (s *InclusiveOrExpressionContext) ExitRule(listener antlr.ParseTreeListener
 	}
 }
 
-func (s *InclusiveOrExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *InclusiveOrExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitInclusiveOrExpression(s)
@@ -6604,7 +6604,7 @@ func (s *LogicalAndExpressionContext) ExitRule(listener antlr.ParseTreeListener)
 	}
 }
 
-func (s *LogicalAndExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *LogicalAndExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitLogicalAndExpression(s)
@@ -6778,7 +6778,7 @@ func (s *LogicalOrExpressionContext) ExitRule(listener antlr.ParseTreeListener) 
 	}
 }
 
-func (s *LogicalOrExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *LogicalOrExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitLogicalOrExpression(s)
@@ -6960,7 +6960,7 @@ func (s *ConditionalExpressionContext) ExitRule(listener antlr.ParseTreeListener
 	}
 }
 
-func (s *ConditionalExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ConditionalExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitConditionalExpression(s)
@@ -7159,7 +7159,7 @@ func (s *AssignmentExpressionContext) ExitRule(listener antlr.ParseTreeListener)
 	}
 }
 
-func (s *AssignmentExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *AssignmentExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitAssignmentExpression(s)
@@ -7344,7 +7344,7 @@ func (s *AssignmentOperatorContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *AssignmentOperatorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *AssignmentOperatorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitAssignmentOperator(s)
@@ -7507,7 +7507,7 @@ func (s *ExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitExpression(s)
@@ -7645,7 +7645,7 @@ func (s *ConstantExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ConstantExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ConstantExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitConstantExpression(s)
@@ -7777,7 +7777,7 @@ func (s *StorageClassSpecifierContext) ExitRule(listener antlr.ParseTreeListener
 	}
 }
 
-func (s *StorageClassSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StorageClassSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStorageClassSpecifier(s)
@@ -8037,7 +8037,7 @@ func (s *TypeSpecifierContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *TypeSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *TypeSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitTypeSpecifier(s)
@@ -8278,7 +8278,7 @@ func (s *StructOrUnionSpecifierContext) ExitRule(listener antlr.ParseTreeListene
 	}
 }
 
-func (s *StructOrUnionSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StructOrUnionSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStructOrUnionSpecifier(s)
@@ -8431,7 +8431,7 @@ func (s *StructOrUnionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *StructOrUnionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StructOrUnionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStructOrUnion(s)
@@ -8584,7 +8584,7 @@ func (s *StructDeclarationListContext) ExitRule(listener antlr.ParseTreeListener
 	}
 }
 
-func (s *StructDeclarationListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StructDeclarationListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStructDeclarationList(s)
@@ -8753,7 +8753,7 @@ func (s *StructDeclarationContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *StructDeclarationContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StructDeclarationContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStructDeclaration(s)
@@ -8938,7 +8938,7 @@ func (s *SpecifierQualifierListContext) ExitRule(listener antlr.ParseTreeListene
 	}
 }
 
-func (s *SpecifierQualifierListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *SpecifierQualifierListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitSpecifierQualifierList(s)
@@ -9115,7 +9115,7 @@ func (s *StructDeclaratorListContext) ExitRule(listener antlr.ParseTreeListener)
 	}
 }
 
-func (s *StructDeclaratorListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StructDeclaratorListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStructDeclaratorList(s)
@@ -9275,7 +9275,7 @@ func (s *StructDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *StructDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StructDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStructDeclarator(s)
@@ -9448,7 +9448,7 @@ func (s *EnumSpecifierContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EnumSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EnumSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitEnumSpecifier(s)
@@ -9655,7 +9655,7 @@ func (s *EnumeratorListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EnumeratorListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EnumeratorListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitEnumeratorList(s)
@@ -9818,7 +9818,7 @@ func (s *EnumeratorContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EnumeratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EnumeratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitEnumerator(s)
@@ -9941,7 +9941,7 @@ func (s *EnumerationConstantContext) ExitRule(listener antlr.ParseTreeListener) 
 	}
 }
 
-func (s *EnumerationConstantContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EnumerationConstantContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitEnumerationConstant(s)
@@ -10075,7 +10075,7 @@ func (s *AtomicTypeSpecifierContext) ExitRule(listener antlr.ParseTreeListener) 
 	}
 }
 
-func (s *AtomicTypeSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *AtomicTypeSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitAtomicTypeSpecifier(s)
@@ -10209,7 +10209,7 @@ func (s *TypeQualifierContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *TypeQualifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *TypeQualifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitTypeQualifier(s)
@@ -10361,7 +10361,7 @@ func (s *FunctionSpecifierContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FunctionSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FunctionSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitFunctionSpecifier(s)
@@ -10555,7 +10555,7 @@ func (s *AlignmentSpecifierContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *AlignmentSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *AlignmentSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitAlignmentSpecifier(s)
@@ -10758,7 +10758,7 @@ func (s *DeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *DeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *DeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitDeclarator(s)
@@ -10969,7 +10969,7 @@ func (s *StaticBracket2DirectDeclaratorContext) ExitRule(listener antlr.ParseTre
 	}
 }
 
-func (s *StaticBracket2DirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StaticBracket2DirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStaticBracket2DirectDeclarator(s)
@@ -11053,7 +11053,7 @@ func (s *BracketStarDirectDeclaratorContext) ExitRule(listener antlr.ParseTreeLi
 	}
 }
 
-func (s *BracketStarDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BracketStarDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitBracketStarDirectDeclarator(s)
@@ -11105,7 +11105,7 @@ func (s *BitFieldDirectDeclaratorContext) ExitRule(listener antlr.ParseTreeListe
 	}
 }
 
-func (s *BitFieldDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BitFieldDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitBitFieldDirectDeclarator(s)
@@ -11165,7 +11165,7 @@ func (s *VcSpecificDirectDeclaratorContext) ExitRule(listener antlr.ParseTreeLis
 	}
 }
 
-func (s *VcSpecificDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *VcSpecificDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitVcSpecificDirectDeclarator(s)
@@ -11229,7 +11229,7 @@ func (s *ParenDirectDeclaratorContext) ExitRule(listener antlr.ParseTreeListener
 	}
 }
 
-func (s *ParenDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ParenDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitParenDirectDeclarator(s)
@@ -11309,7 +11309,7 @@ func (s *ParamParenDirectDeclaratorContext) ExitRule(listener antlr.ParseTreeLis
 	}
 }
 
-func (s *ParamParenDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ParamParenDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitParamParenDirectDeclarator(s)
@@ -11405,7 +11405,7 @@ func (s *BracketDirectDeclaratorContext) ExitRule(listener antlr.ParseTreeListen
 	}
 }
 
-func (s *BracketDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BracketDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitBracketDirectDeclarator(s)
@@ -11505,7 +11505,7 @@ func (s *StaticBracketDirectDeclaratorContext) ExitRule(listener antlr.ParseTree
 	}
 }
 
-func (s *StaticBracketDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StaticBracketDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStaticBracketDirectDeclarator(s)
@@ -11585,7 +11585,7 @@ func (s *VcSpecific2DirectDeclaratorContext) ExitRule(listener antlr.ParseTreeLi
 	}
 }
 
-func (s *VcSpecific2DirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *VcSpecific2DirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitVcSpecific2DirectDeclarator(s)
@@ -11665,7 +11665,7 @@ func (s *IdentifierParenDirectDeclaratorContext) ExitRule(listener antlr.ParseTr
 	}
 }
 
-func (s *IdentifierParenDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *IdentifierParenDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitIdentifierParenDirectDeclarator(s)
@@ -11709,7 +11709,7 @@ func (s *IdentifierDirectDeclaratorContext) ExitRule(listener antlr.ParseTreeLis
 	}
 }
 
-func (s *IdentifierDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *IdentifierDirectDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitIdentifierDirectDeclarator(s)
@@ -12103,7 +12103,7 @@ func (s *VcSpecificModifierContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *VcSpecificModifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *VcSpecificModifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitVcSpecificModifier(s)
@@ -12250,7 +12250,7 @@ func (s *GccDeclaratorExtensionContext) ExitRule(listener antlr.ParseTreeListene
 	}
 }
 
-func (s *GccDeclaratorExtensionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *GccDeclaratorExtensionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitGccDeclaratorExtension(s)
@@ -12428,7 +12428,7 @@ func (s *GccAttributeSpecifierContext) ExitRule(listener antlr.ParseTreeListener
 	}
 }
 
-func (s *GccAttributeSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *GccAttributeSpecifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitGccAttributeSpecifier(s)
@@ -12603,7 +12603,7 @@ func (s *GccAttributeListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *GccAttributeListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *GccAttributeListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitGccAttributeList(s)
@@ -12780,7 +12780,7 @@ func (s *GccAttributeContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *GccAttributeContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *GccAttributeContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitGccAttribute(s)
@@ -12979,7 +12979,7 @@ func (s *NestedParenthesesBlockContext) ExitRule(listener antlr.ParseTreeListene
 	}
 }
 
-func (s *NestedParenthesesBlockContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *NestedParenthesesBlockContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitNestedParenthesesBlock(s)
@@ -13185,7 +13185,7 @@ func (s *PointerContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *PointerContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *PointerContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitPointer(s)
@@ -13359,7 +13359,7 @@ func (s *TypeQualifierListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *TypeQualifierListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *TypeQualifierListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitTypeQualifierList(s)
@@ -13499,7 +13499,7 @@ func (s *ParameterTypeListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ParameterTypeListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ParameterTypeListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitParameterTypeList(s)
@@ -13670,7 +13670,7 @@ func (s *ParameterListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ParameterListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ParameterListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitParameterList(s)
@@ -13862,7 +13862,7 @@ func (s *ParameterDeclarationContext) ExitRule(listener antlr.ParseTreeListener)
 	}
 }
 
-func (s *ParameterDeclarationContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ParameterDeclarationContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitParameterDeclaration(s)
@@ -14013,7 +14013,7 @@ func (s *IdentifierListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *IdentifierListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *IdentifierListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitIdentifierList(s)
@@ -14168,7 +14168,7 @@ func (s *TypeNameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *TypeNameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *TypeNameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitTypeName(s)
@@ -14359,7 +14359,7 @@ func (s *AbstractDeclaratorContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *AbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *AbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitAbstractDeclarator(s)
@@ -14584,7 +14584,7 @@ func (s *ParameterTypeListDirectAbstractDeclaratorContext) ExitRule(listener ant
 	}
 }
 
-func (s *ParameterTypeListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ParameterTypeListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitParameterTypeListDirectAbstractDeclarator(s)
@@ -14689,7 +14689,7 @@ func (s *ParenDirectAbstractDeclaratorContext) ExitRule(listener antlr.ParseTree
 	}
 }
 
-func (s *ParenDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ParenDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitParenDirectAbstractDeclarator(s)
@@ -14741,7 +14741,7 @@ func (s *BracketStarDirectAbstractDeclaratorContext) ExitRule(listener antlr.Par
 	}
 }
 
-func (s *BracketStarDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BracketStarDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitBracketStarDirectAbstractDeclarator(s)
@@ -14841,7 +14841,7 @@ func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) ExitRule(lis
 	}
 }
 
-func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RecTypeQualifierListStaticDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitRecTypeQualifierListStaticDirectAbstractDeclarator(s)
@@ -14909,7 +14909,7 @@ func (s *RecBracketStarDirectAbstractDeclaratorContext) ExitRule(listener antlr.
 	}
 }
 
-func (s *RecBracketStarDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RecBracketStarDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitRecBracketStarDirectAbstractDeclarator(s)
@@ -14989,7 +14989,7 @@ func (s *TypeQualifierListDirectAbstractDeclaratorContext) ExitRule(listener ant
 	}
 }
 
-func (s *TypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *TypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitTypeQualifierListDirectAbstractDeclarator(s)
@@ -15073,7 +15073,7 @@ func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) ExitRule(listen
 	}
 }
 
-func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *TypeQualifierListStaticDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitTypeQualifierListStaticDirectAbstractDeclarator(s)
@@ -15173,7 +15173,7 @@ func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) ExitRule(lis
 	}
 }
 
-func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RecStaticTypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitRecStaticTypeQualifierListDirectAbstractDeclarator(s)
@@ -15294,7 +15294,7 @@ func (s *RecParameterTypeListDirectAbstractDeclaratorContext) ExitRule(listener 
 	}
 }
 
-func (s *RecParameterTypeListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RecParameterTypeListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitRecParameterTypeListDirectAbstractDeclarator(s)
@@ -15390,7 +15390,7 @@ func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) ExitRule(listener 
 	}
 }
 
-func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RecTypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitRecTypeQualifierListDirectAbstractDeclarator(s)
@@ -15474,7 +15474,7 @@ func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) ExitRule(listen
 	}
 }
 
-func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StaticTypeQualifierListDirectAbstractDeclaratorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStaticTypeQualifierListDirectAbstractDeclarator(s)
@@ -15966,7 +15966,7 @@ func (s *TypedefNameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *TypedefNameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *TypedefNameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitTypedefName(s)
@@ -16117,7 +16117,7 @@ func (s *InitializerContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *InitializerContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *InitializerContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitInitializer(s)
@@ -16351,7 +16351,7 @@ func (s *InitializerListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *InitializerListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *InitializerListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitInitializerList(s)
@@ -16520,7 +16520,7 @@ func (s *DesignationContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *DesignationContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *DesignationContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitDesignation(s)
@@ -16669,7 +16669,7 @@ func (s *DesignatorListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *DesignatorListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *DesignatorListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitDesignatorList(s)
@@ -16819,7 +16819,7 @@ func (s *DesignatorContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *DesignatorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *DesignatorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitDesignator(s)
@@ -17001,7 +17001,7 @@ func (s *StaticAssertDeclarationContext) ExitRule(listener antlr.ParseTreeListen
 	}
 }
 
-func (s *StaticAssertDeclarationContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StaticAssertDeclarationContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStaticAssertDeclaration(s)
@@ -17323,7 +17323,7 @@ func (s *StatementContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *StatementContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StatementContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitStatement(s)
@@ -17630,7 +17630,7 @@ func (s *LabeledStatementContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *LabeledStatementContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *LabeledStatementContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitLabeledStatement(s)
@@ -17810,7 +17810,7 @@ func (s *CompoundStatementContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *CompoundStatementContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *CompoundStatementContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitCompoundStatement(s)
@@ -17971,7 +17971,7 @@ func (s *BlockItemListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *BlockItemListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BlockItemListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitBlockItemList(s)
@@ -18118,7 +18118,7 @@ func (s *BlockItemContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *BlockItemContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BlockItemContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitBlockItem(s)
@@ -18255,7 +18255,7 @@ func (s *ExpressionStatementContext) ExitRule(listener antlr.ParseTreeListener) 
 	}
 }
 
-func (s *ExpressionStatementContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ExpressionStatementContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitExpressionStatement(s)
@@ -18454,7 +18454,7 @@ func (s *SelectionStatementContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *SelectionStatementContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *SelectionStatementContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitSelectionStatement(s)
@@ -18699,7 +18699,7 @@ func (s *IterationStatementContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *IterationStatementContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *IterationStatementContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitIterationStatement(s)
@@ -18967,7 +18967,7 @@ func (s *ForConditionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ForConditionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ForConditionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitForCondition(s)
@@ -19153,7 +19153,7 @@ func (s *ForDeclarationContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ForDeclarationContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ForDeclarationContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitForDeclaration(s)
@@ -19320,7 +19320,7 @@ func (s *ForExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ForExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ForExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitForExpression(s)
@@ -19505,7 +19505,7 @@ func (s *JumpStatementContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *JumpStatementContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *JumpStatementContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case CVisitor:
 		return t.VisitJumpStatement(s)

@@ -8,102 +8,102 @@ type BaseHoconVisitor struct {
 	*antlr.BaseParseTreeVisitor
 }
 
-func (v *BaseHoconVisitor) VisitHocon(ctx *HoconContext) interface{} {
+func (v *BaseHoconVisitor) VisitHocon(ctx *HoconContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitProp(ctx *PropContext) interface{} {
+func (v *BaseHoconVisitor) VisitProp(ctx *PropContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitObj(ctx *ObjContext) interface{} {
+func (v *BaseHoconVisitor) VisitObj(ctx *ObjContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitObjectBegin(ctx *ObjectBeginContext) interface{} {
+func (v *BaseHoconVisitor) VisitObjectBegin(ctx *ObjectBeginContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitObjectEnd(ctx *ObjectEndContext) interface{} {
+func (v *BaseHoconVisitor) VisitObjectEnd(ctx *ObjectEndContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitObjectData(ctx *ObjectDataContext) interface{} {
+func (v *BaseHoconVisitor) VisitObjectData(ctx *ObjectDataContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitArrayData(ctx *ArrayDataContext) interface{} {
+func (v *BaseHoconVisitor) VisitArrayData(ctx *ArrayDataContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitStringData(ctx *StringDataContext) interface{} {
+func (v *BaseHoconVisitor) VisitStringData(ctx *StringDataContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitReferenceData(ctx *ReferenceDataContext) interface{} {
+func (v *BaseHoconVisitor) VisitReferenceData(ctx *ReferenceDataContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitNumberData(ctx *NumberDataContext) interface{} {
+func (v *BaseHoconVisitor) VisitNumberData(ctx *NumberDataContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitKey(ctx *KeyContext) interface{} {
+func (v *BaseHoconVisitor) VisitKey(ctx *KeyContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitPath(ctx *PathContext) interface{} {
+func (v *BaseHoconVisitor) VisitPath(ctx *PathContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitArrayBegin(ctx *ArrayBeginContext) interface{} {
+func (v *BaseHoconVisitor) VisitArrayBegin(ctx *ArrayBeginContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitArrayEnd(ctx *ArrayEndContext) interface{} {
+func (v *BaseHoconVisitor) VisitArrayEnd(ctx *ArrayEndContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitArray(ctx *ArrayContext) interface{} {
+func (v *BaseHoconVisitor) VisitArray(ctx *ArrayContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitArrayValue(ctx *ArrayValueContext) interface{} {
+func (v *BaseHoconVisitor) VisitArrayValue(ctx *ArrayValueContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitArrayString(ctx *ArrayStringContext) interface{} {
+func (v *BaseHoconVisitor) VisitArrayString(ctx *ArrayStringContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitArrayReference(ctx *ArrayReferenceContext) interface{} {
+func (v *BaseHoconVisitor) VisitArrayReference(ctx *ArrayReferenceContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitArrayNumber(ctx *ArrayNumberContext) interface{} {
+func (v *BaseHoconVisitor) VisitArrayNumber(ctx *ArrayNumberContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitArrayObj(ctx *ArrayObjContext) interface{} {
+func (v *BaseHoconVisitor) VisitArrayObj(ctx *ArrayObjContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitArrayArray(ctx *ArrayArrayContext) interface{} {
+func (v *BaseHoconVisitor) VisitArrayArray(ctx *ArrayArrayContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitV_string(ctx *V_stringContext) interface{} {
+func (v *BaseHoconVisitor) VisitV_string(ctx *V_stringContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitV_rawstring(ctx *V_rawstringContext) interface{} {
+func (v *BaseHoconVisitor) VisitV_rawstring(ctx *V_rawstringContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitV_reference(ctx *V_referenceContext) interface{} {
+func (v *BaseHoconVisitor) VisitV_reference(ctx *V_referenceContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseHoconVisitor) VisitRawstring(ctx *RawstringContext) interface{} {
+func (v *BaseHoconVisitor) VisitRawstring(ctx *RawstringContext) any {
 	return v.VisitChildren(ctx)
 }

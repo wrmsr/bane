@@ -1,3 +1,5 @@
+//go:build !nodev
+
 package main
 
 import fi "github.com/wrmsr/bane/exp/util/unions/dev/foo/impl"

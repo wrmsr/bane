@@ -9,119 +9,119 @@ type ExprVisitor interface {
 	antlr.ParseTreeVisitor
 
 	// Visit a parse tree produced by ExprParser#singleExpr.
-	VisitSingleExpr(ctx *SingleExprContext) interface{}
+	VisitSingleExpr(ctx *SingleExprContext) any
 
 	// Visit a parse tree produced by ExprParser#expr.
-	VisitExpr(ctx *ExprContext) interface{}
+	VisitExpr(ctx *ExprContext) any
 
 	// Visit a parse tree produced by ExprParser#orTest.
-	VisitOrTest(ctx *OrTestContext) interface{}
+	VisitOrTest(ctx *OrTestContext) any
 
 	// Visit a parse tree produced by ExprParser#andTest.
-	VisitAndTest(ctx *AndTestContext) interface{}
+	VisitAndTest(ctx *AndTestContext) any
 
 	// Visit a parse tree produced by ExprParser#notTest.
-	VisitNotTest(ctx *NotTestContext) interface{}
+	VisitNotTest(ctx *NotTestContext) any
 
 	// Visit a parse tree produced by ExprParser#comparison.
-	VisitComparison(ctx *ComparisonContext) interface{}
+	VisitComparison(ctx *ComparisonContext) any
 
 	// Visit a parse tree produced by ExprParser#compOp.
-	VisitCompOp(ctx *CompOpContext) interface{}
+	VisitCompOp(ctx *CompOpContext) any
 
 	// Visit a parse tree produced by ExprParser#exprMain.
-	VisitExprMain(ctx *ExprMainContext) interface{}
+	VisitExprMain(ctx *ExprMainContext) any
 
 	// Visit a parse tree produced by ExprParser#exprCont.
-	VisitExprCont(ctx *ExprContContext) interface{}
+	VisitExprCont(ctx *ExprContContext) any
 
 	// Visit a parse tree produced by ExprParser#xorExpr.
-	VisitXorExpr(ctx *XorExprContext) interface{}
+	VisitXorExpr(ctx *XorExprContext) any
 
 	// Visit a parse tree produced by ExprParser#xorExprCont.
-	VisitXorExprCont(ctx *XorExprContContext) interface{}
+	VisitXorExprCont(ctx *XorExprContContext) any
 
 	// Visit a parse tree produced by ExprParser#andExpr.
-	VisitAndExpr(ctx *AndExprContext) interface{}
+	VisitAndExpr(ctx *AndExprContext) any
 
 	// Visit a parse tree produced by ExprParser#andExprCont.
-	VisitAndExprCont(ctx *AndExprContContext) interface{}
+	VisitAndExprCont(ctx *AndExprContContext) any
 
 	// Visit a parse tree produced by ExprParser#shiftExpr.
-	VisitShiftExpr(ctx *ShiftExprContext) interface{}
+	VisitShiftExpr(ctx *ShiftExprContext) any
 
 	// Visit a parse tree produced by ExprParser#shiftExprCont.
-	VisitShiftExprCont(ctx *ShiftExprContContext) interface{}
+	VisitShiftExprCont(ctx *ShiftExprContContext) any
 
 	// Visit a parse tree produced by ExprParser#arithExpr.
-	VisitArithExpr(ctx *ArithExprContext) interface{}
+	VisitArithExpr(ctx *ArithExprContext) any
 
 	// Visit a parse tree produced by ExprParser#arithExprCont.
-	VisitArithExprCont(ctx *ArithExprContContext) interface{}
+	VisitArithExprCont(ctx *ArithExprContContext) any
 
 	// Visit a parse tree produced by ExprParser#term.
-	VisitTerm(ctx *TermContext) interface{}
+	VisitTerm(ctx *TermContext) any
 
 	// Visit a parse tree produced by ExprParser#termCont.
-	VisitTermCont(ctx *TermContContext) interface{}
+	VisitTermCont(ctx *TermContContext) any
 
 	// Visit a parse tree produced by ExprParser#factor.
-	VisitFactor(ctx *FactorContext) interface{}
+	VisitFactor(ctx *FactorContext) any
 
 	// Visit a parse tree produced by ExprParser#power.
-	VisitPower(ctx *PowerContext) interface{}
+	VisitPower(ctx *PowerContext) any
 
 	// Visit a parse tree produced by ExprParser#atomExpr.
-	VisitAtomExpr(ctx *AtomExprContext) interface{}
+	VisitAtomExpr(ctx *AtomExprContext) any
 
 	// Visit a parse tree produced by ExprParser#parenAtom.
-	VisitParenAtom(ctx *ParenAtomContext) interface{}
+	VisitParenAtom(ctx *ParenAtomContext) any
 
 	// Visit a parse tree produced by ExprParser#bracketAtom.
-	VisitBracketAtom(ctx *BracketAtomContext) interface{}
+	VisitBracketAtom(ctx *BracketAtomContext) any
 
 	// Visit a parse tree produced by ExprParser#dictOrSetAtom.
-	VisitDictOrSetAtom(ctx *DictOrSetAtomContext) interface{}
+	VisitDictOrSetAtom(ctx *DictOrSetAtomContext) any
 
 	// Visit a parse tree produced by ExprParser#constAtom.
-	VisitConstAtom(ctx *ConstAtomContext) interface{}
+	VisitConstAtom(ctx *ConstAtomContext) any
 
 	// Visit a parse tree produced by ExprParser#constVal.
-	VisitConstVal(ctx *ConstValContext) interface{}
+	VisitConstVal(ctx *ConstValContext) any
 
 	// Visit a parse tree produced by ExprParser#testListComp.
-	VisitTestListComp(ctx *TestListCompContext) interface{}
+	VisitTestListComp(ctx *TestListCompContext) any
 
 	// Visit a parse tree produced by ExprParser#exprOrStarExpr.
-	VisitExprOrStarExpr(ctx *ExprOrStarExprContext) interface{}
+	VisitExprOrStarExpr(ctx *ExprOrStarExprContext) any
 
 	// Visit a parse tree produced by ExprParser#starExpr.
-	VisitStarExpr(ctx *StarExprContext) interface{}
+	VisitStarExpr(ctx *StarExprContext) any
 
 	// Visit a parse tree produced by ExprParser#trailer.
-	VisitTrailer(ctx *TrailerContext) interface{}
+	VisitTrailer(ctx *TrailerContext) any
 
 	// Visit a parse tree produced by ExprParser#subscriptList.
-	VisitSubscriptList(ctx *SubscriptListContext) interface{}
+	VisitSubscriptList(ctx *SubscriptListContext) any
 
 	// Visit a parse tree produced by ExprParser#exprSubscript.
-	VisitExprSubscript(ctx *ExprSubscriptContext) interface{}
+	VisitExprSubscript(ctx *ExprSubscriptContext) any
 
 	// Visit a parse tree produced by ExprParser#sliceSubscript.
-	VisitSliceSubscript(ctx *SliceSubscriptContext) interface{}
+	VisitSliceSubscript(ctx *SliceSubscriptContext) any
 
 	// Visit a parse tree produced by ExprParser#sliceOp.
-	VisitSliceOp(ctx *SliceOpContext) interface{}
+	VisitSliceOp(ctx *SliceOpContext) any
 
 	// Visit a parse tree produced by ExprParser#dictMaker.
-	VisitDictMaker(ctx *DictMakerContext) interface{}
+	VisitDictMaker(ctx *DictMakerContext) any
 
 	// Visit a parse tree produced by ExprParser#setMaker.
-	VisitSetMaker(ctx *SetMakerContext) interface{}
+	VisitSetMaker(ctx *SetMakerContext) any
 
 	// Visit a parse tree produced by ExprParser#kvDictItem.
-	VisitKvDictItem(ctx *KvDictItemContext) interface{}
+	VisitKvDictItem(ctx *KvDictItemContext) any
 
 	// Visit a parse tree produced by ExprParser#starsDictItem.
-	VisitStarsDictItem(ctx *StarsDictItemContext) interface{}
+	VisitStarsDictItem(ctx *StarsDictItemContext) any
 }

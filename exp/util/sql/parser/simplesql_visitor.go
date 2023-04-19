@@ -9,167 +9,167 @@ type SimpleSqlVisitor interface {
 	antlr.ParseTreeVisitor
 
 	// Visit a parse tree produced by SimpleSqlParser#singleStatement.
-	VisitSingleStatement(ctx *SingleStatementContext) interface{}
+	VisitSingleStatement(ctx *SingleStatementContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#select.
-	VisitSelect(ctx *SelectContext) interface{}
+	VisitSelect(ctx *SelectContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#cteSelect.
-	VisitCteSelect(ctx *CteSelectContext) interface{}
+	VisitCteSelect(ctx *CteSelectContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#cte.
-	VisitCte(ctx *CteContext) interface{}
+	VisitCte(ctx *CteContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#unionSelect.
-	VisitUnionSelect(ctx *UnionSelectContext) interface{}
+	VisitUnionSelect(ctx *UnionSelectContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#unionItem.
-	VisitUnionItem(ctx *UnionItemContext) interface{}
+	VisitUnionItem(ctx *UnionItemContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#primarySelect.
-	VisitPrimarySelect(ctx *PrimarySelectContext) interface{}
+	VisitPrimarySelect(ctx *PrimarySelectContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#allSelectItem.
-	VisitAllSelectItem(ctx *AllSelectItemContext) interface{}
+	VisitAllSelectItem(ctx *AllSelectItemContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#expressionSelectItem.
-	VisitExpressionSelectItem(ctx *ExpressionSelectItemContext) interface{}
+	VisitExpressionSelectItem(ctx *ExpressionSelectItemContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#expression.
-	VisitExpression(ctx *ExpressionContext) interface{}
+	VisitExpression(ctx *ExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#binaryBooleanExpression.
-	VisitBinaryBooleanExpression(ctx *BinaryBooleanExpressionContext) interface{}
+	VisitBinaryBooleanExpression(ctx *BinaryBooleanExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#predicatedBooleanExpression.
-	VisitPredicatedBooleanExpression(ctx *PredicatedBooleanExpressionContext) interface{}
+	VisitPredicatedBooleanExpression(ctx *PredicatedBooleanExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#unaryBooleanExpression.
-	VisitUnaryBooleanExpression(ctx *UnaryBooleanExpressionContext) interface{}
+	VisitUnaryBooleanExpression(ctx *UnaryBooleanExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#castBooleanExpression.
-	VisitCastBooleanExpression(ctx *CastBooleanExpressionContext) interface{}
+	VisitCastBooleanExpression(ctx *CastBooleanExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#cmpPredicate.
-	VisitCmpPredicate(ctx *CmpPredicateContext) interface{}
+	VisitCmpPredicate(ctx *CmpPredicateContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#isNullPredicate.
-	VisitIsNullPredicate(ctx *IsNullPredicateContext) interface{}
+	VisitIsNullPredicate(ctx *IsNullPredicateContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#inListPredicate.
-	VisitInListPredicate(ctx *InListPredicateContext) interface{}
+	VisitInListPredicate(ctx *InListPredicateContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#inSelectPredicate.
-	VisitInSelectPredicate(ctx *InSelectPredicateContext) interface{}
+	VisitInSelectPredicate(ctx *InSelectPredicateContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#likePredicate.
-	VisitLikePredicate(ctx *LikePredicateContext) interface{}
+	VisitLikePredicate(ctx *LikePredicateContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#primaryValueExpression.
-	VisitPrimaryValueExpression(ctx *PrimaryValueExpressionContext) interface{}
+	VisitPrimaryValueExpression(ctx *PrimaryValueExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#unaryValueExpression.
-	VisitUnaryValueExpression(ctx *UnaryValueExpressionContext) interface{}
+	VisitUnaryValueExpression(ctx *UnaryValueExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#arithValueExpression.
-	VisitArithValueExpression(ctx *ArithValueExpressionContext) interface{}
+	VisitArithValueExpression(ctx *ArithValueExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#functionCallExpression.
-	VisitFunctionCallExpression(ctx *FunctionCallExpressionContext) interface{}
+	VisitFunctionCallExpression(ctx *FunctionCallExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#starFunctionCallExpression.
-	VisitStarFunctionCallExpression(ctx *StarFunctionCallExpressionContext) interface{}
+	VisitStarFunctionCallExpression(ctx *StarFunctionCallExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#caseExpression.
-	VisitCaseExpression(ctx *CaseExpressionContext) interface{}
+	VisitCaseExpression(ctx *CaseExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#selectExpression.
-	VisitSelectExpression(ctx *SelectExpressionContext) interface{}
+	VisitSelectExpression(ctx *SelectExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#parenExpression.
-	VisitParenExpression(ctx *ParenExpressionContext) interface{}
+	VisitParenExpression(ctx *ParenExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#simplePrimaryExpression.
-	VisitSimplePrimaryExpression(ctx *SimplePrimaryExpressionContext) interface{}
+	VisitSimplePrimaryExpression(ctx *SimplePrimaryExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#simpleExpression.
-	VisitSimpleExpression(ctx *SimpleExpressionContext) interface{}
+	VisitSimpleExpression(ctx *SimpleExpressionContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#caseItem.
-	VisitCaseItem(ctx *CaseItemContext) interface{}
+	VisitCaseItem(ctx *CaseItemContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#over.
-	VisitOver(ctx *OverContext) interface{}
+	VisitOver(ctx *OverContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#sortItem.
-	VisitSortItem(ctx *SortItemContext) interface{}
+	VisitSortItem(ctx *SortItemContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#aliasedRelation.
-	VisitAliasedRelation(ctx *AliasedRelationContext) interface{}
+	VisitAliasedRelation(ctx *AliasedRelationContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#joinRelation.
-	VisitJoinRelation(ctx *JoinRelationContext) interface{}
+	VisitJoinRelation(ctx *JoinRelationContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#selectRelation.
-	VisitSelectRelation(ctx *SelectRelationContext) interface{}
+	VisitSelectRelation(ctx *SelectRelationContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#tableRelation.
-	VisitTableRelation(ctx *TableRelationContext) interface{}
+	VisitTableRelation(ctx *TableRelationContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#parenRelation.
-	VisitParenRelation(ctx *ParenRelationContext) interface{}
+	VisitParenRelation(ctx *ParenRelationContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#groupBy.
-	VisitGroupBy(ctx *GroupByContext) interface{}
+	VisitGroupBy(ctx *GroupByContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#qualifiedName.
-	VisitQualifiedName(ctx *QualifiedNameContext) interface{}
+	VisitQualifiedName(ctx *QualifiedNameContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#identifierList.
-	VisitIdentifierList(ctx *IdentifierListContext) interface{}
+	VisitIdentifierList(ctx *IdentifierListContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#identifier.
-	VisitIdentifier(ctx *IdentifierContext) interface{}
+	VisitIdentifier(ctx *IdentifierContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#quotedIdentifier.
-	VisitQuotedIdentifier(ctx *QuotedIdentifierContext) interface{}
+	VisitQuotedIdentifier(ctx *QuotedIdentifierContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#integerNumber.
-	VisitIntegerNumber(ctx *IntegerNumberContext) interface{}
+	VisitIntegerNumber(ctx *IntegerNumberContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#decimalNumber.
-	VisitDecimalNumber(ctx *DecimalNumberContext) interface{}
+	VisitDecimalNumber(ctx *DecimalNumberContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#floatNumber.
-	VisitFloatNumber(ctx *FloatNumberContext) interface{}
+	VisitFloatNumber(ctx *FloatNumberContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#str.
-	VisitStr(ctx *StrContext) interface{}
+	VisitStr(ctx *StrContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#null.
-	VisitNull(ctx *NullContext) interface{}
+	VisitNull(ctx *NullContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#true.
-	VisitTrue(ctx *TrueContext) interface{}
+	VisitTrue(ctx *TrueContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#false.
-	VisitFalse(ctx *FalseContext) interface{}
+	VisitFalse(ctx *FalseContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#setQuantifier.
-	VisitSetQuantifier(ctx *SetQuantifierContext) interface{}
+	VisitSetQuantifier(ctx *SetQuantifierContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#joinType.
-	VisitJoinType(ctx *JoinTypeContext) interface{}
+	VisitJoinType(ctx *JoinTypeContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#cmpOp.
-	VisitCmpOp(ctx *CmpOpContext) interface{}
+	VisitCmpOp(ctx *CmpOpContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#arithOp.
-	VisitArithOp(ctx *ArithOpContext) interface{}
+	VisitArithOp(ctx *ArithOpContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#unaryOp.
-	VisitUnaryOp(ctx *UnaryOpContext) interface{}
+	VisitUnaryOp(ctx *UnaryOpContext) any
 
 	// Visit a parse tree produced by SimpleSqlParser#unquotedIdentifier.
-	VisitUnquotedIdentifier(ctx *UnquotedIdentifierContext) interface{}
+	VisitUnquotedIdentifier(ctx *UnquotedIdentifierContext) any
 }

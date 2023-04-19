@@ -9,35 +9,35 @@ type MinmlVisitor interface {
 	antlr.ParseTreeVisitor
 
 	// Visit a parse tree produced by MinmlParser#root.
-	VisitRoot(ctx *RootContext) interface{}
+	VisitRoot(ctx *RootContext) any
 
 	// Visit a parse tree produced by MinmlParser#value.
-	VisitValue(ctx *ValueContext) interface{}
+	VisitValue(ctx *ValueContext) any
 
 	// Visit a parse tree produced by MinmlParser#obj.
-	VisitObj(ctx *ObjContext) interface{}
+	VisitObj(ctx *ObjContext) any
 
 	// Visit a parse tree produced by MinmlParser#pair.
-	VisitPair(ctx *PairContext) interface{}
+	VisitPair(ctx *PairContext) any
 
 	// Visit a parse tree produced by MinmlParser#array.
-	VisitArray(ctx *ArrayContext) interface{}
+	VisitArray(ctx *ArrayContext) any
 
 	// Visit a parse tree produced by MinmlParser#identifier.
-	VisitIdentifier(ctx *IdentifierContext) interface{}
+	VisitIdentifier(ctx *IdentifierContext) any
 
 	// Visit a parse tree produced by MinmlParser#stringValue.
-	VisitStringValue(ctx *StringValueContext) interface{}
+	VisitStringValue(ctx *StringValueContext) any
 
 	// Visit a parse tree produced by MinmlParser#number.
-	VisitNumber(ctx *NumberContext) interface{}
+	VisitNumber(ctx *NumberContext) any
 
 	// Visit a parse tree produced by MinmlParser#true.
-	VisitTrue(ctx *TrueContext) interface{}
+	VisitTrue(ctx *TrueContext) any
 
 	// Visit a parse tree produced by MinmlParser#false.
-	VisitFalse(ctx *FalseContext) interface{}
+	VisitFalse(ctx *FalseContext) any
 
 	// Visit a parse tree produced by MinmlParser#null.
-	VisitNull(ctx *NullContext) interface{}
+	VisitNull(ctx *NullContext) any
 }

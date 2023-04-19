@@ -8,58 +8,58 @@ type BaseDotVisitor struct {
 	*antlr.BaseParseTreeVisitor
 }
 
-func (v *BaseDotVisitor) VisitGraph(ctx *GraphContext) interface{} {
+func (v *BaseDotVisitor) VisitGraph(ctx *GraphContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitStmtList(ctx *StmtListContext) interface{} {
+func (v *BaseDotVisitor) VisitStmtList(ctx *StmtListContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitStmt(ctx *StmtContext) interface{} {
+func (v *BaseDotVisitor) VisitStmt(ctx *StmtContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitAttrStmt(ctx *AttrStmtContext) interface{} {
+func (v *BaseDotVisitor) VisitAttrStmt(ctx *AttrStmtContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitAttrList(ctx *AttrListContext) interface{} {
+func (v *BaseDotVisitor) VisitAttrList(ctx *AttrListContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitAList(ctx *AListContext) interface{} {
+func (v *BaseDotVisitor) VisitAList(ctx *AListContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitEdgeStmt(ctx *EdgeStmtContext) interface{} {
+func (v *BaseDotVisitor) VisitEdgeStmt(ctx *EdgeStmtContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitEdgeRHS(ctx *EdgeRHSContext) interface{} {
+func (v *BaseDotVisitor) VisitEdgeRHS(ctx *EdgeRHSContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitEdgeop(ctx *EdgeopContext) interface{} {
+func (v *BaseDotVisitor) VisitEdgeop(ctx *EdgeopContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitNodeStmt(ctx *NodeStmtContext) interface{} {
+func (v *BaseDotVisitor) VisitNodeStmt(ctx *NodeStmtContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitNodeId(ctx *NodeIdContext) interface{} {
+func (v *BaseDotVisitor) VisitNodeId(ctx *NodeIdContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitPort(ctx *PortContext) interface{} {
+func (v *BaseDotVisitor) VisitPort(ctx *PortContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitSubgraph(ctx *SubgraphContext) interface{} {
+func (v *BaseDotVisitor) VisitSubgraph(ctx *SubgraphContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseDotVisitor) VisitIdent(ctx *IdentContext) interface{} {
+func (v *BaseDotVisitor) VisitIdent(ctx *IdentContext) any {
 	return v.VisitChildren(ctx)
 }

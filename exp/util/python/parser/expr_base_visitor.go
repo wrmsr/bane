@@ -8,158 +8,158 @@ type BaseExprVisitor struct {
 	*antlr.BaseParseTreeVisitor
 }
 
-func (v *BaseExprVisitor) VisitSingleExpr(ctx *SingleExprContext) interface{} {
+func (v *BaseExprVisitor) VisitSingleExpr(ctx *SingleExprContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitExpr(ctx *ExprContext) interface{} {
+func (v *BaseExprVisitor) VisitExpr(ctx *ExprContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitOrTest(ctx *OrTestContext) interface{} {
+func (v *BaseExprVisitor) VisitOrTest(ctx *OrTestContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitAndTest(ctx *AndTestContext) interface{} {
+func (v *BaseExprVisitor) VisitAndTest(ctx *AndTestContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitNotTest(ctx *NotTestContext) interface{} {
+func (v *BaseExprVisitor) VisitNotTest(ctx *NotTestContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitComparison(ctx *ComparisonContext) interface{} {
+func (v *BaseExprVisitor) VisitComparison(ctx *ComparisonContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitCompOp(ctx *CompOpContext) interface{} {
+func (v *BaseExprVisitor) VisitCompOp(ctx *CompOpContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitExprMain(ctx *ExprMainContext) interface{} {
+func (v *BaseExprVisitor) VisitExprMain(ctx *ExprMainContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitExprCont(ctx *ExprContContext) interface{} {
+func (v *BaseExprVisitor) VisitExprCont(ctx *ExprContContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitXorExpr(ctx *XorExprContext) interface{} {
+func (v *BaseExprVisitor) VisitXorExpr(ctx *XorExprContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitXorExprCont(ctx *XorExprContContext) interface{} {
+func (v *BaseExprVisitor) VisitXorExprCont(ctx *XorExprContContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitAndExpr(ctx *AndExprContext) interface{} {
+func (v *BaseExprVisitor) VisitAndExpr(ctx *AndExprContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitAndExprCont(ctx *AndExprContContext) interface{} {
+func (v *BaseExprVisitor) VisitAndExprCont(ctx *AndExprContContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitShiftExpr(ctx *ShiftExprContext) interface{} {
+func (v *BaseExprVisitor) VisitShiftExpr(ctx *ShiftExprContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitShiftExprCont(ctx *ShiftExprContContext) interface{} {
+func (v *BaseExprVisitor) VisitShiftExprCont(ctx *ShiftExprContContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitArithExpr(ctx *ArithExprContext) interface{} {
+func (v *BaseExprVisitor) VisitArithExpr(ctx *ArithExprContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitArithExprCont(ctx *ArithExprContContext) interface{} {
+func (v *BaseExprVisitor) VisitArithExprCont(ctx *ArithExprContContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitTerm(ctx *TermContext) interface{} {
+func (v *BaseExprVisitor) VisitTerm(ctx *TermContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitTermCont(ctx *TermContContext) interface{} {
+func (v *BaseExprVisitor) VisitTermCont(ctx *TermContContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitFactor(ctx *FactorContext) interface{} {
+func (v *BaseExprVisitor) VisitFactor(ctx *FactorContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitPower(ctx *PowerContext) interface{} {
+func (v *BaseExprVisitor) VisitPower(ctx *PowerContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitAtomExpr(ctx *AtomExprContext) interface{} {
+func (v *BaseExprVisitor) VisitAtomExpr(ctx *AtomExprContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitParenAtom(ctx *ParenAtomContext) interface{} {
+func (v *BaseExprVisitor) VisitParenAtom(ctx *ParenAtomContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitBracketAtom(ctx *BracketAtomContext) interface{} {
+func (v *BaseExprVisitor) VisitBracketAtom(ctx *BracketAtomContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitDictOrSetAtom(ctx *DictOrSetAtomContext) interface{} {
+func (v *BaseExprVisitor) VisitDictOrSetAtom(ctx *DictOrSetAtomContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitConstAtom(ctx *ConstAtomContext) interface{} {
+func (v *BaseExprVisitor) VisitConstAtom(ctx *ConstAtomContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitConstVal(ctx *ConstValContext) interface{} {
+func (v *BaseExprVisitor) VisitConstVal(ctx *ConstValContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitTestListComp(ctx *TestListCompContext) interface{} {
+func (v *BaseExprVisitor) VisitTestListComp(ctx *TestListCompContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitExprOrStarExpr(ctx *ExprOrStarExprContext) interface{} {
+func (v *BaseExprVisitor) VisitExprOrStarExpr(ctx *ExprOrStarExprContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitStarExpr(ctx *StarExprContext) interface{} {
+func (v *BaseExprVisitor) VisitStarExpr(ctx *StarExprContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitTrailer(ctx *TrailerContext) interface{} {
+func (v *BaseExprVisitor) VisitTrailer(ctx *TrailerContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitSubscriptList(ctx *SubscriptListContext) interface{} {
+func (v *BaseExprVisitor) VisitSubscriptList(ctx *SubscriptListContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitExprSubscript(ctx *ExprSubscriptContext) interface{} {
+func (v *BaseExprVisitor) VisitExprSubscript(ctx *ExprSubscriptContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitSliceSubscript(ctx *SliceSubscriptContext) interface{} {
+func (v *BaseExprVisitor) VisitSliceSubscript(ctx *SliceSubscriptContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitSliceOp(ctx *SliceOpContext) interface{} {
+func (v *BaseExprVisitor) VisitSliceOp(ctx *SliceOpContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitDictMaker(ctx *DictMakerContext) interface{} {
+func (v *BaseExprVisitor) VisitDictMaker(ctx *DictMakerContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitSetMaker(ctx *SetMakerContext) interface{} {
+func (v *BaseExprVisitor) VisitSetMaker(ctx *SetMakerContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitKvDictItem(ctx *KvDictItemContext) interface{} {
+func (v *BaseExprVisitor) VisitKvDictItem(ctx *KvDictItemContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseExprVisitor) VisitStarsDictItem(ctx *StarsDictItemContext) interface{} {
+func (v *BaseExprVisitor) VisitStarsDictItem(ctx *StarsDictItemContext) any {
 	return v.VisitChildren(ctx)
 }

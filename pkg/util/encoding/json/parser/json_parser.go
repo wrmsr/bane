@@ -204,7 +204,7 @@ func (s *JsonContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *JsonContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *JsonContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JsonVisitor:
 		return t.VisitJson(s)
@@ -349,7 +349,7 @@ func (s *ObjectContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ObjectContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ObjectContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JsonVisitor:
 		return t.VisitObject(s)
@@ -517,7 +517,7 @@ func (s *PairContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *PairContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *PairContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JsonVisitor:
 		return t.VisitPair(s)
@@ -670,7 +670,7 @@ func (s *ArrayContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JsonVisitor:
 		return t.VisitArray(s)
@@ -860,7 +860,7 @@ func (s *ValueContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ValueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ValueContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JsonVisitor:
 		return t.VisitValue(s)

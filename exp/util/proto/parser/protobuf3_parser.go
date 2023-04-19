@@ -545,7 +545,7 @@ func (s *ProtoContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ProtoContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ProtoContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitProto(s)
@@ -681,7 +681,7 @@ func (s *SyntaxContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *SyntaxContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *SyntaxContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitSyntax(s)
@@ -888,7 +888,7 @@ func (s *SyntaxExtraContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *SyntaxExtraContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *SyntaxExtraContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitSyntaxExtra(s)
@@ -1047,7 +1047,7 @@ func (s *ImportStatementContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ImportStatementContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ImportStatementContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitImportStatement(s)
@@ -1198,7 +1198,7 @@ func (s *PackageStatementContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *PackageStatementContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *PackageStatementContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitPackageStatement(s)
@@ -1364,7 +1364,7 @@ func (s *OptionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *OptionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *OptionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitOption(s)
@@ -1567,7 +1567,7 @@ func (s *OptionNameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *OptionNameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *OptionNameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitOptionName(s)
@@ -1769,7 +1769,7 @@ func (s *OptionBodyContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *OptionBodyContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *OptionBodyContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitOptionBody(s)
@@ -1924,7 +1924,7 @@ func (s *OptionBodyVariableContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *OptionBodyVariableContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *OptionBodyVariableContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitOptionBodyVariable(s)
@@ -2102,7 +2102,7 @@ func (s *TopLevelDefContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *TopLevelDefContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *TopLevelDefContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitTopLevelDef(s)
@@ -2273,7 +2273,7 @@ func (s *MessageContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MessageContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MessageContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitMessage(s)
@@ -2426,7 +2426,7 @@ func (s *MessageBodyContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MessageBodyContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MessageBodyContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitMessageBody(s)
@@ -2700,7 +2700,7 @@ func (s *MessageBodyContentContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MessageBodyContentContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MessageBodyContentContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitMessageBodyContent(s)
@@ -2903,7 +2903,7 @@ func (s *EnumDefinitionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EnumDefinitionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EnumDefinitionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitEnumDefinition(s)
@@ -3142,7 +3142,7 @@ func (s *EnumBodyContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EnumBodyContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EnumBodyContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitEnumBody(s)
@@ -3337,7 +3337,7 @@ func (s *EnumFieldContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EnumFieldContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EnumFieldContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitEnumField(s)
@@ -3534,7 +3534,7 @@ func (s *EnumValueOptionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EnumValueOptionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EnumValueOptionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitEnumValueOption(s)
@@ -3700,7 +3700,7 @@ func (s *ExtendContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ExtendContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ExtendContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitExtend(s)
@@ -3984,7 +3984,7 @@ func (s *ServiceContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ServiceContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ServiceContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitService(s)
@@ -4300,7 +4300,7 @@ func (s *RpcContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *RpcContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RpcContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitRpc(s)
@@ -4548,7 +4548,7 @@ func (s *ReservedContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ReservedContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ReservedContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitReserved(s)
@@ -4716,7 +4716,7 @@ func (s *RangesContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *RangesContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RangesContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitRanges(s)
@@ -4852,7 +4852,7 @@ func (s *RangeRuleContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *RangeRuleContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RangeRuleContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitRangeRule(s)
@@ -4985,7 +4985,7 @@ func (s *FieldNamesContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FieldNamesContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FieldNamesContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitFieldNames(s)
@@ -5140,7 +5140,7 @@ func (s *TypeRuleContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *TypeRuleContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *TypeRuleContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitTypeRule(s)
@@ -5330,7 +5330,7 @@ func (s *SimpleTypeContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *SimpleTypeContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *SimpleTypeContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitSimpleType(s)
@@ -5445,7 +5445,7 @@ func (s *FieldNumberContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FieldNumberContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FieldNumberContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitFieldNumber(s)
@@ -5620,7 +5620,7 @@ func (s *FieldContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FieldContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FieldContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitField(s)
@@ -5812,7 +5812,7 @@ func (s *FieldOptionsContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FieldOptionsContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FieldOptionsContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitFieldOptions(s)
@@ -5967,7 +5967,7 @@ func (s *FieldOptionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FieldOptionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FieldOptionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitFieldOption(s)
@@ -6185,7 +6185,7 @@ func (s *OneofContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *OneofContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *OneofContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitOneof(s)
@@ -6397,7 +6397,7 @@ func (s *OneofFieldContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *OneofFieldContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *OneofFieldContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitOneofField(s)
@@ -6625,7 +6625,7 @@ func (s *MapFieldContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MapFieldContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MapFieldContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitMapField(s)
@@ -6843,7 +6843,7 @@ func (s *KeyTypeContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *KeyTypeContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *KeyTypeContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitKeyType(s)
@@ -7003,7 +7003,7 @@ func (s *ReservedWordContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ReservedWordContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ReservedWordContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitReservedWord(s)
@@ -7123,7 +7123,7 @@ func (s *FullIdentContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FullIdentContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FullIdentContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitFullIdent(s)
@@ -7249,7 +7249,7 @@ func (s *MessageNameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MessageNameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MessageNameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitMessageName(s)
@@ -7356,7 +7356,7 @@ func (s *EnumNameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EnumNameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EnumNameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitEnumName(s)
@@ -7463,7 +7463,7 @@ func (s *MessageOrEnumNameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MessageOrEnumNameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MessageOrEnumNameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitMessageOrEnumName(s)
@@ -7587,7 +7587,7 @@ func (s *FieldNameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FieldNameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FieldNameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitFieldName(s)
@@ -7710,7 +7710,7 @@ func (s *OneofNameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *OneofNameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *OneofNameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitOneofName(s)
@@ -7817,7 +7817,7 @@ func (s *MapNameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MapNameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MapNameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitMapName(s)
@@ -7924,7 +7924,7 @@ func (s *ServiceNameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ServiceNameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ServiceNameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitServiceName(s)
@@ -8031,7 +8031,7 @@ func (s *RpcNameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *RpcNameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RpcNameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitRpcName(s)
@@ -8160,7 +8160,7 @@ func (s *MessageTypeContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MessageTypeContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MessageTypeContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitMessageType(s)
@@ -8366,7 +8366,7 @@ func (s *MessageOrEnumTypeContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MessageOrEnumTypeContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MessageOrEnumTypeContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitMessageOrEnumType(s)
@@ -8513,7 +8513,7 @@ func (s *EmptyStatementContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EmptyStatementContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EmptyStatementContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitEmptyStatement(s)
@@ -8652,7 +8652,7 @@ func (s *ConstantContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ConstantContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ConstantContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case Protobuf3Visitor:
 		return t.VisitConstant(s)

@@ -8,186 +8,186 @@ type BaseJmespathVisitor struct {
 	*antlr.BaseParseTreeVisitor
 }
 
-func (v *BaseJmespathVisitor) VisitSingleExpression(ctx *SingleExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitSingleExpression(ctx *SingleExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitPipeExpression(ctx *PipeExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitPipeExpression(ctx *PipeExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitParameterExpression(ctx *ParameterExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitParameterExpression(ctx *ParameterExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitIdentifierExpression(ctx *IdentifierExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitIdentifierExpression(ctx *IdentifierExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitNotExpression(ctx *NotExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitNotExpression(ctx *NotExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitRawStringExpression(ctx *RawStringExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitRawStringExpression(ctx *RawStringExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitComparisonExpression(ctx *ComparisonExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitComparisonExpression(ctx *ComparisonExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitParenExpression(ctx *ParenExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitParenExpression(ctx *ParenExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitBracketExpression(ctx *BracketExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitBracketExpression(ctx *BracketExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitOrExpression(ctx *OrExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitOrExpression(ctx *OrExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitCurrentNodeExpression(ctx *CurrentNodeExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitCurrentNodeExpression(ctx *CurrentNodeExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitChainExpression(ctx *ChainExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitChainExpression(ctx *ChainExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitAndExpression(ctx *AndExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitAndExpression(ctx *AndExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitMultiSelectHashExpression(ctx *MultiSelectHashExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitMultiSelectHashExpression(ctx *MultiSelectHashExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitWildcardExpression(ctx *WildcardExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitWildcardExpression(ctx *WildcardExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitFunctionCallExpression(ctx *FunctionCallExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitFunctionCallExpression(ctx *FunctionCallExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitMultiSelectListExpression(ctx *MultiSelectListExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitMultiSelectListExpression(ctx *MultiSelectListExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitBracketedExpression(ctx *BracketedExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitBracketedExpression(ctx *BracketedExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitLiteralExpression(ctx *LiteralExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitLiteralExpression(ctx *LiteralExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitChainedExpression(ctx *ChainedExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitChainedExpression(ctx *ChainedExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitWildcard(ctx *WildcardContext) interface{} {
+func (v *BaseJmespathVisitor) VisitWildcard(ctx *WildcardContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitBracketIndex(ctx *BracketIndexContext) interface{} {
+func (v *BaseJmespathVisitor) VisitBracketIndex(ctx *BracketIndexContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitBracketStar(ctx *BracketStarContext) interface{} {
+func (v *BaseJmespathVisitor) VisitBracketStar(ctx *BracketStarContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitBracketSlice(ctx *BracketSliceContext) interface{} {
+func (v *BaseJmespathVisitor) VisitBracketSlice(ctx *BracketSliceContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitBracketFlatten(ctx *BracketFlattenContext) interface{} {
+func (v *BaseJmespathVisitor) VisitBracketFlatten(ctx *BracketFlattenContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitSelect(ctx *SelectContext) interface{} {
+func (v *BaseJmespathVisitor) VisitSelect(ctx *SelectContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitMultiSelectList(ctx *MultiSelectListContext) interface{} {
+func (v *BaseJmespathVisitor) VisitMultiSelectList(ctx *MultiSelectListContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitMultiSelectHash(ctx *MultiSelectHashContext) interface{} {
+func (v *BaseJmespathVisitor) VisitMultiSelectHash(ctx *MultiSelectHashContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitKeyvalExpr(ctx *KeyvalExprContext) interface{} {
+func (v *BaseJmespathVisitor) VisitKeyvalExpr(ctx *KeyvalExprContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitSliceNode(ctx *SliceNodeContext) interface{} {
+func (v *BaseJmespathVisitor) VisitSliceNode(ctx *SliceNodeContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitNameParameter(ctx *NameParameterContext) interface{} {
+func (v *BaseJmespathVisitor) VisitNameParameter(ctx *NameParameterContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitNumberParameter(ctx *NumberParameterContext) interface{} {
+func (v *BaseJmespathVisitor) VisitNumberParameter(ctx *NumberParameterContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitFunctionExpression(ctx *FunctionExpressionContext) interface{} {
+func (v *BaseJmespathVisitor) VisitFunctionExpression(ctx *FunctionExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitFunctionArg(ctx *FunctionArgContext) interface{} {
+func (v *BaseJmespathVisitor) VisitFunctionArg(ctx *FunctionArgContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitCurrentNode(ctx *CurrentNodeContext) interface{} {
+func (v *BaseJmespathVisitor) VisitCurrentNode(ctx *CurrentNodeContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitExpressionType(ctx *ExpressionTypeContext) interface{} {
+func (v *BaseJmespathVisitor) VisitExpressionType(ctx *ExpressionTypeContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitLiteral(ctx *LiteralContext) interface{} {
+func (v *BaseJmespathVisitor) VisitLiteral(ctx *LiteralContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitIdentifier(ctx *IdentifierContext) interface{} {
+func (v *BaseJmespathVisitor) VisitIdentifier(ctx *IdentifierContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitJsonObject(ctx *JsonObjectContext) interface{} {
+func (v *BaseJmespathVisitor) VisitJsonObject(ctx *JsonObjectContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitJsonObjectPair(ctx *JsonObjectPairContext) interface{} {
+func (v *BaseJmespathVisitor) VisitJsonObjectPair(ctx *JsonObjectPairContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitJsonArray(ctx *JsonArrayContext) interface{} {
+func (v *BaseJmespathVisitor) VisitJsonArray(ctx *JsonArrayContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitJsonStringValue(ctx *JsonStringValueContext) interface{} {
+func (v *BaseJmespathVisitor) VisitJsonStringValue(ctx *JsonStringValueContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitJsonNumberValue(ctx *JsonNumberValueContext) interface{} {
+func (v *BaseJmespathVisitor) VisitJsonNumberValue(ctx *JsonNumberValueContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitJsonObjectValue(ctx *JsonObjectValueContext) interface{} {
+func (v *BaseJmespathVisitor) VisitJsonObjectValue(ctx *JsonObjectValueContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitJsonArrayValue(ctx *JsonArrayValueContext) interface{} {
+func (v *BaseJmespathVisitor) VisitJsonArrayValue(ctx *JsonArrayValueContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJmespathVisitor) VisitJsonConstantValue(ctx *JsonConstantValueContext) interface{} {
+func (v *BaseJmespathVisitor) VisitJsonConstantValue(ctx *JsonConstantValueContext) any {
 	return v.VisitChildren(ctx)
 }

@@ -8,98 +8,98 @@ type BaseTomlVisitor struct {
 	*antlr.BaseParseTreeVisitor
 }
 
-func (v *BaseTomlVisitor) VisitDocument(ctx *DocumentContext) interface{} {
+func (v *BaseTomlVisitor) VisitDocument(ctx *DocumentContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitExpression(ctx *ExpressionContext) interface{} {
+func (v *BaseTomlVisitor) VisitExpression(ctx *ExpressionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitComment(ctx *CommentContext) interface{} {
+func (v *BaseTomlVisitor) VisitComment(ctx *CommentContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitKeyValue(ctx *KeyValueContext) interface{} {
+func (v *BaseTomlVisitor) VisitKeyValue(ctx *KeyValueContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitKey(ctx *KeyContext) interface{} {
+func (v *BaseTomlVisitor) VisitKey(ctx *KeyContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitSimpleKey(ctx *SimpleKeyContext) interface{} {
+func (v *BaseTomlVisitor) VisitSimpleKey(ctx *SimpleKeyContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitUnquotedKey(ctx *UnquotedKeyContext) interface{} {
+func (v *BaseTomlVisitor) VisitUnquotedKey(ctx *UnquotedKeyContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitQuotedKey(ctx *QuotedKeyContext) interface{} {
+func (v *BaseTomlVisitor) VisitQuotedKey(ctx *QuotedKeyContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitDottedKey(ctx *DottedKeyContext) interface{} {
+func (v *BaseTomlVisitor) VisitDottedKey(ctx *DottedKeyContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitValue(ctx *ValueContext) interface{} {
+func (v *BaseTomlVisitor) VisitValue(ctx *ValueContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitStringValue(ctx *StringValueContext) interface{} {
+func (v *BaseTomlVisitor) VisitStringValue(ctx *StringValueContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitInteger(ctx *IntegerContext) interface{} {
+func (v *BaseTomlVisitor) VisitInteger(ctx *IntegerContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitFloatingPoint(ctx *FloatingPointContext) interface{} {
+func (v *BaseTomlVisitor) VisitFloatingPoint(ctx *FloatingPointContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitBoolean(ctx *BooleanContext) interface{} {
+func (v *BaseTomlVisitor) VisitBoolean(ctx *BooleanContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitDateTime(ctx *DateTimeContext) interface{} {
+func (v *BaseTomlVisitor) VisitDateTime(ctx *DateTimeContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitArray(ctx *ArrayContext) interface{} {
+func (v *BaseTomlVisitor) VisitArray(ctx *ArrayContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitArrayValues(ctx *ArrayValuesContext) interface{} {
+func (v *BaseTomlVisitor) VisitArrayValues(ctx *ArrayValuesContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitCommentOrNl(ctx *CommentOrNlContext) interface{} {
+func (v *BaseTomlVisitor) VisitCommentOrNl(ctx *CommentOrNlContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitTable(ctx *TableContext) interface{} {
+func (v *BaseTomlVisitor) VisitTable(ctx *TableContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitStandardTable(ctx *StandardTableContext) interface{} {
+func (v *BaseTomlVisitor) VisitStandardTable(ctx *StandardTableContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitInlineTable(ctx *InlineTableContext) interface{} {
+func (v *BaseTomlVisitor) VisitInlineTable(ctx *InlineTableContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitInlineTableKeyvals(ctx *InlineTableKeyvalsContext) interface{} {
+func (v *BaseTomlVisitor) VisitInlineTableKeyvals(ctx *InlineTableKeyvalsContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitInlineTableKeyvalsNonEmpty(ctx *InlineTableKeyvalsNonEmptyContext) interface{} {
+func (v *BaseTomlVisitor) VisitInlineTableKeyvalsNonEmpty(ctx *InlineTableKeyvalsNonEmptyContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseTomlVisitor) VisitArrayTable(ctx *ArrayTableContext) interface{} {
+func (v *BaseTomlVisitor) VisitArrayTable(ctx *ArrayTableContext) any {
 	return v.VisitChildren(ctx)
 }

@@ -400,7 +400,7 @@ func (s *HoconContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *HoconContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *HoconContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitHocon(s)
@@ -638,7 +638,7 @@ func (s *PropContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *PropContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *PropContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitProp(s)
@@ -851,7 +851,7 @@ func (s *ObjContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ObjContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ObjContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitObj(s)
@@ -1000,7 +1000,7 @@ func (s *ObjectBeginContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ObjectBeginContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ObjectBeginContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitObjectBegin(s)
@@ -1098,7 +1098,7 @@ func (s *ObjectEndContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ObjectEndContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ObjectEndContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitObjectEnd(s)
@@ -1239,7 +1239,7 @@ func (s *ObjectDataContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ObjectDataContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ObjectDataContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitObjectData(s)
@@ -1396,7 +1396,7 @@ func (s *ArrayDataContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayDataContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayDataContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitArrayData(s)
@@ -1545,7 +1545,7 @@ func (s *StringDataContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *StringDataContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StringDataContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitStringData(s)
@@ -1682,7 +1682,7 @@ func (s *ReferenceDataContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ReferenceDataContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ReferenceDataContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitReferenceData(s)
@@ -1819,7 +1819,7 @@ func (s *NumberDataContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *NumberDataContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *NumberDataContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitNumberData(s)
@@ -1951,7 +1951,7 @@ func (s *KeyContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *KeyContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *KeyContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitKey(s)
@@ -2079,7 +2079,7 @@ func (s *PathContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *PathContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *PathContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitPath(s)
@@ -2196,7 +2196,7 @@ func (s *ArrayBeginContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayBeginContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayBeginContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitArrayBegin(s)
@@ -2294,7 +2294,7 @@ func (s *ArrayEndContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayEndContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayEndContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitArrayEnd(s)
@@ -2473,7 +2473,7 @@ func (s *ArrayContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitArray(s)
@@ -2711,7 +2711,7 @@ func (s *ArrayValueContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayValueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayValueContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitArrayValue(s)
@@ -2864,7 +2864,7 @@ func (s *ArrayStringContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayStringContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayStringContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitArrayString(s)
@@ -2971,7 +2971,7 @@ func (s *ArrayReferenceContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayReferenceContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayReferenceContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitArrayReference(s)
@@ -3078,7 +3078,7 @@ func (s *ArrayNumberContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayNumberContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayNumberContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitArrayNumber(s)
@@ -3197,7 +3197,7 @@ func (s *ArrayObjContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayObjContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayObjContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitArrayObj(s)
@@ -3316,7 +3316,7 @@ func (s *ArrayArrayContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayArrayContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayArrayContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitArrayArray(s)
@@ -3494,7 +3494,7 @@ func (s *V_rawstringContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *V_rawstringContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *V_rawstringContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitV_rawstring(s)
@@ -3579,7 +3579,7 @@ func (s *V_referenceContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *V_referenceContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *V_referenceContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitV_reference(s)
@@ -3664,7 +3664,7 @@ func (s *V_stringContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *V_stringContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *V_stringContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitV_string(s)
@@ -3852,7 +3852,7 @@ func (s *RawstringContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *RawstringContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RawstringContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case HoconVisitor:
 		return t.VisitRawstring(s)

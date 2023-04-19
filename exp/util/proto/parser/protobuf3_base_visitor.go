@@ -8,194 +8,194 @@ type BaseProtobuf3Visitor struct {
 	*antlr.BaseParseTreeVisitor
 }
 
-func (v *BaseProtobuf3Visitor) VisitProto(ctx *ProtoContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitProto(ctx *ProtoContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitSyntax(ctx *SyntaxContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitSyntax(ctx *SyntaxContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitSyntaxExtra(ctx *SyntaxExtraContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitSyntaxExtra(ctx *SyntaxExtraContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitImportStatement(ctx *ImportStatementContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitImportStatement(ctx *ImportStatementContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitPackageStatement(ctx *PackageStatementContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitPackageStatement(ctx *PackageStatementContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitOption(ctx *OptionContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitOption(ctx *OptionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitOptionName(ctx *OptionNameContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitOptionName(ctx *OptionNameContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitOptionBody(ctx *OptionBodyContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitOptionBody(ctx *OptionBodyContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitOptionBodyVariable(ctx *OptionBodyVariableContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitOptionBodyVariable(ctx *OptionBodyVariableContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitTopLevelDef(ctx *TopLevelDefContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitTopLevelDef(ctx *TopLevelDefContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitMessage(ctx *MessageContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitMessage(ctx *MessageContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitMessageBody(ctx *MessageBodyContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitMessageBody(ctx *MessageBodyContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitMessageBodyContent(ctx *MessageBodyContentContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitMessageBodyContent(ctx *MessageBodyContentContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitEnumDefinition(ctx *EnumDefinitionContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitEnumDefinition(ctx *EnumDefinitionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitEnumBody(ctx *EnumBodyContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitEnumBody(ctx *EnumBodyContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitEnumField(ctx *EnumFieldContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitEnumField(ctx *EnumFieldContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitEnumValueOption(ctx *EnumValueOptionContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitEnumValueOption(ctx *EnumValueOptionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitExtend(ctx *ExtendContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitExtend(ctx *ExtendContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitService(ctx *ServiceContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitService(ctx *ServiceContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitRpc(ctx *RpcContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitRpc(ctx *RpcContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitReserved(ctx *ReservedContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitReserved(ctx *ReservedContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitRanges(ctx *RangesContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitRanges(ctx *RangesContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitRangeRule(ctx *RangeRuleContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitRangeRule(ctx *RangeRuleContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitFieldNames(ctx *FieldNamesContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitFieldNames(ctx *FieldNamesContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitTypeRule(ctx *TypeRuleContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitTypeRule(ctx *TypeRuleContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitSimpleType(ctx *SimpleTypeContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitSimpleType(ctx *SimpleTypeContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitFieldNumber(ctx *FieldNumberContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitFieldNumber(ctx *FieldNumberContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitField(ctx *FieldContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitField(ctx *FieldContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitFieldOptions(ctx *FieldOptionsContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitFieldOptions(ctx *FieldOptionsContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitFieldOption(ctx *FieldOptionContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitFieldOption(ctx *FieldOptionContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitOneof(ctx *OneofContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitOneof(ctx *OneofContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitOneofField(ctx *OneofFieldContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitOneofField(ctx *OneofFieldContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitMapField(ctx *MapFieldContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitMapField(ctx *MapFieldContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitKeyType(ctx *KeyTypeContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitKeyType(ctx *KeyTypeContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitReservedWord(ctx *ReservedWordContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitReservedWord(ctx *ReservedWordContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitFullIdent(ctx *FullIdentContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitFullIdent(ctx *FullIdentContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitMessageName(ctx *MessageNameContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitMessageName(ctx *MessageNameContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitEnumName(ctx *EnumNameContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitEnumName(ctx *EnumNameContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitMessageOrEnumName(ctx *MessageOrEnumNameContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitMessageOrEnumName(ctx *MessageOrEnumNameContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitFieldName(ctx *FieldNameContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitFieldName(ctx *FieldNameContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitOneofName(ctx *OneofNameContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitOneofName(ctx *OneofNameContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitMapName(ctx *MapNameContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitMapName(ctx *MapNameContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitServiceName(ctx *ServiceNameContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitServiceName(ctx *ServiceNameContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitRpcName(ctx *RpcNameContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitRpcName(ctx *RpcNameContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitMessageType(ctx *MessageTypeContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitMessageType(ctx *MessageTypeContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitMessageOrEnumType(ctx *MessageOrEnumTypeContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitMessageOrEnumType(ctx *MessageOrEnumTypeContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitEmptyStatement(ctx *EmptyStatementContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitEmptyStatement(ctx *EmptyStatementContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseProtobuf3Visitor) VisitConstant(ctx *ConstantContext) interface{} {
+func (v *BaseProtobuf3Visitor) VisitConstant(ctx *ConstantContext) any {
 	return v.VisitChildren(ctx)
 }

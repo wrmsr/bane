@@ -1,5 +1,3 @@
-//go:build !nodev
-
 // Code generated from Chat.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Chat
@@ -252,7 +250,7 @@ func (s *ChatContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ChatContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ChatContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case ChatVisitor:
 		return t.VisitChat(s)
@@ -425,7 +423,7 @@ func (s *LineContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *LineContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *LineContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case ChatVisitor:
 		return t.VisitLine(s)
@@ -557,7 +555,7 @@ func (s *NameContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *NameContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *NameContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case ChatVisitor:
 		return t.VisitName(s)
@@ -678,7 +676,7 @@ func (s *CommandContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *CommandContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *CommandContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case ChatVisitor:
 		return t.VisitCommand(s)
@@ -988,7 +986,7 @@ func (s *MessageContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MessageContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MessageContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case ChatVisitor:
 		return t.VisitMessage(s)
@@ -1142,7 +1140,7 @@ func (s *EmoticonContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EmoticonContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EmoticonContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case ChatVisitor:
 		return t.VisitEmoticon(s)
@@ -1298,7 +1296,7 @@ func (s *LinkContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *LinkContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *LinkContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case ChatVisitor:
 		return t.VisitLink(s)
@@ -1426,7 +1424,7 @@ func (s *ColorContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ColorContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ColorContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case ChatVisitor:
 		return t.VisitColor(s)
@@ -1549,7 +1547,7 @@ func (s *MentionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MentionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MentionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case ChatVisitor:
 		return t.VisitMention(s)

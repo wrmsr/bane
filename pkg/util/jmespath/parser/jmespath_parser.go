@@ -325,7 +325,7 @@ func (s *SingleExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *SingleExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *SingleExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitSingleExpression(s)
@@ -491,7 +491,7 @@ func (s *PipeExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *PipeExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *PipeExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitPipeExpression(s)
@@ -547,7 +547,7 @@ func (s *ParameterExpressionContext) ExitRule(listener antlr.ParseTreeListener) 
 	}
 }
 
-func (s *ParameterExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ParameterExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitParameterExpression(s)
@@ -603,7 +603,7 @@ func (s *IdentifierExpressionContext) ExitRule(listener antlr.ParseTreeListener)
 	}
 }
 
-func (s *IdentifierExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *IdentifierExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitIdentifierExpression(s)
@@ -659,7 +659,7 @@ func (s *NotExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *NotExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *NotExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitNotExpression(s)
@@ -703,7 +703,7 @@ func (s *RawStringExpressionContext) ExitRule(listener antlr.ParseTreeListener) 
 	}
 }
 
-func (s *RawStringExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RawStringExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitRawStringExpression(s)
@@ -788,7 +788,7 @@ func (s *ComparisonExpressionContext) ExitRule(listener antlr.ParseTreeListener)
 	}
 }
 
-func (s *ComparisonExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ComparisonExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitComparisonExpression(s)
@@ -844,7 +844,7 @@ func (s *ParenExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ParenExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ParenExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitParenExpression(s)
@@ -900,7 +900,7 @@ func (s *BracketExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *BracketExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BracketExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitBracketExpression(s)
@@ -981,7 +981,7 @@ func (s *OrExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *OrExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *OrExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitOrExpression(s)
@@ -1037,7 +1037,7 @@ func (s *CurrentNodeExpressionContext) ExitRule(listener antlr.ParseTreeListener
 	}
 }
 
-func (s *CurrentNodeExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *CurrentNodeExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitCurrentNodeExpression(s)
@@ -1109,7 +1109,7 @@ func (s *ChainExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ChainExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ChainExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitChainExpression(s)
@@ -1190,7 +1190,7 @@ func (s *AndExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *AndExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *AndExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitAndExpression(s)
@@ -1246,7 +1246,7 @@ func (s *MultiSelectHashExpressionContext) ExitRule(listener antlr.ParseTreeList
 	}
 }
 
-func (s *MultiSelectHashExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MultiSelectHashExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitMultiSelectHashExpression(s)
@@ -1302,7 +1302,7 @@ func (s *WildcardExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *WildcardExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *WildcardExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitWildcardExpression(s)
@@ -1358,7 +1358,7 @@ func (s *FunctionCallExpressionContext) ExitRule(listener antlr.ParseTreeListene
 	}
 }
 
-func (s *FunctionCallExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FunctionCallExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitFunctionCallExpression(s)
@@ -1414,7 +1414,7 @@ func (s *MultiSelectListExpressionContext) ExitRule(listener antlr.ParseTreeList
 	}
 }
 
-func (s *MultiSelectListExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MultiSelectListExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitMultiSelectListExpression(s)
@@ -1486,7 +1486,7 @@ func (s *BracketedExpressionContext) ExitRule(listener antlr.ParseTreeListener) 
 	}
 }
 
-func (s *BracketedExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BracketedExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitBracketedExpression(s)
@@ -1542,7 +1542,7 @@ func (s *LiteralExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *LiteralExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *LiteralExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitLiteralExpression(s)
@@ -1980,7 +1980,7 @@ func (s *ChainedExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ChainedExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ChainedExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitChainedExpression(s)
@@ -2112,7 +2112,7 @@ func (s *WildcardContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *WildcardContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *WildcardContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitWildcard(s)
@@ -2249,7 +2249,7 @@ func (s *SelectContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *SelectContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *SelectContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitSelect(s)
@@ -2289,7 +2289,7 @@ func (s *BracketFlattenContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *BracketFlattenContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BracketFlattenContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitBracketFlatten(s)
@@ -2345,7 +2345,7 @@ func (s *BracketSliceContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *BracketSliceContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BracketSliceContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitBracketSlice(s)
@@ -2389,7 +2389,7 @@ func (s *BracketIndexContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *BracketIndexContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BracketIndexContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitBracketIndex(s)
@@ -2429,7 +2429,7 @@ func (s *BracketStarContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *BracketStarContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *BracketStarContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitBracketStar(s)
@@ -2649,7 +2649,7 @@ func (s *MultiSelectListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MultiSelectListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MultiSelectListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitMultiSelectList(s)
@@ -2821,7 +2821,7 @@ func (s *MultiSelectHashContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *MultiSelectHashContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *MultiSelectHashContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitMultiSelectHash(s)
@@ -2984,7 +2984,7 @@ func (s *KeyvalExprContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *KeyvalExprContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *KeyvalExprContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitKeyvalExpr(s)
@@ -3137,7 +3137,7 @@ func (s *SliceNodeContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *SliceNodeContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *SliceNodeContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitSliceNode(s)
@@ -3316,7 +3316,7 @@ func (s *NameParameterContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *NameParameterContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *NameParameterContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitNameParameter(s)
@@ -3360,7 +3360,7 @@ func (s *NumberParameterContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *NumberParameterContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *NumberParameterContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitNumberParameter(s)
@@ -3533,7 +3533,7 @@ func (s *FunctionExpressionContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FunctionExpressionContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FunctionExpressionContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitFunctionExpression(s)
@@ -3721,7 +3721,7 @@ func (s *FunctionArgContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FunctionArgContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FunctionArgContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitFunctionArg(s)
@@ -3835,7 +3835,7 @@ func (s *CurrentNodeContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *CurrentNodeContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *CurrentNodeContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitCurrentNode(s)
@@ -3954,7 +3954,7 @@ func (s *ExpressionTypeContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ExpressionTypeContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ExpressionTypeContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitExpressionType(s)
@@ -4077,7 +4077,7 @@ func (s *LiteralContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *LiteralContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *LiteralContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitLiteral(s)
@@ -4202,7 +4202,7 @@ func (s *IdentifierContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *IdentifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *IdentifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitIdentifier(s)
@@ -4355,7 +4355,7 @@ func (s *JsonObjectContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *JsonObjectContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *JsonObjectContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitJsonObject(s)
@@ -4523,7 +4523,7 @@ func (s *JsonObjectPairContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *JsonObjectPairContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *JsonObjectPairContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitJsonObjectPair(s)
@@ -4676,7 +4676,7 @@ func (s *JsonArrayContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *JsonArrayContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *JsonArrayContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitJsonArray(s)
@@ -4857,7 +4857,7 @@ func (s *JsonArrayValueContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *JsonArrayValueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *JsonArrayValueContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitJsonArrayValue(s)
@@ -4901,7 +4901,7 @@ func (s *JsonStringValueContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *JsonStringValueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *JsonStringValueContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitJsonStringValue(s)
@@ -4957,7 +4957,7 @@ func (s *JsonObjectValueContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *JsonObjectValueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *JsonObjectValueContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitJsonObjectValue(s)
@@ -5001,7 +5001,7 @@ func (s *JsonConstantValueContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *JsonConstantValueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *JsonConstantValueContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitJsonConstantValue(s)
@@ -5049,7 +5049,7 @@ func (s *JsonNumberValueContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *JsonNumberValueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *JsonNumberValueContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case JmespathVisitor:
 		return t.VisitJsonNumberValue(s)

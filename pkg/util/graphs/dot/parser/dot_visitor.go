@@ -9,44 +9,44 @@ type DotVisitor interface {
 	antlr.ParseTreeVisitor
 
 	// Visit a parse tree produced by DotParser#graph.
-	VisitGraph(ctx *GraphContext) interface{}
+	VisitGraph(ctx *GraphContext) any
 
 	// Visit a parse tree produced by DotParser#stmtList.
-	VisitStmtList(ctx *StmtListContext) interface{}
+	VisitStmtList(ctx *StmtListContext) any
 
 	// Visit a parse tree produced by DotParser#stmt.
-	VisitStmt(ctx *StmtContext) interface{}
+	VisitStmt(ctx *StmtContext) any
 
 	// Visit a parse tree produced by DotParser#attrStmt.
-	VisitAttrStmt(ctx *AttrStmtContext) interface{}
+	VisitAttrStmt(ctx *AttrStmtContext) any
 
 	// Visit a parse tree produced by DotParser#attrList.
-	VisitAttrList(ctx *AttrListContext) interface{}
+	VisitAttrList(ctx *AttrListContext) any
 
 	// Visit a parse tree produced by DotParser#aList.
-	VisitAList(ctx *AListContext) interface{}
+	VisitAList(ctx *AListContext) any
 
 	// Visit a parse tree produced by DotParser#edgeStmt.
-	VisitEdgeStmt(ctx *EdgeStmtContext) interface{}
+	VisitEdgeStmt(ctx *EdgeStmtContext) any
 
 	// Visit a parse tree produced by DotParser#edgeRHS.
-	VisitEdgeRHS(ctx *EdgeRHSContext) interface{}
+	VisitEdgeRHS(ctx *EdgeRHSContext) any
 
 	// Visit a parse tree produced by DotParser#edgeop.
-	VisitEdgeop(ctx *EdgeopContext) interface{}
+	VisitEdgeop(ctx *EdgeopContext) any
 
 	// Visit a parse tree produced by DotParser#nodeStmt.
-	VisitNodeStmt(ctx *NodeStmtContext) interface{}
+	VisitNodeStmt(ctx *NodeStmtContext) any
 
 	// Visit a parse tree produced by DotParser#nodeId.
-	VisitNodeId(ctx *NodeIdContext) interface{}
+	VisitNodeId(ctx *NodeIdContext) any
 
 	// Visit a parse tree produced by DotParser#port.
-	VisitPort(ctx *PortContext) interface{}
+	VisitPort(ctx *PortContext) any
 
 	// Visit a parse tree produced by DotParser#subgraph.
-	VisitSubgraph(ctx *SubgraphContext) interface{}
+	VisitSubgraph(ctx *SubgraphContext) any
 
 	// Visit a parse tree produced by DotParser#ident.
-	VisitIdent(ctx *IdentContext) interface{}
+	VisitIdent(ctx *IdentContext) any
 }

@@ -8,22 +8,22 @@ type BaseJsonVisitor struct {
 	*antlr.BaseParseTreeVisitor
 }
 
-func (v *BaseJsonVisitor) VisitJson(ctx *JsonContext) interface{} {
+func (v *BaseJsonVisitor) VisitJson(ctx *JsonContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJsonVisitor) VisitObject(ctx *ObjectContext) interface{} {
+func (v *BaseJsonVisitor) VisitObject(ctx *ObjectContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJsonVisitor) VisitPair(ctx *PairContext) interface{} {
+func (v *BaseJsonVisitor) VisitPair(ctx *PairContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJsonVisitor) VisitArray(ctx *ArrayContext) interface{} {
+func (v *BaseJsonVisitor) VisitArray(ctx *ArrayContext) any {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseJsonVisitor) VisitValue(ctx *ValueContext) interface{} {
+func (v *BaseJsonVisitor) VisitValue(ctx *ValueContext) any {
 	return v.VisitChildren(ctx)
 }

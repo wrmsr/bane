@@ -9,17 +9,17 @@ type JsonVisitor interface {
 	antlr.ParseTreeVisitor
 
 	// Visit a parse tree produced by JsonParser#json.
-	VisitJson(ctx *JsonContext) interface{}
+	VisitJson(ctx *JsonContext) any
 
 	// Visit a parse tree produced by JsonParser#object.
-	VisitObject(ctx *ObjectContext) interface{}
+	VisitObject(ctx *ObjectContext) any
 
 	// Visit a parse tree produced by JsonParser#pair.
-	VisitPair(ctx *PairContext) interface{}
+	VisitPair(ctx *PairContext) any
 
 	// Visit a parse tree produced by JsonParser#array.
-	VisitArray(ctx *ArrayContext) interface{}
+	VisitArray(ctx *ArrayContext) any
 
 	// Visit a parse tree produced by JsonParser#value.
-	VisitValue(ctx *ValueContext) interface{}
+	VisitValue(ctx *ValueContext) any
 }

@@ -1,5 +1,3 @@
-//go:build !nodev
-
 // Code generated from Chat.g4 by ANTLR 4.12.0. DO NOT EDIT.
 
 package parser // Chat
@@ -11,29 +9,29 @@ type ChatVisitor interface {
 	antlr.ParseTreeVisitor
 
 	// Visit a parse tree produced by ChatParser#chat.
-	VisitChat(ctx *ChatContext) interface{}
+	VisitChat(ctx *ChatContext) any
 
 	// Visit a parse tree produced by ChatParser#line.
-	VisitLine(ctx *LineContext) interface{}
+	VisitLine(ctx *LineContext) any
 
 	// Visit a parse tree produced by ChatParser#name.
-	VisitName(ctx *NameContext) interface{}
+	VisitName(ctx *NameContext) any
 
 	// Visit a parse tree produced by ChatParser#command.
-	VisitCommand(ctx *CommandContext) interface{}
+	VisitCommand(ctx *CommandContext) any
 
 	// Visit a parse tree produced by ChatParser#message.
-	VisitMessage(ctx *MessageContext) interface{}
+	VisitMessage(ctx *MessageContext) any
 
 	// Visit a parse tree produced by ChatParser#emoticon.
-	VisitEmoticon(ctx *EmoticonContext) interface{}
+	VisitEmoticon(ctx *EmoticonContext) any
 
 	// Visit a parse tree produced by ChatParser#link.
-	VisitLink(ctx *LinkContext) interface{}
+	VisitLink(ctx *LinkContext) any
 
 	// Visit a parse tree produced by ChatParser#color.
-	VisitColor(ctx *ColorContext) interface{}
+	VisitColor(ctx *ColorContext) any
 
 	// Visit a parse tree produced by ChatParser#mention.
-	VisitMention(ctx *MentionContext) interface{}
+	VisitMention(ctx *MentionContext) any
 }

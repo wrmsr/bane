@@ -231,7 +231,7 @@ func (s *RootContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *RootContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *RootContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case MinmlVisitor:
 		return t.VisitRoot(s)
@@ -469,7 +469,7 @@ func (s *ValueContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ValueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ValueContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case MinmlVisitor:
 		return t.VisitValue(s)
@@ -672,7 +672,7 @@ func (s *ObjContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ObjContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ObjContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case MinmlVisitor:
 		return t.VisitObj(s)
@@ -898,7 +898,7 @@ func (s *PairContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *PairContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *PairContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case MinmlVisitor:
 		return t.VisitPair(s)
@@ -1065,7 +1065,7 @@ func (s *ArrayContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *ArrayContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *ArrayContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case MinmlVisitor:
 		return t.VisitArray(s)
@@ -1231,7 +1231,7 @@ func (s *IdentifierContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *IdentifierContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *IdentifierContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case MinmlVisitor:
 		return t.VisitIdentifier(s)
@@ -1353,7 +1353,7 @@ func (s *StringValueContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *StringValueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StringValueContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case MinmlVisitor:
 		return t.VisitStringValue(s)
@@ -1468,7 +1468,7 @@ func (s *NumberContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *NumberContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *NumberContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case MinmlVisitor:
 		return t.VisitNumber(s)
@@ -1575,7 +1575,7 @@ func (s *TrueContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *TrueContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *TrueContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case MinmlVisitor:
 		return t.VisitTrue(s)
@@ -1682,7 +1682,7 @@ func (s *FalseContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *FalseContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *FalseContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case MinmlVisitor:
 		return t.VisitFalse(s)
@@ -1789,7 +1789,7 @@ func (s *NullContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *NullContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *NullContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case MinmlVisitor:
 		return t.VisitNull(s)

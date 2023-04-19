@@ -293,7 +293,7 @@ func (s *GraphContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *GraphContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *GraphContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitGraph(s)
@@ -480,7 +480,7 @@ func (s *StmtListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *StmtListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StmtListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitStmtList(s)
@@ -715,7 +715,7 @@ func (s *StmtContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *StmtContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *StmtContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitStmt(s)
@@ -891,7 +891,7 @@ func (s *AttrStmtContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *AttrStmtContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *AttrStmtContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitAttrStmt(s)
@@ -1048,7 +1048,7 @@ func (s *AttrListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *AttrListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *AttrListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitAttrList(s)
@@ -1219,7 +1219,7 @@ func (s *AListContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *AListContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *AListContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitAList(s)
@@ -1426,7 +1426,7 @@ func (s *EdgeStmtContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EdgeStmtContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EdgeStmtContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitEdgeStmt(s)
@@ -1688,7 +1688,7 @@ func (s *EdgeRHSContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EdgeRHSContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EdgeRHSContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitEdgeRHS(s)
@@ -1816,7 +1816,7 @@ func (s *EdgeopContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *EdgeopContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *EdgeopContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitEdgeop(s)
@@ -1960,7 +1960,7 @@ func (s *NodeStmtContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *NodeStmtContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *NodeStmtContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitNodeStmt(s)
@@ -2108,7 +2108,7 @@ func (s *NodeIdContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *NodeIdContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *NodeIdContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitNodeId(s)
@@ -2265,7 +2265,7 @@ func (s *PortContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *PortContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *PortContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitPort(s)
@@ -2426,7 +2426,7 @@ func (s *SubgraphContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *SubgraphContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *SubgraphContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitSubgraph(s)
@@ -2579,7 +2579,7 @@ func (s *IdentContext) ExitRule(listener antlr.ParseTreeListener) {
 	}
 }
 
-func (s *IdentContext) Accept(visitor antlr.ParseTreeVisitor) interface{} {
+func (s *IdentContext) Accept(visitor antlr.ParseTreeVisitor) any {
 	switch t := visitor.(type) {
 	case DotVisitor:
 		return t.VisitIdent(s)
