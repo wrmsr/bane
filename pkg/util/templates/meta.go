@@ -9,7 +9,7 @@ import (
 
 func WithInclude(tmpl *template.Template) *template.Template {
 	return tmpl.Funcs(template.FuncMap{
-		"include": func(name string, data interface{}) (string, error) {
+		"include": func(name string, data any) (string, error) {
 			buf := bytes.NewBuffer(nil)
 			if err := tmpl.ExecuteTemplate(buf, name, data); err != nil {
 				return "", err

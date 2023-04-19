@@ -350,6 +350,6 @@ func countSemantic(nodes []Node) int {
 	return count
 }
 
-func panicf(format string, args ...interface{}) {
+func panicf(format string, args ...any) {
 	panic(fmt.Sprintf(format, args...))
 }

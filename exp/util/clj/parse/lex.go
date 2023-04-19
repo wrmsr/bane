@@ -246,7 +246,7 @@ func (l *lexer) nextToken() token {
 	return <-l.tokens
 }
 
-func (l *lexer) errorf(format string, args ...interface{}) stateFn {
+func (l *lexer) errorf(format string, args ...any) stateFn {
 	l.tokens <- token{tokError, l.start, fmt.Sprintf(format, args...)}
 	return nil
 }

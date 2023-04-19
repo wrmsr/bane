@@ -110,7 +110,7 @@ func (c *Chd) Iterate() *ChdIterator {
 
 // Serialize the CHD. The serialized form is conducive to mmapped access. See the Mmap function for details.
 func (c *Chd) Write(w io.Writer) error {
-	write := func(nd ...interface{}) error {
+	write := func(nd ...any) error {
 		for _, d := range nd {
 			if err := binary.Write(w, binary.LittleEndian, d); err != nil {
 				return err
@@ -119,7 +119,7 @@ func (c *Chd) Write(w io.Writer) error {
 		return nil
 	}
 
-	data := []interface{}{
+	data := []any{
 		uint32(len(c.r)), c.r,
 		uint32(len(c.indices)), c.indices,
 		uint32(len(c.keys)),

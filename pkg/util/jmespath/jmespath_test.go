@@ -33,23 +33,23 @@ type TreeVisitor struct {
 	parser.BaseJmespathVisitor
 }
 
-func (v *TreeVisitor) Visit(tree antlr.ParseTree) interface{}            { return tree.Accept(v) }
-func (v *TreeVisitor) VisitChildren(node antlr.RuleNode) interface{}     { return nil }
-func (v *TreeVisitor) VisitTerminal(node antlr.TerminalNode) interface{} { return nil }
-func (v *TreeVisitor) VisitErrorNode(node antlr.ErrorNode) interface{}   { return nil }
+func (v *TreeVisitor) Visit(tree antlr.ParseTree) any            { return tree.Accept(v) }
+func (v *TreeVisitor) VisitChildren(node antlr.RuleNode) any     { return nil }
+func (v *TreeVisitor) VisitTerminal(node antlr.TerminalNode) any { return nil }
+func (v *TreeVisitor) VisitErrorNode(node antlr.ErrorNode) any   { return nil }
 
 var _ parser.JmespathVisitor = &TreeVisitor{}
 
-func (v *TreeVisitor) VisitSingleExpression(ctx *parser.SingleExpressionContext) interface{} {
+func (v *TreeVisitor) VisitSingleExpression(ctx *parser.SingleExpressionContext) any {
 	return v.Visit(ctx.Expression())
 }
 
-func (v *TreeVisitor) VisitIdentifier(ctx *parser.IdentifierContext) interface{} {
+func (v *TreeVisitor) VisitIdentifier(ctx *parser.IdentifierContext) any {
 	fmt.Println(ctx)
 	return v.BaseJmespathVisitor.VisitIdentifier(ctx)
 }
 
-//func (v *TreeVisitor) VisitChildren(node antlr.RuleNode) interface{} {
+//func (v *TreeVisitor) VisitChildren(node antlr.RuleNode) any {
 //	for i := 0; i < node.GetChildCount(); i++ {
 //		child := node.GetChild(i)
 //		if pt, ok := child.(antlr.ParseTree); ok {

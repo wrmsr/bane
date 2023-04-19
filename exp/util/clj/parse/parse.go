@@ -119,7 +119,7 @@ func (t *Tree) backup() {
 	}
 }
 
-func (t *Tree) errorf(pos *Pos, format string, args ...interface{}) {
+func (t *Tree) errorf(pos *Pos, format string, args ...any) {
 	panic(parseError{pos.FormatError("parse", fmt.Sprintf(format, args...))})
 }
 

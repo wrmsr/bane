@@ -333,14 +333,14 @@ func (v *parseVisitor) VisitTestListComp(ctx *parser.TestListCompContext) any {
 	return v.unimplemented(ctx)
 }
 
-func (v *parseVisitor) VisitExprOrStarExpr(ctx *parser.ExprOrStarExprContext) interface{} {
+func (v *parseVisitor) VisitExprOrStarExpr(ctx *parser.ExprOrStarExprContext) any {
 	if se := ctx.StarExpr(); se != nil {
 		return v.Visit(se)
 	}
 	return v.Visit(ctx.Expr())
 }
 
-func (v *parseVisitor) VisitStarExpr(ctx *parser.StarExprContext) interface{} {
+func (v *parseVisitor) VisitStarExpr(ctx *parser.StarExprContext) any {
 	return Star{
 		Child: v.NodeVisit(ctx.Expr()),
 	}
