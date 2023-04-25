@@ -114,7 +114,8 @@ dep-update:
 	# ${GO} get -u ./...
 	# ${MAKE} dep-tidy
 	# github.com/wrmsr/bane v0.0.0-00000000000000-000000000000
-	@echo hi
+	for D in . sql x ; do (cd "$$D" && go get -u ./... && go mod tidy) ; done && \
+	find . -name go.mod | xargs sed -i '' 's/\(github.com\/wrmsr\/bane\) v.*/\1 v0.0.0-00000000000000-000000000000/g'
 
 .PHONY: dep-tidy
 dep-tidy:

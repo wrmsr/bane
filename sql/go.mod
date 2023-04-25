@@ -6,7 +6,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/mattn/go-sqlite3 v1.14.16
-	github.com/wrmsr/bane v0.0.0-20230425190943-6236fd18a33a
+	github.com/wrmsr/bane v0.0.0-00000000000000-000000000000
 )
 
 require (

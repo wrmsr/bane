@@ -12,9 +12,11 @@ TODO:
   - foreach
    - find-style '%'
    - parallel
-  - flags
-   - 'all' - include submodules
-   - honor .goignore
+ - flags
+  - 'all' - include submodules
+  - honor .goignore
+ - !!! DEP GRAPHS - go mod update IN DEP ORDER
+
 
 https://github.com/golang/go/issues/50745
 */
