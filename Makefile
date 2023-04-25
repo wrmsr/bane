@@ -4,6 +4,8 @@ GO=go
 
 MOD:=$(shell grep -o '^module .*' go.mod | awk '{print $$2}')
 
+SUBMODS:=$(shell find . -name go.mod | sed -n 's/^\.\/\(.*\)\/go\.mod$$/\1/p')
+
 SRCS=\
 	core \
 	sql \
@@ -11,10 +13,14 @@ SRCS=\
 
 MODS:=$(shell echo ${SRCS} | xargs -n1 -I% echo ./%/...)
 
-PKGS:=$(shell echo ${SRCS} | xargs -n1 -I% ${GO} run ${MOD}/util/dev/cmd/list -find -ignorefiles ./%/...)
+PKGS:=$(shell echo ${SRCS} | xargs -n1 -I% ${GO} run ${MOD}/core/dev/cmd/list -find -ignorefiles ./%/...)
 
 
 ### echos
+
+.PHONY: mod
+mod:
+	@echo ${MOD}
 
 .PHONY: srcs
 srcs:
