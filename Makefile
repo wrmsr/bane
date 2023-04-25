@@ -5,8 +5,9 @@ GO=go
 MOD:=$(shell grep -o '^module .*' go.mod | awk '{print $$2}')
 
 SRCS=\
-	exp \
 	pkg \
+	sql \
+	x \
 
 MODS:=$(shell echo ${SRCS} | xargs -n1 -I% echo ./%/...)
 
