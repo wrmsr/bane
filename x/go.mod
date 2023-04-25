@@ -9,6 +9,7 @@ require (
 	github.com/cespare/xxhash v1.1.0
 	github.com/chzyer/readline v1.5.1
 	github.com/google/uuid v1.3.0
+	github.com/gorilla/websocket v1.5.0
 	github.com/segmentio/asm v1.2.0
 	github.com/wrmsr/bane v0.0.0-00000000000000-000000000000
 	golang.org/x/arch v0.0.0-20220412001346-fc48f9fe4c15
