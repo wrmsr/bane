@@ -5,13 +5,13 @@ GO=go
 MOD:=$(shell grep -o '^module .*' go.mod | awk '{print $$2}')
 
 SRCS=\
-	pkg \
+	core \
 	sql \
 	x \
 
 MODS:=$(shell echo ${SRCS} | xargs -n1 -I% echo ./%/...)
 
-PKGS:=$(shell echo ${SRCS} | xargs -n1 -I% ${GO} run ${MOD}/pkg/util/dev/cmd/list -find -ignorefiles ./%/...)
+PKGS:=$(shell echo ${SRCS} | xargs -n1 -I% ${GO} run ${MOD}/util/dev/cmd/list -find -ignorefiles ./%/...)
 
 
 ### echos
@@ -106,12 +106,12 @@ ANTLR_VERSION=4.12.0
 
 .PHONY: gen-antlr
 gen-antlr:
-	${GO} run "${MOD}/pkg/util/antlr/dev/gen" ${ANTLR_VERSION} ${SRCS}
+	${GO} run "${MOD}/util/antlr/dev/gen" ${ANTLR_VERSION} ${SRCS}
 
 .PHONY: gen-go
 gen-go:
 	${GO} generate ./...
-	${GO} run "${MOD}/pkg/util/dev/cmd/checkdev" -q ${SRCS}
+	${GO} run "${MOD}/util/dev/cmd/checkdev" -q ${SRCS}
 
 
 ### check
@@ -121,7 +121,7 @@ check: check-dev check-fmt check-vet
 
 .PHONY: check-dev
 check-dev:
-	${GO} run "${MOD}/pkg/util/dev/cmd/checkdev" ${SRCS}
+	${GO} run "${MOD}/util/dev/cmd/checkdev" ${SRCS}
 
 .PHONY: check-fmt
 check-fmt:
@@ -191,7 +191,7 @@ _ci:
 
 .PHONY: imports
 imports:
-	@${GO} run "${MOD}/pkg/util/dev/cmd/imports" ${SRCS}
+	@${GO} run "${MOD}/util/dev/cmd/imports" ${SRCS}
 
 
 ### python

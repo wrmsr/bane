@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	iou "github.com/wrmsr/bane/pkg/util/io"
+	iou "github.com/wrmsr/bane/core/io"
 )
 
 func TestBuilder(t *testing.T) {

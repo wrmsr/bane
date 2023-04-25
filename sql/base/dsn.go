@@ -1,6 +1,6 @@
 package base
 
-import stru "github.com/wrmsr/bane/pkg/util/strings"
+import stru "github.com/wrmsr/bane/core/strings"
 
 type Dsn struct {
 	Host string

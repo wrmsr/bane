@@ -3,7 +3,7 @@ package builder
 import (
 	"fmt"
 
-	"github.com/wrmsr/bane/pkg/util/check"
+	"github.com/wrmsr/bane/core/check"
 )
 
 //

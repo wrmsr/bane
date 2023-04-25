@@ -3,9 +3,9 @@ package base
 import (
 	"reflect"
 
-	ctr "github.com/wrmsr/bane/pkg/util/container"
-	its "github.com/wrmsr/bane/pkg/util/iterators"
-	bt "github.com/wrmsr/bane/pkg/util/types"
+	ctr "github.com/wrmsr/bane/core/container"
+	its "github.com/wrmsr/bane/core/iterators"
+	bt "github.com/wrmsr/bane/core/types"
 )
 
 //

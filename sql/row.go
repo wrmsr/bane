@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strings"
 
-	ctr "github.com/wrmsr/bane/pkg/util/container"
-	iou "github.com/wrmsr/bane/pkg/util/io"
-	its "github.com/wrmsr/bane/pkg/util/iterators"
-	"github.com/wrmsr/bane/pkg/util/slices"
-	bt "github.com/wrmsr/bane/pkg/util/types"
+	ctr "github.com/wrmsr/bane/core/container"
+	iou "github.com/wrmsr/bane/core/io"
+	its "github.com/wrmsr/bane/core/iterators"
+	"github.com/wrmsr/bane/core/slices"
+	bt "github.com/wrmsr/bane/core/types"
 	sqb "github.com/wrmsr/bane/sql/base"
 )
 

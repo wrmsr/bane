@@ -3,7 +3,7 @@ package sql
 import (
 	"testing"
 
-	"github.com/wrmsr/bane/pkg/util/dev"
+	"github.com/wrmsr/bane/core/dev"
 )
 
 func TestMain(m *testing.M) {

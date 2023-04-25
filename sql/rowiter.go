@@ -1,7 +1,7 @@
 package sql
 
 import (
-	bt "github.com/wrmsr/bane/pkg/util/types"
+	bt "github.com/wrmsr/bane/core/types"
 	sqb "github.com/wrmsr/bane/sql/base"
 )
 

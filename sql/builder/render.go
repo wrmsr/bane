@@ -3,7 +3,7 @@ package builder
 import (
 	"fmt"
 
-	iou "github.com/wrmsr/bane/pkg/util/io"
+	iou "github.com/wrmsr/bane/core/io"
 )
 
 func Render(w iou.DiscardStringWriter, n Node) {

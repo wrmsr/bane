@@ -3,7 +3,7 @@ package sql
 import (
 	"reflect"
 
-	rfl "github.com/wrmsr/bane/pkg/util/reflect"
+	rfl "github.com/wrmsr/bane/core/reflect"
 	sqb "github.com/wrmsr/bane/sql/base"
 )
 

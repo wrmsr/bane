@@ -3,8 +3,8 @@ package sql
 import (
 	"context"
 
-	eu "github.com/wrmsr/bane/pkg/util/errors"
-	bt "github.com/wrmsr/bane/pkg/util/types"
+	eu "github.com/wrmsr/bane/core/errors"
+	bt "github.com/wrmsr/bane/core/types"
 	sqb "github.com/wrmsr/bane/sql/base"
 )
 

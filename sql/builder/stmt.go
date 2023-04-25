@@ -1,8 +1,8 @@
 package builder
 
 import (
-	"github.com/wrmsr/bane/pkg/util/check"
-	bt "github.com/wrmsr/bane/pkg/util/types"
+	"github.com/wrmsr/bane/core/check"
+	bt "github.com/wrmsr/bane/core/types"
 )
 
 //

@@ -10,11 +10,11 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/wrmsr/bane/pkg/util/check"
-	"github.com/wrmsr/bane/pkg/util/dev"
-	rfl "github.com/wrmsr/bane/pkg/util/reflect"
-	log "github.com/wrmsr/bane/pkg/util/slog"
-	bt "github.com/wrmsr/bane/pkg/util/types"
+	"github.com/wrmsr/bane/core/check"
+	"github.com/wrmsr/bane/core/dev"
+	rfl "github.com/wrmsr/bane/core/reflect"
+	log "github.com/wrmsr/bane/core/slog"
+	bt "github.com/wrmsr/bane/core/types"
 	sqa "github.com/wrmsr/bane/sql/adapters"
 	sqb "github.com/wrmsr/bane/sql/base"
 )

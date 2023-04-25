@@ -3,17 +3,17 @@
 package sql
 
 import (
-	"github.com/wrmsr/bane/pkg/util/dev"
-	"github.com/wrmsr/bane/pkg/util/dev/docker"
-	inj "github.com/wrmsr/bane/pkg/util/inject"
-	stru "github.com/wrmsr/bane/pkg/util/strings"
-	bt "github.com/wrmsr/bane/pkg/util/types"
+	"github.com/wrmsr/bane/core/dev"
+	"github.com/wrmsr/bane/core/dev/docker"
+	inj "github.com/wrmsr/bane/core/inject"
+	stru "github.com/wrmsr/bane/core/strings"
+	bt "github.com/wrmsr/bane/core/types"
 	sqb "github.com/wrmsr/bane/sql/base"
 )
 
 var _ = dev.Register(func() inj.Bindings {
-
 	return inj.Bind(
+
 		inj.As(inj.KeyOf[bt.Optional[sqb.Dsn]]{"mysql"}, inj.Singleton{func(
 			dsl *docker.ServiceLocator,
 		) bt.Optional[sqb.Dsn] {
@@ -47,5 +47,6 @@ var _ = dev.Register(func() inj.Bindings {
 				Pass: stru.SecretOf(svc.Compose.Environment["POSTGRES_PASSWORD"]),
 			})
 		}}),
+
 	)
 })
