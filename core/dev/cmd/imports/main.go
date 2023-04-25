@@ -1,5 +1,11 @@
 //go:build !nodev
 
+/*
+TODO:
+ - dot
+ - https://github.com/kisielk/godepgraph/blob/master/main.go
+*/
+
 package main
 
 import (
