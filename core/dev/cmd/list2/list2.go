@@ -15,6 +15,8 @@ TODO:
   - flags
    - 'all' - include submodules
    - honor .goignore
+
+https://github.com/golang/go/issues/50745
 */
 package main
 

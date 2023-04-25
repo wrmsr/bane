@@ -10,7 +10,7 @@ require (
 	github.com/chzyer/readline v1.5.1
 	github.com/google/uuid v1.3.0
 	github.com/segmentio/asm v1.2.0
-	github.com/wrmsr/bane v0.0.0-20230425182742-b9941a239ec6
+	github.com/wrmsr/bane v0.0.0-00000000000000-000000000000
 	golang.org/x/arch v0.0.0-20220412001346-fc48f9fe4c15
 	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
 	golang.org/x/mod v0.10.0

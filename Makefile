@@ -111,8 +111,10 @@ deps:
 
 .PHONY: dep-update
 dep-update:
-	${GO} get -u ./...
-	${MAKE} dep-tidy
+	# ${GO} get -u ./...
+	# ${MAKE} dep-tidy
+	# github.com/wrmsr/bane v0.0.0-00000000000000-000000000000
+	@echo hi
 
 .PHONY: dep-tidy
 dep-tidy:
