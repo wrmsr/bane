@@ -7,7 +7,7 @@ MOD:=$$(go list -m)
 SUBMODS:=$$(find . -name go.mod | sed -n 's/^\.\/\(.*\)\/go\.mod$$/\1/p')
 
 MSRCS:=$$( \
-	go list -f '{{.ImportPath}}' ./... | \
+	go list ./... | \
 	awk ' \
 		BEGIN{L=length("github.com/wrmsr/bane")+2} \
 		{S=substr($$1,L); P=index(S,"/"); if(P>0){ print substr(S,1,P-1) } else { print S }} \
