@@ -13,8 +13,7 @@ import (
 	iou "github.com/wrmsr/bane/pkg/util/io"
 )
 
-//go:embed pagelets/*.gohtml
-var pageletsFs embed.FS
+//
 
 func hello(w http.ResponseWriter, req *http.Request) {
 	iou.Discard(fmt.Fprintf(w, "hello\n"))
@@ -34,6 +33,11 @@ func headers(w http.ResponseWriter, req *http.Request) {
 //
 //	check.Must(http.ListenAndServe(":8090", nil))
 //}
+
+//
+
+//go:embed pagelets/*.gohtml
+var pageletsFs embed.FS
 
 //
 
@@ -60,6 +64,10 @@ func main() {
 	arr := injector.Provide(inj.ArrayOf[serverFunc]{}).([]serverFunc)
 	for _, fn := range arr {
 		fn(mux)
+	}
+
+	for _, de := range check.Must1(pageletsFs.ReadDir("pagelets")) {
+		fmt.Println(de)
 	}
 
 	fmt.Printf("%#v\n", inj.ProvideAs[*services.StatusService](injector).Status())
