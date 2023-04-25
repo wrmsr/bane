@@ -30,7 +30,9 @@ pkgs:
 
 ### versions
 
-get-version=$(shell grep '^$(1)=' .versions | cut -d= -f2)
+define get-version
+	$(shell grep '^$(1)=' .versions | cut -d= -f2)
+endef
 
 GO_VERSION:=$(call get-version,'GO')
 PYTHON_VERSION:=$(call get-version,'PYTHON')

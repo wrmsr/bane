@@ -3,7 +3,10 @@ module github.com/wrmsr/bane
 go 1.20
 
 require (
+	github.com/go-sql-driver/mysql v1.7.1
+	github.com/gorilla/websocket v1.5.0
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/mattn/go-sqlite3 v1.14.16
 	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
 	golang.org/x/mod v0.10.0
 	golang.org/x/sync v0.1.0
