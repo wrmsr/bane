@@ -8,6 +8,8 @@ SRCS=\
 	exp \
 	pkg \
 
+MODS:=$(shell echo ${SRCS} | xargs -n1 -I% echo ./%/...)
+
 PKGS:=$(shell echo ${SRCS} | xargs -n1 -I% ${GO} run ${MOD}/pkg/util/dev/cmd/list -find -ignorefiles ./%/...)
 
 
@@ -16,6 +18,10 @@ PKGS:=$(shell echo ${SRCS} | xargs -n1 -I% ${GO} run ${MOD}/pkg/util/dev/cmd/lis
 .PHONY: srcs
 srcs:
 	@echo ${SRCS}
+
+.PHONY: mods
+mods:
+	@echo ${MODS}
 
 .PHONY: pkgs
 pkgs:
