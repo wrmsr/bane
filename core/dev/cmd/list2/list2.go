@@ -15,6 +15,7 @@ TODO:
  - flags
   - 'all' - include submodules
   - *ignore* .goignore - honor by default in all output modes
+  - *honor* .gitignore by default
  - !!! DEP GRAPHS - go mod update IN DEP ORDER
  - gobin
 
@@ -28,6 +29,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -81,6 +83,14 @@ func main() {
 	check.Ok(check.Must1(osu.Exists(filepath.Join(cwd, "go.mod"))))
 
 	m := ctr.NewLockedMutMap[string, []*tool.ListPackage](ctr.NewMutStdMap[string, []*tool.ListPackage](nil))
+
+	var ds []string
+	check.Must(filepath.Walk(cwd, func(path string, info fs.FileInfo, err error) error {
+		if !info.IsDir() && info.Name() == "go.mod" {
+			ds = append(ds, info.Name())
+		}
+		return nil
+	}))
 
 	var fns []func()
 	for _, d := range []string{
