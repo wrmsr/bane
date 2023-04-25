@@ -6,6 +6,14 @@ MOD:=$$(go list -m)
 
 SUBMODS:=$$(find . -name go.mod | sed -n 's/^\.\/\(.*\)\/go\.mod$$/\1/p')
 
+MSRCS:=$$( \
+	go list -f '{{.ImportPath}}' ./... | \
+	awk ' \
+		BEGIN{L=length("github.com/wrmsr/bane")+2} \
+		{S=substr($$1,L); P=index(S,"/"); if(P>0){ print substr(S,1,P-1) } else { print S }} \
+	' | sort | uniq \
+)
+
 SRCS=\
 	core \
 	sql \
@@ -21,6 +29,10 @@ PKGS:=$$(echo ${SRCS} | xargs -n1 -I% ${GO} run ${MOD}/core/dev/cmd/list -find -
 .PHONY: mod
 mod:
 	@echo ${MOD}
+
+.PHONY: msrcs
+msrcs:
+	@echo ${MSRCS}
 
 .PHONY: submods
 submods:
