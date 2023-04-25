@@ -27,6 +27,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -35,6 +36,7 @@ import (
 	"github.com/wrmsr/bane/core/check"
 	ctr "github.com/wrmsr/bane/core/container"
 	fnu "github.com/wrmsr/bane/core/funcs"
+	ju "github.com/wrmsr/bane/core/json"
 	osu "github.com/wrmsr/bane/core/os"
 	rtu "github.com/wrmsr/bane/core/runtime"
 	"github.com/wrmsr/bane/core/workers"
@@ -90,4 +92,6 @@ func main() {
 		}
 	}
 	_ = check.Must1(workers.DoParallelErrGroup(context.Background(), rtu.MaxProcs(), wfns))
+
+	fmt.Println(check.Must1(ju.MarshalPretty(m)))
 }
