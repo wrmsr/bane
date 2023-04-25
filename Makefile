@@ -2,18 +2,18 @@
 
 GO=go
 
-MOD:=$(shell grep -o '^module .*' go.mod | awk '{print $$2}')
+MOD:=$$(go list -m)
 
-SUBMODS:=$(shell find . -name go.mod | sed -n 's/^\.\/\(.*\)\/go\.mod$$/\1/p')
+SUBMODS:=$$(find . -name go.mod | sed -n 's/^\.\/\(.*\)\/go\.mod$$/\1/p')
 
 SRCS=\
 	core \
 	sql \
 	x \
 
-MODS:=$(shell echo ${SRCS} | xargs -n1 -I% echo ./%/...)
+MODS:=$$(echo ${SRCS} | xargs -n1 -I% echo ./%/...)
 
-PKGS:=$(shell echo ${SRCS} | xargs -n1 -I% ${GO} run ${MOD}/core/dev/cmd/list -find -ignorefiles ./%/...)
+PKGS:=$$(echo ${SRCS} | xargs -n1 -I% ${GO} run ${MOD}/core/dev/cmd/list -find -ignorefiles ./%/...)
 
 
 ### echos
@@ -21,6 +21,10 @@ PKGS:=$(shell echo ${SRCS} | xargs -n1 -I% ${GO} run ${MOD}/core/dev/cmd/list -f
 .PHONY: mod
 mod:
 	@echo ${MOD}
+
+.PHONY: submods
+submods:
+	@echo ${SUBMODS}
 
 .PHONY: srcs
 srcs:
@@ -38,7 +42,7 @@ pkgs:
 ### versions
 
 define get-version
-	$(shell grep '^$(1)=' .versions | cut -d= -f2)
+	$$(grep '^$(1)=' .versions | cut -d= -f2)
 endef
 
 GO_VERSION:=$(call get-version,'GO')
@@ -202,8 +206,8 @@ imports:
 
 ### python
 
-PYENV_ROOT:=$(shell sh -c "if [ -z '$${PYENV_ROOT}' ] ; then echo '$${HOME}/.pyenv' ; else echo '$${PYENV_ROOT%/}' ; fi")
-PYENV_BIN:=$(shell sh -c "if [ -f '$${HOME}/.pyenv/bin/pyenv' ] ; then echo '$${HOME}/.pyenv/bin/pyenv' ; else echo pyenv ; fi")
+PYENV_ROOT:=$$(sh -c "if [ -z '$${PYENV_ROOT}' ] ; then echo '$${HOME}/.pyenv' ; else echo '$${PYENV_ROOT%/}' ; fi")
+PYENV_BIN:=$$(sh -c "if [ -f '$${HOME}/.pyenv/bin/pyenv' ] ; then echo '$${HOME}/.pyenv/bin/pyenv' ; else echo pyenv ; fi")
 
 PYTHON=.venv/bin/python
 
