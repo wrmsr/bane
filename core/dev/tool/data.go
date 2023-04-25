@@ -1,8 +1,8 @@
-package main
+package tool
 
 import "time"
 
-type Origin struct {
+type ListOrigin struct {
 	Vcs    string `json:",omitempty"`
 	Url    string `json:",omitempty"`
 	Subdir string `json:",omitempty"`
@@ -16,32 +16,32 @@ type Origin struct {
 	RepoSum string `json:",omitempty"`
 }
 
-type ModuleError struct {
+type ListModuleError struct {
 	Err string
 }
 
-type Module struct {
-	Path       string       `json:",omitempty"`
-	Version    string       `json:",omitempty"`
-	Query      string       `json:",omitempty"`
-	Versions   []string     `json:",omitempty"`
-	Replace    *Module      `json:",omitempty"`
-	Time       *time.Time   `json:",omitempty"`
-	Update     *Module      `json:",omitempty"`
-	Main       bool         `json:",omitempty"`
-	Indirect   bool         `json:",omitempty"`
-	Dir        string       `json:",omitempty"`
+type ListModule struct {
+	Path       string      `json:",omitempty"`
+	Version    string      `json:",omitempty"`
+	Query      string      `json:",omitempty"`
+	Versions   []string    `json:",omitempty"`
+	Replace    *ListModule `json:",omitempty"`
+	Time       *time.Time  `json:",omitempty"`
+	Update     *ListModule `json:",omitempty"`
+	Main       bool        `json:",omitempty"`
+	Indirect   bool        `json:",omitempty"`
+	Dir        string      `json:",omitempty"`
 	GoMod      string       `json:",omitempty"`
 	GoVersion  string       `json:",omitempty"`
 	Retracted  []string     `json:",omitempty"`
-	Deprecated string       `json:",omitempty"`
-	Error      *ModuleError `json:",omitempty"`
+	Deprecated string           `json:",omitempty"`
+	Error      *ListModuleError `json:",omitempty"`
 
-	Origin *Origin `json:",omitempty"`
-	Reuse  bool    `json:",omitempty"`
+	Origin *ListOrigin `json:",omitempty"`
+	Reuse  bool        `json:",omitempty"`
 }
 
-type PackageError struct {
+type ListPackageError struct {
 	ImportStack      []string
 	Pos              string
 	Err              error
@@ -50,7 +50,7 @@ type PackageError struct {
 	alwaysPrintStack bool
 }
 
-type Package struct {
+type ListPackage struct {
 	Dir           string   `json:",omitempty"`
 	ImportPath    string   `json:",omitempty"`
 	ImportComment string   `json:",omitempty"`
@@ -62,9 +62,9 @@ type Package struct {
 	ConflictDir   string   `json:",omitempty"`
 	ForTest       string   `json:",omitempty"`
 	Export        string   `json:",omitempty"`
-	BuildID       string   `json:",omitempty"`
-	Module        *Module  `json:",omitempty"`
-	Match         []string `json:",omitempty"`
+	BuildID       string      `json:",omitempty"`
+	Module        *ListModule `json:",omitempty"`
+	Match         []string    `json:",omitempty"`
 	Goroot        bool     `json:",omitempty"`
 	Standard      bool     `json:",omitempty"`
 	DepOnly       bool     `json:",omitempty"`
@@ -104,8 +104,8 @@ type Package struct {
 	ImportMap map[string]string `json:",omitempty"`
 	Deps      []string          `json:",omitempty"`
 
-	Error      *PackageError   `json:",omitempty"`
-	DepsErrors []*PackageError `json:",omitempty"`
+	Error      *ListPackageError   `json:",omitempty"`
+	DepsErrors []*ListPackageError `json:",omitempty"`
 
 	TestGoFiles        []string `json:",omitempty"`
 	TestImports        []string `json:",omitempty"`

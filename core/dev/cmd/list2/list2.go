@@ -35,12 +35,42 @@ import (
 
 	"github.com/wrmsr/bane/core/check"
 	ctr "github.com/wrmsr/bane/core/container"
+	"github.com/wrmsr/bane/core/dev/tool"
 	fnu "github.com/wrmsr/bane/core/funcs"
 	ju "github.com/wrmsr/bane/core/json"
 	osu "github.com/wrmsr/bane/core/os"
 	rtu "github.com/wrmsr/bane/core/runtime"
 	"github.com/wrmsr/bane/core/workers"
 )
+
+//
+
+type Prj struct {
+	mods []*Mod
+
+	modsByDir map[string]*Mod
+}
+
+type Mod struct {
+	dir  string
+	pkgs []*tool.ListPackage
+}
+
+//
+
+func execIn(ctx context.Context, wd string, exe string, args ...string) ([]byte, error) {
+	cmd := exec.CommandContext(ctx, exe, args...)
+	cmd.Dir = wd
+
+	var outb bytes.Buffer
+	cmd.Stdout = &outb
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return nil, err
+	}
+	return outb.Bytes(), nil
+}
 
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
@@ -50,7 +80,7 @@ func main() {
 
 	check.Ok(check.Must1(osu.Exists(filepath.Join(cwd, "go.mod"))))
 
-	m := ctr.NewLockedMutMap[string, []*Package](ctr.NewMutStdMap[string, []*Package](nil))
+	m := ctr.NewLockedMutMap[string, []*tool.ListPackage](ctr.NewMutStdMap[string, []*tool.ListPackage](nil))
 
 	var fns []func()
 	for _, d := range []string{
@@ -58,24 +88,16 @@ func main() {
 		"sql",
 		"x",
 	} {
+
 		d := d
 
 		fns = append(fns, func() {
-			cmd := exec.CommandContext(
-				ctx,
-				"go", "list", "-json", "./...",
-			)
-			cmd.Dir = filepath.Join(cwd, d)
+			o := check.Must1(execIn(ctx, filepath.Join(cwd, d), "go", "list", "-json", "./..."))
 
-			var outb bytes.Buffer
-			cmd.Stdout = &outb
-			cmd.Stderr = os.Stderr
-			check.Must(cmd.Run())
-
-			var pkgs []*Package
-			jd := json.NewDecoder(bytes.NewReader(outb.Bytes()))
+			var pkgs []*tool.ListPackage
+			jd := json.NewDecoder(bytes.NewReader(o))
 			for jd.More() {
-				var pkg *Package
+				var pkg *tool.ListPackage
 				check.Must(jd.Decode(&pkg))
 				pkgs = append(pkgs, pkg)
 			}
