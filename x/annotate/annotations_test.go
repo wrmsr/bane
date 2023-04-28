@@ -38,11 +38,17 @@ func doThing(v any) {
 	if rv.Kind() != reflect.Pointer {
 		panic(rv)
 	}
+
 	ta := Global().Get(rv.Elem().Type())
 	if ta == nil {
 		return
 	}
-	fmt.Println(ta)
+
+	for _, x := range ta.mc.m {
+		fmt.Println(x)
+	}
+
+	fmt.Printf("%+v\n", ta)
 }
 
 func TestFuncName(t *testing.T) {

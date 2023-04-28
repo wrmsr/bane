@@ -49,7 +49,7 @@ func ValidateThing(v any) {
 	if ta == nil {
 		return
 	}
-	fmt.Println(ta)
+	fmt.Printf("%#v\n", ta)
 }
 
 func main() {

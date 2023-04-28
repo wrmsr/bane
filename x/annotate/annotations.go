@@ -65,7 +65,7 @@ type TypeAnnotations struct {
 	mtx sync.Mutex
 
 	c  typeIndexedCollection
-	mm keyedCollection[Member, *memberAnnotations]
+	mc keyedCollection[Member, *memberAnnotations]
 }
 
 func (ta *TypeAnnotations) Type() reflect.Type { return ta.ty }
@@ -79,14 +79,26 @@ type TypeAnnotationsMap struct {
 }
 
 func NewTypeAnnotationsMap() *TypeAnnotationsMap {
-	return &TypeAnnotationsMap{
-		m: make(map[reflect.Type]*TypeAnnotations),
-	}
+	return &TypeAnnotationsMap{}
 }
 
 func (tam *TypeAnnotationsMap) Get(ty reflect.Type) *TypeAnnotations {
+	return tam.get(ty, false)
+}
+
+func (tam *TypeAnnotationsMap) get(ty reflect.Type, orMake bool) *TypeAnnotations {
 	tam.mtx.Lock()
+
+	if tam.m == nil {
+		tam.m = make(map[reflect.Type]*TypeAnnotations)
+	}
+
 	ta := tam.m[ty]
+	if ta == nil && orMake {
+		ta = &TypeAnnotations{ty: ty}
+		tam.m[ty] = ta
+	}
+
 	tam.mtx.Unlock()
 	return ta
 }
@@ -98,57 +110,3 @@ var _global = NewTypeAnnotationsMap()
 func Global() *TypeAnnotationsMap {
 	return _global
 }
-
-//
-
-type Annotator interface {
-	Field(n string, anns ...any) Annotator
-	Method(n string, anns ...any) Annotator
-}
-
-type annotator struct {
-	ta *TypeAnnotations
-}
-
-var _ Annotator = &annotator{}
-
-func On[T any](anns ...any) Annotator {
-	var z T
-	ty := reflect.TypeOf(z)
-	if ty.Kind() != reflect.Struct {
-		panic(fmt.Errorf("must be struct: %v", ty))
-	}
-
-	_global.mtx.Lock()
-	ta := _global.m[ty]
-	if ta == nil {
-		ta = &TypeAnnotations{ty: ty}
-		_global.m[ty] = ta
-	}
-	_global.mtx.Unlock()
-
-	if len(anns) > 0 {
-		ta.mtx.Lock()
-		ta.c.add(anns...)
-		ta.mtx.Unlock()
-	}
-
-	return &annotator{ta: ta}
-}
-
-func (a *annotator) Member(m Member, anns ...any) Annotator {
-	a.ta.mtx.Lock()
-	defer a.ta.mtx.Unlock()
-
-	ma := a.ta.mm.getOrMake(m, func() *memberAnnotations {
-		r := lookupMember(a.ta.ty, m)
-		return &memberAnnotations{m: m, r: r}
-	})
-	ma.c.add(anns...)
-
-	return a
-
-}
-
-func (a *annotator) Field(n string, anns ...any) Annotator  { return a.Member(Field(n), anns...) }
-func (a *annotator) Method(n string, anns ...any) Annotator { return a.Member(Method(n), anns...) }
