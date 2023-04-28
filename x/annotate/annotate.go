@@ -8,6 +8,33 @@ import (
 
 //
 
+//type Target interface {
+//	isTarget()
+//}
+
+//
+
+type annotationCollection struct {
+	s []any
+	m map[reflect.Type][]any
+}
+
+func (c *annotationCollection) add(vs ...any) {
+	if len(vs) < 1 {
+		return
+	}
+	if c.m == nil {
+		c.m = make(map[reflect.Type][]any)
+	}
+	c.s = append(c.s, vs...)
+	for _, a := range vs {
+		ty := reflect.TypeOf(a)
+		c.m[ty] = append(c.m[ty], a)
+	}
+}
+
+//
+
 type FieldAnnotations struct {
 	f reflect.StructField
 	s []any
@@ -33,7 +60,7 @@ type namedCollection[T any] struct {
 	m map[string]T
 }
 
-func (c *namedCollection[T]) get(n string, f func(string) T) T {
+func (c *namedCollection[T]) getOrMake(n string, f func(string) T) T {
 	if c.m == nil {
 		c.m = make(map[string]T)
 	}
@@ -54,8 +81,7 @@ type TypeAnnotations struct {
 	mtx sync.Mutex
 	ty  reflect.Type
 
-	s []any
-
+	c  annotationCollection
 	fc namedCollection[*FieldAnnotations]
 	mc namedCollection[*MethodAnnotations]
 }
@@ -134,7 +160,7 @@ func (a *annotator) Field(n string, anns ...any) Annotator {
 	a.ta.mtx.Lock()
 	defer a.ta.mtx.Unlock()
 
-	fa := a.ta.fc.get(n, func(s string) *FieldAnnotations {
+	fa := a.ta.fc.getOrMake(n, func(s string) *FieldAnnotations {
 		f, ok := a.ta.ty.FieldByName(n)
 		if !ok {
 			panic(fmt.Errorf("type %s has no field %s", a.ta.ty, n))
@@ -150,7 +176,7 @@ func (a *annotator) Method(n string, anns ...any) Annotator {
 	a.ta.mtx.Lock()
 	defer a.ta.mtx.Unlock()
 
-	ma := a.ta.mc.get(n, func(s string) *MethodAnnotations {
+	ma := a.ta.mc.getOrMake(n, func(s string) *MethodAnnotations {
 		m, ok := a.ta.ty.MethodByName(n)
 		if !ok {
 			panic(fmt.Errorf("type %s has no method %s", a.ta.ty, n))
