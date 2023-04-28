@@ -15,6 +15,16 @@ const (
 	MethodMember
 )
 
+func (k MemberKind) String() string {
+	switch k {
+	case FieldMember:
+		return "field"
+	case MethodMember:
+		return "method"
+	}
+	panic("<invalid>")
+}
+
 func Field(n string) Member  { return Member{K: FieldMember, N: n} }
 func Method(n string) Member { return Member{K: MethodMember, N: n} }
 
