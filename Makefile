@@ -231,9 +231,9 @@ py-venv:
 	if [ ! -d .venv ] ; then \
 		$(PYENV_BIN) install -s $(PYTHON_VERSION) && \
 		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -mvenv .venv && \
-		$(PYTHON) -mpip install --upgrade pip setuptools wheel ; \
+		${PYTHON} -mpip install --upgrade pip setuptools wheel ; \
 	fi
 
 .PHONY: py-deps
 py-deps: py-venv
-	$(PYTHON) -mpip install $(PYTHON_DEPS)
+	${PYTHON} -mpip install ${PYTHON_DEPS}

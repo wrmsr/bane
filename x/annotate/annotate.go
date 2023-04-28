@@ -8,26 +8,69 @@ import (
 
 //
 
-type typeAnnotations struct {
+type FieldAnnotations struct {
+	f reflect.StructField
+	s []any
+}
+
+func (fa *FieldAnnotations) Field() reflect.StructField { return fa.f }
+func (fa *FieldAnnotations) All() []any                 { return fa.s }
+
+//
+
+type MethodAnnotations struct {
+	m reflect.Method
+	s []any
+}
+
+func (ma *MethodAnnotations) Method() reflect.Method { return ma.m }
+func (ma *MethodAnnotations) All() []any             { return ma.s }
+
+//
+
+type TypeAnnotations struct {
 	mtx sync.Mutex
 	ty  reflect.Type
-	s   []any
-	fm  map[string][]any
-	mm  map[string][]any
+
+	s []any
+
+	fm map[string]*FieldAnnotations
+	fs []*FieldAnnotations
+
+	mm map[string]*MethodAnnotations
+	ms []*MethodAnnotations
 }
 
-type typeAnnotationsMap struct {
+func (ta *TypeAnnotations) Type() reflect.Type { return ta.ty }
+func (ta *TypeAnnotations) All() []any         { return ta.s }
+
+//
+
+type TypeAnnotationsMap struct {
 	mtx sync.Mutex
-	m   map[reflect.Type]*typeAnnotations
+	m   map[reflect.Type]*TypeAnnotations
 }
 
-func newTypeAnnotationsMap() *typeAnnotationsMap {
-	return &typeAnnotationsMap{
-		m: make(map[reflect.Type]*typeAnnotations),
+func NewTypeAnnotationsMap() *TypeAnnotationsMap {
+	return &TypeAnnotationsMap{
+		m: make(map[reflect.Type]*TypeAnnotations),
 	}
 }
 
-var _typeAnnotationsMap = newTypeAnnotationsMap()
+func (tam *TypeAnnotationsMap) Get(ty reflect.Type) *TypeAnnotations {
+	tam.mtx.Lock()
+	ta := tam.m[ty]
+	tam.mtx.Unlock()
+	return ta
+}
+
+//
+
+var _global = NewTypeAnnotationsMap()
+
+func Global() *TypeAnnotationsMap {
+	return _global
+}
 
 //
 
@@ -37,7 +80,7 @@ type Annotator interface {
 }
 
 type annotator struct {
-	ta *typeAnnotations
+	ta *TypeAnnotations
 }
 
 var _ Annotator = &annotator{}
@@ -49,15 +92,15 @@ func On[T any](anns ...any) Annotator {
 		panic(fmt.Errorf("must be struct: %v", ty))
 	}
 
-	_typeAnnotationsMap.mtx.Lock()
-	ta := _typeAnnotationsMap.m[ty]
+	_global.mtx.Lock()
+	ta := _global.m[ty]
 	if ta == nil {
-		ta = &typeAnnotations{
+		ta = &TypeAnnotations{
 			ty: ty,
 		}
-		_typeAnnotationsMap.m[ty] = ta
+		_global.m[ty] = ta
 	}
-	_typeAnnotationsMap.mtx.Unlock()
+	_global.mtx.Unlock()
 
 	ta.mtx.Lock()
 	ta.s = append(ta.s, anns...)
@@ -70,20 +113,48 @@ func On[T any](anns ...any) Annotator {
 
 func (a *annotator) Field(n string, anns ...any) Annotator {
 	a.ta.mtx.Lock()
+
 	if a.ta.fm == nil {
-		a.ta.fm = make(map[string][]any)
+		a.ta.fm = make(map[string]*FieldAnnotations)
 	}
-	a.ta.fm[n] = append(a.ta.fm[n], anns...)
+
+	fa := a.ta.fm[n]
+	if fa == nil {
+		f, ok := a.ta.ty.FieldByName(n)
+		if !ok {
+			panic(fmt.Errorf("type %s has no field %s", a.ta.ty, n))
+		}
+		fa = &FieldAnnotations{f: f}
+		a.ta.fm[n] = fa
+		a.ta.fs = append(a.ta.fs, fa)
+	}
+
+	fa.s = append(fa.s, anns...)
+
 	a.ta.mtx.Unlock()
 	return a
 }
 
 func (a *annotator) Method(n string, anns ...any) Annotator {
 	a.ta.mtx.Lock()
+
 	if a.ta.mm == nil {
-		a.ta.mm = make(map[string][]any)
+		a.ta.mm = make(map[string]*MethodAnnotations)
 	}
-	a.ta.mm[n] = append(a.ta.mm[n], anns...)
+
+	ma := a.ta.mm[n]
+	if ma == nil {
+		m, ok := a.ta.ty.MethodByName(n)
+		if !ok {
+			panic(fmt.Errorf("type %s has no method %s", a.ta.ty, n))
+		}
+		ma = &MethodAnnotations{m: m}
+		a.ta.mm[n] = ma
+		a.ta.ms = append(a.ta.ms, ma)
+	}
+
+	ma.s = append(ma.s, anns...)
+
 	a.ta.mtx.Unlock()
 	return a
 }

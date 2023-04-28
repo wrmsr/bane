@@ -2,11 +2,30 @@
 
 package main
 
-import "github.com/wrmsr/bane/x/annotate"
+import (
+	"fmt"
+	"reflect"
 
-type SomeAnn struct {
-	S string
+	"github.com/wrmsr/bane/x/annotate"
+)
+
+//
+
+type Validate struct {
+	Fn any
 }
+
+type NonZero struct{}
+
+//
+
+func CheckNonEmpty(s string) {
+	if s == "" {
+		panic("must not be empty")
+	}
+}
+
+//
 
 type SomeStruct struct {
 	S string
@@ -15,9 +34,25 @@ type SomeStruct struct {
 
 func (s SomeStruct) SomeMethod() {}
 
-var _ = annotate.On[SomeStruct](SomeAnn{}).
-	Field("S", SomeAnn{}).
-	Method("SomeMethod", SomeAnn{})
+var _ = annotate.On[SomeStruct]().
+	Field("S", Validate{CheckNonEmpty}).
+	Field("I", NonZero{})
+
+//
+
+func ValidateThing(v any) {
+	rv := reflect.ValueOf(v)
+	if rv.Kind() != reflect.Pointer {
+		panic(rv)
+	}
+	ta := annotate.Global().Get(rv.Elem().Type())
+	if ta == nil {
+		return
+	}
+	fmt.Println(ta)
+}
 
 func main() {
+	ss := SomeStruct{}
+	ValidateThing(&ss)
 }
