@@ -28,17 +28,36 @@ func (ma *MethodAnnotations) All() []any             { return ma.s }
 
 //
 
+type namedCollection[T any] struct {
+	s []T
+	m map[string]T
+}
+
+func (c *namedCollection[T]) get(n string, f func(string) T) T {
+	if c.m == nil {
+		c.m = make(map[string]T)
+	}
+
+	v, ok := c.m[n]
+	if !ok {
+		v = f(n)
+		c.m[n] = v
+		c.s = append(c.s, v)
+	}
+
+	return v
+}
+
+//
+
 type TypeAnnotations struct {
 	mtx sync.Mutex
 	ty  reflect.Type
 
 	s []any
 
-	fm map[string]*FieldAnnotations
-	fs []*FieldAnnotations
-
-	mm map[string]*MethodAnnotations
-	ms []*MethodAnnotations
+	fc namedCollection[*FieldAnnotations]
+	mc namedCollection[*MethodAnnotations]
 }
 
 func (ta *TypeAnnotations) Type() reflect.Type { return ta.ty }
@@ -113,48 +132,32 @@ func On[T any](anns ...any) Annotator {
 
 func (a *annotator) Field(n string, anns ...any) Annotator {
 	a.ta.mtx.Lock()
+	defer a.ta.mtx.Unlock()
 
-	if a.ta.fm == nil {
-		a.ta.fm = make(map[string]*FieldAnnotations)
-	}
-
-	fa := a.ta.fm[n]
-	if fa == nil {
+	fa := a.ta.fc.get(n, func(s string) *FieldAnnotations {
 		f, ok := a.ta.ty.FieldByName(n)
 		if !ok {
 			panic(fmt.Errorf("type %s has no field %s", a.ta.ty, n))
 		}
-		fa = &FieldAnnotations{f: f}
-		a.ta.fm[n] = fa
-		a.ta.fs = append(a.ta.fs, fa)
-	}
-
+		return &FieldAnnotations{f: f}
+	})
 	fa.s = append(fa.s, anns...)
 
-	a.ta.mtx.Unlock()
 	return a
 }
 
 func (a *annotator) Method(n string, anns ...any) Annotator {
 	a.ta.mtx.Lock()
+	defer a.ta.mtx.Unlock()
 
-	if a.ta.mm == nil {
-		a.ta.mm = make(map[string]*MethodAnnotations)
-	}
-
-	ma := a.ta.mm[n]
-	if ma == nil {
+	ma := a.ta.mc.get(n, func(s string) *MethodAnnotations {
 		m, ok := a.ta.ty.MethodByName(n)
 		if !ok {
 			panic(fmt.Errorf("type %s has no method %s", a.ta.ty, n))
 		}
-		ma = &MethodAnnotations{m: m}
-		a.ta.mm[n] = ma
-		a.ta.ms = append(a.ta.ms, ma)
-	}
-
+		return &MethodAnnotations{m: m}
+	})
 	ma.s = append(ma.s, anns...)
 
-	a.ta.mtx.Unlock()
 	return a
 }
