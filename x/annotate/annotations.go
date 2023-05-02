@@ -59,6 +59,22 @@ type memberAnnotations struct {
 	c typeIndexedCollection
 }
 
+func (ma memberAnnotations) ReflectField() reflect.StructField {
+	if ma.m.K != FieldMember {
+		panic(ma)
+	}
+	return ma.r.(reflect.StructField)
+}
+
+func (ma memberAnnotations) ReflectMethod() reflect.Method {
+	if ma.m.K != MethodMember {
+		panic(ma)
+	}
+	return ma.r.(reflect.Method)
+}
+
+//
+
 type TypeAnnotations struct {
 	ty reflect.Type
 
