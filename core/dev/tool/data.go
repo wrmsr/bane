@@ -1,3 +1,5 @@
+//go:build !nodev
+
 package tool
 
 import "time"
@@ -21,19 +23,19 @@ type ListModuleError struct {
 }
 
 type ListModule struct {
-	Path       string      `json:",omitempty"`
-	Version    string      `json:",omitempty"`
-	Query      string      `json:",omitempty"`
-	Versions   []string    `json:",omitempty"`
-	Replace    *ListModule `json:",omitempty"`
-	Time       *time.Time  `json:",omitempty"`
-	Update     *ListModule `json:",omitempty"`
-	Main       bool        `json:",omitempty"`
-	Indirect   bool        `json:",omitempty"`
-	Dir        string      `json:",omitempty"`
-	GoMod      string       `json:",omitempty"`
-	GoVersion  string       `json:",omitempty"`
-	Retracted  []string     `json:",omitempty"`
+	Path       string           `json:",omitempty"`
+	Version    string           `json:",omitempty"`
+	Query      string           `json:",omitempty"`
+	Versions   []string         `json:",omitempty"`
+	Replace    *ListModule      `json:",omitempty"`
+	Time       *time.Time       `json:",omitempty"`
+	Update     *ListModule      `json:",omitempty"`
+	Main       bool             `json:",omitempty"`
+	Indirect   bool             `json:",omitempty"`
+	Dir        string           `json:",omitempty"`
+	GoMod      string           `json:",omitempty"`
+	GoVersion  string           `json:",omitempty"`
+	Retracted  []string         `json:",omitempty"`
 	Deprecated string           `json:",omitempty"`
 	Error      *ListModuleError `json:",omitempty"`
 
@@ -51,25 +53,25 @@ type ListPackageError struct {
 }
 
 type ListPackage struct {
-	Dir           string   `json:",omitempty"`
-	ImportPath    string   `json:",omitempty"`
-	ImportComment string   `json:",omitempty"`
-	Name          string   `json:",omitempty"`
-	Doc           string   `json:",omitempty"`
-	Target        string   `json:",omitempty"`
-	Shlib         string   `json:",omitempty"`
-	Root          string   `json:",omitempty"`
-	ConflictDir   string   `json:",omitempty"`
-	ForTest       string   `json:",omitempty"`
-	Export        string   `json:",omitempty"`
+	Dir           string      `json:",omitempty"`
+	ImportPath    string      `json:",omitempty"`
+	ImportComment string      `json:",omitempty"`
+	Name          string      `json:",omitempty"`
+	Doc           string      `json:",omitempty"`
+	Target        string      `json:",omitempty"`
+	Shlib         string      `json:",omitempty"`
+	Root          string      `json:",omitempty"`
+	ConflictDir   string      `json:",omitempty"`
+	ForTest       string      `json:",omitempty"`
+	Export        string      `json:",omitempty"`
 	BuildID       string      `json:",omitempty"`
 	Module        *ListModule `json:",omitempty"`
 	Match         []string    `json:",omitempty"`
-	Goroot        bool     `json:",omitempty"`
-	Standard      bool     `json:",omitempty"`
-	DepOnly       bool     `json:",omitempty"`
-	BinaryOnly    bool     `json:",omitempty"`
-	Incomplete    bool     `json:",omitempty"`
+	Goroot        bool        `json:",omitempty"`
+	Standard      bool        `json:",omitempty"`
+	DepOnly       bool        `json:",omitempty"`
+	BinaryOnly    bool        `json:",omitempty"`
+	Incomplete    bool        `json:",omitempty"`
 
 	Stale       bool   `json:",omitempty"`
 	StaleReason string `json:",omitempty"`

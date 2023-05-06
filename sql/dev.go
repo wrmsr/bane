@@ -47,6 +47,5 @@ var _ = dev.Register(func() inj.Bindings {
 				Pass: stru.SecretOf(svc.Compose.Environment["POSTGRES_PASSWORD"]),
 			})
 		}}),
-
 	)
 })
