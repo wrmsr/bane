@@ -114,8 +114,12 @@ dep-update:
 	# ${GO} get -u ./...
 	# ${MAKE} dep-tidy
 	# github.com/wrmsr/bane v0.0.0-00000000000000-000000000000
+	# GOV0=$(curl -s 'https://go.dev/VERSION\?m\=text')
+	# GOV1=$(go version | egrep -o 'go1\.[0-9]+(\.[0-9]+)?')
+	# curl -s 'https://www.python.org/ftp/python/' | egrep -o 'href="3\.[0-9]+\.[0-9]+/"' | tr -dC '0-9.\n'
 	for D in . sql x ; do (cd "$$D" && go get -u ./... && go mod tidy) ; done && \
 	find . -name go.mod | xargs sed -i '' 's/\(github.com\/wrmsr\/bane\) v.*/\1 v0.0.0-00000000000000-000000000000/g'
+
 
 .PHONY: dep-tidy
 dep-tidy:
