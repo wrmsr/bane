@@ -201,8 +201,9 @@ func (s *state) appendNonBuiltIns(r slog.Record) {
 	defer s.prefix.Free()
 	s.prefix.WriteS(s.f.groupPrefix)
 	s.openGroups()
-	r.Attrs(func(a slog.Attr) {
+	r.Attrs(func(a slog.Attr) bool {
 		s.appendAttr(a)
+		return true
 	})
 
 	s.f.sty.end(s)

@@ -1,6 +1,9 @@
 package tg
 
-import "github.com/wrmsr/bane/core/slices"
+import (
+	"github.com/wrmsr/bane/core/check"
+	"github.com/wrmsr/bane/core/slices"
+)
 
 //
 
@@ -69,7 +72,11 @@ type ShapeStride struct {
 }
 
 func ToShapeStrides(shape Shape, strides Strides) []ShapeStride {
-	ss := []ShapeStride{{shape[0], strides[0]}}
+	check.Condition(len(shape) == len(strides))
+	var ss []ShapeStride
+	if len(shape) > 0 {
+		ss = append(ss, ShapeStride{shape[0], strides[0]})
+	}
 	for i := 1; i < len(shape); i++ {
 		if (strides[i] != 0 && ss[len(ss)-1].Stride/strides[i] == shape[i]) || (strides[i] == 0 && ss[len(ss)-1].Stride == 0) {
 			ss[len(ss)-1] = ShapeStride{ss[len(ss)-1].Shape * shape[i], strides[i]}
