@@ -13,7 +13,7 @@ require (
 	github.com/segmentio/asm v1.2.0
 	github.com/wrmsr/bane v0.0.0-00000000000000-000000000000
 	golang.org/x/arch v0.0.0-20220412001346-fc48f9fe4c15
-	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc
+	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/mod v0.10.0
 	golang.org/x/text v0.9.0
 	golang.org/x/tools v0.9.1
