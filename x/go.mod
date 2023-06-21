@@ -14,9 +14,9 @@ require (
 	github.com/wrmsr/bane v0.0.0-00000000000000-000000000000
 	golang.org/x/arch v0.0.0-20220412001346-fc48f9fe4c15
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
-	golang.org/x/mod v0.10.0
-	golang.org/x/text v0.9.0
-	golang.org/x/tools v0.9.3
+	golang.org/x/mod v0.11.0
+	golang.org/x/text v0.10.0
+	golang.org/x/tools v0.10.0
 )
 
 require (
@@ -44,9 +44,9 @@ require (
 	github.com/minio/c2goasm v0.0.0-20190812172519-36a3d3bbc4f3 // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
-	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sync v0.2.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/net v0.11.0 // indirect
+	golang.org/x/sync v0.3.0 // indirect
+	golang.org/x/sys v0.9.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.49.0 // indirect
