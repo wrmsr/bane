@@ -30,6 +30,8 @@ RUN ( \
         gnupg \
         graphviz \
         htop \
+        iftop \
+        iotop \
         iputils-ping \
         iputils-tracepath \
         irssi \
